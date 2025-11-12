@@ -5,6 +5,7 @@ import cookieParser from 'cookie-parser';
 import { errorHandler } from './middlewares/error.middleware.js';
 import authRouter from './routes/auth.routes.js';
 import csurf from 'csurf';
+import adminRouter from './routes/admin.routes.js';
 
 // Create and configure the Express app
 const app = express();
@@ -35,6 +36,7 @@ const csrfProtection = csurf({
 app.use(csrfProtection);
 
 app.use('/api/auth', authRouter);
+app.use('/api/admin', adminRouter);
 
 // Root route
 app.get('/', (req, res) => {
