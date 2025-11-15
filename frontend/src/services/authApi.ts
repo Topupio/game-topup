@@ -1,6 +1,6 @@
 "use client";
 
-import { apiClient } from "@/lib/api";
+import { apiClient } from "@/lib/http";
 import type { AuthUser } from "@/context/AuthContext";
 
 export type LoginPayload = { email: string; password: string };

@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { authApi } from "@/services/authApi";
-import { clearCachedCsrf } from "@/lib/api";
+import { clearCachedCsrf } from "@/lib/http";
 
 export type AuthUser = {
     id: string;
@@ -17,6 +17,7 @@ type AuthContextType = {
     login: (email: string, password: string) => Promise<void>;
     register: (name: string, email: string, password: string) => Promise<void>;
     logout: () => Promise<void>;
+    refresh: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -61,7 +62,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     const value = useMemo(
-        () => ({ user, loading, login, register, logout }),
+        () => ({ user, loading, login, register, logout, refresh: async () => {
+            const me = await authApi.getProfile();
+            setUser(me);
+        }}),
         [user, loading]
     );
 
