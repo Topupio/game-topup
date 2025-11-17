@@ -83,18 +83,11 @@ export default function GameCarousel() {
             <div className="absolute bottom-0 left-0 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl" />
 
             <div className="max-w-7xl mx-auto relative z-10">
-                {/* Section header */}
-                <div className="text-center mb-16">
-                    <h2 className="text-4xl sm:text-5xl font-black mb-4 bg-gradient-neon bg-clip-text text-transparent">
-                        Featured Games
-                    </h2>
-                    <p className="text-gray-400 text-lg">Choose your game, grab your currency</p>
-                </div>
 
                 {/* Main carousel */}
-                <div className="relative mb-8">
+                <div className="relative mb-8 mt-16">
                     <div className="relative overflow-hidden rounded-xl">
-                        <div className="relative h-96 sm:h-96">
+                        <div className="relative max-h-[80vh] lg:min-h-[60vh] min-h-[30vh]">
                             {games.map((game, index) => (
                                 <div
                                     key={game.id}

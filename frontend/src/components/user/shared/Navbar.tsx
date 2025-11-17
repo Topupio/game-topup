@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
+import { navOptions } from "@/data/navOptions";
 
 // React Icons
 import { RiMenu3Line, RiCloseLine, RiShoppingCartLine, RiUserLine } from "react-icons/ri";
@@ -20,10 +21,9 @@ export default function Navbar() {
 
                 {/* Desktop Links */}
                 <div className="hidden lg:flex items-center space-x-8 font-medium">
-                    <NavItem href="/" label="Home" />
-                    <NavItem href="/games" label="Games" />
-                    <NavItem href="/products" label="Products" />
-                    <NavItem href="/payments" label="Payments" />
+                    {navOptions.map((option) => (
+                        <NavItem key={option.name} href={option.path} label={option.name} />
+                    ))}
 
                     {/* Cart */}
                     <Link href="/cart" className="relative">
@@ -59,12 +59,9 @@ export default function Navbar() {
             {/* Mobile Menu */}
             {open && (
                 <div className="lg:hidden bg-black/60 backdrop-blur-2xl border-t border-white/10 p-6 space-y-4 animate-fadeIn">
-                    <MobileItem href="/" label="Home" />
-                    <MobileItem href="/games" label="Games" />
-                    <MobileItem href="/products" label="Products" />
-                    <MobileItem href="/payments" label="Payments" />
-                    <MobileItem href="/cart" label="Cart" />
-                    <MobileItem href="/profile" label="Profile" />
+                    {navOptions.map((option) => (
+                        <MobileItem key={option.name} href={option.path} label={option.name} />
+                    ))}
 
                     <Link
                         href="/login"
