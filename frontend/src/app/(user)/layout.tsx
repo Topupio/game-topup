@@ -1,15 +1,13 @@
-import React from 'react'
+import React from 'react';
+import Navbar from '@/components/user/shared/Navbar';
+import Footer from '@/components/user/shared/Footer';
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
     return (
         <div>
-            <h1 className="text-2xl my-5 bg-gray-600">
-                NavbarSection
-            </h1>
+            <Navbar />
             {children}
-            <h1 className="text-2xl my-5 bg-gray-600">
-                FooterSection
-            </h1>
+            <Footer />
         </div>
     )
 }
