@@ -2,15 +2,31 @@
 
 /* Theme tokens */
 @theme {
-    --color-primary: #3b82f6;
-    --color-secondary: #8b5cf6;
-    --color-tertiary: #22c55e;
+    --color-primary: #00D9FF;
+    --color-secondary: #0A2A43;
+    --color-tertiary: #F2C94C;
 
-    /* Neon gradient token */
-    --gradient-neon: linear-gradient(135deg, #00D9FF, #C084F5, #FF006E);
+    /* Optional gradient matching diamond & neon vibe */
+    --gradient-neon: linear-gradient(135deg, #00D9FF, #7BE2FF, #F2C94C);
 }
 
 /* Custom utility class */
 @utility bg-gradient-neon {
     background-image: var(--gradient-neon);
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(4px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fadeIn {
+    animation: fadeIn .3s ease-out;
 }

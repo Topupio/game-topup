@@ -1,37 +1,30 @@
-'use client';
+"use client";
 
-import React from 'react';
-import Link from 'next/link';
-import { FaBars, FaTimes } from 'react-icons/fa';
+import React from "react";
+import Link from "next/link";
+import { FaBell } from "react-icons/fa";
 
-type Props = {
-    isCollapsed: boolean;
-    setIsCollapsed: (collapsed: boolean) => void;
-};
-
-const AdminNavbar: React.FC<Props> = ({ isCollapsed, setIsCollapsed }) => {
+const AdminNavbar = () => {
     return (
-        <header className="fixed top-0 left-0 right-0 h-[70px] border-b bg-white z-50">
-            <div className="max-w-7xl mx-auto h-full px-4 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                    <button
-                        type="button"
-                        aria-label="Toggle sidebar"
-                        onClick={() => setIsCollapsed(!isCollapsed)}
-                        className="inline-flex items-center justify-center w-9 h-9 rounded border hover:bg-gray-50"
-                    >
-                        {isCollapsed ? <FaBars /> : <FaTimes />}
-                    </button>
-                    <Link href="/admin/dashboard" className="text-xl font-semibold">
-                        Admin
-                    </Link>
-                </div>
+        <header className="fixed top-0 left-0 right-0 h-[70px] bg-white border-b border-gray-200 shadow-sm z-50">
+            <div className="w-full h-full px-6 flex items-center justify-between">
+                <Link
+                    href="/admin/dashboard"
+                    className="text-xl font-semibold tracking-tight text-gray-800"
+                >
+                    Admin Panel
+                </Link>
 
-                <nav className="hidden sm:flex items-center gap-4 text-sm">
-                    <Link className="text-blue-600 hover:underline" href="/admin/dashboard">Dashboard</Link>
-                    <Link className="text-blue-600 hover:underline" href="/admin/dashboard/users">Users</Link>
-                    <Link className="text-blue-600 hover:underline" href="/admin/dashboard/analytics">Analytics</Link>
-                </nav>
+                <div className="flex items-center gap-5">
+                    <button className="relative w-10 h-10 flex items-center justify-center rounded-xl border border-gray-300 hover:bg-gray-100 transition">
+                        <FaBell size={18} className="text-gray-600" />
+                        <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" />
+                    </button>
+
+                    <div className="w-10 h-10 rounded-full bg-gray-200 border border-gray-300 flex items-center justify-center text-gray-500 text-sm font-medium">
+                        A
+                    </div>
+                </div>
             </div>
         </header>
     );
