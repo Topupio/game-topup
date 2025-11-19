@@ -8,7 +8,7 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
     const [isCollapsed, setIsCollapsed] = useState(false);
 
     return (
-        <div className="w-full h-screen bg-[#f5f6fa] flex flex-col overflow-hidden">
+        <div className="w-full h-auto bg-[#f5f6fa] flex flex-col">
             <AdminNavbar />
 
             <div className="flex flex-1 relative">
