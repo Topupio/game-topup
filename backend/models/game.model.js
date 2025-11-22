@@ -44,7 +44,13 @@ const gameSchema = new mongoose.Schema(
             trim: true,
         },
 
-        image: {
+        imageUrl: {
+            type: String,
+            required: false,
+            default: null,
+        },
+
+        imagePublicId: {
             type: String,
             required: false,
             default: null,
