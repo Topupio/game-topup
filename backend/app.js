@@ -6,6 +6,7 @@ import { errorHandler } from './middlewares/error.middleware.js';
 import authRouter from './routes/auth.routes.js';
 import csurf from 'csurf';
 import adminRouter from './routes/admin.routes.js';
+import gameRouter from './routes/game.routes.js';
 
 // Create and configure the Express app
 const app = express();
@@ -37,6 +38,7 @@ app.use(csrfProtection);
 
 app.use('/api/auth', authRouter);
 app.use('/api/admin', adminRouter);
+app.use('/api/games', gameRouter);
 
 // Root route
 app.get('/', (req, res) => {
@@ -58,7 +60,7 @@ app.use((err, req, res, next) => {
 });
 
 // Error handling middleware
-app.use(errorHandler);                            // Handle errors using the errorHandler middleware
+app.use(errorHandler); // Handle errors using the errorHandler middleware
 
 // Export the configured app
 export default app;

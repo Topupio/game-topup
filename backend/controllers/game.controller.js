@@ -15,9 +15,9 @@ const getGames = asyncHandler(async (req, res) => {
 // @route   POST /api/games
 // @access  Admin
 const createGame = asyncHandler(async (req, res) => {
-    const { name, description, requiredFields } = req.body;
+    const { name, image, description, requiredFields, status } = req.body;
 
-    // Validation: name required
+    // 1. Validation: name required
     if (!name) {
         return res.status(400).json({
             success: false,
@@ -25,10 +25,10 @@ const createGame = asyncHandler(async (req, res) => {
         });
     }
 
-    // Create slug
+    // 2. Create slug
     const slug = slugify(name, { lower: true, strict: true });
 
-    // Check duplicate
+    // 3. Check duplicate by slug
     const existing = await Game.findOne({ slug });
     if (existing) {
         return res.status(409).json({
@@ -37,7 +37,16 @@ const createGame = asyncHandler(async (req, res) => {
         });
     }
 
-    // Validate requiredFields if passed
+    // 4. Check duplicate by name
+    const existingByName = await Game.findOne({ name });
+    if (existingByName) {
+        return res.status(409).json({
+            success: false,
+            message: "Game name already exists",
+        });
+    }
+
+    // 5. Validate requiredFields
     if (requiredFields && !Array.isArray(requiredFields)) {
         return res.status(400).json({
             success: false,
@@ -45,12 +54,25 @@ const createGame = asyncHandler(async (req, res) => {
         });
     }
 
+    if (requiredFields) {
+        for (const field of requiredFields) {
+            if (!field.fieldName || !field.fieldKey) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Each required field must have fieldName and fieldKey",
+                });
+            }
+        }
+    }
+
+    // 6. Create game
     const newGame = await Game.create({
         name,
         slug,
-        image,
-        description,
+        image: image || null,
+        description: description || "",
         requiredFields: requiredFields || [],
+        status: status || "active",
     });
 
     return res.status(201).json({
