@@ -4,11 +4,12 @@ import { useEffect, useMemo, useState } from "react";
 import { gamesApi } from "@/services/gamesApi";
 import GamesToolbar from "@/components/admin/games/GamesToolbar";
 import SearchBox from "@/components/admin/games/SearchBox";
-import GamesTable, { GameData } from "@/components/admin/games/GamesTable";
+import GamesTable from "@/components/admin/games/GamesTable";
+import { Game } from "@/lib/types/game";
 
 export default function GamesPricingPage() {
     const [search, setSearch] = useState("");
-    const [items, setItems] = useState<GameData[]>([]);
+    const [items, setItems] = useState<Game[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -19,8 +20,8 @@ export default function GamesPricingPage() {
             try {
                 const games = await gamesApi.list();
                 if (!mounted) return;
-                // Assume API returns fields compatible with GameData; if not, cast conservatively
-                const rows = (games.data || []) as GameData[];
+                // API returns list response with data: Game[]
+                const rows = (games.data || []) as Game[];
                 setItems(rows);
             } catch (e: any) {
                 if (!mounted) return;

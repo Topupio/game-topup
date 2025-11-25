@@ -1,6 +1,6 @@
 import { apiClient } from "@/lib/http";
 import { endpoints } from "@/config/api";
-import { Game } from "@/lib/types/game";
+import { Game, GamesListResponse } from "@/lib/types/game";
 
 export type GamePayload = {
     name: string;
@@ -26,7 +26,7 @@ export const gamesApi = {
     // list games (add query typing later as needed)
     async list(params?: Record<string, any>) {
         const { data } = await apiClient.get(endpoints.games.root, { params });
-        return data as Game[];
+        return data as GamesListResponse;
     },
 
     async get(id: string) {

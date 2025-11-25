@@ -3,34 +3,17 @@
 import Image from "next/image";
 import { TbPencil, TbTrash, TbToggleLeft, TbToggleRight } from "react-icons/tb";
 import DataTable, { Column } from "@/components/admin/shared/DataTable";
-
-export interface GameData {
-    _id: string;
-    name: string;
-    slug: string;
-    imageUrl: string;
-    imagePublicId: string;
-    description: string;
-    requiredFields: {
-        fieldName: string;
-        fieldKey: string;
-        fieldType: string;
-        placeholder: string;
-        options: string[];
-        required: boolean;
-    }[];
-    status: string; // "active" | "inactive"
-}
+import { Game } from "@/lib/types/game";
 
 interface Props {
-    items: GameData[];
-    onEdit?: (index: number, item: GameData) => void;
-    onDelete?: (index: number, item: GameData) => void;
-    onToggle?: (index: number, item: GameData) => void;
+    items: Game[];
+    onEdit?: (index: number, item: Game) => void;
+    onDelete?: (index: number, item: Game) => void;
+    onToggle?: (index: number, item: Game) => void;
 }
 
 export default function GamesTable({ items, onEdit, onDelete, onToggle }: Props) {
-    const columns: Column<GameData>[] = [
+    const columns: Column<Game>[] = [
         {
             id: "game",
             header: "Game",
