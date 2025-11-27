@@ -8,9 +8,11 @@ import Select from "@/components/form/Select";
 interface Props {
     fields: RequiredField[];
     onChange: (fields: RequiredField[]) => void;
+    errors?: { fieldName?: string; fieldKey?: string; options?: string }[];
 }
 
-export default function RequiredFieldsBuilder({ fields, onChange }: Props) {
+export default function RequiredFieldsBuilder({ fields, onChange, errors }: Props) {
+
     const addField = () => {
         onChange([
             ...fields,
@@ -47,6 +49,7 @@ export default function RequiredFieldsBuilder({ fields, onChange }: Props) {
                             label="Field Name"
                             placeholder="Field Name"
                             value={field.fieldName}
+                            error={errors?.[i]?.fieldName}
                             onChange={(e) =>
                                 updateField(i, { fieldName: e.target.value })
                             }
@@ -56,6 +59,7 @@ export default function RequiredFieldsBuilder({ fields, onChange }: Props) {
                             label="Field Key"
                             placeholder="field_key"
                             value={field.fieldKey}
+                            error={errors?.[i]?.fieldKey}
                             onChange={(e) =>
                                 updateField(i, { fieldKey: e.target.value })
                             }

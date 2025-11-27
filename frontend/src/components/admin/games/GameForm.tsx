@@ -30,6 +30,11 @@ export default function GameForm({ gameId }: Props) {
         status: "active",
         requiredFields: [],
     });
+    const [errors, setErrors] = useState({
+        name: "",
+        description: "",
+        requiredFields: [] as { fieldName?: string; fieldKey?: string; options?: string }[],
+    });
 
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [loading, setLoading] = useState(false);
@@ -53,8 +58,56 @@ export default function GameForm({ gameId }: Props) {
         };
     }, [isEdit, gameId]);
 
+    const validate = () => {
+        const newErrors: any = {
+            name: "",
+            description: "",
+            requiredFields: [],
+        };
+
+        // Basic fields
+        if (!form.name.trim()) newErrors.name = "Game name is required.";
+        if (!form.description.trim()) newErrors.description = "Description is required.";
+
+        // Required fields validation
+        form.requiredFields.forEach((field, index) => {
+            const fieldErrors: any = {};
+
+            if (!field.fieldName.trim()) {
+                fieldErrors.fieldName = "Field name is required.";
+            }
+            if (!field.fieldKey.trim()) {
+                fieldErrors.fieldKey = "Field key is required.";
+            }
+
+            if (field.fieldType === "dropdown" && (!field.options || field.options.length === 0)) {
+                fieldErrors.options = "At least one option is required.";
+            }
+
+            newErrors.requiredFields[index] = fieldErrors;
+        });
+
+        // Remove empty field error objects
+        newErrors.requiredFields = newErrors.requiredFields.filter(
+            (e: any) => Object.keys(e).length > 0
+        );
+
+        setErrors(newErrors);
+
+        const hasBaseErrors = newErrors.name || newErrors.description;
+        const hasRequiredFieldErrors = newErrors.requiredFields.length > 0;
+
+        return !hasBaseErrors && !hasRequiredFieldErrors;
+    };
+
     const onSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        if (!validate()) {
+            toast.error("Please fix validation errors");
+            return;
+        }
+
         setLoading(true);
         try {
             const payload: GamePayload = {
@@ -101,8 +154,11 @@ export default function GameForm({ gameId }: Props) {
                     label="Game Name"
                     placeholder="Enter game name"
                     required
-                    value={form.name}
-                    onChange={(e) => setForm({ ...form, name: e.target.value })}
+                    error={errors.name}
+                    onChange={(e) => {
+                        setForm({ ...form, name: e.target.value });
+                        setErrors((prev) => ({ ...prev, name: "" })); // clear error on typing
+                    }}
                 />
             </div>
 
@@ -112,8 +168,11 @@ export default function GameForm({ gameId }: Props) {
                     label="Description"
                     placeholder="Enter description"
                     required
-                    value={form.description}
-                    onChange={(e) => setForm({ ...form, description: e.target.value })}
+                    error={errors.description}
+                    onChange={(e) => {
+                        setForm({ ...form, description: e.target.value });
+                        setErrors((prev) => ({ ...prev, description: "" })); // clear error on typing
+                    }}
                 />
             </div>
 
@@ -124,7 +183,11 @@ export default function GameForm({ gameId }: Props) {
             </div>
 
             {/* Required Fields */}
-            <RequiredFieldsBuilder fields={form.requiredFields} onChange={(fields) => setForm({ ...form, requiredFields: fields })} />
+            <RequiredFieldsBuilder
+                fields={form.requiredFields}
+                onChange={(fields) => setForm({ ...form, requiredFields: fields })}
+                errors={errors.requiredFields}
+            />
 
             <SubmitButton isLoading={loading} label={isEdit ? "Update Game" : "Create Game"} />
         </form>
