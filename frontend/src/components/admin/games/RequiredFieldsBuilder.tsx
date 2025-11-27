@@ -39,7 +39,7 @@ export default function RequiredFieldsBuilder({ fields, onChange }: Props) {
         <div className="space-y-4">
             <label className="text-lg font-semibold mr-2">Required Fields</label>
 
-            {fields.map((field, i) => (
+            {fields?.map((field, i) => (
                 <div key={i} className="p-4 border rounded-xl bg-gray-50">
                     {/* Row 1 */}
                     <div className="grid grid-cols-2 gap-4 mb-3">

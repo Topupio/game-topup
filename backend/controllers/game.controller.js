@@ -55,6 +55,21 @@ const getGames = asyncHandler(async (req, res) => {
     });
 });
 
+const getGameDetails = asyncHandler(async (req, res) => {
+    const game = await Game.findById(req.params.id);
+    console.log('game:', game)
+    if (!game) {
+        return res.status(404).json({
+            success: false,
+            message: "Game not found",
+        });
+    }
+    return res.status(200).json({
+        success: true,
+        data: game,
+    });
+});
+
 // @desc    Create a new game
 // @route   POST /api/games
 // @access  Admin
@@ -362,6 +377,7 @@ const deleteGame = asyncHandler(async (req, res) => {
 
 export {
     getGames,
+    getGameDetails,
     createGame,
     updateGame,
     deleteGame,

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
-import { Game } from "@/lib/types/game";
+import { Game, ApiResponse } from "@/lib/types/game";
 import { GamePayload } from "@/services/games/types";
 import ImageUploader from "./ImageUploader";
 import RequiredFieldsBuilder from "./RequiredFieldsBuilder";
@@ -22,6 +22,7 @@ export default function GameForm({ gameId }: Props) {
     const isEdit = gameId !== "new";
 
     const [form, setForm] = useState<Game>({
+        _id: '',
         name: "",
         slug: "",
         description: "",
@@ -39,8 +40,8 @@ export default function GameForm({ gameId }: Props) {
         if (isEdit) {
             (async () => {
                 try {
-                    const data = await gamesApiClient.get(gameId as string);
-                    if (mounted) setForm(data);
+                    const response = await gamesApiClient.get(gameId as string);
+                    if (mounted) setForm(response.data);
                 } catch (e) {
                     console.error("Failed to load game", e);
                     toast.error("Failed to load game data");
