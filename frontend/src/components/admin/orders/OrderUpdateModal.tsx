@@ -2,6 +2,7 @@
 
 import React from "react";
 import Modal from "@/components/ui/Modal";
+import ModalFooter from "@/components/admin/shared/ModalFooter";
 
 type Props = {
     open: boolean;
@@ -33,14 +34,13 @@ export default function OrderUpdateModal({ open, onClose, onSave, currentStatus 
                     </option>
                 ))}
             </select>
-            <div className="flex gap-2">
-                <button className="flex-1 py-2 bg-black text-white rounded-lg" onClick={() => onSave(value)}>
-                    Save Changes
-                </button>
-                <button className="flex-1 py-2 bg-gray-200 rounded-lg" onClick={onClose}>
-                    Cancel
-                </button>
-            </div>
+
+            <ModalFooter
+                primaryLabel="Save Changes"
+                onPrimary={() => onSave(value)}
+                secondaryLabel="Cancel"
+                onSecondary={onClose}
+            />
         </Modal>
     );
 }

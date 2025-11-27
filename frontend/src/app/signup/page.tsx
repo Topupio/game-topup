@@ -31,10 +31,27 @@ export default function SignupPage() {
             await register(name, email, password);
             toast.success("Account created successfully");
             router.push("/");
-        } catch (err: any) {
-            toast.error(err.message || "Signup failed");
+        } catch (err: unknown) {
+            let message = "Signup failed";
+            if (err instanceof Error) message = err.message;
+            toast.error(message);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleGoogleSignUp = async () => {
+        try {
+            setGoogleLoading(true);
+            // implement google signup flow
+            toast.success("Signed up with Google");
+            router.push("/");
+        } catch (err: unknown) {
+            let message = "Google signup failed";
+            if (err instanceof Error) message = err.message;
+            toast.error(message);
+        } finally {
+            setGoogleLoading(false);
         }
     };
 
@@ -52,7 +69,7 @@ export default function SignupPage() {
 
                 {/* Google Sign Up */}
                 <button
-                    // onClick={handleGoogleSignUp}
+                    onClick={handleGoogleSignUp}
                     disabled={googleLoading}
                     className="w-full flex items-center justify-center gap-3 bg-white border border-gray-300 rounded-lg py-2.5 mb-6 hover:bg-gray-50 transition shadow-sm"
                 >

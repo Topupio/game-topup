@@ -1,8 +1,15 @@
 "use client";
 
+import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
-export default function Drawer({ open, onClose, children }: any) {
+type Props = {
+    open: boolean;
+    onClose?: () => void;
+    children?: React.ReactNode;
+};
+
+export default function Drawer({ open, onClose, children }: Props) {
     return (
         <AnimatePresence>
             {open && (

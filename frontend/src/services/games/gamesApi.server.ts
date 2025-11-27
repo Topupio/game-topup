@@ -1,5 +1,5 @@
 // src/services/games/gamesApi.server.ts
-import { serverApi } from "@/lib/http/index";
+import { serverApi } from "@/lib/http/server";
 import { Game, GamesListResponse } from "@/lib/types/game";
 import { GamePayload } from "./types";
 import { endpoints } from "@/config/api";

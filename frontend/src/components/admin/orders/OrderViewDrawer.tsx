@@ -1,6 +1,7 @@
 "use client";
 
 import Drawer from "@/components/ui/Drawer";
+import AdminCard from "@/components/admin/shared/AdminCard";
 
 type Props = {
     open: boolean;
@@ -11,7 +12,7 @@ type Props = {
 export default function OrderViewDrawer({ open, onClose, data }: Props) {
     return (
         <Drawer open={open} onClose={onClose}>
-            <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+            <AdminCard>
                 <h2 className="text-xl font-semibold text-gray-900 mb-4">Order Details</h2>
                 <div className="space-y-4">
                     <p className="font-semibold text-gray-700">
@@ -32,7 +33,7 @@ export default function OrderViewDrawer({ open, onClose, data }: Props) {
                         <span>Close</span>
                     </button>
                 </div>
-            </div>
+            </AdminCard>
         </Drawer>
     );
 }

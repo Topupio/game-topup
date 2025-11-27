@@ -4,14 +4,15 @@ import { RequiredField } from "@/lib/types/game";
 import { IoTrash } from "react-icons/io5";
 import Input from "@/components/form/Input";
 import Select from "@/components/form/Select";
-import Textarea from "@/components/form/TextArea";
 
 interface Props {
     fields: RequiredField[];
     onChange: (fields: RequiredField[]) => void;
+    errors?: { fieldName?: string; fieldKey?: string; options?: string }[];
 }
 
-export default function RequiredFieldsBuilder({ fields, onChange }: Props) {
+export default function RequiredFieldsBuilder({ fields, onChange, errors }: Props) {
+
     const addField = () => {
         onChange([
             ...fields,
@@ -40,14 +41,16 @@ export default function RequiredFieldsBuilder({ fields, onChange }: Props) {
         <div className="space-y-4">
             <label className="text-lg font-semibold mr-2">Required Fields</label>
 
-            {fields.map((field, i) => (
+            {fields?.map((field, i) => (
                 <div key={i} className="p-4 border rounded-xl bg-gray-50">
                     {/* Row 1 */}
                     <div className="grid grid-cols-2 gap-4 mb-3">
                         <Input
                             label="Field Name"
                             placeholder="Field Name"
+                            required
                             value={field.fieldName}
+                            error={errors?.[i]?.fieldName}
                             onChange={(e) =>
                                 updateField(i, { fieldName: e.target.value })
                             }
@@ -57,6 +60,7 @@ export default function RequiredFieldsBuilder({ fields, onChange }: Props) {
                             label="Field Key"
                             placeholder="field_key"
                             value={field.fieldKey}
+                            error={errors?.[i]?.fieldKey}
                             onChange={(e) =>
                                 updateField(i, { fieldKey: e.target.value })
                             }
@@ -78,6 +82,7 @@ export default function RequiredFieldsBuilder({ fields, onChange }: Props) {
                         <Input
                             label="Placeholder"
                             placeholder="Placeholder"
+                            required
                             value={field.placeholder}
                             onChange={(e) =>
                                 updateField(i, { placeholder: e.target.value })
@@ -101,7 +106,8 @@ export default function RequiredFieldsBuilder({ fields, onChange }: Props) {
                     )}
 
                     <button
-                        className="text-red-600 flex items-center gap-1"
+                        type="button"
+                        className="text-red-600 flex items-center gap-1 cursor-pointer"
                         onClick={() => removeField(i)}
                     >
                         <IoTrash /> Remove
@@ -111,7 +117,8 @@ export default function RequiredFieldsBuilder({ fields, onChange }: Props) {
 
             <button
                 onClick={addField}
-                className="px-4 py-2 bg-black text-white rounded-lg"
+                type="button"
+                className="text-green-600 hover:text-green-700 cursor-pointer"
             >
                 + Add Field
             </button>

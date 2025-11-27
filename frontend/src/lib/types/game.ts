@@ -8,7 +8,7 @@ export type RequiredField = {
 };
 
 export type Game = {
-    _id?: string;
+    _id: string;
     name: string;
     slug: string;
     imageUrl: string | null;
@@ -26,3 +26,7 @@ export type GamesListResponse = {
     count: number;
     data: Game[];
 };
+
+export interface ApiResponse<T> {
+    data: T;
+}

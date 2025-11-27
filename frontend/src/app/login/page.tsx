@@ -33,8 +33,10 @@ export default function LoginPage() {
 
             toast.success("Logged in successfully");
             router.push("/");
-        } catch (err: any) {
-            toast.error(err.message || "Login failed");
+        } catch (err: unknown) {
+            let message = "Login failed";
+            if (err instanceof Error) message = err.message;
+            toast.error(message);
         } finally {
             setLoading(false);
         }
@@ -46,8 +48,10 @@ export default function LoginPage() {
             // await googleLogin();
             toast.success("Logged in with Google");
             router.push("/");
-        } catch (err: any) {
-            toast.error(err.message || "Google login failed");
+        } catch (err: unknown) {
+            let message = "Google login failed";
+            if (err instanceof Error) message = err.message;
+            toast.error(message);
         } finally {
             setGoogleLoading(false);
         }

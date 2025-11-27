@@ -27,7 +27,9 @@ export default function ImageUploader({ imageUrl, onChange }: Props) {
                 onClick={() => inputRef.current?.click()}
             >
                 {imageUrl ? (
-                    <img src={imageUrl} className="w-full h-full object-cover" />
+                    // next/image is recommended, but blob/object URLs from local previews aren't always supported by it.
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={imageUrl} alt="Game image" className="w-full h-full object-cover" />
                 ) : (
                     <span className="text-sm text-gray-500">Upload</span>
                 )}

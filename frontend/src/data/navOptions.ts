@@ -49,7 +49,7 @@ export const navOptions: NavOption[] = [
 export const adminNavOptions = [
     {
         label: "Dashboard",
-        to: "/admin",
+        to: "/admin/dashboard",
         icon: FaHome,
         end: true,
     },

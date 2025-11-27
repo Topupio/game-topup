@@ -30,8 +30,14 @@ export default function AdminLoginPage() {
             await refresh();
             toast.success("Admin logged in");
             router.push("/admin/dashboard");
-        } catch (err: any) {
-            toast.error(err?.response?.data?.message || err.message || "Login failed");
+        } catch (err: unknown) {
+            let message = "Login failed";
+            if (err instanceof Error) message = err.message;
+            else if (typeof err === "object" && err !== null && "response" in err) {
+                const e = err as { response?: { data?: { message?: string } } };
+                message = e.response?.data?.message ?? message;
+            }
+            toast.error(message);
         } finally {
             setLoading(false);
         }

@@ -2,6 +2,7 @@ import Game from "../models/game.model.js";
 import { asyncHandler } from "../middlewares/asyncHandler.js";
 import slugify from "slugify";
 import { uploadBufferToCloudinary } from "../utils/uploadToCloudinary.js";
+import { deleteImageFromCloudinary } from "../utils/deleteFromCloudinary.js";
 
 const getGames = asyncHandler(async (req, res) => {
     // 1. Query parameters
@@ -52,6 +53,21 @@ const getGames = asyncHandler(async (req, res) => {
         totalPages: Math.ceil(total / limit),
         count: games.length,
         data: games,
+    });
+});
+
+const getGameDetails = asyncHandler(async (req, res) => {
+    const game = await Game.findById(req.params.id);
+    
+    if (!game) {
+        return res.status(404).json({
+            success: false,
+            message: "Game not found",
+        });
+    }
+    return res.status(200).json({
+        success: true,
+        data: game,
     });
 });
 
@@ -362,6 +378,7 @@ const deleteGame = asyncHandler(async (req, res) => {
 
 export {
     getGames,
+    getGameDetails,
     createGame,
     updateGame,
     deleteGame,

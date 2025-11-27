@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import StatusFilter from "@/components/admin/orders/StatusFilter";
-import SearchBox from "@/components/admin/orders/SearchBox";
+import SearchBox from "@/components/admin/shared/SearchBox";
 import OrdersTable, { type OrderRow } from "@/components/admin/orders/OrdersTable";
 import OrderViewDrawer from "@/components/admin/orders/OrderViewDrawer";
 import OrderUpdateModal from "@/components/admin/orders/OrderUpdateModal";
@@ -48,7 +48,7 @@ export default function OrdersPage() {
                 open={!!updateData}
                 onClose={() => setUpdateData(null)}
                 currentStatus={updateData?.status}
-                onSave={(next) => {
+                onSave={() => {
                     // placeholder: update order status API
                     setUpdateData(null);
                 }}
