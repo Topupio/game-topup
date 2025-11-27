@@ -48,6 +48,7 @@ export default function RequiredFieldsBuilder({ fields, onChange, errors }: Prop
                         <Input
                             label="Field Name"
                             placeholder="Field Name"
+                            required
                             value={field.fieldName}
                             error={errors?.[i]?.fieldName}
                             onChange={(e) =>
@@ -81,6 +82,7 @@ export default function RequiredFieldsBuilder({ fields, onChange, errors }: Prop
                         <Input
                             label="Placeholder"
                             placeholder="Placeholder"
+                            required
                             value={field.placeholder}
                             onChange={(e) =>
                                 updateField(i, { placeholder: e.target.value })
