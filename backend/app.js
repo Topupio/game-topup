@@ -7,6 +7,7 @@ import authRouter from './routes/auth.routes.js';
 import csurf from 'csurf';
 import adminRouter from './routes/admin.routes.js';
 import gameRouter from './routes/game.routes.js';
+import productRouter from './routes/product.routes.js';
 
 // Create and configure the Express app
 const app = express();
@@ -39,6 +40,7 @@ app.use(csrfProtection);
 app.use('/api/auth', authRouter);
 app.use('/api/admin', adminRouter);
 app.use('/api/games', gameRouter);
+app.use('/api/products', productRouter);
 
 // Root route
 app.get('/', (req, res) => {

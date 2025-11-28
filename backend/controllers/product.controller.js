@@ -1,7 +1,7 @@
 import Product from "../models/product.model.js";
 import Game from "../models/game.model.js";
 import slugify from "slugify";
-import asyncHandler from "express-async-handler";
+import { asyncHandler } from "../middlewares/asyncHandler.js";
 import { uploadBufferToCloudinary } from "../utils/uploadToCloudinary.js";
 import { deleteImageFromCloudinary } from "../utils/deleteFromCloudinary.js";
 
