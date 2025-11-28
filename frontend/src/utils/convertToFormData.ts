@@ -4,21 +4,19 @@ export function toFormData(payload: Record<string, any>): FormData {
     Object.entries(payload).forEach(([key, value]) => {
         if (value === undefined || value === null) return;
 
-        // If file
+        // File support
         if (value instanceof File || value instanceof Blob) {
             fd.append(key, value);
             return;
         }
 
-        // Arrays → append each item
+        // Arrays → ALWAYS JSON stringify (because your backend wants 1 JSON string)
         if (Array.isArray(value)) {
-            value.forEach((item) => {
-                fd.append(`${key}[]`, item instanceof File ? item : String(item));
-            });
+            fd.append(key, JSON.stringify(value));
             return;
         }
 
-        // Booleans, numbers → string
+        // Primitives
         fd.append(key, String(value));
     });
 

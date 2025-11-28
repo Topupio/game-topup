@@ -153,6 +153,7 @@ export default function GameForm({ gameId }: Props) {
                 <Input
                     label="Game Name"
                     placeholder="Enter game name"
+                    value={form.name}
                     required
                     error={errors.name}
                     onChange={(e) => {
@@ -167,6 +168,7 @@ export default function GameForm({ gameId }: Props) {
                 <Textarea
                     label="Description"
                     placeholder="Enter description"
+                    value={form.description}
                     required
                     error={errors.description}
                     onChange={(e) => {
