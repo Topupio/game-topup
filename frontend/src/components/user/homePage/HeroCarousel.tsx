@@ -49,7 +49,7 @@ const games: Game[] = [
     },
 ];
 
-export default function GameCarousel() {
+export default function HeroCarousel() {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [autoPlay, setAutoPlay] = useState(true);
 
@@ -85,7 +85,7 @@ export default function GameCarousel() {
             <div className="max-w-7xl mx-auto relative z-10">
 
                 {/* Main carousel */}
-                <div className="relative mb-8 mt-16">
+                <div className="relative mb-8 lg:mt-8">
                     <div className="relative overflow-hidden rounded-xl">
                         <div className="relative max-h-[80vh] lg:min-h-[60vh] min-h-[30vh]">
                             {games.map((game, index) => (
@@ -161,7 +161,7 @@ export default function GameCarousel() {
                         <button
                             key={game.id}
                             onClick={() => goToSlide(games.indexOf(game))}
-                            className="group p-4 rounded-lg border-2 border-gray-700 hover:border-cyan-400 bg-slate-800/50 hover:bg-slate-800 transition-all duration-300"
+                            className="group p-4 rounded-lg border-2 border-gray-700 hover:border-primary bg-slate-800/50 hover:bg-slate-800 transition-all duration-300"
                         >
                             <div className="text-4xl mb-2 group-hover:scale-110 transition-transform">
                                 {game.icon}

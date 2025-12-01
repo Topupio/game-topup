@@ -1,11 +1,11 @@
-import GameCarousal from "@/components/user/homePage/GameCarousal";
+import HeroCarousel from "@/components/user/homePage/HeroCarousel";
 
 const page = () => {
     return (
         <div className=''>
-            <GameCarousal />
+            <HeroCarousel />
         </div>
     )
 }
 
-export default page
+export default page;
