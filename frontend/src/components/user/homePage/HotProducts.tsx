@@ -41,7 +41,7 @@ const SingleProduct = ({ game }: { game: Game }) => {
                 <img
                     src={game.imageUrl ?? "/placeholder.png"}
                     alt={game.name}
-                    className="relative z-10 lg:w-28 w-20 lg:h-28 h-20 object-cover rounded-lg"
+                    className="relative z-10 lg:w-24 w-20 lg:h-24 h-20 object-cover rounded-lg"
                 />
 
                 <div className="flex flex-col lg:flex-row justify-between w-full lg:h-24 h-20 ">

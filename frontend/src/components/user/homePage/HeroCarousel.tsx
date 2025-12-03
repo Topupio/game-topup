@@ -96,14 +96,14 @@ export default function HeroCarousel({ games }: { games: Game[] }) {
                             onClick={prevSlide}
                             className="absolute left-4 top-1/2 -translate-y-1/2 z-20 p-2 rounded-full bg-black/50 hover:bg-black/70 text-white transition-all hover:scale-110"
                         >
-                            <FaChevronLeft className="w-6 h-6" />
+                            <FaChevronLeft className="w-4 h-4" />
                         </button>
 
                         <button
                             onClick={nextSlide}
                             className="absolute right-4 top-1/2 -translate-y-1/2 z-20 p-2 rounded-full bg-black/50 hover:bg-black/70 text-white transition-all hover:scale-110"
                         >
-                            <FaChevronRight className="w-6 h-6" />
+                            <FaChevronRight className="w-4 h-4" />
                         </button>
                     </div>
 
