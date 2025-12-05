@@ -6,10 +6,12 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     return (
         <div>
             <Navbar />
-            {children}
+            <div className='bg-linear-to-b from-primary to-primary/90'>
+                {children}
+            </div>
             <Footer />
         </div>
     )
 }
 
-export default Layout
+export default Layout;

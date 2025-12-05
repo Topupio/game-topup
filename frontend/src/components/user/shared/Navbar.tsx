@@ -1,101 +1,166 @@
 "use client";
+
 import { useState } from "react";
 import Link from "next/link";
-import { navOptions } from "@/data/navOptions";
+import Image from "next/image";
+import { useAuth } from "@/context/AuthContext";
+import logo from "@/assets/logo/logo-nobg.png";
 
-// React Icons
-import { RiMenu3Line, RiCloseLine, RiShoppingCartLine, RiUserLine } from "react-icons/ri";
+import {
+    RiMenu2Line ,
+    RiCloseLine,
+    RiSearchLine,
+    RiUserLine,
+} from "react-icons/ri";
 
 export default function Navbar() {
     const [open, setOpen] = useState(false);
+    const { user } = useAuth();
 
     return (
-        <nav className="fixed top-0 w-full z-50 backdrop-blur-xl bg-black/30 border-b border-white/10 shadow-lg">
-            {/* Desktop Navbar */}
-            <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+        <nav className="fixed top-0 w-full z-50 bg-black/20 backdrop-blur-xl border-b border-white/10">
+
+            {/* DESKTOP NAVBAR */}
+            <div className="hidden lg:flex max-w-7xl mx-auto px-4 lg:px-0 h-16 items-center justify-between">
 
                 {/* Logo */}
-                <Link href="/" className="text-xl font-semibold text-primary tracking-wide">
-                    <span className="text-secondary">Game</span>Store
+                <Link href="/" className="flex items-center hover:opacity-80 transition">
+                    <Image src={logo} alt="Logo" className="h-12 w-auto" />
                 </Link>
 
-                {/* Desktop Links */}
-                <div className="hidden lg:flex items-center space-x-8 font-medium">
-                    {navOptions.map((option) => (
-                        <NavItem key={option.name} href={option.path} label={option.name} />
-                    ))}
+                <div className="flex items-center gap-10">
+                    <NavLink href="/" label="Home" />
+                    <NavLink href="/categories" label="Games" />
+                    <NavLink href="/blog" label="Blog" />
 
-                    {/* Cart */}
-                    <Link href="/cart" className="relative">
-                        <RiShoppingCartLine className="w-6 h-6 text-white hover:text-primary transition" />
-                        <span className="absolute -top-1 -right-2 bg-primary text-black text-xs font-bold px-1.5 py-0.5 rounded-full">
-                            2
-                        </span>
-                    </Link>
+                    <SearchBoxDesktop />
+                    <LangCurrencySelector />
 
-                    {/* Profile */}
-                    <Link href="/profile">
-                        <RiUserLine className="w-6 h-6 text-white hover:text-primary transition" />
-                    </Link>
-
-                    {/* Login Button */}
-                    <Link
-                        href="/login"
-                        className="px-4 py-2 rounded-xl bg-primary text-black font-semibold hover:bg-secondary transition"
-                    >
-                        Login
-                    </Link>
+                    {user ? (
+                        <Link
+                            href="/account"
+                            className="flex items-center gap-2 px-5 py-2 rounded-xl border border-white/20 text-white hover:border-secondary hover:bg-white/10 transition"
+                        >
+                            <RiUserLine size={18} /> Account
+                        </Link>
+                    ) : (
+                        <Link
+                            href="/login"
+                            className="px-5 py-2 border border-white/20 rounded-xl text-white hover:border-white hover:bg-white/10 transition"
+                        >
+                            Login
+                        </Link>
+                    )}
                 </div>
-
-                {/* Mobile Menu Button */}
-                <button
-                    onClick={() => setOpen(!open)}
-                    className="lg:hidden text-white"
-                >
-                    {open ? <RiCloseLine size={28} /> : <RiMenu3Line size={28} />}
-                </button>
             </div>
 
-            {/* Mobile Menu */}
-            {open && (
-                <div className="lg:hidden bg-black/60 backdrop-blur-2xl border-t border-white/10 p-6 space-y-4 animate-fadeIn">
-                    {navOptions.map((option) => (
-                        <MobileItem key={option.name} href={option.path} label={option.name} />
-                    ))}
+            {/* MOBILE TOP BAR */}
+            <div className="lg:hidden h-16 px-4 flex items-center justify-between">
 
-                    <Link
-                        href="/login"
-                        className="block w-full text-center py-3 rounded-xl bg-primary text-black hover:bg-secondary transition"
-                    >
-                        Login / Signup
+                {/* LEFT — MENU + SEARCH */}
+                <div className="flex items-center gap-4 text-white">
+                    <button onClick={() => setOpen(!open)}>
+                        {open ? <RiCloseLine size={26} /> : <RiMenu2Line  size={26} />}
+                    </button>
+
+                    <button>
+                        <RiSearchLine size={24} />
+                    </button>
+                </div>
+
+                {/* CENTER — LOGO */}
+                <Link href="/" className="flex justify-center">
+                    <Image src={logo} alt="Logo" className="h-10 w-auto object-contain" />
+                </Link>
+
+                {/* RIGHT — LANGUAGE & ACCOUNT */}
+                <div className="flex items-center gap-4 text-white">
+                    <button className="text-sm flex items-center gap-1">🌐 EN</button>
+
+                    <Link href={user ? "/account" : "/login"}>
+                        <RiUserLine size={24} />
                     </Link>
+                </div>
+            </div>
+
+            {/* MOBILE DROPDOWN MENU */}
+            {open && (
+                <div className="lg:hidden bg-black/80 backdrop-blur-2xl border-t border-white/10 p-6 space-y-6">
+
+                    <MobileLink href="/" label="Home" />
+                    <MobileLink href="/categories" label="Games" />
+                    <MobileLink href="/blog" label="Blog" />
                 </div>
             )}
         </nav>
     );
 }
 
-/* Reusable Nav Item */
-function NavItem({ href, label }: { href: string; label: string }) {
+/* ----------------------------------- */
+/* DESKTOP SEARCH BOX */
+/* ----------------------------------- */
+function SearchBoxDesktop() {
+    return (
+        <div className="relative w-56">
+            <RiSearchLine className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-300" />
+            <input
+                type="text"
+                placeholder="Search games..."
+                className="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-3 py-1 text-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-secondary transition"
+            />
+        </div>
+    );
+}
+
+/* ----------------------------------- */
+/* DESKTOP NAV LINK */
+/* ----------------------------------- */
+function NavLink({ href, label }: { href: string; label: string }) {
     return (
         <Link
             href={href}
-            className="text-white hover:text-primary transition relative group"
+            className="relative text-white font-medium group"
         >
             {label}
-            <span className="absolute left-0 -bottom-1 w-0 h-[2px] bg-primary transition-all duration-300 group-hover:w-full"></span>
+            <span className="absolute left-0 -bottom-1 w-0 h-0.5 bg-white group-hover:w-full transition-all"></span>
         </Link>
     );
 }
 
-/* Mobile Nav Item */
-function MobileItem({ href, label }: { href: string; label: string }) {
+/* ----------------------------------- */
+/* MOBILE NAV LINK */
+/* ----------------------------------- */
+function MobileLink({ href, label }: { href: string; label: string }) {
     return (
-        <Link
-            href={href}
-            className="block text-white text-lg font-medium hover:text-primary transition"
-        >
+        <Link href={href} className="block py-2 text-lg text-gray-300 hover:text-white transition">
             {label}
         </Link>
+    );
+}
+
+/* ----------------------------------- */
+/* DESKTOP DROPDOWN */
+/* ----------------------------------- */
+function LangCurrencySelector() {
+    return (
+        <div className="relative group">
+            <button className="px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-sm text-gray-300 hover:border-secondary hover:text-white transition">
+                🌐 EN • USD
+            </button>
+
+            <div className="absolute hidden group-hover:block right-0 top-12 bg-black/90 backdrop-blur-xl p-4 w-44 rounded-xl border border-white/10 shadow-xl">
+                <DropdownButtons />
+            </div>
+        </div>
+    );
+}
+
+function DropdownButtons() {
+    return (
+        <>
+            <button className="text-left text-gray-300 hover:text-white transition">🇺🇸 English • USD</button>
+            <button className="text-left text-gray-300 hover:text-white transition">🇮🇳 English • INR</button>
+            <button className="text-left text-gray-300 hover:text-white transition">🇦🇪 Arabic • AED</button>
+        </>
     );
 }

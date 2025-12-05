@@ -34,16 +34,8 @@ export const navOptions: NavOption[] = [
         path: "/about",
     },
     {
-        name: "Bookings",
-        path: "/bookings",
-    },
-    {
         name: "Blog",
         path: "/blog",
-    },
-    {
-        name: "Contact Us",
-        path: "/contact",
     },
 ];
 

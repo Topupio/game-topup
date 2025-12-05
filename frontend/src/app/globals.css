@@ -1,47 +1,168 @@
+/* Import Tailwind */
 @import "tailwindcss";
 
-/* Theme tokens */
+/* ===============================
+   THEME TOKENS
+   =============================== */
 @theme {
-    --color-primary: #00D9FF;
-    --color-secondary: #0A2A43;
-    --color-tertiary: #F2C94C;
+    /* Brand Colors */
+    --color-primary: #0F172A;      /* Dark navy */
+    --color-secondary: #6366F1;    /* Electric violet */
+    --color-tertiary: #FBBF24;     /* Gold */
 
-    /* Optional gradient matching diamond & neon vibe */
+    /* Accent Colors */
+    --color-success: #22C55E;
+    --color-danger: #EF4444;
+    --color-warning: #F59E0B;
+
+    /* Gradients */
     --gradient-neon: linear-gradient(135deg, #00D9FF, #7BE2FF, #F2C94C);
+    --gradient-primary: linear-gradient(135deg, #6366F1, #8B5CF6);
+    --gradient-gold: linear-gradient(135deg, #FBBF24, #F59E0B);
+
+    /* Shadows */
+    --shadow-soft: 0 4px 14px rgba(0, 0, 0, 0.15);
+    --shadow-glow: 0 0 15px rgba(99, 102, 241, 0.7);
 }
 
-/* Custom utility class */
+/* =====================================
+   CUSTOM UTILITIES
+   ===================================== */
 @utility bg-gradient-neon {
     background-image: var(--gradient-neon);
 }
 
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(4px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+@utility bg-gradient-primary {
+    background-image: var(--gradient-primary);
 }
 
+@utility text-gradient-primary {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+@utility glow {
+    box-shadow: var(--shadow-glow);
+}
+
+/* ===============================
+   BASE OVERRIDES
+   =============================== */
 @layer base {
+
+    /* Smooth UI */
+    * {
+        @apply transition-all duration-200;
+    }
+
+    /* Default border color */
     .border {
         @apply border-gray-400;
     }
+
 }
 
-.animate-fadeIn {
-    animation: fadeIn .3s ease-out;
+/* ===============================
+   PRE-STYLED COMPONENTS
+   =============================== */
+
+/* Premium Card */
+.card {
+    @apply rounded-2xl p-4 bg-[#111827] shadow-lg hover:shadow-xl hover:-translate-y-1;
+    box-shadow: var(--shadow-soft);
 }
 
+/* Glow Card */
+.card-glow {
+    @apply rounded-2xl p-4 bg-[#0F172A] border border-[#6366F133];
+    box-shadow: 0 0 20px #6366F144;
+}
+
+/* Button (Primary) */
+.btn-primary {
+    @apply px-5 py-3 rounded-xl font-semibold text-white bg-gradient-primary hover:opacity-90;
+}
+
+/* Button (Gold CTA) */
+.btn-gold {
+    @apply px-5 py-3 rounded-xl font-semibold text-black;
+    background: var(--gradient-gold);
+}
+
+/* Input Field */
+.input {
+    @apply w-full px-4 py-3 rounded-xl bg-[#1E293B] border border-gray-700 text-white
+           placeholder-gray-400 focus:border-secondary focus:ring-2 focus:ring-secondary/30;
+}
+
+/* Glassmorphic Navbar */
+.nav-glass {
+    backdrop-filter: blur(12px);
+    background: rgba(15, 23, 42, 0.55);
+    @apply border-b border-white/10 shadow-lg;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+::-webkit-scrollbar-thumb {
+    background: #333;
+    border-radius: 10px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+/* Hide scrollbar */
 .hide-scrollbar::-webkit-scrollbar {
     display: none;
 }
-
 .hide-scrollbar {
-    -ms-overflow-style: none;
     scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+/* ===============================
+   ANIMATIONS
+   =============================== */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scaleIn {
+    from { opacity: 0; transform: scale(0.97); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes shimmer {
+    0% { background-position: -450px 0; }
+    100% { background-position: 450px 0; }
+}
+
+.animate-fadeIn {
+    animation: fadeIn .35s ease-out;
+}
+
+.animate-scaleIn {
+    animation: scaleIn .25s ease-out;
+}
+
+.skeleton {
+    background: linear-gradient(90deg, #1F2937 0%, #374151 50%, #1F2937 100%);
+    background-size: 400% 100%;
+    animation: shimmer 1.5s infinite;
+}
+
+/* ===============================
+   RESPONSIVE UTILITIES
+   =============================== */
+.section {
+    @apply w-full max-w-7xl mx-auto px-4 lg:px-8;
+}
+
+.center {
+    @apply flex items-center justify-center;
 }
