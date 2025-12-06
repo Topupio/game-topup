@@ -145,6 +145,11 @@ const createGame = asyncHandler(async (req, res) => {
         });
     }
 
+    // Category validation
+    if (!req.body.category || req.body.category.trim().length === 0) {
+        return res.status(400).json({ success: false, message: "Game category is required" });
+    }
+
     // Image validation
     if (!req.file) {
         return res.status(400).json({ success: false, message: "Game image is required" });
@@ -191,6 +196,7 @@ const createGame = asyncHandler(async (req, res) => {
         newGame = await Game.create({
             name: name.trim(),
             slug,
+            category: req.body.category.trim().toLowerCase(),
             imageUrl: uploadedImageUrl,
             imagePublicId: uploadedImagePublicId,
             description: description?.trim() || "",
@@ -215,6 +221,7 @@ const createGame = asyncHandler(async (req, res) => {
 
 const updateGame = asyncHandler(async (req, res) => {
     const { name, description, status } = req.body;
+    const category = req.body.category.trim().toLowerCase();
 
     // 1. Fetch existing game
     const game = await Game.findById(req.params.id);
@@ -325,6 +332,7 @@ const updateGame = asyncHandler(async (req, res) => {
     // 6. Apply updates
     game.name = name ?? game.name;
     game.slug = updatedSlug;
+    game.category = category ?? game.category;
     game.description = description ?? game.description;
     game.status = status ?? game.status;
 

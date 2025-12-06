@@ -33,7 +33,7 @@ export default function HeroCarousel({ games }: { games: Game[] }) {
 
     // Click redirect
     const handleRedirect = (slug: string) => {
-        router.push(`/${slug}`); // currently redirect to "/"
+        router.push(`/games/${slug}`); // currently redirect to "/"
     };
 
     return (
