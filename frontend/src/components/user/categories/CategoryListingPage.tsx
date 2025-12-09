@@ -5,6 +5,7 @@ import { RiArrowDownSLine, RiFilter3Line } from "react-icons/ri";
 import FilterSection from "@/components/user/categories/FilterSection";
 import GameCard from "@/components/user/categories/GameCard";
 import { Game } from "@/services/games";
+import GamesList from "./GameList";
 
 const CategoryListingPage = ({ games }: { games: Game[] }) => {
     const [openMobileFilters, setOpenMobileFilters] = useState(false);
@@ -66,11 +67,7 @@ const CategoryListingPage = ({ games }: { games: Game[] }) => {
                 </div>
 
                 {/* Products Grid */}
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                    {games.map((game: Game) => (
-                        <GameCard key={game.slug} game={game} />
-                    ))}
-                </div>
+                <GamesList games={games} />
             </div>
         </div>
     );
