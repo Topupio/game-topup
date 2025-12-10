@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useAuth } from "@/context/AuthContext";
 import logo from "@/assets/logo/logo-nobg.png";
+import SearchBoxDesktop from "./SearchBoxDesktop";
 
 import {
     RiMenu2Line ,
@@ -62,10 +63,10 @@ export default function Navbar() {
                     <button onClick={() => setOpen(!open)}>
                         {open ? <RiCloseLine size={26} /> : <RiMenu2Line  size={26} />}
                     </button>
-
-                    <button>
+                        
+                    <Link href="/search">
                         <RiSearchLine size={24} />
-                    </button>
+                    </Link>
                 </div>
 
                 {/* CENTER — LOGO */}
@@ -93,22 +94,6 @@ export default function Navbar() {
                 </div>
             )}
         </nav>
-    );
-}
-
-/* ----------------------------------- */
-/* DESKTOP SEARCH BOX */
-/* ----------------------------------- */
-function SearchBoxDesktop() {
-    return (
-        <div className="relative w-56">
-            <RiSearchLine className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-300" />
-            <input
-                type="text"
-                placeholder="Search games..."
-                className="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-3 py-1 text-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-secondary transition"
-            />
-        </div>
     );
 }
 

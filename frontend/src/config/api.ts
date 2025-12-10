@@ -13,7 +13,10 @@ export const API_BASE = getApiBase();
 export const endpoints = {
     games: {
         root: "/api/games",
+        home: "/api/games/home",
+        categories: "/api/games/categories",
         byId: (id: string) => `/api/games/${id}`,
+        bySlug: (slug: String) => `/api/games/${slug}`
     },
     products: {
         root: "/api/products",

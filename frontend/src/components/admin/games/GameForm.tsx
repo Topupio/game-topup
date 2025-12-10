@@ -25,6 +25,7 @@ export default function GameForm({ gameId }: Props) {
         _id: '',
         name: "",
         slug: "",
+        category: "",
         description: "",
         imageUrl: null,
         status: "active",
@@ -33,6 +34,7 @@ export default function GameForm({ gameId }: Props) {
     const [errors, setErrors] = useState({
         name: "",
         description: "",
+        category: "",
         requiredFields: [] as { fieldName?: string; fieldKey?: string; options?: string }[],
     });
 
@@ -67,6 +69,7 @@ export default function GameForm({ gameId }: Props) {
 
         // Basic fields
         if (!form.name.trim()) newErrors.name = "Game name is required.";
+        if (!form.category.trim()) newErrors.category = "Category is required.";
         if (!form.description.trim()) newErrors.description = "Description is required.";
 
         // Required fields validation
@@ -112,6 +115,7 @@ export default function GameForm({ gameId }: Props) {
         try {
             const payload: GamePayload = {
                 name: form.name,
+                category: form.category,
                 description: form.description,
                 status: form.status,
                 requiredFields: form.requiredFields,
@@ -159,6 +163,22 @@ export default function GameForm({ gameId }: Props) {
                     onChange={(e) => {
                         setForm({ ...form, name: e.target.value });
                         setErrors((prev) => ({ ...prev, name: "" })); // clear error on typing
+                    }}
+                />
+            </div>
+
+
+            {/* Category */}
+            <div>
+                <Input
+                    label="Category"
+                    placeholder="Enter category"
+                    value={form.category}
+                    required
+                    error={errors.category}
+                    onChange={(e) => {
+                        setForm({ ...form, category: e.target.value });
+                        setErrors((prev) => ({ ...prev, category: "" })); // clear error on typing
                     }}
                 />
             </div>

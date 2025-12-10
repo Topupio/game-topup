@@ -43,22 +43,28 @@ export default function RequiredFieldsBuilder({ fields, onChange, errors }: Prop
 
             {fields?.map((field, i) => (
                 <div key={i} className="p-4 border rounded-xl bg-gray-50">
-                    {/* Row 1 */}
+                    {/* Row 1: Field Name + Field Key */}
                     <div className="grid grid-cols-2 gap-4 mb-3">
                         <Input
                             label="Field Name"
-                            placeholder="Field Name"
+                            placeholder="Full Name"
                             required
                             value={field.fieldName}
                             error={errors?.[i]?.fieldName}
-                            onChange={(e) =>
-                                updateField(i, { fieldName: e.target.value })
-                            }
+                            onChange={(e) => {
+                                const fieldName = e.target.value;
+                                const fieldKey =
+                                    fieldName
+                                        .toLowerCase()
+                                        .replace(/\s+/g, "_")
+                                        .replace(/[^a-z0-9_]/g, "");
+                                updateField(i, { fieldName, fieldKey });
+                            }}
                         />
 
                         <Input
                             label="Field Key"
-                            placeholder="field_key"
+                            placeholder="full_name"
                             value={field.fieldKey}
                             error={errors?.[i]?.fieldKey}
                             onChange={(e) =>
@@ -67,22 +73,30 @@ export default function RequiredFieldsBuilder({ fields, onChange, errors }: Prop
                         />
                     </div>
 
-                    {/* Row 2 */}
+                    {/* Row 2: Field Type + Placeholder */}
                     <div className="grid grid-cols-2 gap-4 mb-3">
                         <Select
-                            label="Game Category"
+                            label="Field Type"
                             required
+                            value={field.fieldType}
+                            onChange={(e) => {
+                                const newType = e.target.value;
+                                updateField(i, {
+                                    fieldType: newType,
+                                    options: newType === "dropdown" ? field.options : [],
+                                });
+                            }}
                             options={[
-                                { label: "Sports", value: "sports" },
-                                { label: "Action", value: "action" },
-                                { label: "RPG", value: "rpg" },
+                                { label: "Text", value: "text" },
+                                { label: "Number", value: "number" },
+                                { label: "Email", value: "email" },
+                                { label: "Dropdown", value: "dropdown" },
                             ]}
                         />
 
                         <Input
                             label="Placeholder"
-                            placeholder="Placeholder"
-                            required
+                            placeholder="Enter text..."
                             value={field.placeholder}
                             onChange={(e) =>
                                 updateField(i, { placeholder: e.target.value })
@@ -90,27 +104,49 @@ export default function RequiredFieldsBuilder({ fields, onChange, errors }: Prop
                         />
                     </div>
 
-                    {/* Dropdown options */}
+                    {/* Dropdown Options */}
                     {field.fieldType === "dropdown" && (
-                        <textarea
-                            className="border p-2 rounded w-full mb-3"
-                            rows={2}
-                            placeholder="Enter options separated by commas"
-                            value={field.options?.join(", ") ?? ""}
-                            onChange={(e) =>
-                                updateField(i, {
-                                    options: e.target.value.split(",").map((o) => o.trim()),
-                                })
-                            }
-                        />
+                        <div className="mb-3">
+                            <label className="font-medium">Options (comma-separated)</label>
+                            <textarea
+                                className="border p-2 rounded w-full"
+                                rows={2}
+                                placeholder="e.g. Option A, Option B"
+                                value={field.options?.join(", ")}
+                                onChange={(e) =>
+                                    updateField(i, {
+                                        options: e.target.value
+                                            .split(",")
+                                            .map((o) => o.trim())
+                                            .filter(Boolean),
+                                    })
+                                }
+                            />
+                            {errors?.[i]?.options && (
+                                <p className="text-red-500 text-sm">{errors[i].options}</p>
+                            )}
+                        </div>
                     )}
 
+                    {/* Required Toggle */}
+                    <div className="flex items-center gap-2 mb-3">
+                        <input
+                            type="checkbox"
+                            checked={field.required}
+                            onChange={(e) =>
+                                updateField(i, { required: e.target.checked })
+                            }
+                        />
+                        <label>Required</label>
+                    </div>
+
+                    {/* Remove Button */}
                     <button
                         type="button"
                         className="text-red-600 flex items-center gap-1 cursor-pointer"
                         onClick={() => removeField(i)}
                     >
-                        <IoTrash /> Remove
+                        <IoTrash /> Remove Field
                     </button>
                 </div>
             ))}

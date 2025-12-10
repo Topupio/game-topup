@@ -1,8 +1,9 @@
+import { CategoryGameSection } from "@/services/games";
 import GameCardsBox from "./GameCardsBox";
 import Link from "next/link";
 import { IoChevronForwardSharp } from "react-icons/io5";
 
-const GameCategoryListing = () => {
+const GameCategoryListing = ({ categories }: { categories: CategoryGameSection[]}) => {
     return (
         <div className="mt-10">
             <div className='flex justify-between my-1'>
@@ -22,21 +23,13 @@ const GameCategoryListing = () => {
             </div>
 
             <div className="grid lg:grid-cols-2 grid-cols-1 gap-5">
-                <GameCardsBox
-                    title="Recommended Games"
-                />
-
-                <GameCardsBox
-                    title="New Releases"
-                />
-
-                <GameCardsBox
-                    title="Recommended Games"
-                />
-
-                <GameCardsBox
-                    title="New Releases"
-                />
+                {categories.map((category) => (
+                    <GameCardsBox
+                        key={category.category}
+                        title={category.category}
+                        games={category.games}
+                    />
+                ))}
 
             </div>
         </div>

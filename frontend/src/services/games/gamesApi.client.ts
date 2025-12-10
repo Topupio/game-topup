@@ -13,6 +13,11 @@ export const gamesApiClient = {
         return data;
     },
 
+    async listCategories() {
+        const { data } = await clientApi.get(endpoints.games.categories);
+        return data;
+    },
+
     async get(id: string): Promise<ApiResponse<Game>> {
         const { data } = await clientApi.get(endpoints.games.byId(id));
         return data;

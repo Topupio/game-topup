@@ -5,19 +5,23 @@ import { uploadBufferToCloudinary } from "../utils/uploadToCloudinary.js";
 import { deleteImageFromCloudinary } from "../utils/deleteFromCloudinary.js";
 
 const getGames = asyncHandler(async (req, res) => {
-    // 1. Query parameters
     const {
         search = "",
         status,
-        page = 1,
-        limit = 20,
+        category,
+        page,
+        limit = 12,
         sort = "createdAt",
         order = "desc"
     } = req.query;
 
+    const pageNum = parseInt(page) || 1;
+    const limitNum = parseInt(limit) || 12;
+    const skip = (pageNum - 1) * limitNum;
+
     const query = {};
 
-    // 2. Search by name or description
+    // 1. Search filter
     if (search) {
         query.$or = [
             { name: { $regex: search, $options: "i" } },
@@ -25,49 +29,124 @@ const getGames = asyncHandler(async (req, res) => {
         ];
     }
 
-    // 3. Filter by status (active/inactive)
+    // 2. Status filter
     if (status && ["active", "inactive"].includes(status)) {
         query.status = status;
     }
-    // 4. Pagination
-    const skip = (parseInt(page) - 1) * parseInt(limit);
 
-    // 5. Sorting
+    // 3. Category filter (NEW)
+    if (category) {
+        const categories = category.split(","); // allow multi category filter
+        query.category = { $in: categories };
+    }
+
+    // 4. Sorting
     const sortQuery = {
-        [sort]: order === "asc" ? 1 : -1,
+        [sort]: order === "asc" ? 1 : -1
     };
 
-    // 6. Fetch Games
+    // 5. Fetch data
     const games = await Game.find(query)
         .sort(sortQuery)
         .skip(skip)
-        .limit(parseInt(limit));
+        .limit(limitNum);
 
     const total = await Game.countDocuments(query);
 
-    // 7. Send Response
     return res.status(200).json({
         success: true,
         total,
-        page: Number(page),
-        totalPages: Math.ceil(total / limit),
+        page: pageNum,
+        limit: limitNum,
+        totalPages: Math.ceil(total / limitNum),
         count: games.length,
-        data: games,
+        data: games
+    });
+});
+
+const getHomePageGames = asyncHandler(async (req, res) => {
+    const result = await Game.aggregate([
+        // Only active games
+        { $match: { status: "active" } },
+
+        // Assign row number per category
+        {
+            $setWindowFields: {
+                partitionBy: "$category",
+                sortBy: { createdAt: -1 },
+                output: {
+                    rank: { $rank: {} }
+                }
+            }
+        },
+
+        // Keep only top 6 per category
+        { $match: { rank: { $lte: 6 } } },
+
+        // Group them back
+        {
+            $group: {
+                _id: "$category",
+                games: { $push: "$$ROOT" }
+            }
+        },
+
+        // Sort category order alphabetically (optional)
+        { $sort: { _id: 1 } },
+
+        // Clean output
+        {
+            $project: {
+                _id: 0,
+                category: "$_id",
+                games: 1
+            }
+        }
+    ]);
+
+    res.status(200).json({
+        success: true,
+        categories: result,
+        totalCategories: result.length
+    });
+});
+
+const getDistinctCategories = asyncHandler(async (req, res) => {
+    const categories = await Game.distinct("category");
+
+    return res.status(200).json({
+        success: true,
+        categories
     });
 });
 
 const getGameDetails = asyncHandler(async (req, res) => {
-    const game = await Game.findById(req.params.id);
-    
-    if (!game) {
+    const { slug } = req.params;
+
+    const game = await Game.aggregate([
+        {
+            $match: { slug: slug }
+        },
+        {
+            $lookup: {
+                from: 'products',
+                localField: '_id',
+                foreignField: 'gameId',
+                as: 'products'
+            }
+        }
+    ]);
+
+    if (game.length === 0) {
         return res.status(404).json({
             success: false,
             message: "Game not found",
         });
     }
+
     return res.status(200).json({
         success: true,
-        data: game,
+        data: game[0],   // return the single game, not the array
     });
 });
 
@@ -76,6 +155,7 @@ const getGameDetails = asyncHandler(async (req, res) => {
 // @access  Admin
 const createGame = asyncHandler(async (req, res) => {
     const { name, description, status } = req.body;
+    console.log('cate;', req.body.category);
 
     // 1. Parse & Validate requiredFields
     let requiredFields = req.body.requiredFields;
@@ -145,6 +225,11 @@ const createGame = asyncHandler(async (req, res) => {
         });
     }
 
+    // Category validation
+    if (!req.body.category || req.body.category.trim().length === 0) {
+        return res.status(400).json({ success: false, message: "Game category is required" });
+    }
+
     // Image validation
     if (!req.file) {
         return res.status(400).json({ success: false, message: "Game image is required" });
@@ -191,6 +276,7 @@ const createGame = asyncHandler(async (req, res) => {
         newGame = await Game.create({
             name: name.trim(),
             slug,
+            category: req.body.category.trim().toLowerCase(),
             imageUrl: uploadedImageUrl,
             imagePublicId: uploadedImagePublicId,
             description: description?.trim() || "",
@@ -215,9 +301,10 @@ const createGame = asyncHandler(async (req, res) => {
 
 const updateGame = asyncHandler(async (req, res) => {
     const { name, description, status } = req.body;
+    const category = req.body.category?.trim().toLowerCase();
 
     // 1. Fetch existing game
-    const game = await Game.findById(req.params.id);
+    const game = await Game.findOne({ slug: req.params.slug });
     if (!game) {
         return res.status(404).json({
             success: false,
@@ -325,6 +412,7 @@ const updateGame = asyncHandler(async (req, res) => {
     // 6. Apply updates
     game.name = name ?? game.name;
     game.slug = updatedSlug;
+    game.category = category ?? game.category;
     game.description = description ?? game.description;
     game.status = status ?? game.status;
 
@@ -378,6 +466,8 @@ const deleteGame = asyncHandler(async (req, res) => {
 
 export {
     getGames,
+    getHomePageGames,
+    getDistinctCategories,
     getGameDetails,
     createGame,
     updateGame,

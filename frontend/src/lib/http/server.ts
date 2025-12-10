@@ -1,9 +1,26 @@
 // src/lib/http/server.ts
 
 export const serverApi = {
-    async get<T>(url: string, options?: RequestInit): Promise<T> {
-        const res = await fetch(process.env.NEXT_PUBLIC_API_BASE + url, {
-            ...options,
+    async get<T>(url: string, options?: RequestInit & { params?: Record<string, unknown> }): Promise<T> {
+        let finalUrl = process.env.NEXT_PUBLIC_API_BASE + url;
+        
+        // Build query string from params if provided
+        if (options?.params) {
+            const searchParams = new URLSearchParams();
+            Object.entries(options.params).forEach(([key, value]) => {
+                if (value !== undefined && value !== null) {
+                    searchParams.append(key, String(value));
+                }
+            });
+            const queryString = searchParams.toString();
+            if (queryString) {
+                finalUrl += `?${queryString}`;
+            }
+        }
+        
+        const { params, ...fetchOptions } = options || {};
+        const res = await fetch(finalUrl, {
+            ...fetchOptions,
             credentials: "include",
             cache: "no-store",
         });

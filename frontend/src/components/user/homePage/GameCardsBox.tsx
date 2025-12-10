@@ -1,10 +1,12 @@
+import { Game } from '@/services/games';
 import SingleGameCard from './SingleGameCard';
 
 interface GameCardsBoxProps {
     title: string;
+    games: Game[];
 }
 
-const GameCardsBox = ({ title }: GameCardsBoxProps) => {
+const GameCardsBox = ({ title, games }: GameCardsBoxProps) => {
     return (
         <div className='rounded-xl p-5 bg-white/5 backdrop-blur-xl border border-white/10'>
             <div className='flex justify-between my-2'>
@@ -14,12 +16,12 @@ const GameCardsBox = ({ title }: GameCardsBoxProps) => {
             </div>
 
             <div className='grid lg:grid-cols-2 grid-cols-1 gap-2'>
-                <SingleGameCard />
-                <SingleGameCard />
-                <SingleGameCard />
-                <SingleGameCard />
-                <SingleGameCard />
-                <SingleGameCard />
+                {games.map((game) => (
+                    <SingleGameCard 
+                        key={game.slug} 
+                        game={game} 
+                    />
+                ))}
             </div>
         </div>
     )

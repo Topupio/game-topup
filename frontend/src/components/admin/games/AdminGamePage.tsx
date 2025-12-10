@@ -26,7 +26,7 @@ const AdminGamePage = ({ initialItems }: { initialItems: Game[] }) => {
     /** EDIT */
     const handleEdit = (index: number, item: Game) => {
         console.log('object id: ', item)
-        router.push(`/admin/games/${item._id}`);
+        router.push(`/admin/games/${item.slug}`);
     };
 
     /** DELETE */

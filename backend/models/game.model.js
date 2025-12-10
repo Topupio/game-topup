@@ -44,6 +44,13 @@ const gameSchema = new mongoose.Schema(
             trim: true,
         },
 
+        category: {
+            type: String,
+            required: true,
+            trim: true,
+            lowercase: true,
+        },
+
         imageUrl: {
             type: String,
             required: false,
