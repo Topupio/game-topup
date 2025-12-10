@@ -5,10 +5,10 @@ import { uploadBufferToCloudinary } from "../utils/uploadToCloudinary.js";
 import { deleteImageFromCloudinary } from "../utils/deleteFromCloudinary.js";
 
 const getGames = asyncHandler(async (req, res) => {
-    // 1. Query parameters
     const {
         search = "",
         status,
+        category,
         page,
         limit = 12,
         sort = "createdAt",
@@ -21,7 +21,7 @@ const getGames = asyncHandler(async (req, res) => {
 
     const query = {};
 
-    // 2. Search
+    // 1. Search filter
     if (search) {
         query.$or = [
             { name: { $regex: search, $options: "i" } },
@@ -29,9 +29,15 @@ const getGames = asyncHandler(async (req, res) => {
         ];
     }
 
-    // 3. Status filter
+    // 2. Status filter
     if (status && ["active", "inactive"].includes(status)) {
         query.status = status;
+    }
+
+    // 3. Category filter (NEW)
+    if (category) {
+        const categories = category.split(","); // allow multi category filter
+        query.category = { $in: categories };
     }
 
     // 4. Sorting
@@ -39,7 +45,7 @@ const getGames = asyncHandler(async (req, res) => {
         [sort]: order === "asc" ? 1 : -1
     };
 
-    // 5. Fetch paginated games
+    // 5. Fetch data
     const games = await Game.find(query)
         .sort(sortQuery)
         .skip(skip)
@@ -55,6 +61,53 @@ const getGames = asyncHandler(async (req, res) => {
         totalPages: Math.ceil(total / limitNum),
         count: games.length,
         data: games
+    });
+});
+
+const getHomePageGames = asyncHandler(async (req, res) => {
+    const result = await Game.aggregate([
+        // Only active games
+        { $match: { status: "active" } },
+
+        // Assign row number per category
+        {
+            $setWindowFields: {
+                partitionBy: "$category",
+                sortBy: { createdAt: -1 },
+                output: {
+                    rank: { $rank: {} }
+                }
+            }
+        },
+
+        // Keep only top 6 per category
+        { $match: { rank: { $lte: 6 } } },
+
+        // Group them back
+        {
+            $group: {
+                _id: "$category",
+                games: { $push: "$$ROOT" }
+            }
+        },
+
+        // Sort category order alphabetically (optional)
+        { $sort: { _id: 1 } },
+
+        // Clean output
+        {
+            $project: {
+                _id: 0,
+                category: "$_id",
+                games: 1
+            }
+        }
+    ]);
+
+    res.status(200).json({
+        success: true,
+        sections: result,
+        totalSections: result.length
     });
 });
 
@@ -404,6 +457,7 @@ const deleteGame = asyncHandler(async (req, res) => {
 
 export {
     getGames,
+    getHomePageGames,
     getGameDetails,
     createGame,
     updateGame,

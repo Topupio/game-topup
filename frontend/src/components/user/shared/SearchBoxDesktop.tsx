@@ -146,7 +146,7 @@ export default function SearchBoxDesktop() {
                             />
 
                             {/* Text */}
-                            <div>
+                            <div className="text-start">
                                 <p className="text-sm font-semibold text-white">
                                     {item.name}
                                 </p>
