@@ -112,27 +112,40 @@ export default function LoginPage() {
                         )}
                     </div>
 
-                    {/* Password */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-200">
-                            Password
-                        </label>
+                        {/* Password */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-200">
+                                Password
+                            </label>
 
-                        <input
-                            type="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            onBlur={() => setTouched((t) => ({ ...t, password: true }))}
-                            className={`w-full mt-1 px-4 py-2.5 rounded-lg bg-primary/70 text-gray-100 border focus:outline-none focus:ring-2 focus:ring-secondary ${touched.password && !passwordValid ? "border-red-500" : "border-white/10"
-                                }`}
-                            placeholder="••••••••"
-                        />
+                            <input
+                                type="password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                onBlur={() => setTouched((t) => ({ ...t, password: true }))}
+                                className={`w-full mt-1 px-4 py-2.5 rounded-lg bg-primary/70 text-gray-100 border focus:outline-none focus:ring-2 focus:ring-secondary ${touched.password && !passwordValid ? "border-red-500" : "border-white/10"
+                                    }`}
+                                placeholder="••••••••"
+                            />
 
-                        {touched.password && !passwordValid && (
-                            <p className="text-xs text-red-400 mt-1">
-                                Password must be at least 6 characters
-                            </p>
-                        )}
+                            {touched.password && !passwordValid && (
+                                <p className="text-xs text-red-400 mt-1">
+                                    Password must be at least 6 characters
+                                </p>
+                            )}
+                        </div>
+
+                        {/* Forgot Password */}
+                        <div className="flex justify-end mt-1">
+                            <button
+                                type="button"
+                                onClick={() => router.push("/forgot-password")}
+                                className="text-xs text-secondary hover:underline transition cursor-pointer"
+                            >
+                                Forgot password?
+                            </button>
+                        </div>
                     </div>
 
                     {/* Login button */}
