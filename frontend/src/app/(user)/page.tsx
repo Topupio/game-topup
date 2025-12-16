@@ -1,5 +1,5 @@
-import { gamesApiServer } from "@/services/games";
-import { bannerApiServer } from "@/services/banner";
+import { gamesApiServer } from "@/services/games/gamesApi.server";
+import { bannerApiServer } from "@/services/banner/bannerApi.server";
 import GameCategoryListing from "@/components/user/homePage/GameCategoryListing";
 import HeroCarousel from "@/components/user/homePage/HeroCarousel";
 import HotProducts from "@/components/user/homePage/HotProducts";

@@ -1,4 +1,4 @@
-import { gamesApiServer } from "@/services/games";
+import { gamesApiServer } from "@/services/games/gamesApi.server";
 import GameDetailsClient from "@/components/user/gameDetails/GameDetailsClient";
 
 // Server component: fetch data server-side as needed and render the interactive client
