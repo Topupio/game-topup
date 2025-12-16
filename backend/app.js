@@ -9,6 +9,7 @@ import adminRouter from './routes/admin.routes.js';
 import gameRouter from './routes/game.routes.js';
 import productRouter from './routes/product.routes.js';
 import internalRouter from './routes/internal.routes.js';
+import bannerRouter from './routes/banner.routes.js';
 
 // Create and configure the Express app
 const app = express();
@@ -43,6 +44,7 @@ app.use('/api/auth', authRouter);
 app.use('/api/admin', adminRouter);
 app.use('/api/games', gameRouter);
 app.use('/api/products', productRouter);
+app.use('/api/banners', bannerRouter);
 
 // Root route
 app.get('/', (req, res) => {
