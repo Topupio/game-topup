@@ -7,18 +7,19 @@ import { Game } from "@/lib/types/game";
 
 export default async function Page() {
     const banners = await bannerApiServer.listActive();
+    const bannerData = banners.data || [];
     const games = await gamesApiServer.list();
     const gameData: Game[] = games.data || [];
 
     const res = await gamesApiServer.listHomeGames();
     const data = res.categories;
 
-    console.log("Home Page Games:", banners);
+    console.log("Home Page Games:", bannerData);
 
     return (
         <div className="py-20 bg-linear-to-b from-primary to-primary/90">
             <div className="max-w-7xl mx-auto lg:px-0 px-3">
-                <HeroCarousel games={gameData} />
+                <HeroCarousel banners={bannerData} />
                 <HotProducts games={gameData} />
                 <GameCategoryListing categories={data} />
             </div>
