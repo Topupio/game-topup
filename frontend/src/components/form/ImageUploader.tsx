@@ -5,9 +5,10 @@ import { useRef } from "react";
 interface Props {
     imageUrl: string | null;
     onChange: (file: File | null, preview: string | null) => void;
+    error?: string;
 }
 
-export default function ImageUploader({ imageUrl, onChange }: Props) {
+export default function ImageUploader({ imageUrl, onChange, error }: Props) {
     const inputRef = useRef<HTMLInputElement | null>(null);
 
     const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {

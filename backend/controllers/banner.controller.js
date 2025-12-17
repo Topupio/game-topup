@@ -60,6 +60,20 @@ export const getAllBannersAdmin = asyncHandler(async (req, res) => {
     });
 });
 
+export const getBannerById = asyncHandler(async (req, res) => {
+    const banner = await Banner.findById(req.params.id);
+
+    if (!banner) {
+        res.status(404);
+        throw new Error("Banner not found");
+    }
+
+    res.status(200).json({
+        success: true,
+        data: banner,
+    });
+});
+
 // @desc    Update a banner
 // @route   PUT /api/banners/:id
 // @access  Private/Admin

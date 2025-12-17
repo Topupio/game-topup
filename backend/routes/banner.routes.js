@@ -3,6 +3,7 @@ import {
     createBanner,
     getActiveBanners,
     getAllBannersAdmin,
+    getBannerById,
     updateBanner,
     deleteBanner,
 } from "../controllers/banner.controller.js";
@@ -18,6 +19,7 @@ router.get("/", getActiveBanners);
 // Admin routes
 router.get("/admin", protect, authorize("admin"), getAllBannersAdmin);
 router.post("/", protect, authorize("admin"), upload.single("image"), createBanner);
+router.get("/:id", protect, authorize("admin"), getBannerById);
 router.put("/:id", protect, authorize("admin"), upload.single("image"), updateBanner);
 router.delete("/:id", protect, authorize("admin"), deleteBanner);
 

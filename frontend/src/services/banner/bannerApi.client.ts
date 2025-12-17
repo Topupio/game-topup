@@ -16,6 +16,11 @@ export const bannerApiClient = {
         return data;
     },
 
+    async get(id: string): Promise<BannerResponse> {
+        const { data } = await clientApi.get(endpoints.banners.byId(id));
+        return data;
+    },
+
     async create(payload: BannerPayload): Promise<BannerResponse> {
         const fd = toFormData(payload);
         const { data } = await clientApi.post(endpoints.banners.root, fd, {
