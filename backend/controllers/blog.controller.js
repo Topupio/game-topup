@@ -2,28 +2,38 @@ import Blog from "../models/blog.model.js";
 import { asyncHandler } from "../middlewares/asyncHandler.js";
 import { uploadBufferToCloudinary } from "../utils/uploadToCloudinary.js";
 import { deleteImageFromCloudinary } from "../utils/deleteFromCloudinary.js";
+import mongoose from "mongoose";
+import slugify from "slugify";
 
 // @desc    Create a new blog
 // @route   POST /api/blogs
 // @access  Private/Admin
 export const createBlog = asyncHandler(async (req, res) => {
-    // Parse content from string if it comes as JSON string (common in FormData)
-    let { title, slug, description, content, category, seo } = req.body;
+    let { title, description, content, category, seo } = req.body;
 
+    if (!title) {
+        res.status(400);
+        throw new Error("Title is required");
+    }
+
+    // 🔹 Check title uniqueness
+    const existingTitle = await Blog.findOne({ title });
+    if (existingTitle) {
+        res.status(400);
+        throw new Error("Blog with this title already exists");
+    }
+
+    // Parse content if needed
     if (typeof content === "string") {
         try {
             content = JSON.parse(content);
-        } catch (e) {
-            // keep as is if parsing fails, might be handled by validation or is simpler structure
-        }
+        } catch (e) { }
     }
 
     if (typeof seo === "string") {
         try {
             seo = JSON.parse(seo);
-        } catch (e) {
-            // keep as is
-        }
+        } catch (e) { }
     }
 
     if (!req.file) {
@@ -31,12 +41,12 @@ export const createBlog = asyncHandler(async (req, res) => {
         throw new Error("Cover image is required");
     }
 
-    // Check slug uniqueness
-    const existingBlog = await Blog.findOne({ slug });
-    if (existingBlog) {
-        res.status(400);
-        throw new Error("Blog with this slug already exists");
-    }
+    // 🔹 Generate base slug from title
+    const slug = slugify(title, {
+        lower: true,
+        strict: true, // removes special characters
+        trim: true
+    });
 
     // Upload to Cloudinary
     const upload = await uploadBufferToCloudinary(req.file.buffer, "blogs");
@@ -122,22 +132,21 @@ export const updateBlog = asyncHandler(async (req, res) => {
         throw new Error("Blog not found");
     }
 
-    let { title, slug, description, content, category, seo } = req.body;
+    let { title, description, content, category, seo } = req.body;
 
-    // Handle JSON parsing for complex fields from FormData
+    // Parse JSON
     if (typeof content === "string") {
         try { content = JSON.parse(content); } catch (e) { }
     }
+
     if (typeof seo === "string") {
         try { seo = JSON.parse(seo); } catch (e) { }
     }
 
-    // Handle Image Update
+    // 🔹 Image update
     if (req.file) {
-        // Upload new image
         const upload = await uploadBufferToCloudinary(req.file.buffer, "blogs");
 
-        // Delete old image
         if (blog.coverImageId) {
             await deleteImageFromCloudinary(blog.coverImageId);
         }
@@ -146,19 +155,29 @@ export const updateBlog = asyncHandler(async (req, res) => {
         blog.coverImageId = upload.public_id;
     }
 
-    // Update fields if provided
-    if (title) blog.title = title;
-    if (slug) {
-        // Check uniqueness if slug changed
-        if (slug !== blog.slug) {
-            const existingSlug = await Blog.findOne({ slug });
-            if (existingSlug) {
-                res.status(400);
-                throw new Error("Slug is already taken");
-            }
+    // 🔹 Title update + uniqueness check
+    if (title && title !== blog.title) {
+        const titleExists = await Blog.findOne({
+            title,
+            _id: { $ne: blog._id }
+        });
+
+        if (titleExists) {
+            res.status(400);
+            throw new Error("Blog title must be unique");
         }
-        blog.slug = slug;
+
+        blog.title = title;
+
+        // Regenerate slug
+        blog.slug = slugify(title, {
+            lower: true,
+            strict: true,
+            trim: true
+        });
     }
+
+    // Other fields
     if (description !== undefined) blog.description = description;
     if (content !== undefined) blog.content = content;
     if (category !== undefined) blog.category = category;
@@ -168,7 +187,7 @@ export const updateBlog = asyncHandler(async (req, res) => {
 
     res.status(200).json({
         success: true,
-        data: updatedBlog,
+        data: updatedBlog
     });
 });
 

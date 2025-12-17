@@ -6,7 +6,8 @@ import {
     FaGamepad,
     FaCogs,
     FaBoxOpen,
-    FaImage
+    FaImage,
+    FaNewspaper,
 } from "react-icons/fa";
 import { MdPayment, MdHistory } from "react-icons/md";
 import { TbMailSearch } from "react-icons/tb";
@@ -66,6 +67,11 @@ export const adminNavOptions = [
         label: "Products",
         to: "/admin/products",
         icon: FaBoxOpen,
+    },
+    {
+        label: "Blogs",
+        to: "/admin/blogs",
+        icon: FaNewspaper, // 📰 blog icon
     },
     {
         label: "Orders",
