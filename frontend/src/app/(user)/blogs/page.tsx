@@ -1,9 +1,10 @@
+import Link from "next/link";
 import { blogApiServer } from "@/services/blog/blogApi.server";
 import BlogCard from "@/components/user/blog/BlogCard";
 
 export const metadata = {
-    title: "Latest News & Updates | GameTopup",
-    description: "Read the latest news, guides, and updates about your favorite games and top-up services.",
+    title: "News & Updates | GameTopup",
+    description: "Latest news, guides, and updates from GameTopup.",
 };
 
 export default async function BlogsPage() {
@@ -11,19 +12,29 @@ export default async function BlogsPage() {
     const blogs = blogResponse.data;
 
     return (
-        <div className="min-h-screen pt-24 pb-20 text-white">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                {/* Header */}
-                <div className="text-center mb-16">
-                    <h1 className="text-4xl md:text-5xl font-bold text-white mb-6">
-                        Latest <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">Updates</span>
+        <div className="min-h-screen bg-primary text-white pt-24 pb-20">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6">
+
+                {/* BREADCRUMB */}
+                <nav className="flex items-center gap-2 text-sm text-gray-400 mb-6">
+                    <Link href="/" className="hover:text-secondary transition">
+                        Home
+                    </Link>
+                    <span className="opacity-50">›</span>
+                    <span className="text-gray-300">News</span>
+                </nav>
+
+                {/* PAGE TITLE */}
+                <div className="mb-10">
+                    <h1 className="text-2xl md:text-3xl font-semibold text-white">
+                        Latest News
                     </h1>
-                    <p className="text-xl text-gray-400 max-w-2xl mx-auto leading-relaxed">
-                        Stay informed with our latest game guides, promotional events, and platform updates.
+                    <p className="text-sm text-gray-400 mt-1">
+                        Updates, guides, and announcements from GameTopup
                     </p>
                 </div>
 
-                {/* Grid */}
+                {/* LISTING */}
                 {blogs.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                         {blogs.map((blog: any) => (
@@ -31,12 +42,13 @@ export default async function BlogsPage() {
                         ))}
                     </div>
                 ) : (
-                    <div className="text-center py-20 bg-gray-900/50 rounded-2xl border border-gray-800">
-                        <div className="inline-block p-4 rounded-full bg-gray-800 mb-4">
-                            <span className="text-4xl">📰</span>
-                        </div>
-                        <h3 className="text-xl font-semibold text-white mb-2">No updates yet</h3>
-                        <p className="text-gray-400">Check back later for the latest news.</p>
+                    <div className="text-center py-20 rounded-xl border border-white/10 bg-primary/60">
+                        <h3 className="text-lg font-medium mb-1">
+                            No articles available
+                        </h3>
+                        <p className="text-gray-400 text-sm">
+                            Please check back later for updates.
+                        </p>
                     </div>
                 )}
             </div>

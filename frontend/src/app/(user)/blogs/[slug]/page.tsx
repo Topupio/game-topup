@@ -50,7 +50,7 @@ export default async function BlogDetailsPage({ params }: Props) {
     const readTime = Math.max(1, Math.ceil(totalWords / 200));
 
     return (
-        <div className="min-h-screen bg-[#0B0E14] text-gray-200 font-sans pb-20">
+        <div className="min-h-screen bg-primary font-sans pb-20">
             {/* Hero Header */}
             <div className="relative h-[60vh] min-h-[400px] w-full">
                 <Image
@@ -60,19 +60,19 @@ export default async function BlogDetailsPage({ params }: Props) {
                     className="object-cover"
                     priority
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0B0E14] via-[#0B0E14]/70 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-primary via-primary/70 to-transparent" />
 
                 <div className="absolute bottom-0 left-0 w-full p-6 pb-12">
                     <div className="max-w-4xl mx-auto">
                         <Link
                             href="/blogs"
-                            className="inline-flex items-center gap-2 text-cyan-400 hover:text-cyan-300 transition-colors mb-6 text-sm font-medium backdrop-blur-sm bg-black/30 px-3 py-1.5 rounded-full border border-cyan-500/30"
+                            className="inline-flex items-center gap-2 text-secondary hover:text-white transition-colors mb-6 text-sm font-medium backdrop-blur-sm bg-black/30 px-3 py-1.5 rounded-full border border-secondary/30"
                         >
                             <FaChevronLeft size={12} /> Back to Updates
                         </Link>
 
                         <div className="flex flex-wrap items-center gap-4 mb-4 text-sm">
-                            <span className="flex items-center gap-1.5 bg-blue-600 text-white px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
+                            <span className="flex items-center gap-1.5 bg-secondary text-white px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
                                 {blog.category}
                             </span>
                             <span className="flex items-center gap-2 text-gray-300">
@@ -90,7 +90,7 @@ export default async function BlogDetailsPage({ params }: Props) {
                         </h1>
 
                         {blog.description && (
-                            <p className="text-lg md:text-xl text-gray-300 max-w-2xl leading-relaxed border-l-4 border-cyan-500 pl-4">
+                            <p className="text-lg md:text-xl text-gray-300 max-w-2xl leading-relaxed border-l-4 border-secondary pl-4">
                                 {blog.description}
                             </p>
                         )}
@@ -104,7 +104,7 @@ export default async function BlogDetailsPage({ params }: Props) {
                     {blog.content.map((section, idx) => (
                         <div key={section._id || idx} className="group">
                             {section.contentTitle && (
-                                <h2 className="text-2xl md:text-3xl font-bold text-white mb-6 group-hover:text-cyan-400 transition-colors">
+                                <h2 className="text-2xl md:text-3xl font-bold text-white mb-6 group-hover:text-secondary transition-colors">
                                     {section.contentTitle}
                                 </h2>
                             )}
@@ -118,7 +118,7 @@ export default async function BlogDetailsPage({ params }: Props) {
                 {/* Footer / Share / Tags potentially here */}
                 <div className="mt-20 pt-8 border-t border-gray-800 text-center">
                     <p className="text-gray-500 italic">
-                        Published in <span className="text-cyan-400">{blog.category}</span> on {new Date(blog.createdAt).toLocaleDateString()}
+                        Published in <span className="text-secondary">{blog.category}</span> on {new Date(blog.createdAt).toLocaleDateString()}
                     </p>
                 </div>
             </div>

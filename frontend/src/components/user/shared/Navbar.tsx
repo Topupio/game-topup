@@ -8,7 +8,7 @@ import logo from "@/assets/logo/logo-nobg.png";
 import SearchBoxDesktop from "./SearchBoxDesktop";
 
 import {
-    RiMenu2Line ,
+    RiMenu2Line,
     RiCloseLine,
     RiSearchLine,
     RiUserLine,
@@ -32,7 +32,7 @@ export default function Navbar() {
                 <div className="flex items-center gap-10">
                     <NavLink href="/" label="Home" />
                     <NavLink href="/categories" label="Games" />
-                    <NavLink href="/blog" label="Blog" />
+                    <NavLink href="/blogs" label="Blog" />
 
                     <SearchBoxDesktop />
                     <LangCurrencySelector />
@@ -61,9 +61,9 @@ export default function Navbar() {
                 {/* LEFT — MENU + SEARCH */}
                 <div className="flex items-center gap-4 text-white">
                     <button onClick={() => setOpen(!open)}>
-                        {open ? <RiCloseLine size={26} /> : <RiMenu2Line  size={26} />}
+                        {open ? <RiCloseLine size={26} /> : <RiMenu2Line size={26} />}
                     </button>
-                        
+
                     <Link href="/search">
                         <RiSearchLine size={24} />
                     </Link>
@@ -90,7 +90,7 @@ export default function Navbar() {
 
                     <MobileLink href="/" label="Home" />
                     <MobileLink href="/categories" label="Games" />
-                    <MobileLink href="/blog" label="Blog" />
+                    <MobileLink href="/blogs" label="Blog" />
                 </div>
             )}
         </nav>
