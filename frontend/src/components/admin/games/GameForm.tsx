@@ -146,6 +146,7 @@ export default function GameForm({ gameId }: Props) {
             {/* IMAGE */}
             <ImageUploader
                 imageUrl={form.imageUrl || null}
+                aspectRatio={1}
                 onChange={(file, preview) => {
                     setImageFile(file);
                     setForm((f) => ({ ...f, imageUrl: preview }));
