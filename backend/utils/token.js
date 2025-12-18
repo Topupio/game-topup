@@ -8,6 +8,17 @@ export const generateAccessToken = (userId) => {
     });
 };
 
+export const generateVerifyToken = () => {
+    const token = crypto.randomBytes(32).toString("hex");
+    const hashed = crypto.createHash("sha256").update(token).digest("hex");
+
+    return {
+        token,      // send to user
+        hashed,     // store in DB
+        expires: Date.now() + 15 * 60 * 1000 // 15 mins
+    };
+};
+
 // Generate a random refresh token value
 export const generateRefreshTokenValue = () => crypto.randomBytes(48).toString("hex");
 

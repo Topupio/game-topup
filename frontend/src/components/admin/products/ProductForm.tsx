@@ -144,6 +144,7 @@ export default function ProductForm({ slug }: ProductFormProps) {
             {/* IMAGE UPLOAD */}
             <ImageUploader
                 imageUrl={form.imageUrl || null}
+                aspectRatio={1}
                 onChange={(file, preview) => {
                     setImageFile(file);
                     setForm((f) => ({ ...f, image: preview }));

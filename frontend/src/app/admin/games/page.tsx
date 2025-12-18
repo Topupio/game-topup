@@ -1,4 +1,4 @@
-import { gamesApiServer } from "@/services/games";
+import { gamesApiServer } from "@/services/games/gamesApi.server";
 import AdminGamePage from "@/components/admin/games/AdminGamePage";
 
 const GamesPage = async () => {

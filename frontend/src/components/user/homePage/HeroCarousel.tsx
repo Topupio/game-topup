@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
-import { Game } from "@/lib/types/game";
+import { Banner } from "@/services/banner";
 import { useRouter } from "next/navigation";
 
-export default function HeroCarousel({ games }: { games: Game[] }) {
+export default function HeroCarousel({ banners }: { banners: Banner[] }) {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [autoPlay, setAutoPlay] = useState(true);
     const router = useRouter();
@@ -21,15 +21,15 @@ export default function HeroCarousel({ games }: { games: Game[] }) {
         if (!autoPlay) return;
 
         const timer = setInterval(() => {
-            setCurrentIndex((prev) => (prev + 1) % games.length);
+            setCurrentIndex((prev) => (prev + 1) % banners.length);
         }, 5000);
 
         return () => clearInterval(timer);
-    }, [autoPlay, games.length]);
+    }, [autoPlay, banners.length]);
 
-    const nextSlide = () => goToSlide((currentIndex + 1) % games.length);
+    const nextSlide = () => goToSlide((currentIndex + 1) % banners.length);
     const prevSlide = () =>
-        goToSlide((currentIndex - 1 + games.length) % games.length);
+        goToSlide((currentIndex - 1 + banners.length) % banners.length);
 
     // Click redirect
     const handleRedirect = (slug: string) => {
@@ -47,26 +47,25 @@ export default function HeroCarousel({ games }: { games: Game[] }) {
 
                         <div className="relative max-h-[80vh] lg:min-h-[60vh] min-h-[30vh]">
 
-                            {games.map((game, index) => (
+                            {banners.map((banner, index) => (
                                 <div
-                                    key={game._id}
-                                    className={`absolute inset-0 transition-all duration-500 ease-out transform ${
-                                        index === currentIndex
+                                    key={banner._id}
+                                    className={`absolute inset-0 transition-all duration-500 ease-out transform ${index === currentIndex
                                             ? "opacity-100 scale-100"
                                             : index < currentIndex
-                                            ? "opacity-0 scale-95 translate-x-full"
-                                            : "opacity-0 scale-95 -translate-x-full"
-                                    }`}
+                                                ? "opacity-0 scale-95 translate-x-full"
+                                                : "opacity-0 scale-95 -translate-x-full"
+                                        }`}
                                 >
                                     {/* CLICKABLE WHOLE SLIDE */}
                                     <div
                                         className="h-full w-full cursor-pointer relative"
-                                        onClick={() => handleRedirect(game.slug)}
+                                        onClick={() => handleRedirect(banner.link)}
                                     >
                                         {/* Background Image */}
                                         <img
-                                            src={game.imageUrl ?? "/placeholder.png"}
-                                            alt={game.name}
+                                            src={banner.imageUrl ?? "/placeholder.png"}
+                                            alt={banner.title}
                                             className="absolute inset-0 w-full h-full object-cover"
                                         />
 
@@ -76,11 +75,8 @@ export default function HeroCarousel({ games }: { games: Game[] }) {
                                         {/* Optional Game Info (kept same centered layout if you want text) */}
                                         <div className="relative z-10 h-full flex flex-col items-center justify-center text-white text-center px-4">
                                             <h3 className="text-4xl font-black mb-2">
-                                                {game.name}
+                                                {banner.title}
                                             </h3>
-                                            <p className="text-lg opacity-90">
-                                                {game.description}
-                                            </p>
                                         </div>
 
                                         {/* Neon border effect (unchanged) */}
@@ -109,15 +105,14 @@ export default function HeroCarousel({ games }: { games: Game[] }) {
 
                     {/* Dots Indicator */}
                     <div className="flex justify-center gap-2 mt-8">
-                        {games.map((game, index) => (
+                        {banners.map((banner, index) => (
                             <button
-                                key={game._id}
+                                key={banner._id}
                                 onClick={() => goToSlide(index)}
-                                className={`h-2 rounded-full transition-all duration-300 ${
-                                    index === currentIndex
+                                className={`h-2 rounded-full transition-all duration-300 ${index === currentIndex
                                         ? "bg-gradient-neon w-8"
                                         : "bg-gray-600 w-2 hover:bg-gray-500"
-                                }`}
+                                    }`}
                             />
                         ))}
                     </div>

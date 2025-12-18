@@ -1,11 +1,11 @@
-import { gamesApiServer } from "@/services/games";
+import { gamesApiServer } from "@/services/games/gamesApi.server";
 import { Game } from "@/services/games";
 import CategoryListingPage from "@/components/user/categories/CategoryListingPage";
 
 export default async function CategoryPage({ searchParams }: { searchParams: { [key: string]: string | string[] | undefined } }) {
     const params = await searchParams;
     const category = typeof params.category === "string" ? params.category : undefined;
-    const page =  Number(params.page) || 1;
+    const page = Number(params.page) || 1;
     const limit = 4;
 
     const res = await gamesApiServer.list({ page, limit, category });
@@ -14,7 +14,7 @@ export default async function CategoryPage({ searchParams }: { searchParams: { [
     const totalPages: number = res.totalPages;
 
     return (
-        <CategoryListingPage 
+        <CategoryListingPage
             games={games}
             currentPage={page}
             totalPages={totalPages}

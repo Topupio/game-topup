@@ -1,11 +1,13 @@
 
 import { type IconType } from "react-icons";
-import { 
-    FaHome, 
-    FaUsers, 
-    FaGamepad, 
+import {
+    FaHome,
+    FaUsers,
+    FaGamepad,
     FaCogs,
-    FaBoxOpen
+    FaBoxOpen,
+    FaImage,
+    FaNewspaper,
 } from "react-icons/fa";
 import { MdPayment, MdHistory } from "react-icons/md";
 import { TbMailSearch } from "react-icons/tb";
@@ -52,7 +54,12 @@ export const adminNavOptions = [
         icon: FaUsers,
     },
     {
-        label: "Games & Pricing",
+        label: "Banners",
+        to: "/admin/banners",
+        icon: FaImage,
+    },
+    {
+        label: "Games",
         to: "/admin/games",
         icon: FaGamepad,
     },
@@ -60,6 +67,11 @@ export const adminNavOptions = [
         label: "Products",
         to: "/admin/products",
         icon: FaBoxOpen,
+    },
+    {
+        label: "Blogs",
+        to: "/admin/blogs",
+        icon: FaNewspaper, // 📰 blog icon
     },
     {
         label: "Orders",

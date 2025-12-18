@@ -2,19 +2,11 @@ import { Game } from "@/services/games";
 import Link from "next/link";
 
 
-const GameCard = ({ game }: { game: Game}) => {
+const GameCard = ({ game }: { game: Game }) => {
     return (
         <Link
             href={`/games/${game.slug}`}
-            className="
-                group relative rounded-2xl overflow-hidden
-                bg-white/5 backdrop-blur-xl
-                border border-white/10 
-                hover:border-secondary/70
-                shadow-lg hover:shadow-secondary/30
-                transition-all duration-500
-                cursor-pointer block p-4
-            "
+            className="group relative rounded-2xl overflow-hidden bg-white/5 backdrop-blur-xl border border-white/10 hover:border-secondary/70 shadow-lg hover:shadow-secondary/30 transition-all duration-500 cursor-pointer block p-4"
         >
             {/* IMAGE */}
             <div className="relative w-full h-40 overflow-hidden rounded-xl mb-4">
@@ -34,7 +26,7 @@ const GameCard = ({ game }: { game: Game}) => {
             <h3
                 className="text-white font-semibold text-base group-hover:text-secondary transition-colors duration-300 truncate"
             >
-                { game.name }
+                {game.name}
             </h3>
 
             {/* Hover glow ring */}

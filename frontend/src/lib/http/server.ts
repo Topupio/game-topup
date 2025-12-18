@@ -1,9 +1,11 @@
 // src/lib/http/server.ts
 
+import { cookies } from "next/headers";
+
 export const serverApi = {
     async get<T>(url: string, options?: RequestInit & { params?: Record<string, unknown> }): Promise<T> {
         let finalUrl = process.env.NEXT_PUBLIC_API_BASE + url;
-        
+
         // Build query string from params if provided
         if (options?.params) {
             const searchParams = new URLSearchParams();
@@ -17,10 +19,17 @@ export const serverApi = {
                 finalUrl += `?${queryString}`;
             }
         }
-        
+
+        const cookieStore = await cookies();
+        const cookieHeader = cookieStore.toString();
+
         const { params, ...fetchOptions } = options || {};
         const res = await fetch(finalUrl, {
             ...fetchOptions,
+            headers: {
+                ...fetchOptions.headers,
+                Cookie: cookieHeader,
+            },
             credentials: "include",
             cache: "no-store",
         });
@@ -34,6 +43,10 @@ export const serverApi = {
         if (options?.headers && typeof options.headers === "object") {
             Object.assign(headers, options.headers as Record<string, string>);
         }
+
+        const cookieStore = await cookies();
+        const cookieHeader = cookieStore.toString();
+        headers["Cookie"] = cookieHeader;
 
         const init: RequestInit = {
             method: "POST",
