@@ -70,7 +70,7 @@ const createProduct = asyncHandler(async (req, res) => {
         name,
         slug,
         description,
-        image: imageUrl,
+        imageUrl,
         price,
         discountedPrice,
         deliveryTime: deliveryTime || "Instant Delivery",
@@ -148,7 +148,7 @@ const updateProduct = asyncHandler(async (req, res) => {
             await deleteImageFromCloudinary(product.imagePublicId);
         }
 
-        product.image = newImage;
+        product.imageUrl = newImage;
         product.imagePublicId = upload.public_id;
     }
 
