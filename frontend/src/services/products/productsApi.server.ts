@@ -1,13 +1,13 @@
 import { serverApi } from "@/lib/http/server";
 import { endpoints } from "@/config/api";
-import { Product, ProductPayload } from "@/lib/types/product";
+import { Product, ProductPayload, ProductsListResponse, ProductSingleResponse } from "@/lib/types/product";
 
 export const productsApiServer = {
-    async list(): Promise<{ data: Product[] }> {
+    async list(): Promise<ProductsListResponse> {
         return serverApi.get(endpoints.products.root);
     },
 
-    async get(slug: string): Promise<Product> {
+    async get(slug: string): Promise<ProductSingleResponse> {
         return serverApi.get(endpoints.products.byId(slug));
     },
 

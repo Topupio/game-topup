@@ -195,24 +195,48 @@ const deleteProduct = asyncHandler(async (req, res) => {
 });
 
 const getProducts = asyncHandler(async (req, res) => {
-    const page = parseInt(req.query.page) || 1;
-    const limit = 20;
-    const skip = (page - 1) * limit;
+    const {
+        search = "",
+        page = 1,
+        limit = 10,
+        sort = "createdAt",
+        order = "desc"
+    } = req.query;
+    console.log(req.query);
+
+    const pageNum = parseInt(page) || 1;
+    const limitNum = parseInt(limit) || 10;
+    const skip = (pageNum - 1) * limitNum;
+
+    const query = {};
+
+    if (search) {
+        query.$or = [
+            { name: { $regex: search, $options: "i" } },
+            { description: { $regex: search, $options: "i" } }
+        ];
+    }
+
+    const sortQuery = {
+        [sort]: order === "asc" ? 1 : -1
+    };
 
     const [items, total] = await Promise.all([
-        Product.find()
+        Product.find(query)
             .populate("gameId", "name slug")
-            .sort({ createdAt: -1 })
+            .sort(sortQuery)
             .skip(skip)
-            .limit(limit),
-        Product.countDocuments(),
+            .limit(limitNum),
+        Product.countDocuments(query),
     ]);
 
     return res.status(200).json({
         success: true,
+        total,
+        page: pageNum,
+        limit: limitNum,
+        totalPages: Math.ceil(total / limitNum),
         count: items.length,
-        totalPages: Math.ceil(total / limit),
-        page,
         data: items,
     });
 });

@@ -15,6 +15,7 @@ const getGames = asyncHandler(async (req, res) => {
         order = "desc"
     } = req.query;
 
+    console.log("req.query", req.query);
     const pageNum = parseInt(page) || 1;
     const limitNum = parseInt(limit) || 12;
     const skip = (pageNum - 1) * limitNum;

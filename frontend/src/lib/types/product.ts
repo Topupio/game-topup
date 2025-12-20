@@ -44,7 +44,17 @@ export interface ProductPayload {
     metaDescription?: string;
 }
 
-export interface ProductResponse {
+export interface ProductSingleResponse {
     success: boolean;
     data: Product;
+}
+
+export interface ProductsListResponse {
+    success: boolean;
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+    count: number;
+    data: Product[];
 }

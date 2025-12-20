@@ -64,7 +64,6 @@ export default function ProductForm({ productId }: ProductFormProps) {
             try {
                 const res = await productsApiClient.get(productId as string);
                 const product: Product = res.data;
-                console.log('Hello:', product)
                 updateForm({
                     gameId: product.gameId,
                     name: product.name,

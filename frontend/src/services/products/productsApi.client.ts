@@ -3,17 +3,17 @@
 import { clientApi } from "@/lib/http";
 import { endpoints } from "@/config/api";
 import { toFormData } from "@/utils/convertToFormData";
-import { Product, ProductPayload, ProductResponse } from "@/lib/types/product";
+import { Product, ProductPayload, ProductsListResponse, ProductSingleResponse } from "@/lib/types/product";
 
 export const productsApiClient = {
     // GET /products
-    async list(params?: Record<string, any>): Promise<ProductResponse[]> {
+    async list(params?: Record<string, any>): Promise<ProductsListResponse> {
         const { data } = await clientApi.get(endpoints.products.root, { params });
         return data;
     },
 
     // GET /products/:id
-    async get(id: string): Promise<ProductResponse> {
+    async get(id: string): Promise<ProductSingleResponse> {
         const { data } = await clientApi.get(endpoints.products.byId(id));
         return data;
     },

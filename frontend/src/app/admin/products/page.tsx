@@ -2,12 +2,11 @@ import AdminProductListing from "@/components/admin/products/AdminProductListing
 import { productsApiServer } from "@/services/products/productsApi.server";
 
 const ProductsPage = async () => {
-    const products = await productsApiServer.list(); 
-    const data = products.data || [];
+    const products = await productsApiServer.list();
 
     return (
         <div >
-            <AdminProductListing products={data} />
+            <AdminProductListing initialData={products} />
         </div>
     )
 }
