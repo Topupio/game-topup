@@ -15,8 +15,6 @@ const createProduct = asyncHandler(async (req, res) => {
         deliveryTime,
         status,
         isPopular,
-        metaTitle,
-        metaDescription,
     } = req.body;
 
     // 1. Required fields
@@ -24,6 +22,13 @@ const createProduct = asyncHandler(async (req, res) => {
         return res.status(400).json({
             success: false,
             message: "gameId, name, price and discountedPrice are required",
+        });
+    }
+
+    if (!req.file) {
+        return res.status(400).json({
+            success: false,
+            message: "Image is required",
         });
     }
 
@@ -49,7 +54,8 @@ const createProduct = asyncHandler(async (req, res) => {
     }
 
     // 5. Validate discountedPrice
-    if (discountedPrice > price) {
+    if (discountedPrice * 1 > price * 1) {
+        console.log("discountedPrice cannot be greater than price:", discountedPrice * 1, price);
         return res.status(400).json({
             success: false,
             message: "discountedPrice cannot be greater than price",
@@ -70,14 +76,12 @@ const createProduct = asyncHandler(async (req, res) => {
         name,
         slug,
         description,
-        image: imageUrl,
+        imageUrl,
         price,
         discountedPrice,
         deliveryTime: deliveryTime || "Instant Delivery",
         status: status || "active",
         isPopular: isPopular || false,
-        metaTitle: metaTitle || "",
-        metaDescription: metaDescription || "",
     });
 
     return res.status(201).json({
@@ -105,8 +109,6 @@ const updateProduct = asyncHandler(async (req, res) => {
         deliveryTime,
         status,
         isPopular,
-        metaTitle,
-        metaDescription,
     } = req.body;
 
     // 1. Validate discountedPrice
@@ -148,7 +150,7 @@ const updateProduct = asyncHandler(async (req, res) => {
             await deleteImageFromCloudinary(product.imagePublicId);
         }
 
-        product.image = newImage;
+        product.imageUrl = newImage;
         product.imagePublicId = upload.public_id;
     }
 
@@ -160,8 +162,6 @@ const updateProduct = asyncHandler(async (req, res) => {
     product.deliveryTime = deliveryTime ?? product.deliveryTime;
     product.status = status ?? product.status;
     product.isPopular = isPopular ?? product.isPopular;
-    product.metaTitle = metaTitle ?? product.metaTitle;
-    product.metaDescription = metaDescription ?? product.metaDescription;
 
     const updated = await product.save();
 
@@ -195,31 +195,59 @@ const deleteProduct = asyncHandler(async (req, res) => {
 });
 
 const getProducts = asyncHandler(async (req, res) => {
-    const page = parseInt(req.query.page) || 1;
-    const limit = 20;
-    const skip = (page - 1) * limit;
+    const {
+        search = "",
+        page = 1,
+        limit = 10,
+        sort = "createdAt",
+        order = "desc"
+    } = req.query;
+    console.log(req.query);
+
+    const pageNum = parseInt(page) || 1;
+    const limitNum = parseInt(limit) || 10;
+    const skip = (pageNum - 1) * limitNum;
+
+    const query = {};
+
+    if (search) {
+        query.$or = [
+            { name: { $regex: search, $options: "i" } },
+            { description: { $regex: search, $options: "i" } }
+        ];
+    }
+
+    if (req.query.gameId) {
+        query.gameId = req.query.gameId;
+    }
+
+    const sortQuery = {
+        [sort]: order === "asc" ? 1 : -1
+    };
 
     const [items, total] = await Promise.all([
-        Product.find()
+        Product.find(query)
             .populate("gameId", "name slug")
-            .sort({ createdAt: -1 })
+            .sort(sortQuery)
             .skip(skip)
-            .limit(limit),
-        Product.countDocuments(),
+            .limit(limitNum),
+        Product.countDocuments(query),
     ]);
 
     return res.status(200).json({
         success: true,
+        total,
+        page: pageNum,
+        limit: limitNum,
+        totalPages: Math.ceil(total / limitNum),
         count: items.length,
-        totalPages: Math.ceil(total / limit),
-        page,
         data: items,
     });
 });
 
 const getSingleProduct = asyncHandler(async (req, res) => {
-    const { slug } = req.params;
-    const product = await Product.findOne({ slug })
+    const { id } = req.params;
+    const product = await Product.findById(id)
 
     if (!product) {
         return res.status(404).json({

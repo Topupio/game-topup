@@ -5,7 +5,7 @@ import { FaCloudUploadAlt, FaEdit, FaTrash } from "react-icons/fa";
 import ImageCropper from "./ImageCropper";
 
 interface Props {
-    imageUrl: string | null;
+    imageUrl: File | string | null;
     onChange: (file: File | null, preview: string | null) => void;
     error?: string;
     aspectRatio?: number;
@@ -66,7 +66,7 @@ export default function ImageUploader({ imageUrl, onChange, error, aspectRatio =
             </label>
 
             <div
-                className={`relative w-full h-64 border-2 border-dashed rounded-xl flex flex-col items-center justify-center cursor-pointer transition-all duration-200 overflow-hidden group
+                className={`relative h-64 border-2 border-dashed rounded-xl flex flex-col items-center justify-center cursor-pointer transition-all duration-200 overflow-hidden group
                     ${error ? "border-red-400 bg-red-50" : "border-gray-300 bg-gray-50 hover:border-blue-400 hover:bg-blue-50"}
                 `}
                 onClick={() => inputRef.current?.click()}
@@ -76,7 +76,7 @@ export default function ImageUploader({ imageUrl, onChange, error, aspectRatio =
                         <img
                             src={imageUrl}
                             alt="Cover"
-                            className="w-full h-full object-cover"
+                            className="w-auto h-full object-cover"
                         />
                         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
                             <span className="p-2 bg-white/20 backdrop-blur-sm rounded-full text-white">

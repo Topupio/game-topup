@@ -1,106 +1,101 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import { toast } from "react-toastify";
 import { Game } from "@/lib/types/game";
 import { GamePayload } from "@/services/games/types";
+import { useAdminForm } from "@/hooks/useAdminForm";
+import { gamesApiClient } from "@/services/games";
+
+import FormWrapper from "@/components/admin/form/FormWrapper";
+import FormSection from "@/components/admin/form/FormSection";
 import ImageUploader from "@/components/form/ImageUploader";
 import RequiredFieldsBuilder from "./RequiredFieldsBuilder";
 import StatusToggle from "@/components/form/StatusToggle";
 import Input from "@/components/form/Input";
 import Textarea from "@/components/form/TextArea";
-import SubmitButton from "@/components/ui/SubmitButton";
-import { gamesApiClient } from "@/services/games";
 
 interface Props {
     gameId: string | "new";
 }
 
 export default function GameForm({ gameId }: Props) {
-    const router = useRouter();
     const isEdit = gameId !== "new";
 
-    const [form, setForm] = useState<Game>({
-        _id: '',
-        name: "",
-        slug: "",
-        category: "",
-        description: "",
-        imageUrl: null,
-        status: "active",
-        requiredFields: [],
-    });
-    const [errors, setErrors] = useState({
-        name: "",
-        description: "",
-        category: "",
-        requiredFields: [] as { fieldName?: string; fieldKey?: string; options?: string }[],
-    });
-
-    const [imageFile, setImageFile] = useState<File | null>(null);
-    const [loading, setLoading] = useState(false);
-
-    // Load game when editing (client-side fetch via API client)
-    useEffect(() => {
-        let mounted = true;
-        if (isEdit) {
-            (async () => {
-                try {
-                    const response = await gamesApiClient.get(gameId as string);
-                    if (mounted) setForm(response.data);
-                } catch (e) {
-                    console.error("Failed to load game", e);
-                    toast.error("Failed to load game data");
-                }
-            })();
-        }
-        return () => {
-            mounted = false;
-        };
-    }, [isEdit, gameId]);
-
-    const validate = () => {
-        const newErrors: any = {
+    const {
+        form,
+        updateForm,
+        loading,
+        setLoading,
+        errors,
+        updateError,
+        clearError,
+        handleSubmit,
+    } = useAdminForm<Game & { imageFile?: File | null }>(
+        {
+            _id: "",
             name: "",
+            slug: "",
+            category: "",
             description: "",
+            imageUrl: null,
+            status: "active",
             requiredFields: [],
-        };
+            metaTitle: "",
+            metaDescription: "",
+            imageFile: null,
+        },
+        {
+            onSuccess: () => {
+                toast.success(isEdit ? "Game updated successfully" : "Game created successfully");
+            },
+            onError: (error: any) => {
+                toast.error(error.response?.data?.message || "Failed to save game");
+            },
+            redirectPath: "/admin/games",
+        }
+    );
 
-        // Basic fields
-        if (!form.name.trim()) newErrors.name = "Game name is required.";
-        if (!form.category.trim()) newErrors.category = "Category is required.";
-        if (!form.description.trim()) newErrors.description = "Description is required.";
+    // Load game data when editing
+    useEffect(() => {
+        if (!isEdit) return;
 
-        // Required fields validation
-        form.requiredFields.forEach((field, index) => {
-            const fieldErrors: any = {};
-
-            if (!field.fieldName.trim()) {
-                fieldErrors.fieldName = "Field name is required.";
+        (async () => {
+            try {
+                const response = await gamesApiClient.get(gameId as string);
+                updateForm((prev) => ({
+                    ...prev,
+                    ...response.data,
+                    imageFile: null,
+                }));
+            } catch (error) {
+                console.error("Failed to load game", error);
+                toast.error("Failed to load game data");
             }
-            if (!field.fieldKey.trim()) {
-                fieldErrors.fieldKey = "Field key is required.";
-            }
+        })();
+    }, [isEdit, gameId, updateForm]);
 
-            if (field.fieldType === "dropdown" && (!field.options || field.options.length === 0)) {
-                fieldErrors.options = "At least one option is required.";
-            }
+    const validate = (): boolean => {
+        clearError("name");
+        clearError("category");
+        clearError("description");
 
-            newErrors.requiredFields[index] = fieldErrors;
-        });
+        let isValid = true;
 
-        // Remove empty field error objects
-        newErrors.requiredFields = newErrors.requiredFields.filter(
-            (e: any) => Object.keys(e).length > 0
-        );
+        if (!form.name?.trim()) {
+            updateError("name", "Game name is required");
+            isValid = false;
+        }
+        if (!form.category?.trim()) {
+            updateError("category", "Category is required");
+            isValid = false;
+        }
+        if (!form.description?.trim()) {
+            updateError("description", "Description is required");
+            isValid = false;
+        }
 
-        setErrors(newErrors);
-
-        const hasBaseErrors = newErrors.name || newErrors.description;
-        const hasRequiredFieldErrors = newErrors.requiredFields.length > 0;
-
-        return !hasBaseErrors && !hasRequiredFieldErrors;
+        return isValid;
     };
 
     const onSubmit = async (e: React.FormEvent) => {
@@ -111,81 +106,73 @@ export default function GameForm({ gameId }: Props) {
             return;
         }
 
-        setLoading(true);
-        try {
+        await handleSubmit(async (formData) => {
             const payload: GamePayload = {
-                name: form.name,
-                category: form.category,
-                description: form.description,
-                status: form.status,
-                requiredFields: form.requiredFields,
-                image: imageFile ?? null,
+                name: formData.name,
+                category: formData.category,
+                description: formData.description,
+                status: formData.status,
+                requiredFields: formData.requiredFields,
+                metaTitle: formData.metaTitle,
+                metaDescription: formData.metaDescription,
+                image: (formData.imageFile as File) ?? null,
             };
 
             if (isEdit) {
                 await gamesApiClient.update(gameId as string, payload);
-                toast.success("Game updated");
             } else {
                 await gamesApiClient.create(payload);
-                toast.success("Game created");
             }
-
-            router.push("/admin/games");
-        } catch (err) {
-            console.error(err);
-            toast.error("Failed to save game");
-        } finally {
-            setLoading(false);
-        }
+        }, e);
     };
 
     return (
-        <form onSubmit={onSubmit} className="p-6 max-w-4xl mx-auto space-y-6">
-            <h1 className="text-2xl font-semibold">{isEdit ? "Update Game" : "Create Game"}</h1>
-
-            {/* IMAGE */}
-            <ImageUploader
-                imageUrl={form.imageUrl || null}
-                aspectRatio={1}
-                onChange={(file, preview) => {
-                    setImageFile(file);
-                    setForm((f) => ({ ...f, imageUrl: preview }));
-                }}
-            />
-
-            {/* Name */}
-            <div>
-                <Input
-                    label="Game Name"
-                    placeholder="Enter game name"
-                    value={form.name}
-                    required
-                    error={errors.name}
-                    onChange={(e) => {
-                        setForm({ ...form, name: e.target.value });
-                        setErrors((prev) => ({ ...prev, name: "" })); // clear error on typing
+        <FormWrapper
+            title={isEdit ? "Update Game" : "Create New Game"}
+            isEdit={isEdit}
+            loading={loading}
+            onSubmit={onSubmit}
+            submitLabel={isEdit ? "Update Game" : "Create Game"}
+        >
+            {/* Basic Info Section */}
+            <FormSection title="Basic Information">
+                <ImageUploader
+                    imageUrl={form.imageUrl || null}
+                    aspectRatio={1}
+                    onChange={(file, preview) => {
+                        updateForm({
+                            imageFile: file,
+                            imageUrl: preview,
+                        });
                     }}
                 />
-            </div>
 
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <Input
+                        label="Game Name"
+                        placeholder="Enter game name"
+                        value={form.name}
+                        required
+                        error={errors.name}
+                        onChange={(e) => {
+                            updateForm({ name: e.target.value });
+                            clearError("name");
+                        }}
+                    />
 
-            {/* Category */}
-            <div>
-                <Input
-                    label="Category"
-                    placeholder="Enter category"
-                    value={form.category}
-                    required
-                    error={errors.category}
-                    onChange={(e) => {
-                        setForm({ ...form, category: e.target.value });
-                        setErrors((prev) => ({ ...prev, category: "" })); // clear error on typing
-                    }}
-                />
-            </div>
+                    <Input
+                        label="Category"
+                        placeholder="Enter category"
+                        value={form.category}
+                        required
+                        error={errors.category}
+                        onChange={(e) => {
+                            updateForm({ category: e.target.value });
+                            clearError("category");
+                        }}
+                    />
+                </div>
 
-            {/* Description */}
-            <div>
                 <Textarea
                     label="Description"
                     placeholder="Enter description"
@@ -193,26 +180,50 @@ export default function GameForm({ gameId }: Props) {
                     required
                     error={errors.description}
                     onChange={(e) => {
-                        setForm({ ...form, description: e.target.value });
-                        setErrors((prev) => ({ ...prev, description: "" })); // clear error on typing
+                        updateForm({ description: e.target.value });
+                        clearError("description");
                     }}
                 />
-            </div>
+            </FormSection>
 
-            {/* Status */}
-            <div>
-                <label className="font-medium">Status</label>
-                <StatusToggle value={form.status} onChange={(status) => setForm({ ...form, status })} />
-            </div>
+            {/* Settings Section */}
+            <FormSection title="Settings">
+                <div>
+                    <label className="font-medium block mb-2">Status</label>
+                    <StatusToggle
+                        value={form.status}
+                        onChange={(status) => updateForm({ status })}
+                    />
+                </div>
+            </FormSection>
 
-            {/* Required Fields */}
-            <RequiredFieldsBuilder
-                fields={form.requiredFields}
-                onChange={(fields) => setForm({ ...form, requiredFields: fields })}
-                errors={errors.requiredFields}
-            />
+            {/* Required Fields Section */}
+            <FormSection title="Required Fields" divider={false}>
+                <RequiredFieldsBuilder
+                    fields={form.requiredFields}
+                    onChange={(fields) =>
+                        updateForm({ requiredFields: fields })
+                    }
+                    errors={Array.isArray(errors.requiredFields) ? (errors.requiredFields as any) : undefined}
+                />
+            </FormSection>
 
-            <SubmitButton isLoading={loading} label={isEdit ? "Update Game" : "Create Game"} />
-        </form>
+            {/* SEO Settings Section */}
+            <FormSection title="SEO Settings">
+                <Input
+                    label="Meta Title"
+                    placeholder="SEO Title"
+                    value={form.metaTitle}
+                    onChange={(e) => updateForm({ metaTitle: e.target.value })}
+                />
+
+                <Textarea
+                    label="Meta Description"
+                    placeholder="SEO Description"
+                    value={form.metaDescription}
+                    onChange={(e) => updateForm({ metaDescription: e.target.value })}
+                />
+            </FormSection>
+        </FormWrapper>
     );
 }

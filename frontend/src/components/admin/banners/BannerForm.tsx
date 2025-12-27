@@ -1,41 +1,61 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import { toast } from "react-toastify";
 
 import { Banner } from "@/services/banner/types";
 import { bannerApiClient } from "@/services/banner/bannerApi.client";
+import { useAdminForm } from "@/hooks/useAdminForm";
 
+import FormWrapper from "@/components/admin/form/FormWrapper";
+import FormSection from "@/components/admin/form/FormSection";
 import ImageUploader from "@/components/form/ImageUploader";
 import StatusToggle from "@/components/form/StatusToggle";
 import Input from "@/components/form/Input";
-import SubmitButton from "@/components/ui/SubmitButton";
 
 interface Props {
     bannerId: string | "new";
 }
 
+interface BannerFormData extends Partial<Banner> {
+    imageFile?: File | null;
+}
+
 export default function BannerForm({ bannerId }: Props) {
-    const router = useRouter();
     const isEdit = bannerId !== "new";
 
-    const [form, setForm] = useState<Partial<Banner>>({
-        title: "",
-        link: "",
-        imageUrl: "",
-        isActive: true,
-        order: 0,
-    });
+    const {
+        form,
+        updateForm,
+        loading,
+        errors,
+        updateError,
+        clearError,
+        handleSubmit,
+    } = useAdminForm<BannerFormData>(
+        {
+            title: "",
+            link: "",
+            imageUrl: "",
+            isActive: true,
+            order: 0,
+            imageFile: null,
+        },
+        {
+            onSuccess: () => {
+                toast.success(
+                    isEdit ? "Banner updated successfully" : "Banner created successfully"
+                );
+            },
+            onError: (error: any) => {
+                toast.error(error.response?.data?.message || "Failed to save banner");
+            },
+            redirectPath: "/admin/banners",
+            refreshAfterSubmit: true,
+        }
+    );
 
-    const [imageFile, setImageFile] = useState<File | null>(null);
-    const [loading, setLoading] = useState(false);
-    const [errors, setErrors] = useState({
-        title: "",
-        imageUrl: "",
-    });
-
-    /* ---------------- Load banner (edit) ---------------- */
+    /* Load banner (edit) */
     useEffect(() => {
         if (!isEdit) return;
 
@@ -44,136 +64,113 @@ export default function BannerForm({ bannerId }: Props) {
                 const res = await bannerApiClient.get(bannerId);
                 const banner = res.data;
 
-                setForm({
+                updateForm({
                     title: banner.title,
                     link: banner.link,
                     imageUrl: banner.imageUrl,
                     isActive: banner.isActive,
                     order: banner.order,
+                    imageFile: null,
                 });
             } catch (error) {
                 console.error(error);
                 toast.error("Failed to load banner");
-                router.push("/admin/banners");
             }
         })();
-    }, [isEdit, bannerId, router]);
+    }, [isEdit, bannerId, updateForm]);
 
-    /* ---------------- Validation ---------------- */
-    const validate = () => {
-        const newErrors = { title: "", imageUrl: "" };
-        let isValid = true;
-
-        if (!isEdit && !imageFile && !form.imageUrl) {
-            newErrors.imageUrl = "Image is required for new banner.";
-            isValid = false;
+    /* Validation */
+    const validate = (): boolean => {
+        if (!isEdit && !form.imageFile && !form.imageUrl) {
+            updateError("imageUrl", "Image is required");
+            return false;
         }
-
-        setErrors(newErrors);
-        return isValid;
+        return true;
     };
 
-    /* ---------------- Submit ---------------- */
+    /* Submit */
     const onSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!validate()) return;
 
-        setLoading(true);
+        if (!validate()) {
+            toast.error("Please fix validation errors");
+            return;
+        }
 
-        try {
+        await handleSubmit(async (formData) => {
             const payload = {
-                title: form.title,
-                link: form.link,
-                isActive: String(form.isActive),
-                order: String(form.order),
-                image: imageFile ?? undefined,
+                title: formData.title,
+                link: formData.link,
+                isActive: String(formData.isActive),
+                order: String(formData.order),
+                image: (formData.imageFile as File) ?? undefined,
             };
 
             if (isEdit) {
                 await bannerApiClient.update(bannerId, payload);
-                toast.success("Banner updated");
             } else {
                 await bannerApiClient.create(payload);
-                toast.success("Banner created");
             }
-
-            router.push("/admin/banners");
-            router.refresh();
-        } catch (error) {
-            console.error(error);
-            toast.error("Failed to save banner");
-        } finally {
-            setLoading(false);
-        }
+        }, e);
     };
 
-    /* ---------------- UI ---------------- */
     return (
-        <form onSubmit={onSubmit} className="p-6 max-w-4xl mx-auto space-y-6">
-            <h1 className="text-2xl font-semibold">
-                {isEdit ? "Update Banner" : "Create Banner"}
-            </h1>
+        <FormWrapper
+            title={isEdit ? "Update Banner" : "Create Banner"}
+            isEdit={isEdit}
+            loading={loading}
+            onSubmit={onSubmit}
+            submitLabel={isEdit ? "Update Banner" : "Create Banner"}
+        >
+            <FormSection title="Banner Information">
+                <ImageUploader
+                    imageUrl={(form.imageUrl as string | null) || null}
+                    onChange={(file, preview) => {
+                        updateForm({
+                            imageFile: file,
+                            imageUrl: preview ?? undefined,
+                        });
+                        clearError("imageUrl");
+                    }}
+                    error={errors.imageUrl}
+                />
 
-            {/* Image */}
-            <ImageUploader
-                imageUrl={form.imageUrl || null}
-                onChange={(file, preview) => {
-                    setImageFile(file);
-                    setForm((f) => ({ ...f, imageUrl: preview ?? undefined }));
-                    setErrors((prev) => ({ ...prev, imageUrl: "" }));
-                }}
-                error={errors.imageUrl}
-            />
+                <Input
+                    label="Title (Optional)"
+                    placeholder="Banner title"
+                    value={(form.title as string) || ""}
+                    onChange={(e) => updateForm({ title: e.target.value })}
+                    error={errors.title}
+                />
 
-            {/* Title */}
-            <Input
-                label="Title (Optional)"
-                placeholder="Banner title"
-                value={form.title || ""}
-                onChange={(e) =>
-                    setForm((f) => ({ ...f, title: e.target.value }))
-                }
-                error={errors.title}
-            />
+                <Input
+                    label="Link URL (Optional)"
+                    placeholder="/games/some-game"
+                    value={(form.link as string) || ""}
+                    onChange={(e) => updateForm({ link: e.target.value })}
+                />
 
-            {/* Link */}
-            <Input
-                label="Link URL (Optional)"
-                placeholder="/games/some-game"
-                value={form.link || ""}
-                onChange={(e) =>
-                    setForm((f) => ({ ...f, link: e.target.value }))
-                }
-            />
-
-            {/* Order */}
-            <Input
-                label="Order (Sort Priority)"
-                type="number"
-                value={form.order ?? 0}
-                onChange={(e) =>
-                    setForm((f) => ({ ...f, order: Number(e.target.value) }))
-                }
-            />
-
-            {/* Status */}
-            <div>
-                <label className="font-medium block mb-2">Status</label>
-                <StatusToggle
-                    value={form.isActive ? "active" : "inactive"}
-                    onChange={(val) =>
-                        setForm((f) => ({
-                            ...f,
-                            isActive: val === "active",
-                        }))
+                <Input
+                    label="Order (Sort Priority)"
+                    type="number"
+                    value={(form.order as number) ?? 0}
+                    onChange={(e) =>
+                        updateForm({ order: Number(e.target.value) })
                     }
                 />
-            </div>
+            </FormSection>
 
-            <SubmitButton
-                isLoading={loading}
-                label={isEdit ? "Update Banner" : "Create Banner"}
-            />
-        </form>
+            <FormSection title="Settings" divider={false}>
+                <div>
+                    <label className="font-medium block mb-2">Status</label>
+                    <StatusToggle
+                        value={(form.isActive ? "active" : "inactive") as any}
+                        onChange={(val) =>
+                            updateForm({ isActive: val === "active" })
+                        }
+                    />
+                </div>
+            </FormSection>
+        </FormWrapper>
     );
 }

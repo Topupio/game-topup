@@ -1,7 +1,7 @@
 "use client";
 
 import { RequiredField } from "@/lib/types/game";
-import { IoTrash } from "react-icons/io5";
+import { TbPlus, TbTrash } from "react-icons/tb";
 import Input from "@/components/form/Input";
 import Select from "@/components/form/Select";
 
@@ -11,8 +11,11 @@ interface Props {
     errors?: { fieldName?: string; fieldKey?: string; options?: string }[];
 }
 
-export default function RequiredFieldsBuilder({ fields, onChange, errors }: Props) {
-
+export default function RequiredFieldsBuilder({
+    fields,
+    onChange,
+    errors,
+}: Props) {
     const addField = () => {
         onChange([
             ...fields,
@@ -22,6 +25,7 @@ export default function RequiredFieldsBuilder({ fields, onChange, errors }: Prop
                 fieldType: "text",
                 placeholder: "",
                 options: [],
+                optionsText: "",
                 required: true,
             },
         ]);
@@ -39,125 +43,166 @@ export default function RequiredFieldsBuilder({ fields, onChange, errors }: Prop
 
     return (
         <div className="space-y-4">
-            <label className="text-lg font-semibold mr-2">Required Fields</label>
+            {/* Add Button */}
+            <div className="flex justify-between items-center mb-4">
+                <button
+                    type="button"
+                    onClick={addField}
+                    className="flex items-center gap-1 text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1.5 rounded transition"
+                >
+                    <TbPlus /> Add Field
+                </button>
+            </div>
 
-            {fields?.map((field, i) => (
-                <div key={i} className="p-4 border rounded-xl bg-gray-50">
-                    {/* Row 1: Field Name + Field Key */}
-                    <div className="grid grid-cols-2 gap-4 mb-3">
-                        <Input
-                            label="Field Name"
-                            placeholder="Full Name"
-                            required
-                            value={field.fieldName}
-                            error={errors?.[i]?.fieldName}
-                            onChange={(e) => {
-                                const fieldName = e.target.value;
-                                const fieldKey =
-                                    fieldName
-                                        .toLowerCase()
-                                        .replace(/\s+/g, "_")
-                                        .replace(/[^a-z0-9_]/g, "");
-                                updateField(i, { fieldName, fieldKey });
-                            }}
-                        />
-
-                        <Input
-                            label="Field Key"
-                            placeholder="full_name"
-                            value={field.fieldKey}
-                            error={errors?.[i]?.fieldKey}
-                            onChange={(e) =>
-                                updateField(i, { fieldKey: e.target.value })
-                            }
-                        />
-                    </div>
-
-                    {/* Row 2: Field Type + Placeholder */}
-                    <div className="grid grid-cols-2 gap-4 mb-3">
-                        <Select
-                            label="Field Type"
-                            required
-                            value={field.fieldType}
-                            onChange={(e) => {
-                                const newType = e.target.value;
-                                updateField(i, {
-                                    fieldType: newType,
-                                    options: newType === "dropdown" ? field.options : [],
-                                });
-                            }}
-                            options={[
-                                { label: "Text", value: "text" },
-                                { label: "Number", value: "number" },
-                                { label: "Email", value: "email" },
-                                { label: "Dropdown", value: "dropdown" },
-                            ]}
-                        />
-
-                        <Input
-                            label="Placeholder"
-                            placeholder="Enter text..."
-                            value={field.placeholder}
-                            onChange={(e) =>
-                                updateField(i, { placeholder: e.target.value })
-                            }
-                        />
-                    </div>
-
-                    {/* Dropdown Options */}
-                    {field.fieldType === "dropdown" && (
-                        <div className="mb-3">
-                            <label className="font-medium">Options (comma-separated)</label>
-                            <textarea
-                                className="border p-2 rounded w-full"
-                                rows={2}
-                                placeholder="e.g. Option A, Option B"
-                                value={field.options?.join(", ")}
-                                onChange={(e) =>
-                                    updateField(i, {
-                                        options: e.target.value
-                                            .split(",")
-                                            .map((o) => o.trim())
-                                            .filter(Boolean),
-                                    })
-                                }
-                            />
-                            {errors?.[i]?.options && (
-                                <p className="text-red-500 text-sm">{errors[i].options}</p>
-                            )}
-                        </div>
-                    )}
-
-                    {/* Required Toggle */}
-                    <div className="flex items-center gap-2 mb-3">
-                        <input
-                            type="checkbox"
-                            checked={field.required}
-                            onChange={(e) =>
-                                updateField(i, { required: e.target.checked })
-                            }
-                        />
-                        <label>Required</label>
-                    </div>
-
-                    {/* Remove Button */}
-                    <button
-                        type="button"
-                        className="text-red-600 flex items-center gap-1 cursor-pointer"
-                        onClick={() => removeField(i)}
+            {/* Fields */}
+            <div className="space-y-4">
+                {fields.map((field, i) => (
+                    <div
+                        key={i}
+                        className="bg-gray-50 p-4 rounded-lg border border-gray-200 relative group"
                     >
-                        <IoTrash /> Remove Field
-                    </button>
-                </div>
-            ))}
+                        {/* Delete */}
+                        <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition">
+                            <button
+                                type="button"
+                                onClick={() => removeField(i)}
+                                className="p-1.5 text-red-500 hover:bg-white rounded"
+                            >
+                                <TbTrash />
+                            </button>
+                        </div>
 
-            <button
-                onClick={addField}
-                type="button"
-                className="text-green-600 hover:text-green-700 cursor-pointer"
-            >
-                + Add Field
-            </button>
+                        <div className="space-y-3 pr-10">
+                            {/* Row 1 */}
+                            <div className="grid grid-cols-2 gap-4">
+                                <Input
+                                    label="Field Name"
+                                    placeholder="Full Name"
+                                    required
+                                    value={field.fieldName}
+                                    error={errors?.[i]?.fieldName}
+                                    onChange={(e) => {
+                                        const fieldName = e.target.value;
+                                        const fieldKey = fieldName
+                                            .toLowerCase()
+                                            .replace(/\s+/g, "_")
+                                            .replace(/[^a-z0-9_]/g, "");
+                                        updateField(i, {
+                                            fieldName,
+                                            fieldKey,
+                                        });
+                                    }}
+                                />
+
+                                <Input
+                                    label="Field Key"
+                                    placeholder="full_name"
+                                    value={field.fieldKey}
+                                    error={errors?.[i]?.fieldKey}
+                                    onChange={(e) =>
+                                        updateField(i, {
+                                            fieldKey: e.target.value,
+                                        })
+                                    }
+                                />
+                            </div>
+
+                            {/* Row 2 */}
+                            <div className="grid grid-cols-2 gap-4">
+                                <Select
+                                    label="Field Type"
+                                    required
+                                    value={field.fieldType}
+                                    onChange={(e) => {
+                                        const newType = e.target.value;
+                                        updateField(i, {
+                                            fieldType: newType,
+                                            options:
+                                                newType === "dropdown"
+                                                    ? []
+                                                    : [],
+                                            optionsText: "",
+                                        });
+                                    }}
+                                    options={[
+                                        { label: "Text", value: "text" },
+                                        { label: "Number", value: "number" },
+                                        { label: "Email", value: "email" },
+                                        {
+                                            label: "Dropdown",
+                                            value: "dropdown",
+                                        },
+                                    ]}
+                                />
+
+                                <Input
+                                    label="Placeholder"
+                                    placeholder="Enter text..."
+                                    value={field.placeholder}
+                                    onChange={(e) =>
+                                        updateField(i, {
+                                            placeholder: e.target.value,
+                                        })
+                                    }
+                                />
+                            </div>
+
+                            {/* Dropdown Options */}
+                            {field.fieldType === "dropdown" && (
+                                <div>
+                                    <label className="block font-medium text-sm mb-1.5">
+                                        Options (comma-separated)
+                                    </label>
+                                    <textarea
+                                        className="border border-gray-300 p-2 rounded w-full text-sm focus:outline-none focus:border-blue-500"
+                                        rows={2}
+                                        placeholder="e.g. Option A, Option B"
+                                        value={field.optionsText ?? ""}
+                                        onChange={(e) => {
+                                            const text = e.target.value;
+                                            updateField(i, {
+                                                optionsText: text,
+                                                options: text
+                                                    .split(",")
+                                                    .map((o) => o.trim())
+                                                    .filter(Boolean),
+                                            });
+                                        }}
+                                    />
+                                    {errors?.[i]?.options && (
+                                        <p className="text-red-500 text-xs mt-1">
+                                            {errors[i].options}
+                                        </p>
+                                    )}
+                                </div>
+                            )}
+
+                            {/* Required */}
+                            <div className="flex items-center gap-2">
+                                <input
+                                    type="checkbox"
+                                    checked={field.required}
+                                    onChange={(e) =>
+                                        updateField(i, {
+                                            required: e.target.checked,
+                                        })
+                                    }
+                                    className="rounded"
+                                />
+                                <label className="text-sm font-medium">
+                                    Required Field
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                ))}
+
+                {fields.length === 0 && (
+                    <div className="text-center py-6 bg-gray-50 rounded-lg border border-dashed border-gray-300 text-gray-500 text-sm">
+                        No fields yet. Click "Add Field" to add one.
+                    </div>
+                )}
+            </div>
         </div>
     );
 }

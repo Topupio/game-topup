@@ -1,13 +1,17 @@
 import { Product } from "./product";
 
-export type RequiredField = {
+export interface RequiredField {
     fieldName: string;
     fieldKey: string;
     fieldType: "text" | "number" | "email" | "dropdown" | string;
     placeholder?: string;
-    options: string[];
+    options?: string[];
+
+    // UI-only helper (NOT sent to backend)
+    optionsText?: string;
+
     required: boolean;
-};
+}
 
 export type Game = {
     _id: string;
@@ -19,12 +23,15 @@ export type Game = {
     description: string;
     requiredFields: RequiredField[];
     status: "active" | "inactive";
+    metaTitle?: string;
+    metaDescription?: string;
 };
 
 export type GamesListResponse = {
     success: boolean;
     total: number;
     page: number;
+    limit: number;
     totalPages: number;
     count: number;
     data: Game[];

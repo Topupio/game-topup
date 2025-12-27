@@ -8,4 +8,6 @@ export type GamePayload = {
     status: "active" | "inactive";
     requiredFields: Game["requiredFields"];
     image?: File | null;
+    metaTitle?: string;
+    metaDescription?: string;
 };

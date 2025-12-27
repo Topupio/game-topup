@@ -103,13 +103,17 @@ export default function MobileSearchDrawer() {
                         onClick={() => router.push(`/games/${game.slug}`)}
                     >
                         <div className="h-14 w-14 bg-white/10 rounded-xl flex items-center justify-center overflow-hidden">
-                            <Image
-                                src={game.imageUrl}
-                                alt={game.name}
-                                width={56}
-                                height={56}
-                                className="object-cover h-full w-full"
-                            />
+                            {game.imageUrl ? (
+                                <Image
+                                    src={game.imageUrl}
+                                    alt={game.name}
+                                    width={56}
+                                    height={56}
+                                    className="object-cover h-full w-full"
+                                />
+                            ) : (
+                                <div className="h-full w-full flex items-center justify-center text-sm text-gray-300">No Image</div>
+                            )}
                         </div>
 
                         <div className="flex flex-col">

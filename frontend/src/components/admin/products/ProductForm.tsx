@@ -1,277 +1,289 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import { toast } from "react-toastify";
+
 import { Product, ProductPayload } from "@/lib/types/product";
 import { productsApiClient } from "@/services/products";
+import { useAdminForm } from "@/hooks/useAdminForm";
 
+import FormWrapper from "@/components/admin/form/FormWrapper";
+import FormSection from "@/components/admin/form/FormSection";
 import Input from "@/components/form/Input";
 import ImageUploader from "@/components/form/ImageUploader";
 import StatusToggle from "@/components/form/StatusToggle";
 import Textarea from "@/components/form/TextArea";
-import SubmitButton from "@/components/ui/SubmitButton";
+import FilterDropdown from "@/components/admin/shared/FilterDropdown";
+import { gamesApiClient, Game } from "@/services/games";
+import { useState } from "react";
 
 interface ProductFormProps {
-    slug: string | "new";
+    productId: string;
 }
 
-export default function ProductForm({ slug }: ProductFormProps) {
-    const router = useRouter();
-    const isEdit = slug !== "new";
+export default function ProductForm({ productId }: ProductFormProps) {
+    const isEdit = productId !== "new";
+    const [games, setGames] = useState<Game[]>([]);
 
-    const [form, setForm] = useState<Product>({
-        _id: "",
-        gameId: "",
-        name: "",
-        slug: "",
-        description: "",
-        image: null,
-        price: 0,
-        discountedPrice: 0,
-        deliveryTime: "Instant Delivery",
-        status: "active",
-        isPopular: false,
-        metaTitle: "",
-        metaDescription: "",
-    });
-
-    const [imageFile, setImageFile] = useState<File | null>(null);
-    const [loading, setLoading] = useState(false);
-
-    const [errors, setErrors] = useState({
-        name: "",
-        slug: "",
-        price: "",
-        discountedPrice: "",
-        gameId: "",
-    });
-
-    // Load product on edit
-    useEffect(() => {
-        let mounted = true;
-        if (isEdit) {
-            (async () => {
-                try {
-                    const res = await productsApiClient.get(slug as string);
-                    if (mounted) setForm(res);
-                } catch (e) {
-                    console.error(e);
-                    toast.error("Failed to load product");
-                }
-            })();
-        }
-        return () => {
-            mounted = false;
-        };
-    }, [slug, isEdit]);
-
-    // VALIDATION
-    const validate = () => {
-        const newErr: any = {
-            name: "",
-            slug: "",
-            price: "",
-            discountedPrice: "",
+    const {
+        form,
+        updateForm,
+        loading,
+        errors,
+        updateError,
+        clearError,
+        handleSubmit,
+    } = useAdminForm<ProductPayload & { imageFile?: File | null }>(
+        {
             gameId: "",
+            name: "",
+            description: "",
+            image: null,
+            price: 0,
+            discountedPrice: 0,
+            deliveryTime: "Instant Delivery",
+            status: "active",
+            isPopular: false,
+            imageFile: null,
+        },
+        {
+            onSuccess: () => {
+                toast.success(isEdit ? "Product updated successfully" : "Product created successfully");
+            },
+            onError: (error: any) => {
+                toast.error(error.response?.data?.message || "Failed to save product");
+            },
+            redirectPath: "/admin/products",
+        }
+    );
+
+    /* Load games and product data */
+    useEffect(() => {
+        const fetchGames = async () => {
+            try {
+                const res = await gamesApiClient.list({ status: 'active', limit: 100 });
+                setGames(res.data);
+            } catch (error) {
+                console.error("Failed to fetch games", error);
+            }
         };
+        fetchGames();
 
-        if (!form.name.trim()) newErr.name = "Product name is required";
-        if (!form.slug.trim()) newErr.slug = "Slug is required";
-        if (!form.gameId) newErr.gameId = "Game selection is required";
+        if (!isEdit) return;
 
-        if (form.price <= 0) newErr.price = "Price must be greater than 0";
+        (async () => {
+            try {
+                const res = await productsApiClient.get(productId as string);
+                const product: Product = res.data;
+                updateForm({
+                    gameId: product.gameId,
+                    name: product.name,
+                    description: product.description ?? "",
+                    image: product.imageUrl ?? null,
+                    price: product.price,
+                    discountedPrice: product.discountedPrice,
+                    deliveryTime: product.deliveryTime ?? "Instant Delivery",
+                    status: product.status,
+                    isPopular: product.isPopular ?? false,
+                    imageFile: null,
+                });
+            } catch (err) {
+                console.error(err);
+                toast.error("Failed to load product");
+            }
+        })();
+    }, [productId, isEdit, updateForm]);
 
-        if (form.discountedPrice < 0)
-            newErr.discountedPrice = "Invalid discounted price";
-        else if (form.discountedPrice > form.price)
-            newErr.discountedPrice = "Discount cannot exceed price";
+    /* Validation */
+    const validate = (): boolean => {
+        clearError("name");
+        clearError("price");
+        clearError("discountedPrice");
+        clearError("gameId");
 
-        setErrors(newErr);
+        let isValid = true;
 
-        return Object.values(newErr).every((v) => v === "");
+        if (!form.name?.trim()) {
+            updateError("name", "Product name is required");
+            isValid = false;
+        }
+
+        if (!form.gameId) {
+            updateError("gameId", "Game selection is required");
+            isValid = false;
+        }
+
+        const price = Number(form.price);
+        const discountedPrice = Number(form.discountedPrice);
+
+        if (isNaN(price) || price <= 0) {
+            updateError("price", "Price must be a positive number");
+            isValid = false;
+        }
+
+        if (isNaN(discountedPrice) || discountedPrice <= 0) {
+            updateError("discountedPrice", "Discounted price cannot be negative or zero");
+            isValid = false;
+        } else if (discountedPrice > price) {
+            updateError("discountedPrice", "Discounted price cannot exceed the original price");
+            isValid = false;
+        }
+
+        return isValid;
     };
 
+    /* Submit */
     const onSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
         if (!validate()) {
-            toast.error("Fix the validation errors");
+            toast.error("Please fix validation errors");
             return;
         }
 
-        setLoading(true);
-
-        try {
+        await handleSubmit(async (formData) => {
             const payload: ProductPayload = {
-                gameId: form.gameId,
-                name: form.name,
-                slug: form.slug,
-                description: form.description,
-                price: form.price,
-                discountedPrice: form.discountedPrice,
-                deliveryTime: form.deliveryTime,
-                status: form.status,
-                isPopular: form.isPopular,
-                metaTitle: form.metaTitle,
-                metaDescription: form.metaDescription,
-                image: imageFile ?? null,
+                gameId: formData.gameId,
+                name: formData.name,
+                description: formData.description,
+                price: formData.price,
+                discountedPrice: formData.discountedPrice,
+                deliveryTime: formData.deliveryTime,
+                status: formData.status,
+                isPopular: formData.isPopular,
+                image: (formData.imageFile as File) ?? null,
             };
 
             if (isEdit) {
-                await productsApiClient.update(slug as string, payload);
-                toast.success("Product updated");
+                await productsApiClient.update(productId, payload);
             } else {
                 await productsApiClient.create(payload);
-                toast.success("Product created");
             }
-
-            router.push("/admin/products");
-        } catch (err) {
-            console.error(err);
-            toast.error("Failed to save product");
-        } finally {
-            setLoading(false);
-        }
+        }, e);
     };
 
     return (
-        <form onSubmit={onSubmit} className="p-6 max-w-4xl mx-auto space-y-6">
-            <h1 className="text-2xl font-semibold">
-                {isEdit ? "Update Product" : "Create Product"}
-            </h1>
+        <FormWrapper
+            title={isEdit ? "Update Product" : "Create New Product"}
+            isEdit={isEdit}
+            loading={loading}
+            onSubmit={onSubmit}
+            submitLabel={isEdit ? "Update Product" : "Create Product"}
+        >
+            {/* Basic Info */}
+            <FormSection title="Basic Information">
+                <ImageUploader
+                    imageUrl={form.image || null}
+                    aspectRatio={1}
+                    onChange={(file, preview) => {
+                        updateForm({
+                            imageFile: file,
+                            image: preview,
+                        });
+                    }}
+                />
 
-            {/* IMAGE UPLOAD */}
-            <ImageUploader
-                imageUrl={form.imageUrl || null}
-                aspectRatio={1}
-                onChange={(file, preview) => {
-                    setImageFile(file);
-                    setForm((f) => ({ ...f, image: preview }));
-                }}
-            />
+                <div className="grid grid-cols-1 gap-6">
+                    <Input
+                        label="Product Name"
+                        value={form.name}
+                        error={errors.name}
+                        required
+                        onChange={(e) => {
+                            updateForm({ name: e.target.value });
+                            clearError("name");
+                        }}
+                    />
+                </div>
 
-            {/* Game ID */}
-            <Input
-                label="Game ID"
-                placeholder="Select or enter a Game ID"
-                value={form.gameId}
-                error={errors.gameId}
-                required
-                onChange={(e) =>
-                    setForm({ ...form, gameId: e.target.value })
-                }
-            />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+                    <FilterDropdown
+                        label="Select Game"
+                        options={games.map(g => ({ label: g.name, value: g._id }))}
+                        value={form.gameId}
+                        error={errors.gameId}
+                        onChange={(val) => {
+                            updateForm({ gameId: val });
+                            clearError("gameId");
+                        }}
+                        placeholder="Choose a game..."
+                        className="w-full"
+                    />
 
-            {/* Name */}
-            <Input
-                label="Product Name"
-                placeholder="Enter product name"
-                value={form.name}
-                error={errors.name}
-                required
-                onChange={(e) =>
-                    setForm({ ...form, name: e.target.value })
-                }
-            />
+                    <Input
+                        label="Delivery Time"
+                        value={form.deliveryTime}
+                        onChange={(e) =>
+                            updateForm({ deliveryTime: e.target.value })
+                        }
+                    />
+                </div>
 
-            {/* Slug */}
-            <Input
-                label="Slug"
-                placeholder="unique-product-slug"
-                value={form.slug}
-                error={errors.slug}
-                required
-                onChange={(e) =>
-                    setForm({ ...form, slug: e.target.value.toLowerCase().replace(/\s+/g, "-") })
-                }
-            />
-
-            {/* Description */}
-            <Textarea
-                label="Description"
-                placeholder="Enter description"
-                value={form.description}
-                onChange={(e) =>
-                    setForm({ ...form, description: e.target.value })
-                }
-            />
-
-            {/* Pricing */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Input
-                    label="Price"
-                    type="number"
-                    value={form.price}
-                    error={errors.price}
-                    required
+                <Textarea
+                    label="Description"
+                    value={form.description}
                     onChange={(e) =>
-                        setForm({ ...form, price: Number(e.target.value) })
+                        updateForm({ description: e.target.value })
                     }
                 />
+            </FormSection>
 
-                <Input
-                    label="Discounted Price"
-                    type="number"
-                    value={form.discountedPrice}
-                    error={errors.discountedPrice}
-                    required
-                    onChange={(e) =>
-                        setForm({ ...form, discountedPrice: Number(e.target.value) })
-                    }
-                />
-            </div>
+            {/* Pricing & Settings */}
+            <FormSection title="Pricing & Settings">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <Input
+                        label="Price"
+                        type="number"
+                        value={form.price}
+                        error={errors.price}
+                        required
+                        onChange={(e) => {
+                            updateForm({ price: Number(e.target.value) });
+                            clearError("price");
+                        }}
+                    />
 
-            <Input
-                label="Delivery Time"
-                value={form.deliveryTime}
-                onChange={(e) =>
-                    setForm({ ...form, deliveryTime: e.target.value })
-                }
-            />
+                    <Input
+                        label="Discounted Price"
+                        type="number"
+                        value={form.discountedPrice}
+                        error={errors.discountedPrice}
+                        required
+                        onChange={(e) => {
+                            updateForm({
+                                discountedPrice: Number(e.target.value),
+                            });
+                            clearError("discountedPrice");
+                        }}
+                    />
+                </div>
 
-            {/* Status */}
-            <div>
-                <label className="font-medium">Status</label>
-                <StatusToggle
-                    value={form.status}
-                    onChange={(s) => setForm({ ...form, status: s })}
-                />
-            </div>
+                <div className="space-y-4">
+                    <div>
+                        <label className="font-medium block mb-2">Status</label>
+                        <StatusToggle
+                            value={form.status}
+                            onChange={(s) => updateForm({ status: s })}
+                        />
+                    </div>
 
-            {/* Popular toggle */}
-            <div className="flex items-center gap-2">
-                <label className="font-medium">Popular Product?</label>
-                <input
-                    type="checkbox"
-                    checked={form.isPopular}
-                    onChange={(e) =>
-                        setForm({ ...form, isPopular: e.target.checked })
-                    }
-                />
-            </div>
-
-            {/* SEO Fields */}
-            <Input
-                label="Meta Title"
-                value={form.metaTitle}
-                onChange={(e) =>
-                    setForm({ ...form, metaTitle: e.target.value })
-                }
-            />
-
-            <Textarea
-                label="Meta Description"
-                value={form.metaDescription}
-                onChange={(e) =>
-                    setForm({ ...form, metaDescription: e.target.value })
-                }
-            />
-
-            <SubmitButton
-                isLoading={loading}
-                label={isEdit ? "Update Product" : "Create Product"}
-            />
-        </form>
+                    <div>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                            <input
+                                type="checkbox"
+                                checked={form.isPopular}
+                                onChange={(e) =>
+                                    updateForm({ isPopular: e.target.checked })
+                                }
+                                className="rounded"
+                            />
+                            <span className="font-medium text-sm">
+                                Mark as Featured
+                            </span>
+                        </label>
+                    </div>
+                </div>
+            </FormSection>
+        </FormWrapper>
     );
 }

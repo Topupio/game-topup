@@ -14,7 +14,7 @@ const router = Router();
 
 // Public: list products and get single by slug
 router.get("/", getProducts);
-router.get("/:slug", getSingleProduct);
+router.get("/:id", getSingleProduct);
 
 // Admin only: create, update, delete products
 router.post("/", protect, authorize("admin"), upload.single("image"), createProduct);

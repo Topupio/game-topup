@@ -70,16 +70,6 @@ const productSchema = new mongoose.Schema(
             type: Boolean,
             default: false,
         },
-
-        // Future-proof SEO fields
-        metaTitle: {
-            type: String,
-            default: "",
-        },
-        metaDescription: {
-            type: String,
-            default: "",
-        },
     },
     { timestamps: true }
 );

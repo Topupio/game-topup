@@ -79,6 +79,17 @@ const gameSchema = new mongoose.Schema(
             enum: ["active", "inactive"],
             default: "active",
         },
+
+        // SEO fields
+        metaTitle: {
+            type: String,
+            default: "",
+        },
+
+        metaDescription: {
+            type: String,
+            default: "",
+        },
     },
     { timestamps: true }
 );

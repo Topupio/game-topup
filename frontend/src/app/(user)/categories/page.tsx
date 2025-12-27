@@ -2,7 +2,11 @@ import { gamesApiServer } from "@/services/games/gamesApi.server";
 import { Game } from "@/services/games";
 import CategoryListingPage from "@/components/user/categories/CategoryListingPage";
 
-export default async function CategoryPage({ searchParams }: { searchParams: { [key: string]: string | string[] | undefined } }) {
+export default async function CategoryPage({
+    searchParams,
+}: {
+    searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
     const params = await searchParams;
     const category = typeof params.category === "string" ? params.category : undefined;
     const page = Number(params.page) || 1;

@@ -37,9 +37,11 @@ export interface BlogPayload {
 
 export interface BlogListResponse {
     success: boolean;
-    count: number;
+    total: number;
+    page: number;
+    limit: number;
     totalPages: number;
-    currentPage: number;
+    count: number;
     data: Blog[];
 }
 

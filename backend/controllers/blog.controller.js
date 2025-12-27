@@ -72,11 +72,18 @@ export const createBlog = asyncHandler(async (req, res) => {
 // @route   GET /api/blogs
 // @access  Public
 export const getAllBlogs = asyncHandler(async (req, res) => {
-    const { category, page = 1, limit = 10 } = req.query;
+    const { category, search = "", page = 1, limit = 10 } = req.query;
 
     const query = {};
     if (category) {
         query.category = category;
+    }
+
+    if (search) {
+        query.$or = [
+            { title: { $regex: search, $options: "i" } },
+            { description: { $regex: search, $options: "i" } }
+        ];
     }
 
     const count = await Blog.countDocuments(query);
@@ -87,9 +94,11 @@ export const getAllBlogs = asyncHandler(async (req, res) => {
 
     res.status(200).json({
         success: true,
-        count,
+        total: count,
+        page: Number(page),
+        limit: Number(limit),
         totalPages: Math.ceil(count / limit),
-        currentPage: Number(page),
+        count: blogs.length,
         data: blogs,
     });
 });
