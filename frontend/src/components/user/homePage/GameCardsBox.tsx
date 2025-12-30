@@ -1,5 +1,7 @@
-import { Game } from '@/services/games';
-import SingleGameCard from './SingleGameCard';
+import { Game } from "@/lib/types/game";
+import SingleGameCard from "./SingleGameCard";
+import Link from "next/link";
+import { RiArrowRightSLine } from "react-icons/ri";
 
 interface GameCardsBoxProps {
     title: string;
@@ -8,23 +10,30 @@ interface GameCardsBoxProps {
 
 const GameCardsBox = ({ title, games }: GameCardsBoxProps) => {
     return (
-        <div className='rounded-xl p-5 bg-white/5 backdrop-blur-xl border border-white/10'>
-            <div className='flex justify-between my-2'>
-                <h2 className='text-white font-semibold lg:text-xl mb-3'>
-                    {title}
-                </h2>
+        <div className="rounded-2xl p-6 bg-white/[0.02] backdrop-blur-xl border border-white/5 hover:border-white/10 transition-colors">
+            <div className="flex justify-between items-center mb-6">
+                <div>
+                    <h2 className="text-white font-bold text-lg lg:text-xl capitalize tracking-tight">
+                        {title}
+                    </h2>
+                    <div className="h-1 w-12 bg-secondary rounded-full mt-1" />
+                </div>
+
+                <Link
+                    href={`/categories?category=${title}&page=1`}
+                    className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-secondary transition-colors group"
+                >
+                    View All <RiArrowRightSLine className="group-hover:translate-x-1 transition-transform" />
+                </Link>
             </div>
 
-            <div className='grid lg:grid-cols-2 grid-cols-1 gap-2'>
+            <div className="grid lg:grid-cols-2 grid-cols-1 gap-2">
                 {games.map((game) => (
-                    <SingleGameCard 
-                        key={game.slug} 
-                        game={game} 
-                    />
+                    <SingleGameCard key={game._id} game={game} />
                 ))}
             </div>
         </div>
-    )
+    );
 }
 
 export default GameCardsBox;

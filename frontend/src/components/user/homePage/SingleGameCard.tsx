@@ -1,23 +1,47 @@
-import { Game } from '@/services/games';
+"use client";
 
-const SingleGameCard = ({ game }: { game: Game}) => {
+import { Game } from "@/lib/types/game";
+import Link from "next/link";
+import { motion } from "framer-motion";
+import { RiArrowRightSLine } from "react-icons/ri";
+
+const SingleGameCard = ({ game }: { game: Game }) => {
     return (
-        <div className="group relative mt-1 ">
-            <div className="flex items-center gap-5 text-white">
-                <img
-                    src={game.imageUrl ?? undefined}
-                    alt={game.name}
-                    className="relative z-10 lg:w-24 w-20 lg:h-24 h-20 object-cover rounded-lg"
-                />
-
-                <div className="flex flex-col justify-between">
-                    <p className="text-lg uppercase">{game.name}</p>
-                    <p className="hidden lg:block">500 Uc</p>
-                    <p>{game.category}</p>
+        <motion.div
+            initial={{ opacity: 0, x: -10 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            whileHover={{ x: 5 }}
+            transition={{ duration: 0.3 }}
+            className="group relative"
+        >
+            <Link
+                href={`/games/${game.slug}`}
+                className="flex items-center gap-4 p-3 rounded-xl bg-white/5 border border-white/5 hover:border-secondary/30 hover:bg-white/[0.08] transition-all duration-300 group"
+            >
+                <div className="relative shrink-0">
+                    <img
+                        src={game.imageUrl ?? "/placeholder.png"}
+                        alt={game.name}
+                        className="w-16 h-16 lg:w-20 lg:h-20 object-cover rounded-lg shadow-lg group-hover:scale-105 transition-transform duration-500"
+                    />
+                    <div className="absolute inset-0 bg-secondary/10 blur-xl opacity-0 group-hover:opacity-40 transition-opacity rounded-full" />
                 </div>
-            </div>
-        </div>
-    )
+
+                <div className="flex flex-col flex-1 min-w-0">
+                    <h3 className="text-white font-bold text-sm lg:text-base truncate group-hover:text-secondary transition-colors">
+                        {game.name}
+                    </h3>
+                    <p className="text-gray-500 text-[11px] uppercase tracking-wide mt-1">
+                        {game.category}
+                    </p>
+                    <div className="flex items-center gap-1 text-secondary text-[10px] font-bold mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        View Products <RiArrowRightSLine size={12} />
+                    </div>
+                </div>
+            </Link>
+        </motion.div>
+    );
 }
 
 export default SingleGameCard;
