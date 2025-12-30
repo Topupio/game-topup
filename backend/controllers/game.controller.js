@@ -155,7 +155,7 @@ const getGameDetails = asyncHandler(async (req, res) => {
 // @route   POST /api/games
 // @access  Admin
 const createGame = asyncHandler(async (req, res) => {
-    const { name, description, status, metaTitle, metaDescription } = req.body;
+    const { name, description, status, metaTitle, metaDescription, topupType } = req.body;
 
     // 1. Parse & Validate requiredFields
     let requiredFields = req.body.requiredFields;
@@ -230,6 +230,11 @@ const createGame = asyncHandler(async (req, res) => {
         return res.status(400).json({ success: false, message: "Game category is required" });
     }
 
+    // topupType validation
+    if (!topupType || topupType.trim().length === 0) {
+        return res.status(400).json({ success: false, message: "Top-up type is required" });
+    }
+
     // Image validation
     if (!req.file) {
         return res.status(400).json({ success: false, message: "Game image is required" });
@@ -281,6 +286,7 @@ const createGame = asyncHandler(async (req, res) => {
             imagePublicId: uploadedImagePublicId,
             description: description?.trim() || "",
             requiredFields: requiredFields || [],
+            topupType: topupType.trim(),
             status: status === "inactive" ? "inactive" : "active",
             metaTitle: metaTitle || "",
             metaDescription: metaDescription || "",
@@ -302,7 +308,7 @@ const createGame = asyncHandler(async (req, res) => {
 });
 
 const updateGame = asyncHandler(async (req, res) => {
-    const { name, description, status, metaTitle, metaDescription } = req.body;
+    const { name, description, status, metaTitle, metaDescription, topupType } = req.body;
     const category = req.body.category?.trim().toLowerCase();
 
     // 1. Fetch existing game
@@ -415,6 +421,7 @@ const updateGame = asyncHandler(async (req, res) => {
     game.name = name ?? game.name;
     game.slug = updatedSlug;
     game.category = category ?? game.category;
+    game.topupType = topupType ?? game.topupType;
     game.description = description ?? game.description;
     game.status = status ?? game.status;
     game.metaTitle = metaTitle ?? game.metaTitle;

@@ -23,8 +23,8 @@ export default function HeroHeader({ imageUrl, title, subtitle }: HeroHeaderProp
                 />
 
                 <div>
-                    <h1 className="text-3xl font-bold tracking-wide">Efootball 2024</h1>
-                    <p className="text-gray-300 text-sm">Top-up Game Utilities</p>
+                    <h1 className="text-3xl font-bold tracking-wide">{title}</h1>
+                    <p className="text-gray-300 text-sm">{subtitle || "Top-up Game Utilities"}</p>
                 </div>
             </div>
         </div>

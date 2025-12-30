@@ -37,6 +37,7 @@ export default function GameForm({ gameId }: Props) {
             name: "",
             slug: "",
             category: "",
+            topupType: "",
             description: "",
             imageUrl: null,
             status: "active",
@@ -90,6 +91,10 @@ export default function GameForm({ gameId }: Props) {
             updateError("category", "Category is required");
             isValid = false;
         }
+        if (!form.topupType?.trim()) {
+            updateError("topupType", "Top-up type is required");
+            isValid = false;
+        }
         if (!form.description?.trim()) {
             updateError("description", "Description is required");
             isValid = false;
@@ -110,6 +115,7 @@ export default function GameForm({ gameId }: Props) {
             const payload: GamePayload = {
                 name: formData.name,
                 category: formData.category,
+                topupType: formData.topupType,
                 description: formData.description,
                 status: formData.status,
                 requiredFields: formData.requiredFields,
@@ -169,6 +175,18 @@ export default function GameForm({ gameId }: Props) {
                         onChange={(e) => {
                             updateForm({ category: e.target.value });
                             clearError("category");
+                        }}
+                    />
+
+                    <Input
+                        label="Top-up Type"
+                        placeholder="e.g. ID Top-up, ID Recharge"
+                        value={form.topupType}
+                        required
+                        error={errors.topupType}
+                        onChange={(e) => {
+                            updateForm({ topupType: e.target.value });
+                            clearError("topupType");
                         }}
                     />
                 </div>

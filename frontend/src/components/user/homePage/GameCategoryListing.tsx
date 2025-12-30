@@ -5,7 +5,7 @@ import { RiLayoutGridFill, RiArrowRightSLine } from "react-icons/ri";
 
 const GameCategoryListing = ({ categories }: { categories: CategoryGameSection[] }) => {
     return (
-        <div className="mt-16 lg:mt-24 mb-20 relative">
+        <div className="mt-16 lg:mt-24 relative">
             {/* Header Section */}
             <div className="flex items-center justify-between mb-10">
                 <div className="flex items-center gap-4">

@@ -4,6 +4,7 @@ export type GamePayload = {
     name: string;
     slug?: string;
     category: string;
+    topupType: string;
     description?: string;
     status: "active" | "inactive";
     requiredFields: Game["requiredFields"];

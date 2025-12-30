@@ -33,7 +33,7 @@ const SingleGameCard = ({ game }: { game: Game }) => {
                         {game.name}
                     </h3>
                     <p className="text-gray-500 text-[11px] uppercase tracking-wide mt-1">
-                        {game.category}
+                        {game.topupType}
                     </p>
                     <div className="flex items-center gap-1 text-secondary text-[10px] font-bold mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
                         View Products <RiArrowRightSLine size={12} />

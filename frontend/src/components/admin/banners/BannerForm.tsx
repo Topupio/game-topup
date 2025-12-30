@@ -145,7 +145,7 @@ export default function BannerForm({ bannerId }: Props) {
 
                 <Input
                     label="Link URL (Optional)"
-                    placeholder="/games/some-game"
+                    placeholder="game-name"
                     value={(form.link as string) || ""}
                     onChange={(e) => updateForm({ link: e.target.value })}
                 />
