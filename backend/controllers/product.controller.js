@@ -262,10 +262,25 @@ const getSingleProduct = asyncHandler(async (req, res) => {
     });
 });
 
+
+const getPopularProducts = asyncHandler(async (req, res) => {
+    const popularProducts = await Product.find({ isPopular: true, status: "active" })
+        .populate("gameId", "name slug category imageUrl")
+        .sort({ createdAt: -1 })
+        .limit(6);
+
+    return res.status(200).json({
+        success: true,
+        count: popularProducts.length,
+        data: popularProducts,
+    });
+});
+
 export {
     createProduct,
     updateProduct,
     deleteProduct,
     getProducts,
     getSingleProduct,
+    getPopularProducts,
 }

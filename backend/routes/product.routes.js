@@ -5,6 +5,7 @@ import {
     deleteProduct,
     getProducts,
     getSingleProduct,
+    getPopularProducts,
 } from "../controllers/product.controller.js";
 import { protect } from "../middlewares/auth.middleware.js";
 import { authorize } from "../middlewares/role.middleware.js";
@@ -14,6 +15,7 @@ const router = Router();
 
 // Public: list products and get single by slug
 router.get("/", getProducts);
+router.get("/popular", getPopularProducts);
 router.get("/:id", getSingleProduct);
 
 // Admin only: create, update, delete products
