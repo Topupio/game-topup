@@ -42,7 +42,6 @@ export default function HotProducts({ products }: Props) {
                 spaceBetween={20}
                 freeMode={true}
                 modules={[FreeMode]}
-                className="!overflow-visible"
             >
                 {products.map((product) => (
                     <SwiperSlide

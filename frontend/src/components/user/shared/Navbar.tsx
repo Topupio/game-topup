@@ -14,9 +14,16 @@ import {
     RiSearchLine,
     RiUserLine,
     RiGlobalLine,
-    RiArrowDownSLine
+    RiHome4Line,
+    RiGamepadLine,
+    RiArticleLine,
+    RiDiscordFill,
+    RiTwitterXFill,
+    RiInstagramLine,
+    RiFacebookFill
 } from "react-icons/ri";
 import { motion, AnimatePresence } from "framer-motion";
+import Drawer from "./Drawer";
 
 export default function Navbar() {
     const [open, setOpen] = useState(false);
@@ -88,15 +95,78 @@ export default function Navbar() {
                 </div>
             </div>
 
-            {/* MOBILE DROPDOWN MENU */}
-            {open && (
-                <div className="lg:hidden bg-black/80 backdrop-blur-2xl border-t border-white/10 p-6 space-y-6">
+            {/* MOBILE DRAWER MENU */}
+            <Drawer
+                isOpen={open}
+                onClose={() => setOpen(false)}
+                title="Menu"
+            >
+                <div className="space-y-4">
+                    <div className="space-y-1">
+                        <MobileLink
+                            href="/"
+                            label="Home"
+                            icon={<RiHome4Line size={20} />}
+                            onClick={() => setOpen(false)}
+                        />
+                        <MobileLink
+                            href="/categories"
+                            label="Games"
+                            icon={<RiGamepadLine size={20} />}
+                            onClick={() => setOpen(false)}
+                        />
+                        <MobileLink
+                            href="/blogs"
+                            label="Blog"
+                            icon={<RiArticleLine size={20} />}
+                            onClick={() => setOpen(false)}
+                        />
+                    </div>
 
-                    <MobileLink href="/" label="Home" />
-                    <MobileLink href="/categories" label="Games" />
-                    <MobileLink href="/blogs" label="Blog" />
+                    <div className="p-6 border-t border-white/5 space-y-4">
+                        {user ? (
+                            <Link
+                                href="/account"
+                                onClick={() => setOpen(false)}
+                                className="flex items-center gap-3 p-4 rounded-2xl bg-secondary/10 border border-secondary/20 text-white"
+                            >
+                                <div className="w-10 h-10 rounded-full bg-secondary/20 flex items-center justify-center text-secondary font-bold">
+                                    {user.name?.[0]?.toUpperCase() || "U"}
+                                </div>
+                                <div className="flex-1">
+                                    <p className="text-sm font-bold truncate max-w-[120px]">{user.name}</p>
+                                    <p className="text-[10px] text-gray-400">View Profile</p>
+                                </div>
+                            </Link>
+                        ) : (
+                            <div className="grid grid-cols-2 gap-3">
+                                <Link
+                                    href="/login"
+                                    onClick={() => setOpen(false)}
+                                    className="px-6 py-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm font-medium text-center hover:bg-white/10 transition"
+                                >
+                                    Login
+                                </Link>
+                                <Link
+                                    href="/register"
+                                    onClick={() => setOpen(false)}
+                                    className="px-6 py-3 rounded-xl bg-secondary text-black text-sm font-bold text-center hover:opacity-90 transition"
+                                >
+                                    Sign Up
+                                </Link>
+                            </div>
+                        )}
+
+                        {/* Social Links */}
+                        <div className="flex items-center justify-center gap-6 pt-4 text-gray-500">
+                            <RiDiscordFill size={20} className="hover:text-white transition-colors cursor-pointer" />
+                            <RiTwitterXFill size={18} className="hover:text-white transition-colors cursor-pointer" />
+                            <RiInstagramLine size={20} className="hover:text-white transition-colors cursor-pointer" />
+                            <RiFacebookFill size={20} className="hover:text-white transition-colors cursor-pointer" />
+                        </div>
+                    </div>
                 </div>
-            )}
+            </Drawer>
         </nav>
     );
 }
@@ -119,9 +189,16 @@ function NavLink({ href, label }: { href: string; label: string }) {
 /* ----------------------------------- */
 /* MOBILE NAV LINK */
 /* ----------------------------------- */
-function MobileLink({ href, label }: { href: string; label: string }) {
+function MobileLink({ href, label, icon, onClick }: { href: string; label: string; icon: React.ReactNode; onClick: () => void }) {
     return (
-        <Link href={href} className="block py-2 text-lg text-gray-300 hover:text-white transition">
+        <Link
+            href={href}
+            onClick={onClick}
+            className="flex items-center gap-4 py-3 px-4 rounded-2xl text-lg font-medium text-gray-300 hover:text-white hover:bg-white/5 transition-all group active:scale-95"
+        >
+            <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-secondary group-hover:bg-secondary/10 transition-colors">
+                {icon}
+            </div>
             {label}
         </Link>
     );
@@ -247,7 +324,6 @@ function LangCurrencySelector({ hideLabelOnMobile = false }) {
                 <span className={hideLabelOnMobile ? "hidden sm:inline" : "inline"}>
                     {selectedLang} • {selectedCurrency}
                 </span>
-                <RiArrowDownSLine className="opacity-50" />
             </button>
 
             {mounted && createPortal(modal, document.body)}

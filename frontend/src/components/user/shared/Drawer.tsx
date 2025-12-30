@@ -77,7 +77,7 @@ const Drawer = ({ isOpen, onClose, title, children, side = "right" }: DrawerProp
                         </div>
 
                         {/* Body */}
-                        <div className="flex-1 overflow-y-auto p-6">
+                        <div className="flex-1 overflow-y-auto py-6">
                             {children}
                         </div>
                     </motion.div>
