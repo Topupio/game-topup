@@ -10,7 +10,7 @@ export default async function CategoryPage({
     const params = await searchParams;
     const category = typeof params.category === "string" ? params.category : undefined;
     const page = Number(params.page) || 1;
-    const limit = 4;
+    const limit = 12;
 
     const res = await gamesApiServer.list({ page, limit, category });
 

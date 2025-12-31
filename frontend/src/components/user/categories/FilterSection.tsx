@@ -42,7 +42,7 @@ export default function FilterSection() {
     };
 
     return (
-        <div className="space-y-8 text-white">
+        <div className="space-y-8 text-white p-6 lg:p-0">
             <FilterGroup title="Game Category">
 
                 {/* Shimmer while loading */}
