@@ -18,6 +18,7 @@ export type Game = {
     name: string;
     slug: string;
     category: string;
+    topupType: string;
     imageUrl: string | null;
     imagePublicId?: string | null;
     description: string;

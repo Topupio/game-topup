@@ -25,5 +25,9 @@ export const productsApiServer = {
         return serverApi.post(endpoints.products.byId(slug), null, {
             method: "DELETE",
         });
-    }
+    },
+
+    async listPopular(): Promise<ProductsListResponse> {
+        return serverApi.get(endpoints.products.popular);
+    },
 }

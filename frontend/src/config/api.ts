@@ -20,6 +20,7 @@ export const endpoints = {
     },
     products: {
         root: "/api/products",
+        popular: "/api/products/popular",
         byId: (id: string) => `/api/products/${id}`,
         bySlug: (slug: String) => `/api/products/${slug}`
     },

@@ -37,7 +37,8 @@ export const createBanner = asyncHandler(async (req, res) => {
 // @access  Public
 export const getActiveBanners = asyncHandler(async (req, res) => {
     const banners = await Banner.find({ isActive: true })
-        .sort({ order: 1, createdAt: -1 });
+        .sort({ order: 1, createdAt: -1 })
+        .lean();
 
     res.status(200).json({
         success: true,
@@ -51,7 +52,8 @@ export const getActiveBanners = asyncHandler(async (req, res) => {
 // @access  Private/Admin
 export const getAllBannersAdmin = asyncHandler(async (req, res) => {
     const banners = await Banner.find({})
-        .sort({ order: 1, createdAt: -1 });
+        .sort({ order: 1, createdAt: -1 })
+        .lean();
 
     res.status(200).json({
         success: true,
@@ -61,7 +63,7 @@ export const getAllBannersAdmin = asyncHandler(async (req, res) => {
 });
 
 export const getBannerById = asyncHandler(async (req, res) => {
-    const banner = await Banner.findById(req.params.id);
+    const banner = await Banner.findById(req.params.id).lean();
 
     if (!banner) {
         res.status(404);
@@ -78,48 +80,59 @@ export const getBannerById = asyncHandler(async (req, res) => {
 // @route   PUT /api/banners/:id
 // @access  Private/Admin
 export const updateBanner = asyncHandler(async (req, res) => {
-    const banner = await Banner.findById(req.params.id);
+    const { title, link, isActive, order } = req.body;
 
-    if (!banner) {
+    // Prepare updates object
+    const updates = {};
+    if (title !== undefined) updates.title = title;
+    if (link !== undefined) updates.link = link;
+    if (isActive !== undefined) updates.isActive = isActive === "true" || isActive === true;
+    if (order !== undefined) updates.order = parseInt(order);
+
+    let existingBanner;
+
+    if (req.file) {
+        // Only select imagePublicId to minimize DB overhead 
+        existingBanner = await Banner.findById(req.params.id).select("imagePublicId");
+
+        if (!existingBanner) {
+            res.status(404);
+            throw new Error("Banner not found");
+        }
+
+        // Upload new image and delete old image
+        const uploadPromise = uploadBufferToCloudinary(req.file.buffer, "banners");
+        const deletePromise = existingBanner.imagePublicId
+            ? deleteImageFromCloudinary(existingBanner.imagePublicId)
+            : Promise.resolve();
+
+        // Wait for both promises to resolve
+        const [upload] = await Promise.all([uploadPromise, deletePromise]);
+
+        updates.imageUrl = upload.secure_url;
+        updates.imagePublicId = upload.public_id;
+    }
+
+    // Update banner
+    const updatedBanner = await Banner.findByIdAndUpdate(
+        req.params.id,
+        updates,
+        { new: true }
+    );
+
+    if (!updatedBanner) {
         res.status(404);
         throw new Error("Banner not found");
     }
 
-    const { title, link, isActive, order } = req.body;
-
-    // Handle Image Update
-    if (req.file) {
-        // Upload new image
-        const upload = await uploadBufferToCloudinary(req.file.buffer, "banners");
-
-        // Delete old image
-        if (banner.imagePublicId) {
-            await deleteImageFromCloudinary(banner.imagePublicId);
-        }
-
-        banner.imageUrl = upload.secure_url;
-        banner.imagePublicId = upload.public_id;
-    }
-
-    // Update other fields if provided
-    if (title !== undefined) banner.title = title;
-    if (link !== undefined) banner.link = link;
-    if (isActive !== undefined) banner.isActive = isActive === "true" || isActive === true;
-    if (order !== undefined) banner.order = parseInt(order);
-
-    const updatedBanner = await banner.save();
-
-    res.status(200).json({
-        success: true,
-        data: updatedBanner,
-    });
+    res.status(200).json({ success: true, data: updatedBanner });
 });
 
 // @desc    Delete a banner
 // @route   DELETE /api/banners/:id
 // @access  Private/Admin
 export const deleteBanner = asyncHandler(async (req, res) => {
-    const banner = await Banner.findById(req.params.id);
+    const banner = await Banner.findById(req.params.id).select('imagePublicId');
 
     if (!banner) {
         res.status(404);
@@ -127,11 +140,14 @@ export const deleteBanner = asyncHandler(async (req, res) => {
     }
 
     // Delete image from Cloudinary
-    if (banner.imagePublicId) {
-        await deleteImageFromCloudinary(banner.imagePublicId);
-    }
+    const deleteImagePromise = banner.imagePublicId
+        ? deleteImageFromCloudinary(banner.imagePublicId)
+        : Promise.resolve();
 
-    await banner.deleteOne();
+    // Delete banner from database
+    const deleteBannerPromise = Banner.findByIdAndDelete(req.params.id);
+
+    await Promise.all([deleteImagePromise, deleteBannerPromise]);
 
     res.status(200).json({
         success: true,

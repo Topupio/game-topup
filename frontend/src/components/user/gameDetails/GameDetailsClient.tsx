@@ -77,7 +77,7 @@ export default function GameDetailsClient({ gameDetails }: { gameDetails: GameWi
             <HeroHeader
                 imageUrl={gameDetails.imageUrl || ""}
                 title={gameDetails.name}
-            // subtitle={gameDetails.}
+                subtitle={gameDetails.topupType}
             />
 
             {/* ---------------- Tabs ---------------- */}

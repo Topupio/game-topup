@@ -50,6 +50,11 @@ const gameSchema = new mongoose.Schema(
             trim: true,
             lowercase: true,
         },
+        topupType: {
+            type: String,
+            required: true,
+            trim: true,
+        },
 
         imageUrl: {
             type: String,
