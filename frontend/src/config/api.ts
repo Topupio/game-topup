@@ -33,6 +33,9 @@ export const endpoints = {
         root: "/api/blogs",
         byIdOrSlug: (idOrSlug: string) => `/api/blogs/${idOrSlug}`,
     },
+    admin: {
+        logs: "/api/admin/logs",
+    },
     // add more domains here (products, orders, users, etc.)
 };
 
