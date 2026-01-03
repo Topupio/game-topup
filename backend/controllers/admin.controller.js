@@ -1,5 +1,6 @@
 import User from "../models/user.model.js";
 import AdminActivityLog from "../models/adminLog.model.js";
+import RefreshToken from "../models/refreshToken.model.js";
 import { asyncHandler } from "../middlewares/asyncHandler.js";
 import { sendAuthPair } from "../utils/token.js";
 import { logAdminActivity } from "../utils/adminLogger.js";
@@ -111,5 +112,114 @@ export const getAdminLogs = asyncHandler(async (req, res) => {
                 totalPages: Math.ceil(total / limitNum)
             }
         }
+    });
+});
+
+/**
+ * @desc    Fetch users with pagination and filtering
+ * @route   GET /api/admin/users
+ * @access  Private/Admin
+ */
+export const getUsers = asyncHandler(async (req, res) => {
+    const { page = 1, limit = 10, search, role, status } = req.query;
+
+    const pageNum = parseInt(page) || 1;
+    const limitNum = parseInt(limit) || 10;
+    const skip = (pageNum - 1) * limitNum;
+
+    // Build Query
+    const query = {};
+
+    if (role) query.role = role;
+    if (status) query.status = status;
+
+    if (search) {
+        query.$or = [
+            { name: { $regex: search, $options: "i" } },
+            { email: { $regex: search, $options: "i" } },
+        ];
+    }
+
+    // Fetch and Count
+    const [users, total] = await Promise.all([
+        User.find(query)
+            .select("-password") // Exclude password
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limitNum)
+            .lean(),
+        User.countDocuments(query),
+    ]);
+
+    res.status(200).json({
+        success: true,
+        data: {
+            users,
+            pagination: {
+                total,
+                page: pageNum,
+                limit: limitNum,
+                totalPages: Math.ceil(total / limitNum),
+            },
+        },
+    });
+});
+
+/**
+ * @desc    Update user status (Block/Unblock)
+ * @route   PATCH /api/admin/users/:id/status
+ * @access  Private/Admin
+ */
+export const updateUserStatus = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    if (!["active", "blocked"].includes(status)) {
+        res.status(400);
+        throw new Error("Invalid status. Use 'active' or 'blocked'.");
+    }
+
+    const user = await User.findById(id);
+
+    if (!user) {
+        res.status(404);
+        throw new Error("User not found");
+    }
+
+    // Prevent self-blocking
+    if (user._id.toString() === req.user.id) {
+        res.status(400);
+        throw new Error("You cannot block your own account.");
+    }
+
+    const oldStatus = user.status;
+    user.status = status;
+    await user.save();
+
+    // If blocking, revoke all sessions
+    if (status === "blocked") {
+        await RefreshToken.updateMany(
+            { user: user._id, revoked: null },
+            {
+                revoked: new Date(),
+                revokedByIp: req.ip
+            }
+        );
+    }
+
+    // Log Activity
+    logAdminActivity(req, {
+        action: "UPDATE",
+        module: "users",
+        targetId: user._id,
+        targetModel: "User",
+        description: `Updated user status: ${user.email} (${oldStatus} -> ${status})`,
+        changes: { prev: oldStatus, next: status },
+    });
+
+    res.status(200).json({
+        success: true,
+        data: user,
+        message: `User ${status === "active" ? "unblocked" : "blocked"} successfully`,
     });
 });
