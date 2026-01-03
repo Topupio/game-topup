@@ -1,13 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { TbSearch, TbFilter, TbX, TbUserShield, TbLock } from "react-icons/tb";
+import { TbSearch, TbX, TbUserShield, TbLock, TbShieldCheck } from "react-icons/tb";
 
 interface Props {
     onFilterChange: (filters: {
         search?: string;
         role?: string;
         status?: string;
+        verified?: string;
     }) => void;
 }
 
@@ -15,6 +16,7 @@ export default function UsersToolbar({ onFilterChange }: Props) {
     const [search, setSearch] = useState("");
     const [role, setRole] = useState("");
     const [status, setStatus] = useState("");
+    const [verified, setVerified] = useState("");
 
     // Debounce effect for search & filters
     useEffect(() => {
@@ -23,19 +25,21 @@ export default function UsersToolbar({ onFilterChange }: Props) {
                 search: search || undefined,
                 role: role || undefined,
                 status: status || undefined,
+                verified: verified || undefined,
             });
         }, 500);
 
         return () => clearTimeout(timer);
-    }, [search, role, status, onFilterChange]);
+    }, [search, role, status, verified, onFilterChange]);
 
     const clearFilters = () => {
         setSearch("");
         setRole("");
         setStatus("");
+        setVerified("");
     };
 
-    const hasFilters = search || role || status;
+    const hasFilters = search || role || status || verified;
 
     return (
         <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100/80 mb-6">
@@ -81,6 +85,20 @@ export default function UsersToolbar({ onFilterChange }: Props) {
                             <option value="">All Statuses</option>
                             <option value="active">Active</option>
                             <option value="blocked">Blocked</option>
+                        </select>
+                    </div>
+
+                    {/* Verified Filter */}
+                    <div className="relative group">
+                        <TbShieldCheck className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-hover:text-blue-500 transition-colors" size={18} />
+                        <select
+                            value={verified}
+                            onChange={(e) => setVerified(e.target.value)}
+                            className="pl-10 pr-8 py-2.5 border border-gray-200 rounded-xl text-sm bg-gray-50/50 hover:bg-white hover:border-blue-300 transition focus:ring-4 focus:ring-blue-100 focus:border-blue-500 outline-none appearance-none cursor-pointer min-w-[140px]"
+                        >
+                            <option value="">All Verification</option>
+                            <option value="true">Verified</option>
+                            <option value="false">Unverified</option>
                         </select>
                     </div>
 

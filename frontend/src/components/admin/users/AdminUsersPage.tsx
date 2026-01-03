@@ -17,6 +17,7 @@ export default function AdminUsersPage({ initialData }: { initialData: UserRespo
     const [search, setSearch] = useState("");
     const [role, setRole] = useState("");
     const [status, setStatus] = useState("");
+    const [verified, setVerified] = useState("");
 
     // Pagination State
     const [page, setPage] = useState(initialData.data.pagination.page);
@@ -34,6 +35,7 @@ export default function AdminUsersPage({ initialData }: { initialData: UserRespo
                 search,
                 role: role || undefined,
                 status: status || undefined,
+                verified: verified || undefined,
             });
             setItems(res.data.users);
             setTotalPages(res.data.pagination.totalPages);
@@ -44,7 +46,7 @@ export default function AdminUsersPage({ initialData }: { initialData: UserRespo
         } finally {
             setLoading(false);
         }
-    }, [page, limit, search, role, status]);
+    }, [page, limit, search, role, status, verified]);
 
     // Trigger fetch when dependencies change
     useEffect(() => {
@@ -55,6 +57,7 @@ export default function AdminUsersPage({ initialData }: { initialData: UserRespo
         setSearch(newFilters.search || "");
         setRole(newFilters.role || "");
         setStatus(newFilters.status || "");
+        setVerified(newFilters.verified || "");
         setPage(1); // Reset to page 1
     }, []);
 

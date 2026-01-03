@@ -121,7 +121,7 @@ export const getAdminLogs = asyncHandler(async (req, res) => {
  * @access  Private/Admin
  */
 export const getUsers = asyncHandler(async (req, res) => {
-    const { page = 1, limit = 10, search, role, status } = req.query;
+    const { page = 1, limit = 10, search, role, status, verified } = req.query;
 
     const pageNum = parseInt(page) || 1;
     const limitNum = parseInt(limit) || 10;
@@ -132,6 +132,9 @@ export const getUsers = asyncHandler(async (req, res) => {
 
     if (role) query.role = role;
     if (status) query.status = status;
+    if (verified !== undefined && verified !== "") {
+        query.isVerified = verified === 'true';
+    }
 
     if (search) {
         query.$or = [

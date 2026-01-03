@@ -29,4 +29,5 @@ export interface UserParams {
     search?: string;
     role?: string;
     status?: string;
+    verified?: string; // passing as string 'true'/'false' for query param simplicity
 }
