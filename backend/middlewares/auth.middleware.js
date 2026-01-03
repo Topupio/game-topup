@@ -16,6 +16,10 @@ export const protect = async (req, res, next) => {
       throw new Error("Not authorized");
     }
 
+    if (user.status === "blocked") {
+      return res.status(403).json({ success: false, message: "Your account has been suspended" });
+    }
+
     req.user = { id: user._id.toString(), role: user.role };
     next();
   } catch (err) {

@@ -164,11 +164,21 @@ export const login = asyncHandler(async (req, res) => {
         throw new Error("Email not verified. Verification email sent.");
     }
 
+    // 🚫 Blocked status check
+    if (user.status === "blocked") {
+        res.status(403);
+        throw new Error("Your account has been suspended. Please contact support.");
+    }
+
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
         res.status(401);
         throw new Error("Invalid credentials");
     }
+
+    // ✅ Update Last Login
+    user.lastLoginAt = Date.now();
+    await user.save({ validateBeforeSave: false });
 
     return sendAuthPair(user, 200, res, req.ip);
 });

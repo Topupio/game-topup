@@ -22,7 +22,17 @@ export const adminLogin = asyncHandler(async (req, res) => {
         throw new Error("Invalid admin credentials");
     }
 
+    // 🚫 Blocked status check
+    if (user.status === "blocked") {
+        res.status(403);
+        throw new Error("Your admin account has been suspended.");
+    }
+
     const authResponse = await sendAuthPair(user, 200, res, req.ip);
+
+    // ✅ Update Last Login & Log Activity
+    user.lastLoginAt = Date.now();
+    await user.save({ validateBeforeSave: false });
 
     logAdminActivity(req, {
         admin: user._id, // Manual override as req.user might not be set yet during login

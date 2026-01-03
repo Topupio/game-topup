@@ -27,6 +27,17 @@ const userSchema = new mongoose.Schema(
             enum: ["admin", "user"],
             default: "user",
         },
+        // Account Status: active vs blocked
+        status: {
+            type: String,
+            enum: ["active", "blocked"],
+            default: "active",
+        },
+        // Security Tracking
+        lastLoginAt: {
+            type: Date,
+            default: null,
+        },
         isVerified: {
             type: Boolean,
             default: false,
@@ -54,6 +65,9 @@ const userSchema = new mongoose.Schema(
     },
     { timestamps: true }
 );
+
+// Performance Indexing
+userSchema.index({ email: 1 });
 
 userSchema.pre("save", async function (next) {
     if (!this.isModified("password")) return next();
