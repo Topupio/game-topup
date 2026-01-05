@@ -1,37 +1,76 @@
 "use client";
 
+import Link from "next/link";
+import { RiEyeLine } from "react-icons/ri";
+import { Order } from "@/services/orders/types";
 import DataTable, { Column } from "@/components/admin/shared/DataTable";
 
-export type OrderRow = {
-    id: string;
-    user: string;
-    game: string;
-    amount: string;
-    status: string;
-};
+interface Props {
+    items: Order[];
+}
 
-type Props = {
-    rows: OrderRow[];
-    onView: (row: OrderRow) => void;
-    onUpdate: (row: OrderRow) => void;
-};
+export default function OrdersTable({ items }: Props) {
+    const getStatusColor = (status: string) => {
+        switch (status) {
+            case "completed": return "text-green-600 bg-green-50";
+            case "processing": return "text-blue-600 bg-blue-50";
+            case "cancelled":
+            case "failed": return "text-red-600 bg-red-50";
+            case "paid": return "text-purple-600 bg-purple-50";
+            default: return "text-yellow-600 bg-yellow-50";
+        }
+    };
 
-export default function OrdersTable({ rows, onView, onUpdate }: Props) {
-    const columns: Column<OrderRow>[] = [
+    const columns: Column<Order>[] = [
         {
             id: "orderId",
             header: "Order ID",
-            cell: (r) => <span className="font-medium">#{r.id}</span>,
+            cell: (row) => (
+                <span className="font-mono font-bold text-blue-600">#{row.orderId}</span>
+            ),
         },
-        { id: "user", header: "User", cell: (r) => r.user },
-        { id: "game", header: "Game", cell: (r) => r.game },
-        { id: "amount", header: "Amount", cell: (r) => r.amount },
+        {
+            id: "customer",
+            header: "Customer",
+            cell: (row) => (
+                <div>
+                    <div className="font-medium text-gray-900">{row.user?.name || "Deleted User"}</div>
+                    <div className="text-gray-500 text-xs">{row.user?.email || "No email"}</div>
+                </div>
+            ),
+        },
+        {
+            id: "product",
+            header: "Product",
+            cell: (row) => (
+                <div>
+                    <div className="text-gray-900">{row.productSnapshot.name}</div>
+                    <div className="text-gray-500 text-xs">{row.game?.name || "Deleted Game"}</div>
+                </div>
+            ),
+        },
+        {
+            id: "amount",
+            header: "Amount",
+            cell: (row) => (
+                <span className="font-bold text-gray-900">₹{row.amount}</span>
+            ),
+        },
         {
             id: "status",
             header: "Status",
-            cell: (r) => (
-                <span className="px-3 py-1 text-xs rounded-full bg-yellow-100 text-yellow-700">
-                    {r.status}
+            cell: (row) => (
+                <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${getStatusColor(row.orderStatus)}`}>
+                    {row.orderStatus.toUpperCase()}
+                </span>
+            ),
+        },
+        {
+            id: "date",
+            header: "Date",
+            cell: (row) => (
+                <span className="text-gray-500">
+                    {new Date(row.createdAt).toLocaleDateString()}
                 </span>
             ),
         },
@@ -40,24 +79,18 @@ export default function OrdersTable({ rows, onView, onUpdate }: Props) {
             header: "Actions",
             headerAlign: "right",
             cellAlign: "right",
-            cell: (r) => (
-                <div className="text-right flex justify-end gap-2">
-                    <button
-                        onClick={() => onView(r)}
-                        className="px-3 py-1.5 text-xs font-medium bg-blue-50 text-blue-700 rounded-full border border-blue-200 hover:bg-blue-100 transition"
-                    >
-                        View
-                    </button>
-                    <button
-                        onClick={() => onUpdate(r)}
-                        className="px-3 py-1.5 text-xs font-medium bg-red-50 text-red-700 rounded-full border border-red-200 hover:bg-red-100 transition"
-                    >
-                        Update
-                    </button>
-                </div>
+            cell: (row) => (
+                <Link
+                    href={`/admin/orders/${row._id}`}
+                    className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 font-medium text-sm transition"
+                >
+                    <RiEyeLine /> Review
+                </Link>
             ),
         },
     ];
 
-    return <DataTable rows={rows} columns={columns} minWidth={700} />;
+    return (
+        <DataTable rows={items} columns={columns} />
+    );
 }

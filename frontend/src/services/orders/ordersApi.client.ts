@@ -7,29 +7,29 @@ export const ordersApiClient = {
         gameId: string;
         productId: string;
         qty: number;
-        userInputs: { key: string; label: string; value: any }[];
+        userInputs: { label: string; value: string }[];
     }): Promise<OrderResponse> {
-        const { data: res } = await clientApi.post((endpoints as any).orders.base, data);
+        const { data: res } = await clientApi.post(endpoints.orders.base, data);
         return res;
     },
 
-    async getMyOrders(params?: OrderParams): Promise<ListOrderResponse> {
-        const { data } = await clientApi.get((endpoints as any).orders.myOrders, { params });
+    async getMyOrders(params?: OrderParams, signal?: AbortSignal): Promise<ListOrderResponse> {
+        const { data } = await clientApi.get(endpoints.orders.myOrders, { params, signal });
         return data;
     },
 
-    async getOrderDetails(id: string): Promise<OrderResponse> {
-        const { data } = await clientApi.get((endpoints as any).orders.details(id));
+    async getOrderDetails(id: string, signal?: AbortSignal): Promise<OrderResponse> {
+        const { data } = await clientApi.get(endpoints.orders.details(id), { signal });
         return data;
     },
 
-    async adminGetOrders(params?: OrderParams): Promise<ListOrderResponse> {
-        const { data } = await clientApi.get((endpoints as any).orders.adminAll, { params });
+    async adminGetOrders(params?: OrderParams, signal?: AbortSignal): Promise<ListOrderResponse> {
+        const { data } = await clientApi.get(endpoints.orders.adminAll, { params, signal });
         return data;
     },
 
     async adminUpdateOrder(id: string, updateData: any): Promise<OrderResponse> {
-        const { data } = await clientApi.patch((endpoints as any).orders.adminUpdate(id), updateData);
+        const { data } = await clientApi.patch(endpoints.orders.adminUpdate(id), updateData);
         return data;
     },
 };

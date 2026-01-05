@@ -74,7 +74,6 @@ export default function GameDetailsClient({ gameDetails }: { gameDetails: GameWi
         try {
             // Map userDetails map to the array expected by backend
             const inputs = gameDetails.requiredFields?.map(field => ({
-                key: field.fieldKey,
                 label: field.fieldName,
                 value: userDetails[field.fieldKey]
             })) || [];

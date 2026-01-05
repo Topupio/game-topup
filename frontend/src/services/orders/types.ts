@@ -8,9 +8,8 @@ export interface Order {
     paymentStatus: "pending" | "paid" | "failed" | "refunded";
     paymentMethod: "razorpay" | "stripe" | "wallet" | "binancePay";
     userInputs: {
-        key: string;
         label: string;
-        value: any;
+        value: string;
     }[];
     orderStatus: "pending" | "paid" | "processing" | "completed" | "cancelled" | "failed";
     adminNote?: string;
@@ -54,4 +53,5 @@ export interface OrderParams {
     limit?: number;
     status?: string;
     search?: string;
+    [key: string]: any;
 }
