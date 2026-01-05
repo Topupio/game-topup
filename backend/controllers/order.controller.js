@@ -102,17 +102,23 @@ export const createOrder = async (req, res) => {
  */
 export const getMyOrders = async (req, res) => {
     try {
-        const page = parseInt(req.query.page) || 1;
-        const limit = parseInt(req.query.limit) || 10;
+        if (!req.user || !req.user.id) {
+            return res.status(401).json({ success: false, message: "Unauthorized" });
+        }
+
+        const page = Math.max(1, parseInt(req.query.page) || 1);
+        const limit = Math.min(50, Math.max(1, parseInt(req.query.limit) || 10));
         const skip = (page - 1) * limit;
 
-        const orders = await Order.find({ user: req.user._id })
-            .populate("game", "name imageUrl")
-            .sort({ createdAt: -1 })
-            .skip(skip)
-            .limit(limit);
+        const [orders, total] = await Promise.all([
+            Order.find({ user: req.user.id })
+                .populate("game", "name imageUrl")
+                .sort({ createdAt: -1 })
+                .skip(skip)
+                .limit(limit),
 
-        const total = await Order.countDocuments({ user: req.user._id });
+            Order.countDocuments({ user: req.user.id })
+        ]);
 
         res.status(200).json({
             success: true,
@@ -122,12 +128,14 @@ export const getMyOrders = async (req, res) => {
                     total,
                     page,
                     limit,
-                    totalPages: Math.ceil(total / limit),
-                },
-            },
+                    totalPages: Math.ceil(total / limit)
+                }
+            }
         });
+
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        console.error("Get My Orders Error:", error);
+        res.status(500).json({ success: false, message: "Internal server error" });
     }
 };
 
@@ -138,22 +146,34 @@ export const getMyOrders = async (req, res) => {
  */
 export const getOrderDetails = async (req, res) => {
     try {
-        const order = await Order.findById(req.params.id)
+        if (!req.user || !req.user.id) {
+            return res.status(401).json({ success: false, message: "Unauthorized" });
+        }
+
+        if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+            return res.status(400).json({ success: false, message: "Invalid order id" });
+        }
+
+        const query = req.user.role === "admin"
+            ? { _id: req.params.id }
+            : { _id: req.params.id, user: req.user.id };
+
+        const order = await Order.findOne(query)
             .populate("game", "name imageUrl")
             .populate("user", "name email");
 
         if (!order) {
-            return res.status(404).json({ success: false, message: "Order not found" });
-        }
-
-        // Check if user is owner or admin
-        if (order.user._id.toString() !== req.user._id.toString() && req.user.role !== "admin") {
-            return res.status(403).json({ success: false, message: "Not authorized to view this order" });
+            return res.status(404).json({
+                success: false,
+                message: "Order not found or not authorized"
+            });
         }
 
         res.status(200).json({ success: true, data: order });
+
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        console.error("Get Order Details Error:", error);
+        res.status(500).json({ success: false, message: "Internal server error" });
     }
 };
 
@@ -164,28 +184,40 @@ export const getOrderDetails = async (req, res) => {
  */
 export const adminGetOrders = async (req, res) => {
     try {
-        const page = parseInt(req.query.page) || 1;
-        const limit = parseInt(req.query.limit) || 10;
-        const skip = (page - 1) * limit;
-        const { status, search } = req.query;
+        if (!req.user || req.user.role !== "admin") {
+            return res.status(403).json({ success: false, message: "Admin access only" });
+        }
 
+        const page = Math.max(1, parseInt(req.query.page) || 1);
+        const limit = Math.min(50, Math.max(1, parseInt(req.query.limit) || 10));
+        const skip = (page - 1) * limit;
+
+        const { status, search } = req.query;
         const query = {};
-        if (status) query.orderStatus = status;
-        if (search) {
+
+        const allowedStatuses = ["pending", "paid", "processing", "completed", "cancelled", "failed"];
+        if (status && allowedStatuses.includes(status)) {
+            query.orderStatus = status;
+        }
+
+        if (search && search.length <= 50) {
+            const regex = new RegExp(search, "i");
             query.$or = [
-                { orderId: { $regex: search, $options: "i" } },
-                { "userInputs.value": { $regex: search, $options: "i" } }
+                { orderId: regex },
+                { "userInputs.value": regex }
             ];
         }
 
-        const orders = await Order.find(query)
-            .populate("user", "name email")
-            .populate("game", "name")
-            .sort({ createdAt: -1 })
-            .skip(skip)
-            .limit(limit);
+        const [orders, total] = await Promise.all([
+            Order.find(query)
+                .populate("user", "name email")
+                .populate("game", "name")
+                .sort({ createdAt: -1 })
+                .skip(skip)
+                .limit(limit),
 
-        const total = await Order.countDocuments(query);
+            Order.countDocuments(query)
+        ]);
 
         res.status(200).json({
             success: true,
@@ -195,12 +227,14 @@ export const adminGetOrders = async (req, res) => {
                     total,
                     page,
                     limit,
-                    totalPages: Math.ceil(total / limit),
-                },
-            },
+                    totalPages: Math.ceil(total / limit)
+                }
+            }
         });
+
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        console.error("Admin Get Orders Error:", error);
+        res.status(500).json({ success: false, message: "Internal server error" });
     }
 };
 
@@ -211,43 +245,82 @@ export const adminGetOrders = async (req, res) => {
  */
 export const adminUpdateOrder = async (req, res) => {
     try {
-        const { orderStatus, paymentStatus, adminNote, completionProof } = req.body;
-        const order = await Order.findById(req.params.id);
+        if (!req.user || req.user.role !== "admin") {
+            return res.status(403).json({ success: false, message: "Admin access only" });
+        }
 
+        if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+            return res.status(400).json({ success: false, message: "Invalid order id" });
+        }
+
+        const { orderStatus, paymentStatus, adminNote, completionProof } = req.body;
+
+        const allowedOrderStatuses = ["pending", "paid", "processing", "completed", "cancelled", "failed"];
+        const allowedPaymentStatuses = ["pending", "paid", "failed", "refunded"];
+
+        if (orderStatus && !allowedOrderStatuses.includes(orderStatus)) {
+            return res.status(400).json({ success: false, message: "Invalid order status" });
+        }
+
+        if (paymentStatus && !allowedPaymentStatuses.includes(paymentStatus)) {
+            return res.status(400).json({ success: false, message: "Invalid payment status" });
+        }
+
+        const order = await Order.findById(req.params.id);
         if (!order) {
             return res.status(404).json({ success: false, message: "Order not found" });
         }
 
         const oldStatus = order.orderStatus;
+        let isModified = false;
 
-        if (orderStatus) order.orderStatus = orderStatus;
-        if (paymentStatus) order.paymentStatus = paymentStatus;
-        if (adminNote) order.adminNote = adminNote;
-        if (completionProof) order.completionProof = completionProof;
+        if (orderStatus && orderStatus !== order.orderStatus) {
+            order.orderStatus = orderStatus;
+            isModified = true;
+        }
 
-        // If status changed, add to tracking
+        if (paymentStatus && paymentStatus !== order.paymentStatus) {
+            order.paymentStatus = paymentStatus;
+            isModified = true;
+        }
+
+        if (adminNote && adminNote !== order.adminNote) {
+            order.adminNote = adminNote;
+            isModified = true;
+        }
+
+        if (completionProof && completionProof !== order.completionProof) {
+            order.completionProof = completionProof;
+            isModified = true;
+        }
+
+        if (!isModified) {
+            return res.status(400).json({ success: false, message: "No changes detected" });
+        }
+
         if (orderStatus && orderStatus !== oldStatus) {
             order.tracking.push({
                 status: orderStatus,
-                message: `Order status updated to ${orderStatus}` + (adminNote ? `: ${adminNote}` : ""),
+                message: `Order status updated to ${orderStatus}` + (adminNote ? `: ${adminNote}` : "")
             });
         }
 
         await order.save();
 
-        // Log admin activity
         await logAdminActivity({
             req,
             action: "UPDATE",
             module: "ORDER",
             targetId: order._id,
             targetModel: "Order",
-            description: `Updated order ${order.orderId} status from ${oldStatus} to ${orderStatus || oldStatus}`,
-            changes: { oldStatus, newStatus: orderStatus || oldStatus }
+            description: `Updated order ${order.orderId} status from ${oldStatus} to ${order.orderStatus}`,
+            changes: { oldStatus, newStatus: order.orderStatus }
         });
 
         res.status(200).json({ success: true, data: order, message: "Order updated successfully" });
+
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        console.error("Admin Update Order Error:", error);
+        res.status(500).json({ success: false, message: "Internal server error" });
     }
 };
