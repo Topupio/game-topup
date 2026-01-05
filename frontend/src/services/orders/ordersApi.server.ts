@@ -4,7 +4,8 @@ import { ListOrderResponse, OrderParams, OrderResponse } from "./types";
 
 export const ordersApiServer = {
     async adminGetOrders(params: OrderParams = {}): Promise<ListOrderResponse> {
-        return serverApi.get((endpoints as any).orders.adminAll, { params });
+        const url = endpoints.orders.adminAll;
+        return serverApi.get(url, { params });
     },
 
     async getOrderDetails(id: string): Promise<OrderResponse> {
@@ -13,6 +14,7 @@ export const ordersApiServer = {
     },
 
     async getMyOrders(params: OrderParams = {}): Promise<ListOrderResponse> {
-        return serverApi.get((endpoints as any).orders.myOrders, { params });
+        const url = endpoints.orders.myOrders;
+        return serverApi.get(url, { params });
     },
 };

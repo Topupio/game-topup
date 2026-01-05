@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect, useRef } from "react";
-import { Order, ListOrderResponse } from "@/services/orders/types";
+import { Order, ListOrderResponse, OrderStatus } from "@/services/orders/types";
 import { ordersApiClient } from "@/services/orders/ordersApi.client";
 import { toast } from "react-toastify";
 import OrdersToolbar from "./OrdersToolbar";
@@ -17,7 +17,7 @@ export default function AdminOrderPage({ initialData }: { initialData: ListOrder
 
     // Filter State
     const [search, setSearch] = useState("");
-    const [status, setStatus] = useState("");
+    const [status, setStatus] = useState<OrderStatus | "">("");
 
     // Debounce search
     const [debouncedSearch] = useDebounce(search, 500);
@@ -103,7 +103,8 @@ export default function AdminOrderPage({ initialData }: { initialData: ListOrder
                         className="bg-transparent text-sm focus:outline-none cursor-pointer pr-4 text-gray-700"
                         value={status}
                         onChange={(e) => {
-                            setStatus(e.target.value);
+                            const value = e.target.value as '' | OrderStatus;
+                            setStatus(value);
                             setPage(1);
                         }}
                     >

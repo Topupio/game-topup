@@ -6,9 +6,16 @@ export const metadata: Metadata = {
     title: "My Orders | GameTopup",
 };
 
-export default async function MyOrdersPage() {
+export default async function MyOrdersPage({
+    searchParams,
+}: {
+    searchParams: Promise<{ page?: string }>;
+}) {
+    const { page } = await searchParams;
+    const pageNum = parseInt(page || "1", 10);
+
     try {
-        const res = await ordersApiServer.getMyOrders({ page: 1, limit: 10 });
+        const res = await ordersApiServer.getMyOrders({ page: pageNum, limit: 10 });
 
         return (
             <div className="min-h-screen bg-primary pt-24 pb-16 px-4">
@@ -17,7 +24,6 @@ export default async function MyOrdersPage() {
         );
     } catch (error) {
         console.error("Failed to fetch orders:", error);
-        // Fallback or error state could be handled here
         return (
             <div className="min-h-screen bg-primary pt-24 pb-16 px-4">
                 <div className="max-w-7xl mx-auto text-center">

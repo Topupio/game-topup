@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { RiArrowDownSLine, RiFilter3Line } from "react-icons/ri";
+import { RiFilter3Line } from "react-icons/ri";
 import FilterSection from "@/components/user/categories/FilterSection";
 import { Game } from "@/services/games";
 import GamesList from "./GameList";

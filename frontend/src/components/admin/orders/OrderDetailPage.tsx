@@ -142,7 +142,7 @@ export default function OrderDetailPage({ initialOrder }: Props) {
                                         <p className="text-gray-900 font-bold break-all">{input.value}</p>
                                         <button
                                             onClick={() => {
-                                                navigator.clipboard.writeText(input.value);
+                                                navigator.clipboard.writeText(String(input.value));
                                                 toast.info("Copied to clipboard");
                                             }}
                                             className="text-blue-600 opacity-0 group-hover:opacity-100 transition text-[10px] font-bold uppercase whitespace-nowrap hover:cursor-pointer"

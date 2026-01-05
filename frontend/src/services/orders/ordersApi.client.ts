@@ -1,14 +1,9 @@
 import { clientApi } from "@/lib/http/index";
 import { endpoints } from "@/config/api";
-import { Order, OrderResponse, ListOrderResponse, OrderParams } from "./types";
+import { CreateOrderPayload, OrderResponse, ListOrderResponse, OrderParams } from "./types";
 
 export const ordersApiClient = {
-    async create(data: {
-        gameId: string;
-        productId: string;
-        qty: number;
-        userInputs: { label: string; value: string }[];
-    }): Promise<OrderResponse> {
+    async create(data: CreateOrderPayload): Promise<OrderResponse> {
         const { data: res } = await clientApi.post(endpoints.orders.base, data);
         return res;
     },

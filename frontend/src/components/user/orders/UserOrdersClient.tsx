@@ -1,39 +1,18 @@
 "use client";
 
-import { useState, useCallback } from "react";
 import { Order, ListOrderResponse } from "@/services/orders/types";
-import { ordersApiClient } from "@/services/orders/ordersApi.client";
-import { toast } from "react-toastify";
 import Link from "next/link";
 import { RiTimeLine, RiInformationLine, RiHistoryLine } from "react-icons/ri";
+import Pagination from "@/components/user/categories/Pagination";
 
 interface Props {
     initialData: ListOrderResponse;
 }
 
 export default function UserOrdersClient({ initialData }: Props) {
-    const [orders, setOrders] = useState<Order[]>(initialData.data.orders);
-    const [loading, setLoading] = useState(false);
-    const [pagination, setPagination] = useState(initialData.data.pagination);
+    const { orders, pagination } = initialData.data;
 
-    const fetchOrders = useCallback(async (page: number) => {
-        setLoading(true);
-        try {
-            const res = await ordersApiClient.getMyOrders({ page, limit: 10 });
-            if (res.success) {
-                setOrders(res.data.orders);
-                setPagination(res.data.pagination);
-                window.scrollTo({ top: 0, behavior: "smooth" });
-            }
-        } catch (error) {
-            console.error(error);
-            toast.error("Failed to load orders");
-        } finally {
-            setLoading(false);
-        }
-    }, []);
-
-    const getStatusStyles = (status: string) => {
+    const getStatusStyles = (status: Order['orderStatus']) => {
         switch (status) {
             case "completed": return "bg-green-500/10 text-green-500 border-green-500/20";
             case "processing": return "bg-blue-500/10 text-blue-500 border-blue-500/20";
@@ -50,11 +29,7 @@ export default function UserOrdersClient({ initialData }: Props) {
                 <h1 className="text-3xl font-bold text-white">My Orders</h1>
             </div>
 
-            {loading ? (
-                <div className="flex justify-center py-20">
-                    <div className="w-10 h-10 border-4 border-secondary border-t-transparent rounded-full animate-spin"></div>
-                </div>
-            ) : orders.length === 0 ? (
+            {orders.length === 0 ? (
                 <div className="bg-white/5 border border-white/10 rounded-2xl p-12 text-center">
                     <RiInformationLine className="text-gray-500 text-5xl mx-auto mb-4" />
                     <h2 className="text-xl font-semibold text-white mb-2">No orders yet</h2>
@@ -105,17 +80,11 @@ export default function UserOrdersClient({ initialData }: Props) {
 
                     {/* Pagination */}
                     {pagination.totalPages > 1 && (
-                        <div className="flex justify-center mt-8 gap-2">
-                            {Array.from({ length: pagination.totalPages }).map((_, i) => (
-                                <button
-                                    key={i}
-                                    onClick={() => fetchOrders(i + 1)}
-                                    disabled={loading}
-                                    className={`w-10 h-10 rounded-xl font-bold transition ${pagination.page === i + 1 ? 'bg-secondary text-gray-900' : 'bg-white/10 text-white hover:bg-white/20 disabled:opacity-50'}`}
-                                >
-                                    {i + 1}
-                                </button>
-                            ))}
+                        <div className="lg:col-span-2">
+                            <Pagination
+                                currentPage={pagination.page}
+                                totalPages={pagination.totalPages}
+                            />
                         </div>
                     )}
                 </div>
