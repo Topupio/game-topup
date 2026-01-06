@@ -48,7 +48,7 @@ export default function UserOrderDetailClient({ order }: Props) {
                                             {order.orderStatus.toUpperCase()}
                                         </span>
                                     </div>
-                                    <h1 className="text-2xl font-bold text-white">{order.productSnapshot.name}</h1>
+                                    <h2 className="text-2xl font-bold text-white">{order.productSnapshot?.name ?? "Product"}</h2>
                                 </div>
                                 <span className="text-2xl font-bold text-white">₹{order.amount}</span>
                             </div>

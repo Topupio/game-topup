@@ -24,7 +24,12 @@ export default function GameDetailsClient({ gameDetails }: { gameDetails: GameWi
     const router = useRouter();
 
     const updateQty = (change: number) => {
-        setQty((prev) => Math.max(1, prev + change));
+        setQty((prev) => {
+            const next = prev + change;
+            if (next < 1) return 1;
+            if (next > 99) return 99;
+            return next;
+        });
     };
 
     const updateUserDetails = (key: string, value: string) => {
@@ -78,11 +83,24 @@ export default function GameDetailsClient({ gameDetails }: { gameDetails: GameWi
                 value: userDetails[field.fieldKey]
             })) || [];
 
+            const discountedPrice = selectedProduct.discountedPrice ?? selectedProduct.price;
+
+            const productSnapshot = {
+                name: selectedProduct.name,
+                price: selectedProduct.price,
+                discountedPrice,
+                deliveryTime: selectedProduct.deliveryTime,
+                qty,
+                totalAmount: discountedPrice * qty,
+            };
+
             const res = await ordersApiClient.create({
                 gameId: gameDetails._id,
                 productId: selectedProduct._id,
                 qty,
-                userInputs: inputs
+                userInputs: inputs,
+                // @ts-ignore
+                productSnapshot
             });
 
             if (res.success) {

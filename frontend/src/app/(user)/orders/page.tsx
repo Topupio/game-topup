@@ -3,7 +3,7 @@ import UserOrdersClient from "@/components/user/orders/UserOrdersClient";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-    title: "My Orders | GameTopup",
+    title: "My Orders | TopUpIO",
 };
 
 export default async function MyOrdersPage({

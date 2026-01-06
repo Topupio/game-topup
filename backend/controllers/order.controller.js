@@ -68,6 +68,8 @@ export const createOrder = async (req, res) => {
                         price: product.price,
                         discountedPrice: product.discountedPrice,
                         deliveryTime: product.deliveryTime || "24-48 Hours",
+                        qty: qty,
+                        totalAmount: amount
                     },
                     tracking: [{
                         status: "pending",

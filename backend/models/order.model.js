@@ -84,7 +84,9 @@ const orderSchema = new mongoose.Schema(
             name: String,
             price: Number,
             discountedPrice: Number,
-            deliveryTime: String
+            deliveryTime: String,
+            qty: Number,
+            totalAmount: Number,
         },
 
         tracking: [
