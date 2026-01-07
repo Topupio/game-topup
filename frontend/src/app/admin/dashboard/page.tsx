@@ -1,60 +1,54 @@
 "use client";
 
-import { FaUsers, FaShoppingCart, FaDollarSign, FaHistory } from "react-icons/fa";
+import AdminToolbar from "@/components/admin/shared/AdminToolbar";
+import StatsCards from "@/components/admin/dashboard/StatsCards";
+import DashboardCharts from "@/components/admin/dashboard/DashboardCharts";
+import ActionRequiredPanel from "@/components/admin/dashboard/ActionRequiredPanel";
+import RecentOrdersTable from "@/components/admin/dashboard/RecentOrdersTable";
+import SystemHealthPanel from "@/components/admin/dashboard/SystemHealthPanel";
+import AdminActivityFeed from "@/components/admin/dashboard/AdminActivityFeed";
+import SmartInsights from "@/components/admin/dashboard/SmartInsights";
+import QuickActions from "@/components/admin/dashboard/QuickActions";
 
 export default function AdminDashboardPage() {
     return (
-        <div className="space-y-8">
-            
-            {/* Page Header */}
-            <div>
-                <h2 className="text-3xl font-semibold tracking-tight text-gray-800">Overview</h2>
-                <p className="text-sm text-gray-500 mt-1">
-                    Key stats and quick insights for administrators.
-                </p>
-            </div>
+        <div className="p-6 w-full space-y-4 relative">
 
-            {/* Stats Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                
-                <div className="rounded-xl border bg-white p-5 shadow-sm hover:shadow-md transition">
-                    <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-500">Total Users</span>
-                        <FaUsers className="text-gray-400" size={22} />
-                    </div>
-                    <div className="text-3xl font-bold mt-2">—</div>
+            {/* Header */}
+            <AdminToolbar title="Dashboard" />
+
+            {/* 1. Executive Summary Cards */}
+            <StatsCards />
+
+            {/* 2. Live Business Charts */}
+            <DashboardCharts />
+
+            {/* 3. System Health Snapshot */}
+            <SystemHealthPanel />
+
+            {/* 4. Panels Grid */}
+            <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+
+                {/* Recent Orders (Spans 2 cols) */}
+                <div className="xl:col-span-2">
+                    <RecentOrdersTable />
                 </div>
 
-                <div className="rounded-xl border bg-white p-5 shadow-sm hover:shadow-md transition">
-                    <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-500">Orders Today</span>
-                        <FaShoppingCart className="text-gray-400" size={22} />
-                    </div>
-                    <div className="text-3xl font-bold mt-2">—</div>
-                </div>
-
-                <div className="rounded-xl border bg-white p-5 shadow-sm hover:shadow-md transition">
-                    <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-500">Revenue (24h)</span>
-                        <FaDollarSign className="text-gray-400" size={22} />
-                    </div>
-                    <div className="text-3xl font-bold mt-2">—</div>
-                </div>
-
-                <div className="rounded-xl border bg-white p-5 shadow-sm hover:shadow-md transition">
-                    <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-500">Pending Tasks</span>
-                        <FaHistory className="text-gray-400" size={22} />
-                    </div>
-                    <div className="text-3xl font-bold mt-2">—</div>
+                {/* Action Required (Spans 1 col) */}
+                <div className="xl:col-span-1 h-full">
+                    <ActionRequiredPanel />
                 </div>
             </div>
 
-            {/* Recent Activity */}
-            <div className="rounded-xl border bg-white p-6 shadow-sm">
-                <h3 className="text-lg font-semibold text-gray-700 mb-4">Recent Activity</h3>
-                <p className="text-sm text-gray-500">No recent activity yet.</p>
+            {/* 5. Bottom Grid */}
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                <AdminActivityFeed />
+                <SmartInsights />
             </div>
+
+            {/* 6. Quick Actions (Floating) */}
+            <QuickActions />
+
         </div>
     );
 }
