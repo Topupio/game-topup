@@ -1,3 +1,23 @@
+export interface DashboardStats {
+    orders: {
+        total: number;
+        pending: number;
+        processing: number;
+        completed: number;
+        today: number;
+    };
+    users: {
+        total: number;
+        blocked: number;
+        newToday: number;
+    };
+    revenue: {
+        total: number;
+        today: number;
+        thisWeek: number;
+    };
+}
+
 // ===== Sub-types =====
 
 export interface DashboardOrdersStats {

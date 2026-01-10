@@ -5,12 +5,24 @@ import Payment from '../models/payment.model.js';
 import AdminActivityLog from '../models/adminLog.model.js';
 
 export const getDashboardData = asyncHandler(async (req, res) => {
-    const todayStart = new Date();
-    todayStart.setHours(0, 0, 0, 0);
 
-    const weekStart = new Date();
-    weekStart.setDate(weekStart.getDate() - 7);
+    // -------------------------
+    // Safe UTC date handling
+    // -------------------------
+    const now = new Date();
 
+    const todayStart = new Date(Date.UTC(
+        now.getUTCFullYear(),
+        now.getUTCMonth(),
+        now.getUTCDate()
+    ));
+
+    const weekStart = new Date(todayStart);
+    weekStart.setUTCDate(todayStart.getUTCDate() - 7);
+
+    // -------------------------
+    // Execute queries in parallel
+    // -------------------------
     const [
         totalOrders,
         pendingOrders,
@@ -22,31 +34,72 @@ export const getDashboardData = asyncHandler(async (req, res) => {
         blockedUsers,
         newUsersToday,
 
-        totalRevenueAgg,
-        todayRevenueAgg,
-        weekRevenueAgg,
+        revenueAgg,
 
         recentOrders,
         recentActivity
     ] = await Promise.all([
+
+        // Orders
         Order.countDocuments(),
         Order.countDocuments({ orderStatus: "pending" }),
         Order.countDocuments({ orderStatus: "processing" }),
         Order.countDocuments({ orderStatus: "completed" }),
         Order.countDocuments({ createdAt: { $gte: todayStart } }),
 
+        // Users
         User.countDocuments(),
         User.countDocuments({ status: "blocked" }),
         User.countDocuments({ createdAt: { $gte: todayStart } }),
 
-        Payment.aggregate([{ $match: { status: "success" } }, { $group: { _id: null, total: { $sum: "$amount" } } }]),
-        Payment.aggregate([{ $match: { status: "success", createdAt: { $gte: todayStart } } }, { $group: { _id: null, total: { $sum: "$amount" } } }]),
-        Payment.aggregate([{ $match: { status: "success", createdAt: { $gte: weekStart } } }, { $group: { _id: null, total: { $sum: "$amount" } } }]),
+        // Revenue (single efficient aggregation)
+        Payment.aggregate([
+            { $match: { status: "success" } },
+            {
+                $facet: {
+                    total: [
+                        { $group: { _id: null, value: { $sum: "$amount" } } }
+                    ],
+                    today: [
+                        { $match: { createdAt: { $gte: todayStart } } },
+                        { $group: { _id: null, value: { $sum: "$amount" } } }
+                    ],
+                    week: [
+                        { $match: { createdAt: { $gte: weekStart } } },
+                        { $group: { _id: null, value: { $sum: "$amount" } } }
+                    ]
+                }
+            }
+        ]),
 
-        Order.find().sort({ createdAt: -1 }).limit(10).populate("user product"),
-        AdminActivityLog.find().sort({ createdAt: -1 }).limit(10).populate("admin")
+        // Recent Orders
+        Order.find()
+            .sort({ createdAt: -1 })
+            .limit(10)
+            .select("orderNumber total orderStatus createdAt user product")
+            .populate("user", "name email")
+            .populate("product", "title price"),
+
+        // Admin Activity
+        AdminActivityLog.find()
+            .sort({ createdAt: -1 })
+            .limit(10)
+            .select("action createdAt admin")
+            .populate("admin", "name email")
     ]);
 
+    // -------------------------
+    // Format revenue output safely
+    // -------------------------
+    const revenueData = revenueAgg[0] || {};
+
+    const totalRevenue = revenueData.total?.[0]?.value || 0;
+    const todayRevenue = revenueData.today?.[0]?.value || 0;
+    const weekRevenue = revenueData.week?.[0]?.value || 0;
+
+    // -------------------------
+    // Final Response
+    // -------------------------
     res.json({
         orders: {
             total: totalOrders,
@@ -61,9 +114,9 @@ export const getDashboardData = asyncHandler(async (req, res) => {
             newToday: newUsersToday
         },
         revenue: {
-            total: totalRevenueAgg[0]?.total || 0,
-            today: todayRevenueAgg[0]?.total || 0,
-            thisWeek: weekRevenueAgg[0]?.total || 0
+            total: totalRevenue,
+            today: todayRevenue,
+            thisWeek: weekRevenue
         },
         recentOrders,
         recentActivity

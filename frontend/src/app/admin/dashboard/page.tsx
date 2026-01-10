@@ -21,7 +21,7 @@ export default async function AdminDashboardPage() {
             <AdminToolbar title="Dashboard" />
 
             {/* 1. Executive Summary Cards */}
-            <StatsCards />
+            <StatsCards data={data} />
 
             {/* 2. Live Business Charts */}
             <DashboardCharts />

@@ -1,23 +1,22 @@
-"use client";
-
+import { DashboardStats } from "@/services/dashboard/types";
 import { RiStackLine, RiTimeLine, RiLoader4Line, RiCheckboxCircleLine, RiMoneyDollarCircleLine, RiCalendarCheckLine, RiGroupLine, RiUserForbidLine } from "react-icons/ri";
 
-export default function StatsCards() {
+export default function StatsCards({ data }: { data: DashboardStats }) {
     const stats = [
-        { label: "Total Orders", value: "1,245", change: "+12.5%", trend: "up", icon: RiStackLine, color: "text-blue-500", bg: "bg-blue-500/10" },
-        { label: "Pending Orders", value: "45", change: "+5.2%", trend: "up", icon: RiTimeLine, color: "text-amber-500", bg: "bg-amber-500/10" },
-        { label: "Processing", value: "28", change: "-2.1%", trend: "down", icon: RiLoader4Line, color: "text-indigo-500", bg: "bg-indigo-500/10" },
-        { label: "Completed", value: "1,156", change: "+18.2%", trend: "up", icon: RiCheckboxCircleLine, color: "text-green-500", bg: "bg-green-500/10" },
-        { label: "Total Revenue", value: "₹45.2M", change: "+8.4%", trend: "up", icon: RiMoneyDollarCircleLine, color: "text-emerald-600", bg: "bg-emerald-500/10" },
-        { label: "Today's Revenue", value: "₹125K", change: "+22.5%", trend: "up", icon: RiCalendarCheckLine, color: "text-cyan-500", bg: "bg-cyan-500/10" },
-        { label: "Total Users", value: "3,890", change: "+120", trend: "up", icon: RiGroupLine, color: "text-violet-500", bg: "bg-violet-500/10" },
-        { label: "Blocked Users", value: "12", change: "+2", trend: "down", icon: RiUserForbidLine, color: "text-red-500", bg: "bg-red-500/10" },
+        { label: "Total Orders", value: data.orders.total, change: "+12.5%", trend: "up", icon: RiStackLine, color: "text-blue-500", bg: "bg-blue-500/10" },
+        { label: "Pending Orders", value: data.orders.pending, change: "+5.2%", trend: "up", icon: RiTimeLine, color: "text-amber-500", bg: "bg-amber-500/10" },
+        { label: "Processing", value: data.orders.processing, change: "-2.1%", trend: "down", icon: RiLoader4Line, color: "text-indigo-500", bg: "bg-indigo-500/10" },
+        { label: "Completed", value: data.orders.completed, change: "+18.2%", trend: "up", icon: RiCheckboxCircleLine, color: "text-green-500", bg: "bg-green-500/10" },
+        { label: "Total Revenue", value: `$${(data.revenue.total / 1_000_000).toFixed(1)}M`, change: "+8.4%", trend: "up", icon: RiMoneyDollarCircleLine, color: "text-emerald-600", bg: "bg-emerald-500/10" },
+        { label: "Today's Revenue", value: `$${(data.revenue.today / 1_000_000).toFixed(1)}M`, change: "+22.5%", trend: "up", icon: RiCalendarCheckLine, color: "text-cyan-500", bg: "bg-cyan-500/10" },
+        { label: "Total Users", value: data.users.total, change: "+120", trend: "up", icon: RiGroupLine, color: "text-violet-500", bg: "bg-violet-500/10" },
+        { label: "Blocked Users", value: data.users.blocked, change: "+2", trend: "down", icon: RiUserForbidLine, color: "text-red-500", bg: "bg-red-500/10" },
     ];
 
     return (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {stats.map((stat, index) => (
-                <div key={index} className="bg-white border text-card-foreground shadow-sm rounded-xl p-6">
+            {stats.map((stat) => (
+                <div key={stat.label} className="bg-white border text-card-foreground shadow-sm rounded-xl p-6">
                     <div className="flex items-center justify-between">
                         <div>
                             <p className="text-sm font-medium text-gray-500">{stat.label}</p>
