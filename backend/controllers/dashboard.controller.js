@@ -76,9 +76,11 @@ export const getDashboardData = asyncHandler(async (req, res) => {
         Order.find()
             .sort({ createdAt: -1 })
             .limit(10)
-            .select("orderId game total orderStatus createdAt user product")
+            .select("orderId amount unitPrice quantity orderStatus paymentStatus createdAt user product")
             .populate("user", "name email")
-            .populate("product", "title price"),
+            .populate("product", "name")
+            .populate("game", "name")
+            .lean(),
 
         // Admin Activity
         AdminActivityLog.find()

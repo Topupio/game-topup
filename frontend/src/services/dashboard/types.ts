@@ -59,6 +59,11 @@ export interface DashboardProduct {
     price: number;
 }
 
+export interface DashboardGame {
+    _id: string;
+    name: string;
+}
+
 /**
  * Recent order returned by dashboard
  */
@@ -66,9 +71,9 @@ export interface DashboardOrder {
     _id: string;
     orderId: string;
     orderStatus: "pending" | "processing" | "completed";
-    totalAmount: number;
+    amount: number;
     createdAt: string;
-
+    game: DashboardGame;
     user: DashboardUser;
     product: DashboardProduct;
 }
