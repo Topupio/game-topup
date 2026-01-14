@@ -98,7 +98,7 @@ export const getDashboardData = asyncHandler(async (req, res) => {
         AdminActivityLog.find()
             .sort({ createdAt: -1 })
             .limit(10)
-            .select("action createdAt admin")
+            .select("action description module createdAt admin")
             .populate("admin", "name email")
             .lean(),
 

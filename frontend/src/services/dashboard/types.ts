@@ -96,6 +96,8 @@ export interface DashboardActivity {
     _id: string;
     action: string;
     createdAt: string;
+    description: string;
+    module: string;
 
     admin: DashboardAdmin;
 }

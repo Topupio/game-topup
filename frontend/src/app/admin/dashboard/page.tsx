@@ -45,7 +45,7 @@ export default async function AdminDashboardPage() {
 
             {/* 5. Bottom Grid */}
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                <AdminActivityFeed />
+                <AdminActivityFeed activities={data?.recentActivity} />
                 <SmartInsights />
             </div>
 
