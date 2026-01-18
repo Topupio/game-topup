@@ -4,13 +4,10 @@ import { productsApiServer } from "@/services/products/productsApi.server";
 import GameCategoryListing from "@/components/user/homePage/GameCategoryListing";
 import HeroCarousel from "@/components/user/homePage/HeroCarousel";
 import HotProducts from "@/components/user/homePage/HotProducts";
-import { Game } from "@/lib/types/game";
 
 export default async function Page() {
     const banners = await bannerApiServer.listActive();
     const bannerData = banners.data || [];
-    const games = await gamesApiServer.list();
-    const gameData: Game[] = games.data || [];
 
     const popularProductsRes = await productsApiServer.listPopular();
     const popularProducts = popularProductsRes.data || [];
