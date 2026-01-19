@@ -6,6 +6,7 @@ import { useAuth } from "@/context/AuthContext";
 import { toast } from "react-toastify";
 import { isValidEmail, hasMinLength } from "@/utils/validation";
 import { FcGoogle } from "react-icons/fc";
+import axios from "axios";
 
 export default function LoginPage() {
     const router = useRouter();
@@ -35,7 +36,12 @@ export default function LoginPage() {
             router.push("/");
         } catch (err: unknown) {
             let message = "Login failed";
-            if (err instanceof Error) message = err.message;
+            if (axios.isAxiosError(err)) {
+                message = err.response?.data?.message || err.message;
+            } else if (err instanceof Error) {
+                message = err.message;
+            }
+
             toast.error(message);
         } finally {
             setLoading(false);
