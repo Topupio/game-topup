@@ -1,35 +1,56 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { getApiBase } from "@/config/api";
+
+const LOGIN_PATH = "/admin/login";
+const HOME_PATH = "/";
 
 export async function middleware(req: NextRequest) {
     const { pathname, origin } = req.nextUrl;
 
-    if (pathname === "/admin/login") return NextResponse.next();
+    // Fast path: allow login page immediately (no allocations)
+    if (pathname === LOGIN_PATH) {
+        return NextResponse.next();
+    }
+
+    const cookie = req.headers.get("cookie");
+
+    // Fast fail: no cookies means no session → redirect
+    if (!cookie) {
+        const loginUrl = req.nextUrl.clone();
+        loginUrl.pathname = LOGIN_PATH;
+        loginUrl.searchParams.set("from", pathname);
+        return NextResponse.redirect(loginUrl);
+    }
 
     try {
-        const apiBase = getApiBase(origin);
-        const meUrl = `${apiBase}/api/auth/me`;
-        const res = await fetch(meUrl, {
-            headers: {
-                // Forward incoming cookies (should include cookies with Domain=.domain.com)
-                cookie: req.headers.get("cookie") || "",
-            },
+        // Internal request (Edge-optimized)
+        const res = await fetch(`${origin}/api/auth/me`, {
+            headers: { cookie },
             cache: "no-store",
         });
 
-        if (!res.ok) {
-            const loginUrl = new URL("/admin/login", origin);
+        // Unauthenticated
+        if (res.status !== 200) {
+            const loginUrl = req.nextUrl.clone();
+            loginUrl.pathname = LOGIN_PATH;
             loginUrl.searchParams.set("from", pathname);
             return NextResponse.redirect(loginUrl);
         }
-        const data = await res.json().catch(() => null);
-        if (data?.user?.role !== "admin") {
-            return NextResponse.redirect(new URL("/", origin));
+
+        // Avoid JSON parsing if not needed
+        const { user } = await res.json();
+
+        // Authenticated but wrong role
+        if (user?.role !== "admin") {
+            return NextResponse.redirect(new URL(HOME_PATH, origin));
         }
+
+        // Authenticated admin
         return NextResponse.next();
     } catch {
-        const loginUrl = new URL("/admin/login", origin);
+        // Network failure → safest fallback is login
+        const loginUrl = req.nextUrl.clone();
+        loginUrl.pathname = LOGIN_PATH;
         loginUrl.searchParams.set("from", pathname);
         return NextResponse.redirect(loginUrl);
     }
