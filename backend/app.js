@@ -18,8 +18,24 @@ import orderRouter from './routes/order.routes.js';
 const app = express();
 
 // Configure CORS options
+const allowedOrigins = [
+    'http://localhost:3000',
+    'https://game-topup-opal.vercel.app',
+    ...(process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : [])
+];
+
 const corsOptions = {
-    origin: ['http://localhost:3000', 'http://rukntravels.com', 'https://rukntravels.com', 'https://www.rukntravels.com'],
+    origin: function (origin, callback) {
+        // Allow requests with no origin (like mobile apps or curl requests)
+        if (!origin) return callback(null, true);
+
+        // Allow if origin is in allowedOrigins or ends with .vercel.app
+        if (allowedOrigins.includes(origin) || origin.endsWith('.vercel.app')) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
 };
