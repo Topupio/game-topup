@@ -17,6 +17,9 @@ import orderRouter from './routes/order.routes.js';
 // Create and configure the Express app
 const app = express();
 
+// Trust proxy - required for Render, Heroku, etc. to get correct client IP
+app.set('trust proxy', 1);
+
 // Configure CORS options
 const allowedOrigins = [
     'http://localhost:3000',
