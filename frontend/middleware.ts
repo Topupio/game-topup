@@ -27,6 +27,7 @@ export async function middleware(req: NextRequest) {
         const apiBase = process.env.NEXT_PUBLIC_API_BASE || "";
         const res = await fetch(`${apiBase}/api/auth/me`, {
             headers: { cookie },
+            credentials: "include",
             cache: "no-store",
         });
 
