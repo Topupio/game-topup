@@ -59,7 +59,16 @@ const csrfProtection = csurf({
     }
 });
 
-app.use(csrfProtection);
+// Conditional CSRF - Skip for GET /api/auth/me (used by middleware)
+app.use((req, res, next) => {
+    // Skip CSRF for GET requests to /api/auth/me
+    if (req.method === 'GET' && req.path === '/api/auth/me') {
+        return next();
+    }
+
+    // Apply CSRF to everything else
+    csrfProtection(req, res, next);
+});
 
 app.use('/api/internal', internalRouter);
 app.use('/api/auth', authRouter);
