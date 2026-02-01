@@ -1,9 +1,10 @@
 "use client";
 
+import { Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { FiMail, FiRefreshCw } from "react-icons/fi";
 
-export default function CheckEmailPage() {
+function CheckEmailContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const email = searchParams.get("email") || "your email";
@@ -61,5 +62,17 @@ export default function CheckEmailPage() {
                 </p>
             </div>
         </div>
+    );
+}
+
+export default function CheckEmailPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+                <div className="text-blue-600">Loading...</div>
+            </div>
+        }>
+            <CheckEmailContent />
+        </Suspense>
     );
 }
