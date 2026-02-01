@@ -43,8 +43,9 @@ export async function middleware(req: NextRequest) {
 
         console.log("📡 [Middleware] Response status:", res.status);
 
-        // Unauthenticated
-        if (res.status !== 200) {
+        // Accept both 200 (OK) and 304 (Not Modified) as success
+        // 304 is returned by Express when ETag matches (cached response)
+        if (res.status !== 200 && res.status !== 304) {
             console.log("❌ [Middleware] Auth failed (status " + res.status + ") - redirecting to login");
             const loginUrl = req.nextUrl.clone();
             loginUrl.pathname = LOGIN_PATH;
@@ -52,7 +53,13 @@ export async function middleware(req: NextRequest) {
             return NextResponse.redirect(loginUrl);
         }
 
-        // Avoid JSON parsing if not needed
+        // For 304, we can't parse JSON (no body), but auth is valid
+        if (res.status === 304) {
+            console.log("✅ [Middleware] Auth valid (304 Not Modified) - allowing through");
+            return NextResponse.next();
+        }
+
+        // Parse JSON response for 200
         const { user } = await res.json();
         console.log("👤 [Middleware] User role:", user?.role);
 
