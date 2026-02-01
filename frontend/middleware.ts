@@ -23,8 +23,9 @@ export async function middleware(req: NextRequest) {
     }
 
     try {
-        // Internal request (Edge-optimized)
-        const res = await fetch(`${origin}/api/auth/me`, {
+        // Call backend API to verify authentication
+        const apiBase = process.env.NEXT_PUBLIC_API_BASE || "";
+        const res = await fetch(`${apiBase}/api/auth/me`, {
             headers: { cookie },
             cache: "no-store",
         });
