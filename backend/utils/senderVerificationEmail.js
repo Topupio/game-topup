@@ -1,24 +1,14 @@
 // utils/sendVerificationEmail.js
 
+import { Resend } from 'resend';
 import nodemailer from "nodemailer";
 import dotenv from "dotenv";
 dotenv.config();
 
+const isProd = process.env.NODE_ENV === 'production';
+
 export const sendVerificationEmail = async (email, token) => {
     const url = `${process.env.CLIENT_URL}/verify-email/${token}`;
-
-    // Create transporter for local testing (Ethereal)
-    const testAccount = await nodemailer.createTestAccount();
-
-    const transporter = nodemailer.createTransport({
-        host: "smtp.ethereal.email",
-        port: 587,
-        secure: false,
-        auth: {
-            user: testAccount.user,
-            pass: testAccount.pass,
-        },
-    });
 
     const htmlContent = `
         <h2>Welcome to Game Topup!</h2>
@@ -35,15 +25,45 @@ export const sendVerificationEmail = async (email, token) => {
         </p>
     `;
 
-    const info = await transporter.sendMail({
-        from: '"Game Topup" <noreply@gametopup.com>',
-        to: email,
-        subject: "Verify Your Account - Game Topup",
-        html: htmlContent,
-    });
+    if (isProd) {
+        // Production: Use Resend
+        const resend = new Resend(process.env.RESEND_API_KEY);
 
-    // Log preview URL for development
-    console.log("📧 Email sent! Preview URL:", nodemailer.getTestMessageUrl(info));
+        const { data, error } = await resend.emails.send({
+            from: process.env.EMAIL_FROM || 'Game Topup <onboarding@resend.dev>',
+            to: email,
+            subject: "Verify Your Account - Game Topup",
+            html: htmlContent,
+        });
 
-    return info;
+        if (error) {
+            console.error('❌ Resend error:', error);
+            throw new Error(`Failed to send email: ${error.message}`);
+        }
+
+        console.log('✅ Email sent! ID:', data.id);
+        return data;
+    } else {
+        // Development: Use Ethereal for testing
+        const testAccount = await nodemailer.createTestAccount();
+        const transporter = nodemailer.createTransport({
+            host: "smtp.ethereal.email",
+            port: 587,
+            secure: false,
+            auth: {
+                user: testAccount.user,
+                pass: testAccount.pass,
+            },
+        });
+
+        const info = await transporter.sendMail({
+            from: '"Game Topup" <noreply@gametopup.com>',
+            to: email,
+            subject: "Verify Your Account - Game Topup",
+            html: htmlContent,
+        });
+
+        console.log("📧 Email sent! Preview URL:", nodemailer.getTestMessageUrl(info));
+        return info;
+    }
 };
