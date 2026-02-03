@@ -16,7 +16,7 @@ export default async function Page() {
     const data = res.categories;
 
     return (
-        <div className="py-20 bg-linear-to-b from-primary to-primary/90 overflow-x-hidden">
+        <div className="py-20 bg-background overflow-x-hidden">
             <div className="max-w-7xl mx-auto lg:px-0 px-3">
                 <HeroCarousel banners={bannerData} />
                 <HotProducts products={popularProducts} />
