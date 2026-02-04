@@ -18,12 +18,10 @@ const CategoryListingPage = ({ games, currentPage, totalPages }: CategoryListing
     const [openMobileFilters, setOpenMobileFilters] = useState(false);
 
     return (
-        <div className="max-w-7xl mx-auto px-4 lg:px-0 pt-24 lg:pt-20 pb-16 flex flex-col lg:flex-row gap-10">
+        <div className="max-w-7xl mx-auto px-4 lg:px-6 pt-24 lg:pt-20 pb-16 flex flex-col lg:flex-row gap-8">
 
             {/* Sidebar – Desktop */}
-            <aside
-                className="hidden lg:block w-72 sticky top-24 h-fit backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-6"
-            >
+            <aside className="hidden lg:block w-64 shrink-0 sticky top-24 h-fit bg-card border border-border rounded-2xl p-5 shadow-sm">
                 <FilterSection />
             </aside>
 
@@ -37,22 +35,20 @@ const CategoryListingPage = ({ games, currentPage, totalPages }: CategoryListing
             </Drawer>
 
             {/* Main Content */}
-            <div className="flex-1">
+            <div className="flex-1 min-w-0">
                 {/* Header */}
-                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
-                    <div className="flex justify-between items-center">
-                        <h2 className="text-2xl font-bold text-white tracking-wide">
-                            Games
-                        </h2>
+                <div className="flex items-center justify-between mb-6">
+                    <h2 className="text-2xl font-bold text-foreground">
+                        Games
+                    </h2>
 
-                        {/* Mobile Filter Button */}
-                        <button
-                            onClick={() => setOpenMobileFilters(true)}
-                            className="lg:hidden flex items-center gap-2 px-4 py-2 rounded-xl bg-secondary text-black font-semibold shadow-md w-fit"
-                        >
-                            <RiFilter3Line size={20} /> Filters
-                        </button>
-                    </div>
+                    {/* Mobile Filter Button */}
+                    <button
+                        onClick={() => setOpenMobileFilters(true)}
+                        className="lg:hidden flex items-center gap-2 px-4 py-2 rounded-lg bg-secondary text-white text-sm font-medium shadow-sm"
+                    >
+                        <RiFilter3Line size={18} /> Filters
+                    </button>
                 </div>
 
                 {/* Games Grid */}
