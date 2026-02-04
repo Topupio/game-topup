@@ -17,7 +17,7 @@ const SingleGameCard = ({ game }: { game: Game }) => {
         >
             <Link
                 href={`/games/${game.slug}`}
-                className="flex items-center gap-4 p-3 rounded-xl bg-white/5 border border-white/5 hover:border-secondary/30 hover:bg-white/[0.08] transition-all duration-300 group"
+                className="flex items-center gap-4 p-3 rounded-xl bg-muted/50 border border-border hover:bg-muted hover:border-secondary/30 transition-all duration-300 group"
             >
                 <div className="relative shrink-0">
                     <img
@@ -29,7 +29,7 @@ const SingleGameCard = ({ game }: { game: Game }) => {
                 </div>
 
                 <div className="flex flex-col flex-1 min-w-0">
-                    <h3 className="text-white font-bold text-sm lg:text-base truncate group-hover:text-secondary transition-colors">
+                    <h3 className="text-foreground font-bold text-sm lg:text-base truncate group-hover:text-secondary transition-colors">
                         {game.name}
                     </h3>
                     <p className="text-gray-500 text-[11px] uppercase tracking-wide mt-1">

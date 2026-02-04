@@ -111,7 +111,7 @@ export default function HeroCarousel({ banners }: { banners: Banner[] }) {
                                 onClick={() => goToSlide(index)}
                                 className={`h-2 rounded-full transition-all duration-300 ${index === currentIndex
                                         ? "bg-gradient-neon w-8"
-                                        : "bg-gray-600 w-2 hover:bg-gray-500"
+                                        : "bg-muted-foreground/40 w-2 hover:bg-muted-foreground/60"
                                     }`}
                             />
                         ))}

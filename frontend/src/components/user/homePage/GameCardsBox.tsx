@@ -10,10 +10,10 @@ interface GameCardsBoxProps {
 
 const GameCardsBox = ({ title, games }: GameCardsBoxProps) => {
     return (
-        <div className="rounded-2xl p-6 bg-white/[0.02] backdrop-blur-xl border border-white/5 hover:border-white/10 transition-colors">
+        <div className="rounded-2xl p-6 bg-white border border-gray-200 hover:border-gray-300 transition-colors">
             <div className="flex justify-between items-center mb-6">
                 <div>
-                    <h2 className="text-white font-bold text-lg lg:text-xl capitalize tracking-tight">
+                    <h2 className="text-gray-900 font-bold text-lg lg:text-xl capitalize tracking-tight">
                         {title}
                     </h2>
                     <div className="h-1 w-12 bg-secondary rounded-full mt-1" />
@@ -21,7 +21,7 @@ const GameCardsBox = ({ title, games }: GameCardsBoxProps) => {
 
                 <Link
                     href={`/categories?category=${title}&page=1`}
-                    className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-secondary transition-colors group"
+                    className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-secondary transition-colors group"
                 >
                     View All <RiArrowRightSLine className="group-hover:translate-x-1 transition-transform" />
                 </Link>

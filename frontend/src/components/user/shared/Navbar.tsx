@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import logo from "@/assets/logo/logo-nobg.png";
 import SearchBoxDesktop from "./SearchBoxDesktop";
@@ -20,89 +21,114 @@ import {
     RiDiscordFill,
     RiTwitterXFill,
     RiInstagramLine,
-    RiFacebookFill
+    RiFacebookFill,
+    RiArrowRightSLine
 } from "react-icons/ri";
 import { motion, AnimatePresence } from "framer-motion";
 import Drawer from "./Drawer";
 
 export default function Navbar() {
     const [open, setOpen] = useState(false);
+    const [scrolled, setScrolled] = useState(false);
     const { user } = useAuth();
 
+    useEffect(() => {
+        const handleScroll = () => setScrolled(window.scrollY > 10);
+        window.addEventListener("scroll", handleScroll, { passive: true });
+        return () => window.removeEventListener("scroll", handleScroll);
+    }, []);
+
     return (
-        <nav className="fixed top-0 w-full z-50 bg-black/20 backdrop-blur-xl border-b border-white/10">
-
+        <nav
+            className={`fixed top-0 w-full z-50 transition-all duration-300 ${
+                scrolled
+                    ? "bg-white/80 backdrop-blur-xl shadow-[0_1px_3px_rgba(0,0,0,0.08)] border-b border-border"
+                    : "bg-white/60 backdrop-blur-md border-b border-transparent"
+            }`}
+        >
             {/* DESKTOP NAVBAR */}
-            <div className="hidden lg:flex max-w-7xl mx-auto px-4 lg:px-0 h-16 items-center justify-between">
+            <div className="hidden lg:flex max-w-7xl mx-auto px-6 h-16 items-center justify-between gap-8">
 
-                {/* Logo */}
-                <Link href="/" className="flex items-center hover:opacity-80 transition">
-                    <Image src={logo} alt="Logo" className="h-12 w-auto" />
-                </Link>
-
+                {/* Left: Logo + Nav links */}
                 <div className="flex items-center gap-10">
-                    <NavLink href="/" label="Home" />
-                    <NavLink href="/categories" label="Games" />
-                    <NavLink href="/blogs" label="Blog" />
+                    <Link href="/" className="flex items-center shrink-0 hover:opacity-80 transition">
+                        <Image src={logo} alt="Logo" className="h-10 w-auto" />
+                    </Link>
 
+                    <div className="flex items-center gap-1">
+                        <NavLink href="/" label="Home" />
+                        <NavLink href="/categories" label="Games" />
+                        <NavLink href="/blogs" label="Blog" />
+                    </div>
+                </div>
+
+                {/* Right: Search + Lang + Account */}
+                <div className="flex items-center gap-3">
                     <SearchBoxDesktop />
                     <LangCurrencySelector />
 
                     {user ? (
                         <Link
                             href="/account"
-                            className="flex items-center gap-2 px-5 py-2 rounded-xl border border-white/20 text-white hover:border-secondary hover:bg-white/10 transition"
+                            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-secondary text-white text-sm font-medium hover:bg-secondary/90 transition shadow-sm"
                         >
-                            <RiUserLine size={18} /> Account
+                            <RiUserLine size={16} />
+                            Account
                         </Link>
                     ) : (
                         <Link
                             href="/login"
-                            className="px-5 py-2 border border-white/20 rounded-xl text-white hover:border-white hover:bg-white/10 transition"
+                            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-secondary text-white text-sm font-medium hover:bg-secondary/90 transition shadow-sm"
                         >
-                            Login
+                            Sign In
                         </Link>
                     )}
                 </div>
             </div>
 
             {/* MOBILE TOP BAR */}
-            <div className="lg:hidden h-16 px-4 flex items-center justify-between">
+            <div className="lg:hidden h-14 px-4 flex items-center justify-between">
 
-                {/* LEFT — MENU + SEARCH */}
-                <div className="flex items-center gap-4 text-white">
-                    <button onClick={() => setOpen(!open)}>
-                        {open ? <RiCloseLine size={26} /> : <RiMenu2Line size={26} />}
+                {/* LEFT: Menu + Search */}
+                <div className="flex items-center gap-3 text-foreground">
+                    <button
+                        onClick={() => setOpen(!open)}
+                        className="p-1.5 rounded-lg hover:bg-muted transition"
+                    >
+                        {open ? <RiCloseLine size={24} /> : <RiMenu2Line size={24} />}
                     </button>
 
-                    <Link href="/search">
-                        <RiSearchLine size={24} />
+                    <Link href="/search" className="p-1.5 rounded-lg hover:bg-muted transition">
+                        <RiSearchLine size={22} />
                     </Link>
                 </div>
 
-                {/* CENTER — LOGO */}
-                <Link href="/" className="flex justify-center">
-                    <Image src={logo} alt="Logo" className="h-10 w-auto object-contain" />
+                {/* CENTER: Logo */}
+                <Link href="/" className="absolute left-1/2 -translate-x-1/2">
+                    <Image src={logo} alt="Logo" className="h-9 w-auto object-contain" />
                 </Link>
 
-                {/* RIGHT — LANGUAGE & ACCOUNT */}
-                <div className="flex items-center gap-4 text-white">
+                {/* RIGHT: Language & Account */}
+                <div className="flex items-center gap-2 text-foreground">
                     <LangCurrencySelector hideLabelOnMobile />
 
-                    <Link href={user ? "/account" : "/login"}>
-                        <RiUserLine size={24} />
+                    <Link
+                        href={user ? "/account" : "/login"}
+                        className="p-1.5 rounded-lg hover:bg-muted transition"
+                    >
+                        <RiUserLine size={22} />
                     </Link>
                 </div>
             </div>
 
-            {/* MOBILE DRAWER MENU */}
+            {/* MOBILE DRAWER */}
             <Drawer
                 isOpen={open}
                 onClose={() => setOpen(false)}
                 title="Menu"
             >
-                <div className="space-y-4">
-                    <div className="space-y-1">
+                <div className="space-y-2">
+                    <div className="space-y-1 px-3">
                         <MobileLink
                             href="/"
                             label="Home"
@@ -123,34 +149,37 @@ export default function Navbar() {
                         />
                     </div>
 
-                    <div className="p-6 border-t border-white/5 space-y-4">
+                    <div className="mx-3 my-4 border-t border-border" />
+
+                    <div className="px-3 space-y-3">
                         {user ? (
                             <Link
                                 href="/account"
                                 onClick={() => setOpen(false)}
-                                className="flex items-center gap-3 p-4 rounded-2xl bg-secondary/10 border border-secondary/20 text-white"
+                                className="flex items-center gap-3 p-3 rounded-xl bg-secondary/5 border border-secondary/10 text-foreground hover:bg-secondary/10 transition"
                             >
-                                <div className="w-10 h-10 rounded-full bg-secondary/20 flex items-center justify-center text-secondary font-bold">
+                                <div className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center text-secondary font-bold text-sm">
                                     {user.name?.[0]?.toUpperCase() || "U"}
                                 </div>
-                                <div className="flex-1">
-                                    <p className="text-sm font-bold truncate max-w-[120px]">{user.name}</p>
-                                    <p className="text-[10px] text-gray-400">View Profile</p>
+                                <div className="flex-1 min-w-0">
+                                    <p className="text-sm font-semibold truncate">{user.name}</p>
+                                    <p className="text-xs text-muted-foreground">View Profile</p>
                                 </div>
+                                <RiArrowRightSLine size={18} className="text-muted-foreground" />
                             </Link>
                         ) : (
                             <div className="grid grid-cols-2 gap-3">
                                 <Link
                                     href="/login"
                                     onClick={() => setOpen(false)}
-                                    className="px-6 py-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm font-medium text-center hover:bg-white/10 transition"
+                                    className="px-4 py-2.5 rounded-lg border border-border text-foreground text-sm font-medium text-center hover:bg-muted transition"
                                 >
-                                    Login
+                                    Log In
                                 </Link>
                                 <Link
                                     href="/register"
                                     onClick={() => setOpen(false)}
-                                    className="px-6 py-3 rounded-xl bg-secondary text-black text-sm font-bold text-center hover:opacity-90 transition"
+                                    className="px-4 py-2.5 rounded-lg bg-secondary text-white text-sm font-semibold text-center hover:bg-secondary/90 transition"
                                 >
                                     Sign Up
                                 </Link>
@@ -158,11 +187,11 @@ export default function Navbar() {
                         )}
 
                         {/* Social Links */}
-                        <div className="flex items-center justify-center gap-6 pt-4 text-gray-500">
-                            <RiDiscordFill size={20} className="hover:text-white transition-colors cursor-pointer" />
-                            <RiTwitterXFill size={18} className="hover:text-white transition-colors cursor-pointer" />
-                            <RiInstagramLine size={20} className="hover:text-white transition-colors cursor-pointer" />
-                            <RiFacebookFill size={20} className="hover:text-white transition-colors cursor-pointer" />
+                        <div className="flex items-center justify-center gap-5 pt-3 text-muted-foreground">
+                            <RiDiscordFill size={20} className="hover:text-secondary transition-colors cursor-pointer" />
+                            <RiTwitterXFill size={18} className="hover:text-secondary transition-colors cursor-pointer" />
+                            <RiInstagramLine size={20} className="hover:text-secondary transition-colors cursor-pointer" />
+                            <RiFacebookFill size={20} className="hover:text-secondary transition-colors cursor-pointer" />
                         </div>
                     </div>
                 </div>
@@ -172,31 +201,48 @@ export default function Navbar() {
 }
 
 /* ----------------------------------- */
-/* DESKTOP NAV LINK */
+/* DESKTOP NAV LINK                    */
 /* ----------------------------------- */
 function NavLink({ href, label }: { href: string; label: string }) {
+    const pathname = usePathname();
+    const isActive = pathname === href || (href !== "/" && pathname.startsWith(href));
+
     return (
         <Link
             href={href}
-            className="relative text-white font-medium group"
+            className={`relative px-3 py-2 rounded-lg text-sm font-medium transition ${
+                isActive
+                    ? "text-secondary bg-secondary/5"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
+            }`}
         >
             {label}
-            <span className="absolute left-0 -bottom-1 w-0 h-0.5 bg-white group-hover:w-full transition-all"></span>
         </Link>
     );
 }
 
 /* ----------------------------------- */
-/* MOBILE NAV LINK */
+/* MOBILE NAV LINK                     */
 /* ----------------------------------- */
 function MobileLink({ href, label, icon, onClick }: { href: string; label: string; icon: React.ReactNode; onClick: () => void }) {
+    const pathname = usePathname();
+    const isActive = pathname === href || (href !== "/" && pathname.startsWith(href));
+
     return (
         <Link
             href={href}
             onClick={onClick}
-            className="flex items-center gap-4 py-3 px-4 rounded-2xl text-lg font-medium text-gray-300 hover:text-white hover:bg-white/5 transition-all group active:scale-95"
+            className={`flex items-center gap-3 py-2.5 px-3 rounded-xl text-sm font-medium transition active:scale-[0.98] ${
+                isActive
+                    ? "text-secondary bg-secondary/5"
+                    : "text-foreground hover:bg-muted"
+            }`}
         >
-            <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-secondary group-hover:bg-secondary/10 transition-colors">
+            <div className={`w-9 h-9 rounded-lg flex items-center justify-center transition ${
+                isActive
+                    ? "bg-secondary/10 text-secondary"
+                    : "bg-muted text-muted-foreground"
+            }`}>
                 {icon}
             </div>
             {label}
@@ -205,16 +251,18 @@ function MobileLink({ href, label, icon, onClick }: { href: string; label: strin
 }
 
 /* ----------------------------------- */
-/* LANGUAGE & CURRENCY SELECTOR */
+/* LANGUAGE & CURRENCY SELECTOR        */
 /* ----------------------------------- */
 function LangCurrencySelector({ hideLabelOnMobile = false }) {
     const [isShowing, setIsShowing] = useState(false);
-    const [mounted, setMounted] = useState(false);
 
     const [selectedLang, setSelectedLang] = useState("English");
     const [selectedCurrency, setSelectedCurrency] = useState("USD");
 
-    useEffect(() => setMounted(true), []);
+    const [mounted, setMounted] = useState(false);
+    if (!mounted && typeof window !== "undefined") {
+        setMounted(true);
+    }
 
     const languages = ["English", "Russian", "Arabic", "Bengali"];
     const currencies = ["USD", "INR", "RUB", "AED", "BDT"];
@@ -222,52 +270,52 @@ function LangCurrencySelector({ hideLabelOnMobile = false }) {
     const modal = (
         <AnimatePresence>
             {isShowing && (
-                <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+                <div className="fixed inset-0 z-9999 flex items-center justify-center p-4">
                     {/* Backdrop */}
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         onClick={() => setIsShowing(false)}
-                        className="absolute inset-0 bg-black/60 backdrop-blur-md"
+                        className="absolute inset-0 bg-black/30 backdrop-blur-sm"
                     />
 
                     {/* Modal */}
                     <motion.div
-                        initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                        initial={{ opacity: 0, scale: 0.95, y: 10 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                        className="relative w-full max-w-lg bg-primary border border-white/10 rounded-3xl p-8 shadow-2xl"
+                        exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                        className="relative w-full max-w-lg bg-white border border-border rounded-2xl p-6 shadow-xl"
                     >
-                        <div className="flex items-center justify-between mb-8">
+                        <div className="flex items-center justify-between mb-6">
                             <div>
-                                <h2 className="text-2xl font-bold text-white">Preferences</h2>
-                                <p className="text-sm text-gray-400">
+                                <h2 className="text-lg font-bold text-foreground">Preferences</h2>
+                                <p className="text-sm text-muted-foreground">
                                     Choose your language and currency
                                 </p>
                             </div>
                             <button
                                 onClick={() => setIsShowing(false)}
-                                className="p-2 rounded-full hover:bg-white/10 text-gray-400 hover:text-white"
+                                className="p-2 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition"
                             >
-                                <RiCloseLine size={24} />
+                                <RiCloseLine size={22} />
                             </button>
                         </div>
 
-                        <div className="space-y-8">
+                        <div className="space-y-6">
                             {/* Language */}
                             <div>
-                                <h3 className="text-sm text-gray-400 mb-3">Language</h3>
-                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Language</h3>
+                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                                     {languages.map(lang => (
                                         <button
                                             key={lang}
                                             onClick={() => setSelectedLang(lang)}
-                                            className={`p-4 rounded-xl border text-sm transition
-                        ${selectedLang === lang
-                                                    ? "bg-secondary/10 border-secondary text-white"
-                                                    : "bg-white/5 border-white/10 text-gray-400 hover:border-white/20"
-                                                }`}
+                                            className={`px-4 py-2.5 rounded-lg border text-sm font-medium transition ${
+                                                selectedLang === lang
+                                                    ? "bg-secondary/10 border-secondary text-secondary"
+                                                    : "bg-muted/50 border-border text-muted-foreground hover:border-secondary/30 hover:text-foreground"
+                                            }`}
                                         >
                                             {lang}
                                         </button>
@@ -277,17 +325,17 @@ function LangCurrencySelector({ hideLabelOnMobile = false }) {
 
                             {/* Currency */}
                             <div>
-                                <h3 className="text-sm text-gray-400 mb-3">Currency</h3>
-                                <div className="grid grid-cols-3 sm:grid-cols-5 gap-3">
+                                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Currency</h3>
+                                <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
                                     {currencies.map(cur => (
                                         <button
                                             key={cur}
                                             onClick={() => setSelectedCurrency(cur)}
-                                            className={`p-3 rounded-xl border text-sm transition
-                        ${selectedCurrency === cur
-                                                    ? "bg-secondary/10 border-secondary text-white"
-                                                    : "bg-white/5 border-white/10 text-gray-400 hover:border-white/20"
-                                                }`}
+                                            className={`px-3 py-2.5 rounded-lg border text-sm font-medium transition ${
+                                                selectedCurrency === cur
+                                                    ? "bg-secondary/10 border-secondary text-secondary"
+                                                    : "bg-muted/50 border-border text-muted-foreground hover:border-secondary/30 hover:text-foreground"
+                                            }`}
                                         >
                                             {cur}
                                         </button>
@@ -296,14 +344,14 @@ function LangCurrencySelector({ hideLabelOnMobile = false }) {
                             </div>
                         </div>
 
-                        <div className="mt-8 pt-6 border-t border-white/5 flex justify-between items-center">
-                            <p className="text-[11px] text-gray-500 uppercase tracking-widest">
-                                Prices will be shown in {selectedCurrency}
+                        <div className="mt-6 pt-4 border-t border-border flex justify-between items-center">
+                            <p className="text-xs text-muted-foreground">
+                                Prices shown in {selectedCurrency}
                             </p>
 
                             <button
                                 onClick={() => setIsShowing(false)}
-                                className="px-5 py-2 bg-secondary text-black rounded-lg text-sm font-medium hover:opacity-90"
+                                className="px-5 py-2 bg-secondary text-white rounded-lg text-sm font-medium hover:bg-secondary/90 transition"
                             >
                                 Apply
                             </button>
@@ -318,11 +366,11 @@ function LangCurrencySelector({ hideLabelOnMobile = false }) {
         <>
             <button
                 onClick={() => setIsShowing(true)}
-                className="flex items-center gap-2 px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-sm text-gray-300 hover:border-secondary hover:text-white transition group"
+                className="flex items-center gap-2 px-3 py-2 rounded-lg border border-border text-sm text-muted-foreground hover:text-foreground hover:border-secondary/30 hover:bg-muted/50 transition"
             >
-                <RiGlobalLine size={18} className="text-secondary" />
+                <RiGlobalLine size={16} className="text-secondary" />
                 <span className={hideLabelOnMobile ? "hidden sm:inline" : "inline"}>
-                    {selectedLang} • {selectedCurrency}
+                    {selectedLang} · {selectedCurrency}
                 </span>
             </button>
 

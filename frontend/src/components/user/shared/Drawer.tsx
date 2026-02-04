@@ -46,38 +46,38 @@ const Drawer = ({ isOpen, onClose, title, children, side = "right" }: DrawerProp
     const modalContent = (
         <AnimatePresence>
             {isOpen && (
-                <div className="fixed inset-0 z-[100] flex justify-end">
+                <div className="fixed inset-0 z-100 flex justify-end">
                     {/* Backdrop */}
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         onClick={onClose}
-                        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+                        className="absolute inset-0 bg-black/20 backdrop-blur-sm"
                     />
 
                     {/* Drawer Content */}
                     <motion.div
                         {...drawerMotionProps}
-                        className={`relative h-full bg-primary border-white/10 shadow-2xl z-20 flex flex-col
-                            ${side === "bottom" ? "w-full h-[80%] rounded-t-3xl border-t mt-auto" : "w-80 h-full border-l"}
+                        className={`relative bg-white shadow-xl z-20 flex flex-col
+                            ${side === "bottom" ? "w-full h-[80%] rounded-t-2xl border-t border-border mt-auto" : "w-80 h-full border-l border-border"}
                         `}
                     >
                         {/* Header */}
-                        <div className="flex items-center justify-between p-6 border-b border-white/5">
-                            <h2 className="text-xl font-bold text-white tracking-tight">
+                        <div className="flex items-center justify-between px-5 py-4 border-b border-border">
+                            <h2 className="text-base font-semibold text-foreground">
                                 {title || "Filters"}
                             </h2>
                             <button
                                 onClick={onClose}
-                                className="w-10 h-10 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 text-white hover:bg-white/10 transition-colors"
+                                className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition"
                             >
-                                <RiCloseLine size={24} />
+                                <RiCloseLine size={20} />
                             </button>
                         </div>
 
                         {/* Body */}
-                        <div className="flex-1 overflow-y-auto py-6">
+                        <div className="flex-1 overflow-y-auto py-4">
                             {children}
                         </div>
                     </motion.div>

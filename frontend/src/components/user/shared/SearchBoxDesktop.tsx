@@ -11,7 +11,7 @@ export default function SearchBoxDesktop() {
     const searchParams = useSearchParams();
 
     const [query, setQuery] = useState(searchParams.get("search") || "");
-    const [results, setResults] = useState<any[]>([]);
+    const [results, setResults] = useState<{ _id: string; slug: string; name: string; imageUrl: string | null; category: string }[]>([]);
     const [loading, setLoading] = useState(false);
     const [drawerOpen, setDrawerOpen] = useState(false);
 
@@ -58,22 +58,13 @@ export default function SearchBoxDesktop() {
     }, 800);
 
     return (
-        <div ref={wrapperRef} className="relative w-72">
+        <div ref={wrapperRef} className="relative w-64">
             {/* Search Input */}
-            <div
-                className="
-                    relative w-full rounded-xl bg-white/5 border border-white/10 
-                    transition-all group overflow-hidden
-                    hover:border-secondary
-                "
-            >
+            <div className="relative w-full rounded-lg bg-muted/70 border border-border transition-all group overflow-hidden hover:border-secondary/40 focus-within:border-secondary focus-within:ring-2 focus-within:ring-ring/20">
                 {/* Icon */}
                 <RiSearchLine
-                    size={20}
-                    className="
-                        absolute left-3 top-1/2 -translate-y-1/2 
-                        text-gray-400 transition-all group-hover:text-secondary
-                    "
+                    size={16}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors group-focus-within:text-secondary"
                 />
 
                 {/* Input */}
@@ -85,72 +76,58 @@ export default function SearchBoxDesktop() {
                         handleSearch(e.target.value);
                     }}
                     placeholder="Search games..."
-                    className="
-                        w-full bg-transparent pl-10 pr-3 py-2 text-sm 
-                        text-white placeholder-gray-400 focus:outline-none
-                    "
+                    className="w-full bg-transparent pl-9 pr-3 py-2 text-sm text-foreground placeholder-muted-foreground focus:outline-none"
                 />
             </div>
 
-            {/* Drawer Panel */}
+            {/* Dropdown Panel */}
             <div
-                className={`
-                    absolute left-0 w-full mt-2 rounded-xl z-40
-                    overflow-hidden backdrop-blur-xl
-                    border border-white/10 bg-primary
-                    shadow-[0px_0px_25px_rgba(0,0,0,0.4)]
-                    transition-all duration-300
-                    ${
-                        drawerOpen
-                            ? "max-h-96 opacity-100 translate-y-0"
-                            : "max-h-0 opacity-0 -translate-y-2"
-                    }
-                `}
+                className={`absolute left-0 w-full mt-2 rounded-xl z-40 overflow-hidden bg-white border border-border shadow-lg transition-all duration-300 ${
+                    drawerOpen
+                        ? "max-h-96 opacity-100 translate-y-0"
+                        : "max-h-0 opacity-0 -translate-y-2 pointer-events-none"
+                }`}
             >
-                {/* Loading Animation */}
+                {/* Loading */}
                 {loading && (
-                    <div className="p-4 animate-pulse space-y-3">
-                        <div className="h-4 bg-white/10 rounded"></div>
-                        <div className="h-4 bg-white/10 rounded"></div>
-                        <div className="h-4 bg-white/10 rounded"></div>
+                    <div className="p-4 space-y-3">
+                        <div className="h-4 bg-muted rounded animate-pulse"></div>
+                        <div className="h-4 bg-muted rounded animate-pulse w-3/4"></div>
+                        <div className="h-4 bg-muted rounded animate-pulse w-1/2"></div>
                     </div>
                 )}
 
                 {/* No Results */}
                 {!loading && drawerOpen && results.length === 0 && (
-                    <div className="p-4 text-gray-400 text-sm text-center">
+                    <div className="p-4 text-muted-foreground text-sm text-center">
                         No results found
                     </div>
                 )}
 
                 {/* Results */}
-                <div className="max-h-80 overflow-y-auto custom-scroll">
+                <div className="max-h-80 overflow-y-auto">
                     {results.map((item) => (
                         <button
                             key={item._id}
-                            onClick={() => router.push(`/games/${item.slug}`)}
-                            className="
-                                w-full flex items-center gap-3 px-4 py-3
-                                text-gray-200 transition-all
-                                hover:bg-white/5 group
-                            "
+                            onClick={() => {
+                                router.push(`/games/${item.slug}`);
+                                setDrawerOpen(false);
+                            }}
+                            className="w-full flex items-center gap-3 px-4 py-3 text-foreground transition-all hover:bg-muted/50 group"
                         >
                             {/* Thumbnail */}
                             <img
-                                src={item.imageUrl}
+                                src={item.imageUrl ?? undefined}
                                 alt={item.name}
-                                className="
-                                    w-12 h-12 object-cover rounded-lg
-                                    group-hover:scale-105 transition-all
-                                "
+                                className="w-10 h-10 object-cover rounded-lg group-hover:scale-105 transition-transform"
                             />
 
                             {/* Text */}
                             <div className="text-start">
-                                <p className="text-sm font-semibold text-white">
+                                <p className="text-sm font-semibold text-foreground">
                                     {item.name}
                                 </p>
-                                <p className="text-xs">{item.category}</p>
+                                <p className="text-xs text-muted-foreground">{item.category}</p>
                             </div>
                         </button>
                     ))}

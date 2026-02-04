@@ -13,7 +13,7 @@ const GameCategoryListing = ({ categories }: { categories: CategoryGameSection[]
                         <RiLayoutGridFill size={28} />
                     </div>
                     <div>
-                        <h2 className="text-2xl lg:text-3xl font-bold text-white tracking-tight">
+                        <h2 className="text-2xl lg:text-3xl font-bold text-gray-900 tracking-tight">
                             Explore Categories
                         </h2>
                         <p className="text-gray-500 text-xs lg:text-sm font-medium">Find your favorite games and top-up options</p>
@@ -22,7 +22,7 @@ const GameCategoryListing = ({ categories }: { categories: CategoryGameSection[]
 
                 <Link
                     href="/categories"
-                    className="hidden sm:flex items-center gap-2 text-sm text-gray-400 hover:text-secondary transition-colors group"
+                    className="hidden sm:flex items-center gap-2 text-sm text-gray-500 hover:text-secondary transition-colors group"
                 >
                     View All Categories <RiArrowRightSLine className="group-hover:translate-x-1 transition-transform" />
                 </Link>
