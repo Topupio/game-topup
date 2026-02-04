@@ -2,7 +2,7 @@
 
 export default function OverviewTab() {
   return (
-    <div className="space-y-4 text-gray-300 leading-relaxed">
+    <div className="space-y-4 text-muted-foreground leading-relaxed">
       <p>
         Efootball Coins let you unlock premium players, kits, upgrades,
         and exclusive advantages inside the game.

@@ -25,7 +25,7 @@ export default function ProductGrid({
                         backdrop-blur-xl
                         ${isSelected
                                 ? "border-secondary bg-secondary/10 ring-2 ring-secondary/40 shadow-xl"
-                                : "border-white/10 bg-white/5 hover:border-secondary/60 hover:bg-white/10 hover:shadow-lg"
+                                : "border-border bg-card hover:border-secondary/60 hover:bg-muted hover:shadow-lg"
                             }`}
                     >
                         {/* SELECTED BADGE */}
@@ -43,7 +43,7 @@ export default function ProductGrid({
                         )}
 
                         {/* IMAGE */}
-                        <div className="relative overflow-hidden rounded-xl bg-primary/40 p-3">
+                        <div className="relative overflow-hidden rounded-xl bg-muted p-3">
                             <img
                                 src={
                                     product.imageUrl ||
@@ -63,13 +63,13 @@ export default function ProductGrid({
                                 className={`text-sm font-semibold tracking-wide truncate
                                 ${isSelected
                                         ? "text-secondary"
-                                        : "text-white group-hover:text-secondary"
+                                        : "text-foreground group-hover:text-secondary"
                                     }`}
                             >
                                 {product.name}
                             </h3>
 
-                            <p className="text-[11px] text-gray-400 uppercase tracking-wider">
+                            <p className="text-[11px] text-muted-foreground uppercase tracking-wider">
                                 Instant Delivery
                             </p>
                         </div>
@@ -82,7 +82,7 @@ export default function ProductGrid({
                                 </span>
 
                                 {discountPercent > 0 && (
-                                    <span className="text-gray-400 text-sm line-through">
+                                    <span className="text-muted-foreground text-sm line-through">
                                         ₹{product.price}
                                     </span>
                                 )}

@@ -8,7 +8,7 @@ interface TabsProps {
 export default function Tabs({ activeTab, setActiveTab }: TabsProps) {
   return (
     <div className="mt-10 px-4 lg:px-0">
-      <div className="flex gap-6 border-b border-white/10 pb-2">
+      <div className="flex gap-6 border-b border-border pb-2">
         {[
           { id: "overview", label: "Overview" },
           { id: "products", label: "Products" },
@@ -18,7 +18,7 @@ export default function Tabs({ activeTab, setActiveTab }: TabsProps) {
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
             className={`pb-2 text-sm font-medium transition-all relative ${
-              activeTab === tab.id ? "text-secondary" : "text-gray-300"
+              activeTab === tab.id ? "text-secondary" : "text-muted-foreground hover:text-secondary-foreground"
             }`}
           >
             {tab.label}

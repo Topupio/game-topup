@@ -30,6 +30,8 @@
     --color-card-foreground: #111827;
     --color-muted: #F1F5F9;
     --color-muted-foreground: #64748B;
+    --color-secondary-foreground: #4F46E5;
+    /* Deeper indigo – interactive hover text */
     --color-border: #E2E8F0;
     --color-input: #F1F5F9;
     --color-ring: #6366F1;

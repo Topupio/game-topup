@@ -13,15 +13,15 @@ export default function CheckoutCard({ product, qty, updateQty, onProceed, isLoa
     const isDisabled = isLoading || product.status !== "active";
 
     return (
-        <div className="bg-white/5 p-6 rounded-xl border border-white/10 backdrop-blur-xl">
+        <div className="bg-card p-6 rounded-xl border border-border shadow-sm">
             <h2 className="text-lg font-bold text-secondary mb-4">Selected Product</h2>
 
             <div className="space-y-3 text-sm">
 
                 {/* Product */}
-                <div className="flex justify-between text-gray-300">
+                <div className="flex justify-between text-muted-foreground">
                     <span>{product.name}</span>
-                    <span className="text-white font-semibold">₹{price}</span>
+                    <span className="text-foreground font-semibold">₹{price}</span>
                 </div>
 
                 {/* Discount */}
@@ -33,21 +33,21 @@ export default function CheckoutCard({ product, qty, updateQty, onProceed, isLoa
                 )}
 
                 {/* Itemized Total */}
-                <div className="flex justify-between text-gray-400 text-xs">
+                <div className="flex justify-between text-muted-foreground text-xs">
                     <span>{discountedPrice} × {qty}</span>
                     <span>₹{totalAmount}</span>
                 </div>
 
                 {/* Quantity Selector */}
                 <div className="flex items-center justify-between mt-4">
-                    <span className="text-gray-300">Quantity</span>
+                    <span className="text-muted-foreground">Quantity</span>
 
-                    <div className="flex items-center gap-3 bg-white/10 px-3 py-2 rounded-xl">
+                    <div className="flex items-center gap-3 bg-muted px-3 py-2 rounded-xl">
                         <RiSubtractLine
                             className={`cursor-pointer text-tertiary ${isDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
                             onClick={() => !isDisabled && updateQty(-1)}
                         />
-                        <span className="text-white font-semibold">{qty}</span>
+                        <span className="text-foreground font-semibold">{qty}</span>
                         <RiAddLine
                             className={`cursor-pointer text-tertiary ${isDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
                             onClick={() => !isDisabled && updateQty(1)}
@@ -56,10 +56,10 @@ export default function CheckoutCard({ product, qty, updateQty, onProceed, isLoa
                 </div>
 
                 {/* Divider */}
-                <div className="border-t border-white/10 my-3" />
+                <div className="border-t border-border my-3" />
 
                 {/* Total */}
-                <div className="flex justify-between text-white font-bold text-base">
+                <div className="flex justify-between text-foreground font-bold text-base">
                     <span>Total</span>
                     <span>₹{totalAmount}</span>
                 </div>

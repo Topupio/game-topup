@@ -117,7 +117,7 @@ export default function GameDetailsClient({ gameDetails }: { gameDetails: GameWi
     };
 
     return (
-        <div className="text-white max-w-7xl mx-auto py-16">
+        <div className="text-foreground max-w-7xl mx-auto py-16">
 
             {/* ---------------- Hero Section ---------------- */}
             <HeroHeader

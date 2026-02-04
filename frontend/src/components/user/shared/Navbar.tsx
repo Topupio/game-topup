@@ -213,7 +213,7 @@ function NavLink({ href, label }: { href: string; label: string }) {
             className={`relative px-3 py-2 rounded-lg text-sm font-medium transition ${
                 isActive
                     ? "text-secondary bg-secondary/5"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                    : "text-muted-foreground hover:text-secondary-foreground hover:bg-muted"
             }`}
         >
             {label}
