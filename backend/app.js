@@ -17,9 +17,28 @@ import orderRouter from './routes/order.routes.js';
 // Create and configure the Express app
 const app = express();
 
+// Trust proxy - required for Render, Heroku, etc. to get correct client IP
+app.set('trust proxy', 1);
+
 // Configure CORS options
+const allowedOrigins = [
+    'http://localhost:3000',
+    'https://game-topup-opal.vercel.app',
+    ...(process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : [])
+];
+
 const corsOptions = {
-    origin: ['http://localhost:3000', 'http://rukntravels.com', 'https://rukntravels.com', 'https://www.rukntravels.com'],
+    origin: function (origin, callback) {
+        // Allow requests with no origin (like mobile apps or curl requests)
+        if (!origin) return callback(null, true);
+
+        // Allow if origin is in allowedOrigins or ends with .vercel.app
+        if (allowedOrigins.includes(origin) || origin.endsWith('.vercel.app')) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
 };
@@ -40,7 +59,16 @@ const csrfProtection = csurf({
     }
 });
 
-app.use(csrfProtection);
+// Conditional CSRF - Skip for GET /api/auth/me (used by middleware)
+app.use((req, res, next) => {
+    // Skip CSRF for GET requests to /api/auth/me
+    if (req.method === 'GET' && req.path === '/api/auth/me') {
+        return next();
+    }
+
+    // Apply CSRF to everything else
+    csrfProtection(req, res, next);
+});
 
 app.use('/api/internal', internalRouter);
 app.use('/api/auth', authRouter);
