@@ -8,7 +8,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             <Suspense fallback={null}>
                 <Navbar />
             </Suspense>
-            <div className='bg-linear-to-b from-primary to-primary/90'>
+            <div className='bg-background'>
                 {children}
             </div>
             <Footer />
