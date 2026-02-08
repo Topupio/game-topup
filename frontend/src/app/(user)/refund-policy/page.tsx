@@ -2,66 +2,72 @@ import { RiCheckboxCircleLine, RiCloseCircleLine, RiErrorWarningLine, RiBankCard
 
 export default function RefundPolicy() {
     return (
-        <div className="min-h-screen bg-primary pt-32 pb-20 px-4 lg:px-0">
-            <div className="max-w-7xl mx-auto">
+        <div className="min-h-screen bg-gray-50 pt-32 pb-20 px-4 lg:px-0">
+            <div className="max-w-4xl mx-auto">
                 {/* Header */}
-                <div className="mb-12 border-b border-white/10 pb-10">
-                    <h1 className="text-3xl md:text-5xl font-bold text-white mb-6">
+                <div className="mb-12 border-b border-gray-200 pb-10">
+                    <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
                         Refund & <span className="text-secondary">Cancellation</span>
                     </h1>
-                    <p className="text-gray-400 leading-relaxed max-w-4xl text-lg">
+                    <p className="text-gray-500 leading-relaxed max-w-3xl">
                         Because Topupio.com sells digital goods, refunds are limited and subject to the conditions below.
                     </p>
                 </div>
 
                 {/* Content Sections */}
-                <div className="space-y-12">
+                <div className="space-y-10">
                     {/* 1. No Refund After Successful Delivery */}
-                    <section className="flex gap-6">
+                    <section className="flex gap-5">
                         <div className="shrink-0 mt-1">
-                            <RiCloseCircleLine className="text-secondary" size={24} />
+                            <div className="w-10 h-10 rounded-xl bg-secondary/10 border border-secondary/20 flex items-center justify-center">
+                                <RiCloseCircleLine className="text-secondary" size={20} />
+                            </div>
                         </div>
                         <div>
-                            <h2 className="text-xl font-bold text-white mb-4 text-secondary">1. No Refund After Successful Delivery</h2>
-                            <div className="text-gray-400 space-y-3 leading-relaxed">
+                            <h2 className="text-lg font-bold text-gray-900 mb-3">1. No Refund After Successful Delivery</h2>
+                            <div className="text-gray-600 space-y-3 leading-relaxed">
                                 <p>Once a digital product is:</p>
                                 <ul className="list-disc pl-5 space-y-1">
                                     <li>Successfully delivered</li>
                                     <li>Redeemed</li>
                                     <li>Applied to a game account</li>
                                 </ul>
-                                <p className="text-red-400 font-bold">❌ No refund or cancellation is possible.</p>
+                                <p className="text-red-500 font-semibold">❌ No refund or cancellation is possible.</p>
                             </div>
                         </div>
                     </section>
 
                     {/* 2. Refund Eligibility */}
-                    <section className="flex gap-6">
+                    <section className="flex gap-5">
                         <div className="shrink-0 mt-1">
-                            <RiCheckboxCircleLine className="text-secondary" size={24} />
+                            <div className="w-10 h-10 rounded-xl bg-secondary/10 border border-secondary/20 flex items-center justify-center">
+                                <RiCheckboxCircleLine className="text-secondary" size={20} />
+                            </div>
                         </div>
                         <div>
-                            <h2 className="text-xl font-bold text-white mb-4 text-secondary">2. Refund Eligibility</h2>
-                            <div className="text-gray-400 space-y-3 leading-relaxed">
+                            <h2 className="text-lg font-bold text-gray-900 mb-3">2. Refund Eligibility</h2>
+                            <div className="text-gray-600 space-y-3 leading-relaxed">
                                 <p>You may be eligible for a refund if:</p>
                                 <ul className="list-disc pl-5 space-y-1">
                                     <li>The top-up failed and was not delivered</li>
                                     <li>The digital code is invalid or unused</li>
                                     <li>Payment was deducted but the order was not processed</li>
                                 </ul>
-                                <p className="italic">All refund requests must be made within 24 hours of purchase.</p>
+                                <p className="italic text-gray-500">All refund requests must be made within 24 hours of purchase.</p>
                             </div>
                         </div>
                     </section>
 
                     {/* 3. In-Game Login Top-Up Refunds */}
-                    <section className="flex gap-6">
+                    <section className="flex gap-5">
                         <div className="shrink-0 mt-1">
-                            <RiErrorWarningLine className="text-secondary" size={24} />
+                            <div className="w-10 h-10 rounded-xl bg-secondary/10 border border-secondary/20 flex items-center justify-center">
+                                <RiErrorWarningLine className="text-secondary" size={20} />
+                            </div>
                         </div>
                         <div>
-                            <h2 className="text-xl font-bold text-white mb-4 text-secondary">3. In-Game Login Top-Up Refunds</h2>
-                            <div className="text-gray-400 space-y-3 leading-relaxed">
+                            <h2 className="text-lg font-bold text-gray-900 mb-3">3. In-Game Login Top-Up Refunds</h2>
+                            <div className="text-gray-600 space-y-3 leading-relaxed">
                                 <p>Refunds will not be provided if:</p>
                                 <ul className="list-disc pl-5 space-y-1">
                                     <li>Incorrect login details were provided</li>
@@ -73,13 +79,15 @@ export default function RefundPolicy() {
                     </section>
 
                     {/* 4. Refund Method */}
-                    <section className="flex gap-6">
+                    <section className="flex gap-5">
                         <div className="shrink-0 mt-1">
-                            <RiBankCardLine className="text-secondary" size={24} />
+                            <div className="w-10 h-10 rounded-xl bg-secondary/10 border border-secondary/20 flex items-center justify-center">
+                                <RiBankCardLine className="text-secondary" size={20} />
+                            </div>
                         </div>
                         <div>
-                            <h2 className="text-xl font-bold text-white mb-4 text-secondary">4. Refund Method</h2>
-                            <div className="text-gray-400 leading-relaxed">
+                            <h2 className="text-lg font-bold text-gray-900 mb-3">4. Refund Method</h2>
+                            <div className="text-gray-600 space-y-2 leading-relaxed">
                                 <p>Approved refunds will be issued to the original payment method</p>
                                 <p>Processing time: 5–7 business days (depends on payment gateway)</p>
                             </div>
@@ -87,13 +95,15 @@ export default function RefundPolicy() {
                     </section>
 
                     {/* 5. Fraud & Abuse */}
-                    <section className="flex gap-6">
+                    <section className="flex gap-5">
                         <div className="shrink-0 mt-1">
-                            <RiShieldFlashLine className="text-secondary" size={24} />
+                            <div className="w-10 h-10 rounded-xl bg-secondary/10 border border-secondary/20 flex items-center justify-center">
+                                <RiShieldFlashLine className="text-secondary" size={20} />
+                            </div>
                         </div>
                         <div>
-                            <h2 className="text-xl font-bold text-white mb-4 text-secondary">5. Fraud & Abuse</h2>
-                            <div className="text-gray-400 leading-relaxed">
+                            <h2 className="text-lg font-bold text-gray-900 mb-3">5. Fraud & Abuse</h2>
+                            <div className="text-gray-600 space-y-3 leading-relaxed">
                                 <p>Orders suspected of:</p>
                                 <ul className="list-disc pl-5 space-y-1">
                                     <li>Fraud</li>
@@ -106,30 +116,34 @@ export default function RefundPolicy() {
                     </section>
 
                     {/* 6. Order Cancellation */}
-                    <section className="flex gap-6">
+                    <section className="flex gap-5">
                         <div className="shrink-0 mt-1">
-                            <RiTimerLine className="text-secondary" size={24} />
+                            <div className="w-10 h-10 rounded-xl bg-secondary/10 border border-secondary/20 flex items-center justify-center">
+                                <RiTimerLine className="text-secondary" size={20} />
+                            </div>
                         </div>
                         <div>
-                            <h2 className="text-xl font-bold text-white mb-4 text-secondary">6. Order Cancellation</h2>
-                            <div className="text-gray-400 space-y-2 leading-relaxed">
+                            <h2 className="text-lg font-bold text-gray-900 mb-3">6. Order Cancellation</h2>
+                            <div className="text-gray-600 space-y-2 leading-relaxed">
                                 <p>Orders cannot be cancelled once processing has started</p>
-                                <p className="font-medium text-white italic underline">Please double-check product, game, region, and account details before payment</p>
+                                <p className="font-medium text-gray-900 italic">Please double-check product, game, region, and account details before payment</p>
                             </div>
                         </div>
                     </section>
 
                     {/* 7. Contact for Refunds */}
-                    <section className="flex gap-6">
+                    <section className="flex gap-5">
                         <div className="shrink-0 mt-1">
-                            <RiCustomerService2Line className="text-secondary" size={24} />
+                            <div className="w-10 h-10 rounded-xl bg-secondary/10 border border-secondary/20 flex items-center justify-center">
+                                <RiCustomerService2Line className="text-secondary" size={20} />
+                            </div>
                         </div>
                         <div>
-                            <h2 className="text-xl font-bold text-white mb-4 text-secondary">7. Contact for Refunds</h2>
-                            <div className="text-gray-400 space-y-2 leading-relaxed">
+                            <h2 className="text-lg font-bold text-gray-900 mb-3">7. Contact for Refunds</h2>
+                            <div className="text-gray-600 space-y-2 leading-relaxed">
                                 <p>For refund requests:</p>
                                 <ul className="list-none space-y-1">
-                                    <li>Email: <span className="text-white">support@topupio.com</span></li>
+                                    <li>Email: <span className="text-secondary font-medium">support@topupio.com</span></li>
                                     <li>Include Order ID and reason</li>
                                 </ul>
                             </div>
