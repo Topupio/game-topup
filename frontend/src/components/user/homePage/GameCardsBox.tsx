@@ -21,7 +21,7 @@ const GameCardsBox = ({ title, games }: GameCardsBoxProps) => {
 
                 <Link
                     href={`/categories?category=${title}&page=1`}
-                    className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-secondary transition-colors group"
+                    className="flex items-center sm:gap-2 gap-1 text-xs text-gray-500 hover:text-secondary transition-colors group"
                 >
                     View All <RiArrowRightSLine className="group-hover:translate-x-1 transition-transform" />
                 </Link>

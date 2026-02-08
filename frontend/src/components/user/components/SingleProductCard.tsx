@@ -3,7 +3,8 @@
 import { Product } from "@/lib/types/product";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { RiArrowRightSLine } from "react-icons/ri";
+import { RiArrowRightSLine, RiStarFill, RiStarHalfFill } from "react-icons/ri";
+import { useMemo } from "react";
 
 export default function SingleProductCard({ product }: { product: Product }) {
     // Calculate discount percentage
@@ -15,6 +16,36 @@ export default function SingleProductCard({ product }: { product: Product }) {
     // Use game info from populated gameId
     const game = product.gameId as any; // backend populate provides the object
     const gameSlug = game?.slug || "#";
+
+    // Generate a deterministic rating between 4.0 and 5.0 based on product ID
+    const rating = useMemo(() => {
+        const productId = product._id || product.name || "";
+        let hash = 0;
+        for (let i = 0; i < productId.length; i++) {
+            hash = ((hash << 5) - hash) + productId.charCodeAt(i);
+            hash |= 0;
+        }
+        // Generate rating between 4.0 and 5.0 with one decimal
+        const normalized = Math.abs(hash % 11) / 10; // 0.0 to 1.0
+        return (4.0 + normalized).toFixed(1);
+    }, [product._id, product.name]);
+
+    // Render stars based on rating
+    const renderStars = () => {
+        const ratingNum = parseFloat(rating);
+        const fullStars = Math.floor(ratingNum);
+        const hasHalfStar = ratingNum % 1 >= 0.5;
+        const stars = [];
+
+        for (let i = 0; i < fullStars; i++) {
+            stars.push(<RiStarFill key={`full-${i}`} className="text-amber-400" size={12} />);
+        }
+        if (hasHalfStar) {
+            stars.push(<RiStarHalfFill key="half" className="text-amber-400" size={12} />);
+        }
+        
+        return stars;
+    };
 
     return (
         <motion.div
@@ -39,22 +70,31 @@ export default function SingleProductCard({ product }: { product: Product }) {
                 </div>
 
                 {/* Content */}
-                <div className="mt-3 space-y-0.5">
-                    <h3 className="text-foreground font-semibold text-sm truncate group-hover:text-secondary transition-colors">
-                        {product.name}
+                <div className="mt-3 space-y-1">
+                    <h3 className="text-foreground font-semibold text-sm sm:text-base truncate group-hover:text-secondary transition-colors">
+                       {game?.name || "Game"}
                     </h3>
-                    <p className="text-muted-foreground text-[11px] uppercase tracking-wider">
-                        {game?.name || "Game"}
-                    </p>
+                    
+                    {/* Star Rating */}
+                    <div className="flex items-center gap-1.5">
+                        <div className="flex items-center gap-0.5">
+                            {renderStars()}
+                        </div>
+                        <span className="text-xs font-medium text-muted-foreground">{rating}</span>
+                    </div>
                 </div>
 
                 {/* Price & CTA */}
                 <div className="mt-3 flex items-center justify-between px-1">
-                    <div>
-                        <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Starting from</p>
-                        <span className="text-secondary font-bold text-lg leading-tight">
+                    <div className="flex items-center gap-2">
+                        <span className="text-secondary font-bold text-lg">
                             ${product.discountedPrice}
                         </span>
+                        {hasDiscount && (
+                            <span className="text-muted-foreground text-sm line-through">
+                                ${product.price}
+                            </span>
+                        )}
                     </div>
                     <div className="w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center group-hover:bg-secondary transition-colors duration-300">
                         <RiArrowRightSLine className="text-secondary group-hover:text-white transition-colors duration-300" size={18} />
