@@ -14,8 +14,8 @@ export type AuthUser = {
 type AuthContextType = {
     user: AuthUser | null;
     loading: boolean;
-    login: (email: string, password: string) => Promise<void>;
-    register: (name: string, email: string, password: string) => Promise<void>;
+    login: (email: string, password: string, recaptchaToken?: string | null) => Promise<void>;
+    register: (name: string, email: string, password: string, recaptchaToken?: string | null) => Promise<void>;
     logout: () => Promise<void>;
     refresh: () => Promise<void>;
 };
@@ -43,14 +43,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         };
     }, []);
 
-    const login = async (email: string, password: string) => {
-        await authApi.loginUser({ email, password });
+    const login = async (email: string, password: string, recaptchaToken?: string | null) => {
+        await authApi.loginUser({ email, password, recaptchaToken });
         const me = await authApi.getProfile();
         setUser(me);
     };
 
-    const register = async (name: string, email: string, password: string) => {
-        await authApi.registerUser({ name, email, password });
+    const register = async (name: string, email: string, password: string, recaptchaToken?: string | null) => {
+        await authApi.registerUser({ name, email, password, recaptchaToken });
         // Don't try to get profile - user needs to verify email first
         // User will login after email verification
     };

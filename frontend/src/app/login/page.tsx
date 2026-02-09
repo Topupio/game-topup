@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "react-toastify";
 import { isValidEmail, hasMinLength } from "@/utils/validation";
+import { useRecaptcha } from "@/hooks/useRecaptcha";
 import { FcGoogle } from "react-icons/fc";
 import axios from "axios";
 
@@ -16,6 +17,7 @@ export default function LoginPage() {
     const [loading, setLoading] = useState(false);
     const [googleLoading, setGoogleLoading] = useState(false);
 
+    const { getRecaptchaToken } = useRecaptcha();
     const [touched, setTouched] = useState<{ email?: boolean; password?: boolean }>({});
     const emailValid = isValidEmail(email);
     const passwordValid = hasMinLength(password, 6);
@@ -30,7 +32,8 @@ export default function LoginPage() {
                 throw new Error("Please fix the validation errors");
             }
 
-            await login(email, password);
+            const recaptchaToken = await getRecaptchaToken("login");
+            await login(email, password, recaptchaToken);
 
             toast.success("Logged in successfully");
             router.push("/");

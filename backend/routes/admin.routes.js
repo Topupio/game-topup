@@ -3,6 +3,7 @@ import { adminLogin, adminMe, getAdminLogs, getUsers, updateUserStatus } from ".
 import { protect } from "../middlewares/auth.middleware.js";
 import { authorize } from "../middlewares/role.middleware.js";
 import { authLimiter, sensitiveLimiter } from "../middlewares/rateLimit.middleware.js";
+import { verifyRecaptcha } from "../middlewares/recaptcha.middleware.js";
 import { loginValidation, handleValidation } from "../middlewares/validators/auth.validators.js";
 
 const router = Router();
@@ -11,7 +12,7 @@ router.get('/csrf', (req, res) => {
     res.status(200).json({ success: true, csrfToken: req.csrfToken() });
 });
 
-router.post('/login', authLimiter, loginValidation, handleValidation, adminLogin);
+router.post('/login', authLimiter, verifyRecaptcha("admin_login"), loginValidation, handleValidation, adminLogin);
 router.get('/me', protect, authorize('admin'), adminMe);
 router.get('/logs', protect, authorize('admin'), getAdminLogs);
 

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { apiClient } from "@/lib/http";
 import { isValidEmail, hasMinLength } from "@/utils/validation";
+import { useRecaptcha } from "@/hooks/useRecaptcha";
 import { useAuth } from "@/context/AuthContext";
 
 export default function AdminLoginPage() {
@@ -15,6 +16,7 @@ export default function AdminLoginPage() {
     const [loading, setLoading] = useState(false);
     const [touched, setTouched] = useState<{ email?: boolean; password?: boolean }>({});
 
+    const { getRecaptchaToken } = useRecaptcha();
     const emailValid = isValidEmail(email);
     const passwordValid = hasMinLength(password, 6);
 
@@ -26,7 +28,8 @@ export default function AdminLoginPage() {
                 setTouched({ email: true, password: true });
                 throw new Error("Please fix the validation errors");
             }
-            await apiClient.post("/api/admin/login", { email, password });
+            const recaptchaToken = await getRecaptchaToken("admin_login");
+            await apiClient.post("/api/admin/login", { email, password, recaptchaToken });
             await refresh();
             toast.success("Admin logged in");
             router.push("/admin/dashboard");

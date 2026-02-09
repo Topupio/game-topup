@@ -2,12 +2,14 @@
 
 import { useState } from "react";
 import { clientApi } from "@/lib/http";
+import { useRecaptcha } from "@/hooks/useRecaptcha";
 import { AxiosError } from "axios";
 
 export default function ResendVerificationPage() {
     const [email, setEmail] = useState("");
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState<string | null>(null);
+    const { getRecaptchaToken } = useRecaptcha();
     const [error, setError] = useState<string | null>(null);
 
     const submit = async (e: React.FormEvent) => {
@@ -17,7 +19,8 @@ export default function ResendVerificationPage() {
         setError(null);
 
         try {
-            const res = await clientApi.post("/api/auth/resend-verification", { email });
+            const recaptchaToken = await getRecaptchaToken("resend_verification");
+            const res = await clientApi.post("/api/auth/resend-verification", { email, recaptchaToken });
             setMessage(res.data.message || "Verification email sent.");
         } catch (err: unknown) {
             const error = err as AxiosError<{ message: string }>;

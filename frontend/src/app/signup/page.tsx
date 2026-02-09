@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "react-toastify";
+import { useRecaptcha } from "@/hooks/useRecaptcha";
 import { FcGoogle } from "react-icons/fc";
 
 export default function SignupPage() {
@@ -14,6 +15,7 @@ export default function SignupPage() {
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
     const [touched, setTouched] = useState<{ name?: boolean; email?: boolean; password?: boolean }>({});
+    const { getRecaptchaToken } = useRecaptcha();
     const [googleLoading, setGoogleLoading] = useState(false);
 
     const nameValid = name.trim().length >= 2;
@@ -28,7 +30,8 @@ export default function SignupPage() {
                 setTouched({ name: true, email: true, password: true });
                 throw new Error("Please fix the validation errors");
             }
-            await register(name, email, password);
+            const recaptchaToken = await getRecaptchaToken("register");
+            await register(name, email, password, recaptchaToken);
             toast.success("Account created! Please check your email to verify.");
             router.push(`/check-email?email=${encodeURIComponent(email)}`);
         } catch (err: unknown) {
