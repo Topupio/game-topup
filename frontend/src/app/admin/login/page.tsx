@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 import { apiClient } from "@/lib/http";
 import { isValidEmail, hasMinLength } from "@/utils/validation";
 import { useRecaptcha } from "@/hooks/useRecaptcha";
+import { ReCaptchaProvider } from "@/providers/ReCaptchaProvider";
 import { useAuth } from "@/context/AuthContext";
 
 export default function AdminLoginPage() {
@@ -47,48 +48,50 @@ export default function AdminLoginPage() {
     };
 
     return (
-        <div className="max-w-md mx-auto py-12">
-            <h1 className="text-3xl font-semibold mb-8 text-center">Admin Login</h1>
-            <form onSubmit={onSubmit} className="space-y-5 rounded-lg border p-6 bg-white">
-                <div>
-                    <label className="block text-sm mb-1">Email</label>
-                    <input
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        onBlur={() => setTouched((t) => ({ ...t, email: true }))}
-                        required
-                        className={`w-full border rounded px-3 py-2 ${touched.email && !emailValid ? 'border-red-500' : 'border-gray-300'}`}
-                        placeholder="admin@example.com"
-                    />
-                    {touched.email && !emailValid && (
-                        <p className="text-xs text-red-600 mt-1">Enter a valid email address</p>
-                    )}
-                </div>
-                <div>
-                    <label className="block text-sm mb-1">Password</label>
-                    <input
-                        type="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        onBlur={() => setTouched((t) => ({ ...t, password: true }))}
-                        required
-                        minLength={6}
-                        className={`w-full border rounded px-3 py-2 ${touched.password && !passwordValid ? 'border-red-500' : 'border-gray-300'}`}
-                        placeholder="••••••••"
-                    />
-                    {touched.password && !passwordValid && (
-                        <p className="text-xs text-red-600 mt-1">Password must be at least 6 characters</p>
-                    )}
-                </div>
-                <button
-                    type="submit"
-                    disabled={loading}
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded disabled:opacity-60"
-                >
-                    {loading ? "Logging in..." : "Login"}
-                </button>
-            </form>
-        </div>
+        <ReCaptchaProvider>
+            <div className="max-w-md mx-auto py-12">
+                <h1 className="text-3xl font-semibold mb-8 text-center">Admin Login</h1>
+                <form onSubmit={onSubmit} className="space-y-5 rounded-lg border p-6 bg-white">
+                    <div>
+                        <label className="block text-sm mb-1">Email</label>
+                        <input
+                            type="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            onBlur={() => setTouched((t) => ({ ...t, email: true }))}
+                            required
+                            className={`w-full border rounded px-3 py-2 ${touched.email && !emailValid ? 'border-red-500' : 'border-gray-300'}`}
+                            placeholder="admin@example.com"
+                        />
+                        {touched.email && !emailValid && (
+                            <p className="text-xs text-red-600 mt-1">Enter a valid email address</p>
+                        )}
+                    </div>
+                    <div>
+                        <label className="block text-sm mb-1">Password</label>
+                        <input
+                            type="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            onBlur={() => setTouched((t) => ({ ...t, password: true }))}
+                            required
+                            minLength={6}
+                            className={`w-full border rounded px-3 py-2 ${touched.password && !passwordValid ? 'border-red-500' : 'border-gray-300'}`}
+                            placeholder="••••••••"
+                        />
+                        {touched.password && !passwordValid && (
+                            <p className="text-xs text-red-600 mt-1">Password must be at least 6 characters</p>
+                        )}
+                    </div>
+                    <button
+                        type="submit"
+                        disabled={loading}
+                        className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded disabled:opacity-60"
+                    >
+                        {loading ? "Logging in..." : "Login"}
+                    </button>
+                </form>
+            </div>
+        </ReCaptchaProvider>
     );
 }
