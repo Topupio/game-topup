@@ -189,8 +189,8 @@ export const logout = asyncHandler(async (req, res) => {
         await revokeRefreshToken(rt, req.ip);
     }
     const isProd = process.env.NODE_ENV === "production";
-    res.cookie("token", "", { httpOnly: true, expires: new Date(0), sameSite: isProd ? "none" : "lax", secure: isProd });
-    res.cookie("rt", "", { httpOnly: true, expires: new Date(0), sameSite: isProd ? "none" : "lax", secure: isProd });
+    res.cookie("token", "", { httpOnly: true, expires: new Date(0), sameSite: "lax", secure: isProd });
+    res.cookie("rt", "", { httpOnly: true, expires: new Date(0), sameSite: "lax", secure: isProd });
     res.status(200).json({ success: true });
 });
 

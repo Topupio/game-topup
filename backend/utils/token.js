@@ -43,14 +43,14 @@ export const setAuthCookies = (res, accessToken, refreshTokenValue) => {
 
     res.cookie("token", accessToken, {
         httpOnly: true,
-        sameSite: isProd ? "none" : "lax",
+        sameSite: "lax",
         secure: isProd,
         maxAge: accessMaxAge,
     });
 
     res.cookie("rt", refreshTokenValue, {
         httpOnly: true,
-        sameSite: isProd ? "none" : "lax",
+        sameSite: "lax",
         secure: isProd,
         maxAge: refreshMaxAge,
     });
