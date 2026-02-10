@@ -6,7 +6,7 @@ import { useAuth } from "@/context/AuthContext";
 import { toast } from "react-toastify";
 import { useRecaptcha } from "@/hooks/useRecaptcha";
 import { ReCaptchaProvider } from "@/providers/ReCaptchaProvider";
-import { FcGoogle } from "react-icons/fc";
+// import { FcGoogle } from "react-icons/fc";
 
 function SignupContent() {
     const router = useRouter();
@@ -17,7 +17,7 @@ function SignupContent() {
     const [loading, setLoading] = useState(false);
     const [touched, setTouched] = useState<{ name?: boolean; email?: boolean; password?: boolean }>({});
     const { getRecaptchaToken } = useRecaptcha();
-    const [googleLoading, setGoogleLoading] = useState(false);
+    // const [googleLoading, setGoogleLoading] = useState(false);
 
     const nameValid = name.trim().length >= 2;
     const emailValid = /.+@.+\..+/.test(email);
@@ -44,20 +44,20 @@ function SignupContent() {
         }
     };
 
-    const handleGoogleSignUp = async () => {
-        try {
-            setGoogleLoading(true);
-            // implement google signup flow
-            toast.success("Signed up with Google");
-            router.push("/");
-        } catch (err: unknown) {
-            let message = "Google signup failed";
-            if (err instanceof Error) message = err.message;
-            toast.error(message);
-        } finally {
-            setGoogleLoading(false);
-        }
-    };
+    // const handleGoogleSignUp = async () => {
+    //     try {
+    //         setGoogleLoading(true);
+    //         // implement google signup flow
+    //         toast.success("Signed up with Google");
+    //         router.push("/");
+    //     } catch (err: unknown) {
+    //         let message = "Google signup failed";
+    //         if (err instanceof Error) message = err.message;
+    //         toast.error(message);
+    //     } finally {
+    //         setGoogleLoading(false);
+    //     }
+    // };
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-blue-50 to-blue-100 px-4">
@@ -72,7 +72,7 @@ function SignupContent() {
                 </p>
 
                 {/* Google Sign Up */}
-                <button
+                {/* <button
                     onClick={handleGoogleSignUp}
                     disabled={googleLoading}
                     className="w-full flex items-center justify-center gap-3 bg-white border border-gray-300 rounded-lg py-2.5 mb-6 hover:bg-gray-50 transition shadow-sm"
@@ -81,14 +81,14 @@ function SignupContent() {
                     <span className="text-gray-700 font-medium">
                         {googleLoading ? "Signing up..." : "Sign up with Google"}
                     </span>
-                </button>
+                </button> */}
 
                 {/* Divider */}
-                <div className="flex items-center my-4">
+                {/* <div className="flex items-center my-4">
                     <div className="flex-1 h-px bg-gray-300"></div>
                     <span className="px-3 text-gray-500 text-sm">OR</span>
                     <div className="flex-1 h-px bg-gray-300"></div>
-                </div>
+                </div> */}
 
                 {/* Form */}
                 <form onSubmit={onSubmit} className="space-y-5">

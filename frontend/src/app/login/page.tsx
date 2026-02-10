@@ -7,7 +7,7 @@ import { toast } from "react-toastify";
 import { isValidEmail, hasMinLength } from "@/utils/validation";
 import { useRecaptcha } from "@/hooks/useRecaptcha";
 import { ReCaptchaProvider } from "@/providers/ReCaptchaProvider";
-import { FcGoogle } from "react-icons/fc";
+// import { FcGoogle } from "react-icons/fc";
 import axios from "axios";
 
 function LoginContent() {
@@ -16,7 +16,7 @@ function LoginContent() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
-    const [googleLoading, setGoogleLoading] = useState(false);
+    // const [googleLoading, setGoogleLoading] = useState(false);
 
     const { getRecaptchaToken } = useRecaptcha();
     const [touched, setTouched] = useState<{ email?: boolean; password?: boolean }>({});
@@ -52,20 +52,20 @@ function LoginContent() {
         }
     };
 
-    const handleGoogleLogin = async () => {
-        try {
-            setGoogleLoading(true);
-            // await googleLogin();
-            toast.success("Logged in with Google");
-            router.push("/");
-        } catch (err: unknown) {
-            let message = "Google login failed";
-            if (err instanceof Error) message = err.message;
-            toast.error(message);
-        } finally {
-            setGoogleLoading(false);
-        }
-    };
+    // const handleGoogleLogin = async () => {
+    //     try {
+    //         setGoogleLoading(true);
+    //         // await googleLogin();
+    //         toast.success("Logged in with Google");
+    //         router.push("/");
+    //     } catch (err: unknown) {
+    //         let message = "Google login failed";
+    //         if (err instanceof Error) message = err.message;
+    //         toast.error(message);
+    //     } finally {
+    //         setGoogleLoading(false);
+    //     }
+    // };
 
     return (
         <div className="min-h-screen flex items-center justify-center px-4 bg-primary">
@@ -80,7 +80,7 @@ function LoginContent() {
                 </p>
 
                 {/* Google Button */}
-                <button
+                {/* <button
                     onClick={handleGoogleLogin}
                     disabled={googleLoading}
                     className="w-full flex items-center justify-center gap-3 bg-primary border border-white/10 text-gray-200 rounded-lg py-2.5 mb-6 hover:bg-primary/80 transition shadow-sm"
@@ -89,14 +89,14 @@ function LoginContent() {
                     <span>
                         {googleLoading ? "Signing in..." : "Sign in with Google"}
                     </span>
-                </button>
+                </button> */}
 
                 {/* Divider */}
-                <div className="flex items-center my-4">
+                {/* <div className="flex items-center my-4">
                     <div className="flex-1 h-px bg-white/10"></div>
                     <span className="px-3 text-gray-400 text-sm">OR</span>
                     <div className="flex-1 h-px bg-white/10"></div>
-                </div>
+                </div> */}
 
                 {/* Form */}
                 <form onSubmit={onSubmit} className="space-y-5">
