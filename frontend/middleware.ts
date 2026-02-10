@@ -30,8 +30,9 @@ export async function middleware(req: NextRequest) {
     }
 
     try {
-        // Call API endpoint (proxied to backend via rewrites)
-        const apiUrl = `${origin}/api/auth/me`;
+        // Call API endpoint using NEXT_PUBLIC_API_BASE (avoids HTTP→HTTPS redirect issues behind nginx)
+        const apiBase = (process.env.NEXT_PUBLIC_API_BASE || "").replace(/\/$/, "") || origin;
+        const apiUrl = `${apiBase}/api/auth/me`;
         console.log("📡 [Middleware] Calling:", apiUrl);
         console.log("📡 [Middleware] With cookies:", cookie.substring(0, 50) + "...");
 
