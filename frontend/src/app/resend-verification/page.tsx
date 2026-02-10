@@ -3,9 +3,10 @@
 import { useState } from "react";
 import { clientApi } from "@/lib/http";
 import { useRecaptcha } from "@/hooks/useRecaptcha";
+import { ReCaptchaProvider } from "@/providers/ReCaptchaProvider";
 import { AxiosError } from "axios";
 
-export default function ResendVerificationPage() {
+function ResendVerificationContent() {
     const [email, setEmail] = useState("");
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState<string | null>(null);
@@ -64,5 +65,13 @@ export default function ResendVerificationPage() {
 
             </div>
         </div>
+    );
+}
+
+export default function ResendVerificationPage() {
+    return (
+        <ReCaptchaProvider>
+            <ResendVerificationContent />
+        </ReCaptchaProvider>
     );
 }
