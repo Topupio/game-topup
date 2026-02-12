@@ -24,7 +24,7 @@ export default function HeroHeader({ imageUrl, title, subtitle }: HeroHeaderProp
 
                 <div>
                     <h1 className="text-3xl font-bold tracking-wide">{title}</h1>
-                    <p className="text-gray-300 text-sm">{subtitle || "Top-up Game Utilities"}</p>
+                    <p className="text-gray-300 text-sm capitalize">{subtitle || "Top-up Game Utilities"}</p>
                 </div>
             </div>
         </div>

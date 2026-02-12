@@ -4,6 +4,8 @@ import Image from "next/image";
 import { TbPencil, TbTrash, TbToggleLeft, TbToggleRight } from "react-icons/tb";
 import DataTable, { Column } from "@/components/admin/shared/DataTable";
 import { Game } from "@/lib/types/game";
+import { CHECKOUT_TEMPLATES } from "@/lib/constants/checkoutTemplates";
+import { getRegionByKey } from "@/lib/constants/regions";
 
 interface Props {
     items: Game[];
@@ -39,13 +41,41 @@ export default function GamesTable({ items, onEdit, onDelete, onToggle }: Props)
             ),
         },
         {
-            id: "required",
-            header: "Required Fields",
+            id: "variants",
+            header: "Variants",
             cell: (row) => (
                 <span className="text-gray-700">
-                    {row.requiredFields?.length || 0} fields
+                    {row.variants?.length || 0} variant{(row.variants?.length || 0) !== 1 ? "s" : ""}
                 </span>
             ),
+        },
+        {
+            id: "regions",
+            header: "Regions",
+            cell: (row) => (
+                <div className="flex flex-wrap gap-1">
+                    {(row.regions || []).map((r) => {
+                        const region = getRegionByKey(r);
+                        return (
+                            <span
+                                key={r}
+                                className="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded-full"
+                            >
+                                {region?.label || r}
+                            </span>
+                        );
+                    })}
+                </div>
+            ),
+        },
+        {
+            id: "template",
+            header: "Template",
+            cell: (row) => {
+                const tmpl = CHECKOUT_TEMPLATES[row.checkoutTemplate];
+                const label = tmpl?.label || (row.checkoutTemplate === "custom" ? "Custom" : "—");
+                return <span className="text-sm text-gray-700">{label}</span>;
+            },
         },
         {
             id: "status",
@@ -97,7 +127,7 @@ export default function GamesTable({ items, onEdit, onDelete, onToggle }: Props)
 
     return (
         <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-            <DataTable rows={items} columns={columns} minWidth={700} />
+            <DataTable rows={items} columns={columns} minWidth={800} />
         </div>
     );
 }

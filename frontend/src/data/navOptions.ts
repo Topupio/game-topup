@@ -5,7 +5,6 @@ import {
     FaUsers,
     FaGamepad,
     FaCogs,
-    FaBoxOpen,
     FaImage,
     FaNewspaper,
 } from "react-icons/fa";
@@ -62,11 +61,6 @@ export const adminNavOptions = [
         label: "Games",
         to: "/admin/games",
         icon: FaGamepad,
-    },
-    {
-        label: "Products",
-        to: "/admin/products",
-        icon: FaBoxOpen,
     },
     {
         label: "Blogs",

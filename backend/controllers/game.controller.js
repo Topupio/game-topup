@@ -4,6 +4,106 @@ import slugify from "slugify";
 import { uploadBufferToCloudinary } from "../utils/uploadToCloudinary.js";
 import { deleteImageFromCloudinary } from "../utils/deleteFromCloudinary.js";
 import { logAdminActivity } from "../utils/adminLogger.js";
+import { CHECKOUT_TEMPLATE_KEYS } from "../constants/checkoutTemplates.js";
+import { REGION_KEYS } from "../constants/regions.js";
+
+/**
+ * Parse a JSON field from form-data (may arrive as a string).
+ */
+function parseJsonField(value) {
+    if (value === undefined || value === null) return undefined;
+    if (typeof value === "string") {
+        try {
+            return JSON.parse(value);
+        } catch {
+            return value; // return as-is if not valid JSON
+        }
+    }
+    return value;
+}
+
+/**
+ * Validate required fields array (for custom checkout template).
+ */
+function validateRequiredFields(requiredFields) {
+    if (!Array.isArray(requiredFields)) {
+        return "requiredFields must be an array";
+    }
+
+    const allowedTypes = ["text", "number", "email", "password", "dropdown"];
+    const fieldKeySet = new Set();
+
+    for (const field of requiredFields) {
+        if (!field.fieldName || !field.fieldKey) {
+            return "Each required field must have fieldName and fieldKey";
+        }
+        if (!allowedTypes.includes(field.fieldType)) {
+            return `Invalid fieldType '${field.fieldType}'. Allowed: ${allowedTypes.join(", ")}`;
+        }
+        if (field.fieldType === "dropdown" && (!field.options || field.options.length === 0)) {
+            return "Dropdown fields must have non-empty 'options'";
+        }
+        if (fieldKeySet.has(field.fieldKey)) {
+            return `Duplicate fieldKey '${field.fieldKey}' found`;
+        }
+        fieldKeySet.add(field.fieldKey);
+    }
+    return null;
+}
+
+/**
+ * Validate variants array and auto-generate slugs.
+ */
+function validateAndPrepareVariants(variants, regions) {
+    if (!Array.isArray(variants)) {
+        return { error: "variants must be an array" };
+    }
+
+    const slugSet = new Set();
+
+    for (let i = 0; i < variants.length; i++) {
+        const v = variants[i];
+
+        if (!v.name || v.name.trim().length === 0) {
+            return { error: `Variant #${i + 1}: name is required` };
+        }
+
+        // Auto-generate slug if missing
+        if (!v.slug) {
+            v.slug = slugify(v.name, { lower: true, strict: true });
+        }
+
+        if (slugSet.has(v.slug)) {
+            return { error: `Duplicate variant slug '${v.slug}'` };
+        }
+        slugSet.add(v.slug);
+
+        // Validate region pricing
+        if (v.regionPricing && Array.isArray(v.regionPricing)) {
+            for (const rp of v.regionPricing) {
+                if (!rp.region || !REGION_KEYS.includes(rp.region)) {
+                    return { error: `Variant '${v.name}': invalid region '${rp.region}'` };
+                }
+                if (typeof rp.price !== "number" || rp.price < 0) {
+                    return { error: `Variant '${v.name}': price must be a non-negative number for region '${rp.region}'` };
+                }
+                if (typeof rp.discountedPrice !== "number" || rp.discountedPrice < 0) {
+                    return { error: `Variant '${v.name}': discountedPrice must be a non-negative number for region '${rp.region}'` };
+                }
+                if (rp.discountedPrice > rp.price) {
+                    return { error: `Variant '${v.name}': discountedPrice cannot exceed price for region '${rp.region}'` };
+                }
+            }
+        }
+
+        // Set defaults
+        v.status = v.status || "active";
+        v.isPopular = v.isPopular || false;
+        v.deliveryTime = v.deliveryTime || "Instant Delivery";
+    }
+
+    return { data: variants };
+}
 
 const getGames = asyncHandler(async (req, res) => {
     const {
@@ -16,14 +116,12 @@ const getGames = asyncHandler(async (req, res) => {
         order = "desc"
     } = req.query;
 
-    console.log("req.query", req.query);
     const pageNum = parseInt(page) || 1;
     const limitNum = parseInt(limit) || 12;
     const skip = (pageNum - 1) * limitNum;
 
     const query = {};
 
-    // 1. Search filter
     if (search) {
         query.$or = [
             { name: { $regex: search, $options: "i" } },
@@ -31,23 +129,19 @@ const getGames = asyncHandler(async (req, res) => {
         ];
     }
 
-    // 2. Status filter
     if (status && ["active", "inactive"].includes(status)) {
         query.status = status;
     }
 
-    // 3. Category filter (NEW)
     if (category) {
-        const categories = category.split(","); // allow multi category filter
+        const categories = category.split(",");
         query.category = { $in: categories };
     }
 
-    // 4. Sorting
     const sortQuery = {
         [sort]: order === "asc" ? 1 : -1
     };
 
-    // 5. Fetch data
     const games = await Game.find(query)
         .sort(sortQuery)
         .skip(skip)
@@ -68,10 +162,7 @@ const getGames = asyncHandler(async (req, res) => {
 
 const getHomePageGames = asyncHandler(async (req, res) => {
     const result = await Game.aggregate([
-        // Only active games
         { $match: { status: "active" } },
-
-        // Assign row number per category
         {
             $setWindowFields: {
                 partitionBy: "$category",
@@ -81,22 +172,14 @@ const getHomePageGames = asyncHandler(async (req, res) => {
                 }
             }
         },
-
-        // Keep only top 6 per category
         { $match: { rank: { $lte: 6 } } },
-
-        // Group them back
         {
             $group: {
                 _id: "$category",
                 games: { $push: "$$ROOT" }
             }
         },
-
-        // Sort category order alphabetically (optional)
         { $sort: { _id: 1 } },
-
-        // Clean output
         {
             $project: {
                 _id: 0,
@@ -125,21 +208,9 @@ const getDistinctCategories = asyncHandler(async (req, res) => {
 const getGameDetails = asyncHandler(async (req, res) => {
     const { slug } = req.params;
 
-    const game = await Game.aggregate([
-        {
-            $match: { slug: slug }
-        },
-        {
-            $lookup: {
-                from: 'products',
-                localField: '_id',
-                foreignField: 'gameId',
-                as: 'products'
-            }
-        }
-    ]);
+    const game = await Game.findOne({ slug });
 
-    if (game.length === 0) {
+    if (!game) {
         return res.status(404).json({
             success: false,
             message: "Game not found",
@@ -148,7 +219,7 @@ const getGameDetails = asyncHandler(async (req, res) => {
 
     return res.status(200).json({
         success: true,
-        data: game[0],   // return the single game, not the array
+        data: game,
     });
 });
 
@@ -158,67 +229,22 @@ const getGameDetails = asyncHandler(async (req, res) => {
 const createGame = asyncHandler(async (req, res) => {
     const { name, description, status, metaTitle, metaDescription, topupType } = req.body;
 
-    // 1. Parse & Validate requiredFields
-    let requiredFields = req.body.requiredFields;
+    // 1. Parse JSON fields from form-data
+    let requiredFields = parseJsonField(req.body.requiredFields);
+    let variants = parseJsonField(req.body.variants);
+    let regions = parseJsonField(req.body.regions);
+    let checkoutTemplateOptions = parseJsonField(req.body.checkoutTemplateOptions);
+    const checkoutTemplate = req.body.checkoutTemplate || "";
 
-    if (typeof requiredFields === "string") {
-        try {
-            requiredFields = JSON.parse(requiredFields);
-        } catch {
-            return res.status(400).json({
-                success: false,
-                message: "requiredFields must be valid JSON",
-            });
+    // 2. Validate requiredFields (for custom template)
+    if (requiredFields && Array.isArray(requiredFields) && requiredFields.length > 0) {
+        const rfError = validateRequiredFields(requiredFields);
+        if (rfError) {
+            return res.status(400).json({ success: false, message: rfError });
         }
     }
 
-    if (requiredFields && !Array.isArray(requiredFields)) {
-        return res.status(400).json({
-            success: false,
-            message: "requiredFields must be an array",
-        });
-    }
-
-    // Validate each dynamic field
-    if (requiredFields) {
-        const allowedTypes = ["text", "number", "email", "dropdown"];
-        const fieldKeySet = new Set();
-
-        for (const field of requiredFields) {
-            if (!field.fieldName || !field.fieldKey) {
-                return res.status(400).json({
-                    success: false,
-                    message: "Each required field must have fieldName and fieldKey",
-                });
-            }
-
-            if (!allowedTypes.includes(field.fieldType)) {
-                return res.status(400).json({
-                    success: false,
-                    message: `Invalid fieldType '${field.fieldType}'. Allowed: ${allowedTypes.join(", ")}`,
-                });
-            }
-
-            // Dropdown must have options
-            if (field.fieldType === "dropdown" && (!field.options || field.options.length === 0)) {
-                return res.status(400).json({
-                    success: false,
-                    message: `Dropdown fields must include non-empty 'options' array`,
-                });
-            }
-
-            // Prevent duplicate fieldKeys
-            if (fieldKeySet.has(field.fieldKey)) {
-                return res.status(400).json({
-                    success: false,
-                    message: `Duplicate fieldKey '${field.fieldKey}' found`,
-                });
-            }
-            fieldKeySet.add(field.fieldKey);
-        }
-    }
-
-    // 2. Basic Validations
+    // 3. Validate basic fields
     if (!name || name.trim().length < 2) {
         return res.status(400).json({
             success: false,
@@ -226,14 +252,8 @@ const createGame = asyncHandler(async (req, res) => {
         });
     }
 
-    // Category validation
     if (!req.body.category || req.body.category.trim().length === 0) {
         return res.status(400).json({ success: false, message: "Game category is required" });
-    }
-
-    // topupType validation
-    if (!topupType || topupType.trim().length === 0) {
-        return res.status(400).json({ success: false, message: "Top-up type is required" });
     }
 
     // Image validation
@@ -248,7 +268,40 @@ const createGame = asyncHandler(async (req, res) => {
         });
     }
 
-    // 3. Slug & Duplicate Check
+    // 4. Validate regions
+    if (regions && Array.isArray(regions)) {
+        for (const r of regions) {
+            if (!REGION_KEYS.includes(r)) {
+                return res.status(400).json({
+                    success: false,
+                    message: `Invalid region '${r}'. Allowed: ${REGION_KEYS.join(", ")}`,
+                });
+            }
+        }
+    } else {
+        regions = ["global"];
+    }
+
+    // 5. Validate checkout template
+    if (checkoutTemplate && !["", ...CHECKOUT_TEMPLATE_KEYS].includes(checkoutTemplate)) {
+        return res.status(400).json({
+            success: false,
+            message: `Invalid checkoutTemplate '${checkoutTemplate}'`,
+        });
+    }
+
+    // 6. Validate variants
+    if (variants && Array.isArray(variants) && variants.length > 0) {
+        const result = validateAndPrepareVariants(variants, regions);
+        if (result.error) {
+            return res.status(400).json({ success: false, message: result.error });
+        }
+        variants = result.data;
+    } else {
+        variants = [];
+    }
+
+    // 7. Slug & duplicate check
     const slug = slugify(name, { lower: true, strict: true });
     const existing = await Game.findOne({ slug });
 
@@ -259,7 +312,7 @@ const createGame = asyncHandler(async (req, res) => {
         });
     }
 
-    // 4. Upload Image
+    // 8. Upload image
     let uploadedImageUrl = null;
     let uploadedImagePublicId = null;
 
@@ -275,7 +328,7 @@ const createGame = asyncHandler(async (req, res) => {
         });
     }
 
-    // 5. Create Game
+    // 9. Create game
     let newGame;
 
     try {
@@ -286,18 +339,20 @@ const createGame = asyncHandler(async (req, res) => {
             imageUrl: uploadedImageUrl,
             imagePublicId: uploadedImagePublicId,
             description: description?.trim() || "",
+            topupType: topupType?.trim() || "",
+            regions,
+            checkoutTemplate,
+            checkoutTemplateOptions: checkoutTemplateOptions || {},
             requiredFields: requiredFields || [],
-            topupType: topupType.trim(),
+            variants,
             status: status === "inactive" ? "inactive" : "active",
             metaTitle: metaTitle || "",
             metaDescription: metaDescription || "",
         });
     } catch (err) {
-        // Cleanup orphaned Cloudinary image
         if (uploadedImagePublicId) {
             await deleteImageFromCloudinary(uploadedImagePublicId);
         }
-
         throw err;
     }
 
@@ -329,65 +384,54 @@ const updateGame = asyncHandler(async (req, res) => {
         });
     }
 
-    // 2. Parse requiredFields (form-data support)
-    let requiredFields = req.body.requiredFields;
-
-    if (typeof requiredFields === "string") {
-        try {
-            requiredFields = JSON.parse(requiredFields);
-        } catch {
-            return res.status(400).json({
-                success: false,
-                message: "requiredFields must be valid JSON",
-            });
-        }
-    }
+    // 2. Parse JSON fields from form-data
+    let requiredFields = parseJsonField(req.body.requiredFields);
+    let variants = parseJsonField(req.body.variants);
+    let regions = parseJsonField(req.body.regions);
+    let checkoutTemplateOptions = parseJsonField(req.body.checkoutTemplateOptions);
+    const checkoutTemplate = req.body.checkoutTemplate;
 
     // 3. Validate requiredFields if provided
-    if (requiredFields) {
-        if (!Array.isArray(requiredFields)) {
-            return res.status(400).json({
-                success: false,
-                message: "requiredFields must be an array",
-            });
-        }
-
-        const allowedTypes = ["text", "number", "email", "dropdown"];
-        const fieldKeySet = new Set();
-
-        for (const field of requiredFields) {
-            if (!field.fieldName || !field.fieldKey) {
-                return res.status(400).json({
-                    success: false,
-                    message: "Each required field must have fieldName and fieldKey",
-                });
-            }
-
-            if (!allowedTypes.includes(field.fieldType)) {
-                return res.status(400).json({
-                    success: false,
-                    message: `Invalid fieldType '${field.fieldType}'. Allowed: ${allowedTypes.join(", ")}`
-                });
-            }
-
-            if (field.fieldType === "dropdown" && (!field.options || field.options.length === 0)) {
-                return res.status(400).json({
-                    success: false,
-                    message: "Dropdown fields must have non-empty 'options'"
-                });
-            }
-
-            if (fieldKeySet.has(field.fieldKey)) {
-                return res.status(400).json({
-                    success: false,
-                    message: `Duplicate fieldKey '${field.fieldKey}' found`,
-                });
-            }
-            fieldKeySet.add(field.fieldKey);
+    if (requiredFields && Array.isArray(requiredFields) && requiredFields.length > 0) {
+        const rfError = validateRequiredFields(requiredFields);
+        if (rfError) {
+            return res.status(400).json({ success: false, message: rfError });
         }
     }
 
-    // 4. If name changed, regenerate slug
+    // 4. Validate regions if provided
+    if (regions && Array.isArray(regions)) {
+        for (const r of regions) {
+            if (!REGION_KEYS.includes(r)) {
+                return res.status(400).json({
+                    success: false,
+                    message: `Invalid region '${r}'. Allowed: ${REGION_KEYS.join(", ")}`,
+                });
+            }
+        }
+    }
+
+    // 5. Validate checkout template if provided
+    if (checkoutTemplate !== undefined && checkoutTemplate !== null) {
+        if (!["", ...CHECKOUT_TEMPLATE_KEYS].includes(checkoutTemplate)) {
+            return res.status(400).json({
+                success: false,
+                message: `Invalid checkoutTemplate '${checkoutTemplate}'`,
+            });
+        }
+    }
+
+    // 6. Validate variants if provided
+    if (variants && Array.isArray(variants) && variants.length > 0) {
+        const selectedRegions = regions || game.regions;
+        const result = validateAndPrepareVariants(variants, selectedRegions);
+        if (result.error) {
+            return res.status(400).json({ success: false, message: result.error });
+        }
+        variants = result.data;
+    }
+
+    // 7. If name changed, regenerate slug
     let updatedSlug = game.slug;
 
     if (name && name.trim() !== game.name) {
@@ -402,12 +446,11 @@ const updateGame = asyncHandler(async (req, res) => {
         }
     }
 
-    // 5. Image update handling (optional)
+    // 8. Image update handling
     let updatedImageUrl = game.imageUrl;
     let updatedImagePublicId = game.imagePublicId;
 
     if (req.file) {
-        // Validate image type
         if (!["image/jpeg", "image/png", "image/webp"].includes(req.file.mimetype)) {
             return res.status(400).json({
                 success: false,
@@ -415,18 +458,16 @@ const updateGame = asyncHandler(async (req, res) => {
             });
         }
 
-        // Upload new image
         const uploadResult = await uploadBufferToCloudinary(req.file.buffer, "games");
         updatedImageUrl = uploadResult.secure_url;
         updatedImagePublicId = uploadResult.public_id;
 
-        // Delete old image if exists
         if (game.imagePublicId) {
             await deleteImageFromCloudinary(game.imagePublicId);
         }
     }
 
-    // 6. Apply updates
+    // 9. Apply updates
     game.name = name ?? game.name;
     game.slug = updatedSlug;
     game.category = category ?? game.category;
@@ -435,15 +476,27 @@ const updateGame = asyncHandler(async (req, res) => {
     game.status = status ?? game.status;
     game.metaTitle = metaTitle ?? game.metaTitle;
     game.metaDescription = metaDescription ?? game.metaDescription;
-
-    if (requiredFields) {
-        game.requiredFields = requiredFields;
-    }
-
     game.imageUrl = updatedImageUrl;
     game.imagePublicId = updatedImagePublicId;
 
-    // 7. Save Game
+    // New fields
+    if (regions !== undefined) {
+        game.regions = regions;
+    }
+    if (checkoutTemplate !== undefined) {
+        game.checkoutTemplate = checkoutTemplate;
+    }
+    if (checkoutTemplateOptions !== undefined) {
+        game.checkoutTemplateOptions = checkoutTemplateOptions;
+    }
+    if (requiredFields !== undefined) {
+        game.requiredFields = requiredFields;
+    }
+    if (variants !== undefined) {
+        game.variants = variants;
+    }
+
+    // 10. Save
     const updatedGame = await game.save();
 
     logAdminActivity(req, {
@@ -464,7 +517,6 @@ const updateGame = asyncHandler(async (req, res) => {
 const deleteGame = asyncHandler(async (req, res) => {
     const { id } = req.params;
 
-    // 1. Check if game exists
     const game = await Game.findById(id);
 
     if (!game) {
@@ -474,16 +526,14 @@ const deleteGame = asyncHandler(async (req, res) => {
         });
     }
 
-    // 2. Delete Cloudinary image if exists
     if (game.imagePublicId) {
         try {
-            await cloudinary.uploader.destroy(game.imagePublicId);
+            await deleteImageFromCloudinary(game.imagePublicId);
         } catch (error) {
             console.error("Cloudinary image deletion error:", error);
         }
     }
 
-    // 3. Delete Game Document
     await Game.findByIdAndDelete(id);
 
     logAdminActivity(req, {

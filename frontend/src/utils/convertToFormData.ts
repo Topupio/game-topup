@@ -16,6 +16,12 @@ export function toFormData(payload: Record<string, any>): FormData {
             return;
         }
 
+        // Plain objects → JSON stringify
+        if (typeof value === "object") {
+            fd.append(key, JSON.stringify(value));
+            return;
+        }
+
         // Primitives
         fd.append(key, String(value));
     });

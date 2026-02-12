@@ -1,9 +1,7 @@
-import { Product } from "./product";
-
 export interface RequiredField {
     fieldName: string;
     fieldKey: string;
-    fieldType: "text" | "number" | "email" | "dropdown" | string;
+    fieldType: "text" | "number" | "email" | "password" | "dropdown" | string;
     placeholder?: string;
     options?: string[];
 
@@ -11,6 +9,28 @@ export interface RequiredField {
     optionsText?: string;
 
     required: boolean;
+}
+
+export interface RegionPricing {
+    region: string;
+    currency: string;
+    symbol: string;
+    price: number;
+    discountedPrice: number;
+}
+
+export interface Variant {
+    _id?: string;
+    name: string;
+    slug: string;
+    quantity?: number | null;
+    unit?: string;
+    regionPricing: RegionPricing[];
+    status: "active" | "inactive";
+    isPopular: boolean;
+    deliveryTime: string;
+    imageUrl?: string | null;
+    imagePublicId?: string | null;
 }
 
 export type Game = {
@@ -22,7 +42,11 @@ export type Game = {
     imageUrl: string | null;
     imagePublicId?: string | null;
     description: string;
+    regions: string[];
+    checkoutTemplate: string;
+    checkoutTemplateOptions: Record<string, any>;
     requiredFields: RequiredField[];
+    variants: Variant[];
     status: "active" | "inactive";
     metaTitle?: string;
     metaDescription?: string;
@@ -38,9 +62,8 @@ export type GamesListResponse = {
     data: Game[];
 };
 
-export type GameWithProducts = Game & {
-    products: Product[];
-};
+/** @deprecated Use Game directly — variants are now embedded */
+export type GameWithProducts = Game;
 
 export type CategoryGameSection = {
     category: string;

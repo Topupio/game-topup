@@ -2,22 +2,28 @@
 
 import { useEffect } from "react";
 import { toast } from "react-toastify";
-import { Game } from "@/lib/types/game";
+import { Game, Variant } from "@/lib/types/game";
 import { GamePayload } from "@/services/games/types";
 import { useAdminForm } from "@/hooks/useAdminForm";
 import { gamesApiClient } from "@/services/games";
+import { GAME_CATEGORY_OPTIONS } from "@/lib/constants/gameCategories";
 
 import FormWrapper from "@/components/admin/form/FormWrapper";
 import FormSection from "@/components/admin/form/FormSection";
 import ImageUploader from "@/components/form/ImageUploader";
-import RequiredFieldsBuilder from "./RequiredFieldsBuilder";
 import StatusToggle from "@/components/form/StatusToggle";
 import Input from "@/components/form/Input";
+import Select from "@/components/form/Select";
 import Textarea from "@/components/form/TextArea";
+import RegionMultiSelect from "./RegionMultiSelect";
+import CheckoutTemplateSelector from "./CheckoutTemplateSelector";
+import VariantManager from "./VariantManager";
 
 interface Props {
     gameId: string | "new";
 }
+
+type FormState = Game & { imageFile?: File | null };
 
 export default function GameForm({ gameId }: Props) {
     const isEdit = gameId !== "new";
@@ -26,12 +32,11 @@ export default function GameForm({ gameId }: Props) {
         form,
         updateForm,
         loading,
-        setLoading,
         errors,
         updateError,
         clearError,
         handleSubmit,
-    } = useAdminForm<Game & { imageFile?: File | null }>(
+    } = useAdminForm<FormState>(
         {
             _id: "",
             name: "",
@@ -41,7 +46,11 @@ export default function GameForm({ gameId }: Props) {
             description: "",
             imageUrl: null,
             status: "active",
+            regions: ["global"],
+            checkoutTemplate: "",
+            checkoutTemplateOptions: {},
             requiredFields: [],
+            variants: [],
             metaTitle: "",
             metaDescription: "",
             imageFile: null,
@@ -67,6 +76,10 @@ export default function GameForm({ gameId }: Props) {
                 updateForm((prev) => ({
                     ...prev,
                     ...response.data,
+                    regions: response.data.regions || ["global"],
+                    checkoutTemplate: response.data.checkoutTemplate || "",
+                    checkoutTemplateOptions: response.data.checkoutTemplateOptions || {},
+                    variants: response.data.variants || [],
                     imageFile: null,
                 }));
             } catch (error) {
@@ -77,27 +90,39 @@ export default function GameForm({ gameId }: Props) {
     }, [isEdit, gameId, updateForm]);
 
     const validate = (): boolean => {
-        clearError("name");
-        clearError("category");
-        clearError("description");
-
         let isValid = true;
 
         if (!form.name?.trim()) {
             updateError("name", "Game name is required");
             isValid = false;
+        } else {
+            clearError("name");
         }
+
         if (!form.category?.trim()) {
             updateError("category", "Category is required");
             isValid = false;
+        } else {
+            clearError("category");
         }
-        if (!form.topupType?.trim()) {
-            updateError("topupType", "Top-up type is required");
+
+        if (!form.regions || form.regions.length === 0) {
+            updateError("regions" as any, "At least one region is required");
             isValid = false;
         }
-        if (!form.description?.trim()) {
-            updateError("description", "Description is required");
+
+        if (!form.checkoutTemplate) {
+            updateError("checkoutTemplate" as any, "Please select a checkout template");
             isValid = false;
+        }
+
+        for (let i = 0; i < form.variants.length; i++) {
+            const v = form.variants[i];
+            if (!v.name?.trim()) {
+                toast.error(`Variant #${i + 1}: Name is required`);
+                isValid = false;
+                break;
+            }
         }
 
         return isValid;
@@ -115,10 +140,14 @@ export default function GameForm({ gameId }: Props) {
             const payload: GamePayload = {
                 name: formData.name,
                 category: formData.category,
-                topupType: formData.topupType,
+                topupType: formData.topupType || "",
                 description: formData.description,
                 status: formData.status,
+                regions: formData.regions,
+                checkoutTemplate: formData.checkoutTemplate,
+                checkoutTemplateOptions: formData.checkoutTemplateOptions,
                 requiredFields: formData.requiredFields,
+                variants: formData.variants,
                 metaTitle: formData.metaTitle,
                 metaDescription: formData.metaDescription,
                 image: (formData.imageFile as File) ?? null,
@@ -140,107 +169,133 @@ export default function GameForm({ gameId }: Props) {
             onSubmit={onSubmit}
             submitLabel={isEdit ? "Update Game" : "Create Game"}
         >
-            {/* Basic Info Section */}
-            <FormSection title="Basic Information">
-                <ImageUploader
-                    imageUrl={form.imageUrl || null}
-                    aspectRatio={1}
-                    onChange={(file, preview) => {
-                        updateForm({
-                            imageFile: file,
-                            imageUrl: preview,
-                        });
-                    }}
-                />
+            {/* ── Section 1: Game Identity ── */}
+            <FormSection title="Game Identity" description="Basic info about the game or app">
+                <div className="flex flex-col md:flex-row gap-6">
+                    {/* Left: Image thumbnail */}
+                    <div className="w-full md:w-48 shrink-0 [&_div.relative]:h-48">
+                        <ImageUploader
+                            imageUrl={form.imageUrl || null}
+                            aspectRatio={1}
+                            onChange={(file, preview) => {
+                                updateForm({
+                                    imageFile: file,
+                                    imageUrl: preview,
+                                });
+                            }}
+                        />
+                    </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <Input
-                        label="Game Name"
-                        placeholder="Enter game name"
-                        value={form.name}
-                        required
-                        error={errors.name}
-                        onChange={(e) => {
-                            updateForm({ name: e.target.value });
-                            clearError("name");
-                        }}
-                    />
+                    {/* Right: Fields */}
+                    <div className="flex-1 space-y-4">
+                        <Input
+                            label="Game / App Name"
+                            placeholder="e.g. Brawl Stars"
+                            value={form.name}
+                            required
+                            error={errors.name}
+                            onChange={(e) => {
+                                updateForm({ name: e.target.value });
+                                clearError("name");
+                            }}
+                        />
 
-                    <Input
-                        label="Category"
-                        placeholder="Enter category"
-                        value={form.category}
-                        required
-                        error={errors.category}
-                        onChange={(e) => {
-                            updateForm({ category: e.target.value });
-                            clearError("category");
-                        }}
-                    />
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <Select
+                                label="Category"
+                                required
+                                value={form.category}
+                                error={errors.category}
+                                onChange={(e) => {
+                                    updateForm({ category: e.target.value });
+                                    clearError("category");
+                                }}
+                                options={[
+                                    { label: "Select category", value: "" },
+                                    ...GAME_CATEGORY_OPTIONS,
+                                ]}
+                            />
 
-                    <Input
-                        label="Top-up Type"
-                        placeholder="e.g. ID Top-up, ID Recharge"
-                        value={form.topupType}
-                        required
-                        error={errors.topupType}
-                        onChange={(e) => {
-                            updateForm({ topupType: e.target.value });
-                            clearError("topupType");
-                        }}
-                    />
+                            <div>
+                                <label className="text-sm font-medium text-gray-700 block mb-1">
+                                    Status
+                                </label>
+                                <div className="pt-1">
+                                    <StatusToggle
+                                        value={form.status}
+                                        onChange={(status) => updateForm({ status })}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        <RegionMultiSelect
+                            selectedRegions={form.regions}
+                            onChange={(regions) => updateForm({ regions })}
+                            error={(errors as any).regions}
+                        />
+                    </div>
                 </div>
+            </FormSection>
 
+            {/* ── Section 2: Description ── */}
+            <FormSection title="Description">
                 <Textarea
-                    label="Description"
-                    placeholder="Enter description"
+                    placeholder="Describe the game, what it offers, delivery details..."
                     value={form.description}
-                    required
-                    error={errors.description}
                     onChange={(e) => {
                         updateForm({ description: e.target.value });
-                        clearError("description");
                     }}
                 />
             </FormSection>
 
-            {/* Settings Section */}
-            <FormSection title="Settings">
-                <div>
-                    <label className="font-medium block mb-2">Status</label>
-                    <StatusToggle
-                        value={form.status}
-                        onChange={(status) => updateForm({ status })}
+            {/* ── Section 3: Variants (core content) ── */}
+            <FormSection
+                title="Variants (Items / Packages)"
+                description="Add in-game items or packages that customers can purchase"
+            >
+                <VariantManager
+                    variants={form.variants}
+                    regions={form.regions}
+                    onChange={(variants) => updateForm({ variants })}
+                />
+            </FormSection>
+
+            {/* ── Section 4: Checkout Template ── */}
+            <FormSection
+                title="Checkout Settings"
+                description="Choose which fields customers fill during checkout"
+            >
+                <CheckoutTemplateSelector
+                    selectedTemplate={form.checkoutTemplate}
+                    templateOptions={form.checkoutTemplateOptions}
+                    onTemplateChange={(checkoutTemplate) => {
+                        updateForm({ checkoutTemplate });
+                        clearError("checkoutTemplate" as any);
+                    }}
+                    onOptionsChange={(checkoutTemplateOptions) =>
+                        updateForm({ checkoutTemplateOptions })
+                    }
+                    error={(errors as any).checkoutTemplate}
+                />
+            </FormSection>
+
+            {/* ── Section 5: SEO ── */}
+            <FormSection title="SEO" description="Optional search engine optimization fields">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <Input
+                        label="Meta Title"
+                        placeholder="SEO Title"
+                        value={form.metaTitle}
+                        onChange={(e) => updateForm({ metaTitle: e.target.value })}
+                    />
+                    <Input
+                        label="Meta Description"
+                        placeholder="SEO Description"
+                        value={form.metaDescription}
+                        onChange={(e) => updateForm({ metaDescription: e.target.value })}
                     />
                 </div>
-            </FormSection>
-
-            {/* Required Fields Section */}
-            <FormSection title="Required Fields" divider={false}>
-                <RequiredFieldsBuilder
-                    fields={form.requiredFields}
-                    onChange={(fields) =>
-                        updateForm({ requiredFields: fields })
-                    }
-                    errors={Array.isArray(errors.requiredFields) ? (errors.requiredFields as any) : undefined}
-                />
-            </FormSection>
-
-            {/* SEO Settings Section */}
-            <FormSection title="SEO Settings">
-                <Input
-                    label="Meta Title"
-                    placeholder="SEO Title"
-                    value={form.metaTitle}
-                    onChange={(e) => updateForm({ metaTitle: e.target.value })}
-                />
-
-                <Textarea
-                    label="Meta Description"
-                    placeholder="SEO Description"
-                    value={form.metaDescription}
-                    onChange={(e) => updateForm({ metaDescription: e.target.value })}
-                />
             </FormSection>
         </FormWrapper>
     );

@@ -33,7 +33,7 @@ export default function FormWrapper({
     return (
         <form
             onSubmit={onSubmit}
-            className="p-6 max-w-4xl mx-auto space-y-8 bg-white rounded-xl shadow-sm"
+            className="p-6  mx-auto space-y-8 bg-white rounded-xl shadow-sm"
         >
             {/* Header */}
             <div className="flex items-center gap-3">
