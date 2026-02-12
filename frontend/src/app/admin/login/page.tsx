@@ -17,7 +17,7 @@ function AdminLoginContent() {
     const [loading, setLoading] = useState(false);
     const [touched, setTouched] = useState<{ email?: boolean; password?: boolean }>({});
 
-    const { getRecaptchaToken } = useRecaptcha();
+    const { getRecaptchaToken, isRecaptchaLoading } = useRecaptcha();
     const emailValid = isValidEmail(email);
     const passwordValid = hasMinLength(password, 6);
 
@@ -30,6 +30,9 @@ function AdminLoginContent() {
                 throw new Error("Please fix the validation errors");
             }
             const recaptchaToken = await getRecaptchaToken("admin_login");
+            if (!recaptchaToken) {
+                throw new Error("reCAPTCHA not ready. Please wait a moment and try again.");
+            }
             await apiClient.post("/api/admin/login", { email, password, recaptchaToken });
             await refresh();
             toast.success("Admin logged in");
@@ -84,10 +87,10 @@ function AdminLoginContent() {
                 </div>
                 <button
                     type="submit"
-                    disabled={loading}
+                    disabled={loading || isRecaptchaLoading}
                     className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded disabled:opacity-60"
                 >
-                    {loading ? "Logging in..." : "Login"}
+                    {isRecaptchaLoading ? "Loading..." : loading ? "Logging in..." : "Login"}
                 </button>
             </form>
         </div>
