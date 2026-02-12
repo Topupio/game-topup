@@ -19,13 +19,13 @@ export default function HotProducts({ products }: Props) {
     return (
         <div className="mt-8 lg:mt-16 relative">
             <div className="flex items-center justify-between sm:mb-6 mb-4">
-                <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-tertiary/10 border border-tertiary/20 flex items-center justify-center text-tertiary">
-                        <RiFlashlightFill size={24} className="animate-pulse" />
+                <div className="flex items-center gap-2 sm:gap-3">
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-tertiary/10 border border-tertiary/20 flex items-center justify-center text-tertiary">
+                        <RiFlashlightFill className="w-4 h-4 sm:w-5 sm:h-5 animate-pulse" />
                     </div>
                     <div>
-                        <h2 className="text-lg sm:text-2xl font-bold text-gray-900 tracking-tight">Hot Products</h2>
-                        <p className="text-gray-500  text-xs  sm:text-sm  font-medium">Limited Time Deals</p>
+                        <h2 className="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight">Hot Products</h2>
+                        <p className="text-gray-500  text-xs  sm:text-sm  font-normal">Limited Time Deals</p>
                     </div>
                 </div>
 

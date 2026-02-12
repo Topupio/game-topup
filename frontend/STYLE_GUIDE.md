@@ -58,7 +58,7 @@ Changed from transparent dark to solid dark slate:
 
 ### Section Subtitles
 ```diff
-(new) text-gray-500 text-xs sm:text-sm font-medium
+(new) text-gray-500 text-xs sm:text-sm font-normal
 ```
 
 ### Card Titles (SingleProductCard)

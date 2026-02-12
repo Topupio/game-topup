@@ -16,7 +16,7 @@ const GameCategoryListing = ({ categories }: { categories: CategoryGameSection[]
                         <h2 className="text-lg sm:text-2xl font-bold text-gray-900 tracking-tight">
                             Explore Categories
                         </h2>
-                        <p className="text-gray-500 text-xs sm:text-sm   font-medium">Find your favorite games</p>
+                        <p className="text-gray-500 text-xs sm:text-sm   font-normal">Find your favorite games</p>
                     </div>
                 </div>
 
