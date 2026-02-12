@@ -22,8 +22,8 @@ app.set('trust proxy', 1);
 
 // Configure CORS options
 const allowedOrigins = [
-    'http://localhost:3000',
-    'https://game-topup-opal.vercel.app',
+    'http://localhost:3000', 'http://127.0.0.1:3000', // Local development origins
+    
     ...(process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : [])
 ];
 
@@ -32,8 +32,8 @@ const corsOptions = {
         // Allow requests with no origin (like mobile apps or curl requests)
         if (!origin) return callback(null, true);
 
-        // Allow if origin is in allowedOrigins or ends with .vercel.app
-        if (allowedOrigins.includes(origin) || origin.endsWith('.vercel.app')) {
+        // Allow if origin is in allowedOrigins
+        if (allowedOrigins.includes(origin)) {
             callback(null, true);
         } else {
             callback(new Error('Not allowed by CORS'));
