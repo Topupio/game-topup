@@ -7,6 +7,7 @@ import {
     TemplateField,
 } from "@/lib/constants/checkoutTemplates";
 import { getRegionByKey } from "@/lib/constants/regions";
+import { useAuth } from "@/context/AuthContext";
 import HeroHeader from "./HeroHeader";
 import VariantGrid from "./VariantGrid";
 import CheckoutCard from "./CheckoutCard";
@@ -30,6 +31,7 @@ export default function GameDetailsClient({
     const [activeRegion, setActiveRegion] = useState(() => {
         return gameDetails.regions?.[0] || "global";
     });
+    const { user } = useAuth();
     const router = useRouter();
 
     // Resolve checkout fields from template + game options
@@ -113,6 +115,12 @@ export default function GameDetailsClient({
     };
 
     const handleProceedToCheckout = async () => {
+        if (!user) {
+            toast.error("Please login to place an order");
+            router.push("/login");
+            return;
+        }
+
         if (!validateFields()) {
             toast.error("Please fill all required fields correctly");
             return;
