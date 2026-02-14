@@ -9,7 +9,7 @@ import {
     FaNewspaper,
 } from "react-icons/fa";
 import { MdPayment, MdHistory } from "react-icons/md";
-import { TbMailSearch } from "react-icons/tb";
+import { TbMailSearch, TbTemplate } from "react-icons/tb";
 
 export type NavOption = {
     name: string;
@@ -61,6 +61,11 @@ export const adminNavOptions = [
         label: "Games",
         to: "/admin/games",
         icon: FaGamepad,
+    },
+    {
+        label: "Checkout Forms",
+        to: "/admin/checkout-templates",
+        icon: TbTemplate,
     },
     {
         label: "Blogs",
