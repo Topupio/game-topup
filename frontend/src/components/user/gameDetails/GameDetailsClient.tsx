@@ -12,6 +12,7 @@ import HeroHeader from "./HeroHeader";
 import VariantGrid from "./VariantGrid";
 import CheckoutCard from "./CheckoutCard";
 import UserDetailsForm from "./UserDetailsForm";
+import MobileCheckoutBar from "./MobileCheckoutBar";
 import { ordersApiClient } from "@/services/orders/ordersApi.client";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
@@ -176,7 +177,7 @@ export default function GameDetailsClient({
     const hasMultipleRegions = gameDetails.regions.length > 1;
 
     return (
-        <div className="text-foreground max-w-7xl mx-auto py-16">
+        <div className="text-foreground max-w-7xl mx-auto py-16 pb-28 lg:pb-16">
             {/* Hero Section */}
             <HeroHeader
                 imageUrl={gameDetails.imageUrl || ""}
@@ -265,18 +266,20 @@ export default function GameDetailsClient({
                     )}
 
                     {selectedVariant && selectedPricing && (
-                        <CheckoutCard
-                            variant={selectedVariant}
-                            pricing={selectedPricing}
-                            qty={qty}
-                            updateQty={updateQty}
-                            onProceed={handleProceedToCheckout}
-                            isLoading={isSubmitting}
-                        />
+                        <div className="hidden lg:block">
+                            <CheckoutCard
+                                variant={selectedVariant}
+                                pricing={selectedPricing}
+                                qty={qty}
+                                updateQty={updateQty}
+                                onProceed={handleProceedToCheckout}
+                                isLoading={isSubmitting}
+                            />
+                        </div>
                     )}
 
                     {!selectedVariant && (
-                        <div className="bg-card border border-dashed border-border rounded-2xl p-6 text-center">
+                        <div className="hidden lg:block bg-card border border-dashed border-border rounded-2xl p-6 text-center">
                             <p className="text-muted-foreground text-sm">
                                 Select a package to see pricing details
                             </p>
@@ -284,6 +287,18 @@ export default function GameDetailsClient({
                     )}
                 </aside>
             </div>
+
+            {/* Mobile fixed bottom checkout bar */}
+            {selectedVariant && selectedPricing && (
+                <MobileCheckoutBar
+                    variant={selectedVariant}
+                    pricing={selectedPricing}
+                    qty={qty}
+                    updateQty={updateQty}
+                    onProceed={handleProceedToCheckout}
+                    isLoading={isSubmitting}
+                />
+            )}
         </div>
     );
 }
