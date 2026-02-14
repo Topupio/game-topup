@@ -72,8 +72,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
+const authFallback: AuthContextType = {
+    user: null,
+    loading: true,
+    login: async () => {},
+    register: async () => {},
+    logout: async () => {},
+    refresh: async () => {},
+};
+
 export function useAuth() {
     const ctx = useContext(AuthContext);
-    if (!ctx) throw new Error("useAuth must be used within AuthProvider");
+    if (!ctx) {
+        if (process.env.NODE_ENV === "development") return authFallback;
+        throw new Error("useAuth must be used within AuthProvider");
+    }
     return ctx;
 }

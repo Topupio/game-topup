@@ -12,7 +12,6 @@ import QuickActions from "@/components/admin/dashboard/QuickActions";
 
 export default async function AdminDashboardPage() {
     const data = await dashboardApiServer.get();
-    console.log('Data of dashboard:', data);
 
     return (
         <div className="p-6 w-full space-y-4 relative">

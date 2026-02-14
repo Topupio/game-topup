@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useDebounce } from "use-debounce";
 import { Game, GamesListResponse } from "@/lib/types/game";
@@ -44,8 +44,14 @@ const AdminGamePage = ({ initialData }: { initialData: GamesListResponse }) => {
         }
     }, []);
 
-    // Effect for search, page or limit changes
+    const isInitialMount = useRef(true);
+
+    // Only fetch on search/page/limit changes — skip first mount (server already fetched initialData)
     useEffect(() => {
+        if (isInitialMount.current) {
+            isInitialMount.current = false;
+            return;
+        }
         fetchData(page, limit, debouncedSearch);
     }, [page, limit, debouncedSearch, fetchData]);
 

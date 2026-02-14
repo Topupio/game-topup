@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { adminLogsApiClient } from "@/services/adminLogs/adminLogsApi.client";
 import LogsTable from "./LogsTable";
 import LogsToolbar from "./LogsToolbar";
@@ -60,23 +60,15 @@ export default function AdminLogsPage({ initialData }: Props) {
         }
     }, [page, limit, filters]);
 
-    // Initial fetch not needed as we have initialData, but we need to fetch on filter/page change
-    // Using a ref or just simple effect logic to avoid double fetch on mount is good practice, 
-    // but here we just rely on dependency change. 
-    // Since initial state is set from props, we only want to fetch when dependencies change.
-    // However, fast refresh or strict mode might trigger it. 
-    // We'll skip the FIRST render if it matches initial data? No, simpler to just fetch.
-
-    // Better approach: Effect only runs on change.
-    const [isMounted, setIsMounted] = useState(false);
+    const isInitialMount = useRef(true);
 
     useEffect(() => {
-        if (!isMounted) {
-            setIsMounted(true);
+        if (isInitialMount.current) {
+            isInitialMount.current = false;
             return;
         }
         fetchData();
-    }, [page, limit, filters, fetchData]); // isMounted is not a dependency
+    }, [page, limit, filters, fetchData]);
 
     const handleFilterChange = useCallback((newFilters: any) => {
         setFilters(newFilters);
