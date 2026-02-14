@@ -13,6 +13,7 @@ import VariantGrid from "./VariantGrid";
 import CheckoutCard from "./CheckoutCard";
 import UserDetailsForm from "./UserDetailsForm";
 import MobileCheckoutBar from "./MobileCheckoutBar";
+import MobileCheckoutSheet from "./MobileCheckoutSheet";
 import { ordersApiClient } from "@/services/orders/ordersApi.client";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
@@ -29,6 +30,7 @@ export default function GameDetailsClient({
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [qty, setQty] = useState(1);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isSheetOpen, setIsSheetOpen] = useState(false);
     const [activeRegion, setActiveRegion] = useState(() => {
         return gameDetails.regions?.[0] || "global";
     });
@@ -257,12 +259,14 @@ export default function GameDetailsClient({
                 {/* RIGHT: Sidebar */}
                 <aside className="w-full lg:w-1/3 flex flex-col gap-6 lg:sticky lg:top-24 lg:self-start">
                     {checkoutFields.length > 0 && (
-                        <UserDetailsForm
-                            fields={checkoutFields}
-                            value={userDetails}
-                            errors={errors}
-                            onChange={updateUserDetails}
-                        />
+                        <div className="hidden lg:block">
+                            <UserDetailsForm
+                                fields={checkoutFields}
+                                value={userDetails}
+                                errors={errors}
+                                onChange={updateUserDetails}
+                            />
+                        </div>
                     )}
 
                     {selectedVariant && selectedPricing && (
@@ -290,14 +294,28 @@ export default function GameDetailsClient({
 
             {/* Mobile fixed bottom checkout bar */}
             {selectedVariant && selectedPricing && (
-                <MobileCheckoutBar
-                    variant={selectedVariant}
-                    pricing={selectedPricing}
-                    qty={qty}
-                    updateQty={updateQty}
-                    onProceed={handleProceedToCheckout}
-                    isLoading={isSubmitting}
-                />
+                <>
+                    <MobileCheckoutBar
+                        variant={selectedVariant}
+                        pricing={selectedPricing}
+                        qty={qty}
+                        onOpenSheet={() => setIsSheetOpen(true)}
+                    />
+                    <MobileCheckoutSheet
+                        isOpen={isSheetOpen}
+                        onClose={() => setIsSheetOpen(false)}
+                        variant={selectedVariant}
+                        pricing={selectedPricing}
+                        qty={qty}
+                        updateQty={updateQty}
+                        onProceed={handleProceedToCheckout}
+                        isLoading={isSubmitting}
+                        checkoutFields={checkoutFields}
+                        userDetails={userDetails}
+                        errors={errors}
+                        onFieldChange={updateUserDetails}
+                    />
+                </>
             )}
         </div>
     );
