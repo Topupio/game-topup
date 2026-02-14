@@ -93,18 +93,38 @@ CategoryListing: mt-10         →  mt-16 lg:mt-24
 
 ## 🏷️ 4. New Section Header Pattern
 
-Added icon containers with section headers:
+Added icon containers with section headers — **responsive sizing** for mobile:
+
+```diff
+// Icon container gap
+- gap-4
++ gap-2 sm:gap-3
+
+// Icon container size
+- w-10 h-10 sm:w-12 sm:h-12
++ w-8 h-8 sm:w-10 sm:h-10
+
+// Icon container rounding
+- rounded-xl sm:rounded-2xl
++ rounded-lg sm:rounded-xl
+
+// Icon size (use className instead of fixed size prop)
+- <Icon size={28} />
++ <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
+```
 
 ```tsx
 // HotProducts (tertiary theme)
-<div className="w-10 h-10 rounded-xl bg-tertiary/10 border border-tertiary/20 flex items-center justify-center text-tertiary">
-    <RiFlashlightFill size={24} className="animate-pulse" />
-</div>
+<div className="flex items-center gap-2 sm:gap-3">
+    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-tertiary/10 border border-tertiary/20 flex items-center justify-center text-tertiary">
+        <RiFlashlightFill className="w-4 h-4 sm:w-5 sm:h-5 animate-pulse" />
+    </div>
 
-// GameCategoryListing (secondary theme)  
-<div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-secondary/10 border border-secondary/20 flex items-center justify-center text-secondary">
-    <RiLayoutGridFill size={28} />
-</div>
+// GameCategoryListing (secondary theme)
+<div className="flex items-center gap-2 sm:gap-3">
+    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-secondary/10 border border-secondary/20 flex items-center justify-center text-secondary">
+        <RiLayoutGridFill className="w-4 h-4 sm:w-5 sm:h-5" />
+    </div>
 ```
 
 ---
@@ -211,6 +231,10 @@ Added title underline accent:
 | Section headings | `text-2xl` | `text-lg sm:text-2xl` |
 | Header margins | `mb-4`, `mb-10` | `mb-4 sm:mb-6` |
 | Link gaps | `gap-2` | `gap-1 sm:gap-2` |
+| Icon container size | `w-10 h-10 sm:w-12 sm:h-12` | `w-8 h-8 sm:w-10 sm:h-10` |
+| Icon container gap | `gap-4` | `gap-2 sm:gap-3` |
+| Icon container rounding | `rounded-xl sm:rounded-2xl` | `rounded-lg sm:rounded-xl` |
+| Icon sizing | `size={28}` | `className="w-4 h-4 sm:w-5 sm:h-5"` |
 | Star rating color | - | `text-amber-400` |
 
 ---

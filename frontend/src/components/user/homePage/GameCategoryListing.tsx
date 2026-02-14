@@ -8,9 +8,9 @@ const GameCategoryListing = ({ categories }: { categories: CategoryGameSection[]
         <div className="mt-16 lg:mt-24 relative">
             {/* Header Section */}
             <div className="flex items-center justify-between sm:mb-6 mb-4">
-                <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-secondary/10 border border-secondary/20 flex items-center justify-center text-secondary shadow-[0_0_20px_rgba(var(--secondary),0.1)]">
-                        <RiLayoutGridFill size={28} />
+                <div className="flex items-center gap-2 sm:gap-3">
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-secondary/10 border border-secondary/20 flex items-center justify-center text-secondary shadow-[0_0_20px_rgba(var(--secondary),0.1)]">
+                        <RiLayoutGridFill className="w-4 h-4 sm:w-5 sm:h-5" />
                     </div>
                     <div>
                         <h2 className="text-lg sm:text-2xl font-bold text-gray-900 tracking-tight">
