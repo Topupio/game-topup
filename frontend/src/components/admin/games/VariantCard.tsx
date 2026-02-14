@@ -6,6 +6,7 @@ import { TbTrash, TbChevronDown, TbChevronUp } from "react-icons/tb";
 import Input from "@/components/form/Input";
 import StatusToggle from "@/components/form/StatusToggle";
 import RegionPricingTable from "./RegionPricingTable";
+import CheckoutTemplateSelector from "./CheckoutTemplateSelector";
 
 interface Props {
     variant: Variant;
@@ -136,6 +137,18 @@ export default function VariantCard({ variant, index, regions, onChange, onDelet
                         regions={regions}
                         pricing={variant.regionPricing}
                         onChange={(regionPricing) => update({ regionPricing })}
+                    />
+
+                    {/* Row 4: Checkout Template */}
+                    <CheckoutTemplateSelector
+                        selectedTemplate={variant.checkoutTemplate || ""}
+                        templateOptions={variant.checkoutTemplateOptions || {}}
+                        onTemplateChange={(checkoutTemplate) =>
+                            update({ checkoutTemplate })
+                        }
+                        onOptionsChange={(checkoutTemplateOptions) =>
+                            update({ checkoutTemplateOptions })
+                        }
                     />
                 </div>
             )}

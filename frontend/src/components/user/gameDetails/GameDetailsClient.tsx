@@ -34,12 +34,15 @@ export default function GameDetailsClient({
     const { user } = useAuth();
     const router = useRouter();
 
-    // Resolve checkout fields from template + game options
+    // Resolve checkout fields from the selected variant's template + options
     const checkoutFields = useMemo(() => {
-        const template = CHECKOUT_TEMPLATES[gameDetails.checkoutTemplate];
+        if (!selectedVariant) return [];
+
+        const templateKey = selectedVariant.checkoutTemplate;
+        const template = CHECKOUT_TEMPLATES[templateKey];
         if (!template) return [];
 
-        const options = gameDetails.checkoutTemplateOptions || {};
+        const options = selectedVariant.checkoutTemplateOptions || {};
 
         return template.fields
             .map((field) => {
@@ -59,7 +62,7 @@ export default function GameDetailsClient({
                 // Gift cards: apply custom region options
                 if (
                     field.fieldKey === "region" &&
-                    gameDetails.checkoutTemplate === "gift_cards"
+                    templateKey === "gift_cards"
                 ) {
                     const regionOptions = options.regionOptions || [];
                     if (regionOptions.length > 0) {
@@ -69,7 +72,7 @@ export default function GameDetailsClient({
                 return field;
             })
             .filter(Boolean) as TemplateField[];
-    }, [gameDetails.checkoutTemplate, gameDetails.checkoutTemplateOptions]);
+    }, [selectedVariant]);
 
     // Get pricing for selected variant in active region
     const selectedPricing = useMemo<RegionPricing | null>(() => {

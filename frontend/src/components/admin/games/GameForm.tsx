@@ -16,7 +16,6 @@ import Input from "@/components/form/Input";
 import Select from "@/components/form/Select";
 import Textarea from "@/components/form/TextArea";
 import RegionMultiSelect from "./RegionMultiSelect";
-import CheckoutTemplateSelector from "./CheckoutTemplateSelector";
 import VariantManager from "./VariantManager";
 
 interface Props {
@@ -47,9 +46,6 @@ export default function GameForm({ gameId }: Props) {
             imageUrl: null,
             status: "active",
             regions: ["global"],
-            checkoutTemplate: "",
-            checkoutTemplateOptions: {},
-            requiredFields: [],
             variants: [],
             metaTitle: "",
             metaDescription: "",
@@ -77,8 +73,6 @@ export default function GameForm({ gameId }: Props) {
                     ...prev,
                     ...response.data,
                     regions: response.data.regions || ["global"],
-                    checkoutTemplate: response.data.checkoutTemplate || "",
-                    checkoutTemplateOptions: response.data.checkoutTemplateOptions || {},
                     variants: response.data.variants || [],
                     imageFile: null,
                 }));
@@ -111,11 +105,6 @@ export default function GameForm({ gameId }: Props) {
             isValid = false;
         }
 
-        if (!form.checkoutTemplate) {
-            updateError("checkoutTemplate" as any, "Please select a checkout template");
-            isValid = false;
-        }
-
         for (let i = 0; i < form.variants.length; i++) {
             const v = form.variants[i];
             if (!v.name?.trim()) {
@@ -144,9 +133,6 @@ export default function GameForm({ gameId }: Props) {
                 description: formData.description,
                 status: formData.status,
                 regions: formData.regions,
-                checkoutTemplate: formData.checkoutTemplate,
-                checkoutTemplateOptions: formData.checkoutTemplateOptions,
-                requiredFields: formData.requiredFields,
                 variants: formData.variants,
                 metaTitle: formData.metaTitle,
                 metaDescription: formData.metaDescription,
@@ -261,26 +247,7 @@ export default function GameForm({ gameId }: Props) {
                 />
             </FormSection>
 
-            {/* ── Section 4: Checkout Template ── */}
-            <FormSection
-                title="Checkout Settings"
-                description="Choose which fields customers fill during checkout"
-            >
-                <CheckoutTemplateSelector
-                    selectedTemplate={form.checkoutTemplate}
-                    templateOptions={form.checkoutTemplateOptions}
-                    onTemplateChange={(checkoutTemplate) => {
-                        updateForm({ checkoutTemplate });
-                        clearError("checkoutTemplate" as any);
-                    }}
-                    onOptionsChange={(checkoutTemplateOptions) =>
-                        updateForm({ checkoutTemplateOptions })
-                    }
-                    error={(errors as any).checkoutTemplate}
-                />
-            </FormSection>
-
-            {/* ── Section 5: SEO ── */}
+            {/* ── Section 4: SEO ── */}
             <FormSection title="SEO" description="Optional search engine optimization fields">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <Input

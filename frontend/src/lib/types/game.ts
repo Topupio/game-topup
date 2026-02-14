@@ -31,6 +31,8 @@ export interface Variant {
     deliveryTime: string;
     imageUrl?: string | null;
     imagePublicId?: string | null;
+    checkoutTemplate: string;
+    checkoutTemplateOptions: Record<string, any>;
 }
 
 export type Game = {
@@ -43,9 +45,6 @@ export type Game = {
     imagePublicId?: string | null;
     description: string;
     regions: string[];
-    checkoutTemplate: string;
-    checkoutTemplateOptions: Record<string, any>;
-    requiredFields: RequiredField[];
     variants: Variant[];
     status: "active" | "inactive";
     metaTitle?: string;

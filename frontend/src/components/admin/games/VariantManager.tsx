@@ -23,6 +23,8 @@ export default function VariantManager({ variants, regions, onChange }: Props) {
             deliveryTime: "Instant Delivery",
             imageUrl: null,
             imagePublicId: null,
+            checkoutTemplate: "",
+            checkoutTemplateOptions: {},
         };
         onChange([...variants, newVariant]);
     };

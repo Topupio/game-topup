@@ -72,9 +72,24 @@ export default function GamesTable({ items, onEdit, onDelete, onToggle }: Props)
             id: "template",
             header: "Template",
             cell: (row) => {
-                const tmpl = CHECKOUT_TEMPLATES[row.checkoutTemplate];
-                const label = tmpl?.label || (row.checkoutTemplate === "custom" ? "Custom" : "—");
-                return <span className="text-sm text-gray-700">{label}</span>;
+                const unique = [...new Set(
+                    (row.variants || [])
+                        .map((v) => v.checkoutTemplate)
+                        .filter(Boolean)
+                )];
+                if (unique.length === 0) return <span className="text-sm text-gray-400">—</span>;
+                return (
+                    <div className="flex flex-wrap gap-1">
+                        {unique.map((key) => {
+                            const tmpl = CHECKOUT_TEMPLATES[key];
+                            return (
+                                <span key={key} className="text-xs px-2 py-0.5 bg-blue-50 text-blue-700 rounded-full">
+                                    {tmpl?.label || key}
+                                </span>
+                            );
+                        })}
+                    </div>
+                );
             },
         },
         {

@@ -96,6 +96,13 @@ function validateAndPrepareVariants(variants, regions) {
             }
         }
 
+        // Validate checkout template per variant
+        if (v.checkoutTemplate && !["", ...CHECKOUT_TEMPLATE_KEYS].includes(v.checkoutTemplate)) {
+            return { error: `Variant '${v.name}': invalid checkoutTemplate '${v.checkoutTemplate}'` };
+        }
+        v.checkoutTemplate = v.checkoutTemplate || "";
+        v.checkoutTemplateOptions = v.checkoutTemplateOptions || {};
+
         // Set defaults
         v.status = v.status || "active";
         v.isPopular = v.isPopular || false;
@@ -230,21 +237,10 @@ const createGame = asyncHandler(async (req, res) => {
     const { name, description, status, metaTitle, metaDescription, topupType } = req.body;
 
     // 1. Parse JSON fields from form-data
-    let requiredFields = parseJsonField(req.body.requiredFields);
     let variants = parseJsonField(req.body.variants);
     let regions = parseJsonField(req.body.regions);
-    let checkoutTemplateOptions = parseJsonField(req.body.checkoutTemplateOptions);
-    const checkoutTemplate = req.body.checkoutTemplate || "";
 
-    // 2. Validate requiredFields (for custom template)
-    if (requiredFields && Array.isArray(requiredFields) && requiredFields.length > 0) {
-        const rfError = validateRequiredFields(requiredFields);
-        if (rfError) {
-            return res.status(400).json({ success: false, message: rfError });
-        }
-    }
-
-    // 3. Validate basic fields
+    // 2. Validate basic fields
     if (!name || name.trim().length < 2) {
         return res.status(400).json({
             success: false,
@@ -282,15 +278,7 @@ const createGame = asyncHandler(async (req, res) => {
         regions = ["global"];
     }
 
-    // 5. Validate checkout template
-    if (checkoutTemplate && !["", ...CHECKOUT_TEMPLATE_KEYS].includes(checkoutTemplate)) {
-        return res.status(400).json({
-            success: false,
-            message: `Invalid checkoutTemplate '${checkoutTemplate}'`,
-        });
-    }
-
-    // 6. Validate variants
+    // 5. Validate variants
     if (variants && Array.isArray(variants) && variants.length > 0) {
         const result = validateAndPrepareVariants(variants, regions);
         if (result.error) {
@@ -341,9 +329,6 @@ const createGame = asyncHandler(async (req, res) => {
             description: description?.trim() || "",
             topupType: topupType?.trim() || "",
             regions,
-            checkoutTemplate,
-            checkoutTemplateOptions: checkoutTemplateOptions || {},
-            requiredFields: requiredFields || [],
             variants,
             status: status === "inactive" ? "inactive" : "active",
             metaTitle: metaTitle || "",
@@ -385,21 +370,10 @@ const updateGame = asyncHandler(async (req, res) => {
     }
 
     // 2. Parse JSON fields from form-data
-    let requiredFields = parseJsonField(req.body.requiredFields);
     let variants = parseJsonField(req.body.variants);
     let regions = parseJsonField(req.body.regions);
-    let checkoutTemplateOptions = parseJsonField(req.body.checkoutTemplateOptions);
-    const checkoutTemplate = req.body.checkoutTemplate;
 
-    // 3. Validate requiredFields if provided
-    if (requiredFields && Array.isArray(requiredFields) && requiredFields.length > 0) {
-        const rfError = validateRequiredFields(requiredFields);
-        if (rfError) {
-            return res.status(400).json({ success: false, message: rfError });
-        }
-    }
-
-    // 4. Validate regions if provided
+    // 3. Validate regions if provided
     if (regions && Array.isArray(regions)) {
         for (const r of regions) {
             if (!REGION_KEYS.includes(r)) {
@@ -411,17 +385,7 @@ const updateGame = asyncHandler(async (req, res) => {
         }
     }
 
-    // 5. Validate checkout template if provided
-    if (checkoutTemplate !== undefined && checkoutTemplate !== null) {
-        if (!["", ...CHECKOUT_TEMPLATE_KEYS].includes(checkoutTemplate)) {
-            return res.status(400).json({
-                success: false,
-                message: `Invalid checkoutTemplate '${checkoutTemplate}'`,
-            });
-        }
-    }
-
-    // 6. Validate variants if provided
+    // 4. Validate variants if provided
     if (variants && Array.isArray(variants) && variants.length > 0) {
         const selectedRegions = regions || game.regions;
         const result = validateAndPrepareVariants(variants, selectedRegions);
@@ -482,15 +446,6 @@ const updateGame = asyncHandler(async (req, res) => {
     // New fields
     if (regions !== undefined) {
         game.regions = regions;
-    }
-    if (checkoutTemplate !== undefined) {
-        game.checkoutTemplate = checkoutTemplate;
-    }
-    if (checkoutTemplateOptions !== undefined) {
-        game.checkoutTemplateOptions = checkoutTemplateOptions;
-    }
-    if (requiredFields !== undefined) {
-        game.requiredFields = requiredFields;
     }
     if (variants !== undefined) {
         game.variants = variants;

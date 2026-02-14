@@ -1,4 +1,4 @@
-import { Game, Variant } from "@/lib/types/game";
+import { Variant } from "@/lib/types/game";
 
 export type GamePayload = {
     name: string;
@@ -8,9 +8,6 @@ export type GamePayload = {
     description?: string;
     status: "active" | "inactive";
     regions: string[];
-    checkoutTemplate: string;
-    checkoutTemplateOptions?: Record<string, any>;
-    requiredFields: Game["requiredFields"];
     variants: Variant[];
     image?: File | null;
     metaTitle?: string;
