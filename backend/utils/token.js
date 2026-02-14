@@ -2,8 +2,8 @@ import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import RefreshToken from "../models/refreshToken.model.js";
 
-export const generateAccessToken = (userId) => {
-    return jwt.sign({ id: userId }, process.env.JWT_SECRET, {
+export const generateAccessToken = (userId, role) => {
+    return jwt.sign({ id: userId, role }, process.env.JWT_SECRET, {
         expiresIn: process.env.JWT_EXPIRE || "15m",
     });
 };
@@ -58,7 +58,7 @@ export const setAuthCookies = (res, accessToken, refreshTokenValue) => {
 
 // Send authentication pair
 export const sendAuthPair = async (user, statusCode, res, ip) => {
-    const access = generateAccessToken(user._id);
+    const access = generateAccessToken(user._id, user.role);
     const { value: refresh } = await createRefreshToken(user._id, ip);
     setAuthCookies(res, access, refresh);
     res.status(statusCode).json({

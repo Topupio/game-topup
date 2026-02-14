@@ -210,7 +210,8 @@ export const refreshToken = asyncHandler(async (req, res) => {
         res.status(401);
         throw new Error("Invalid or expired refresh token");
     }
-    const access = generateAccessToken(rotated.userId);
+    const user = await User.findById(rotated.userId).select("role");
+    const access = generateAccessToken(rotated.userId, user?.role);
     setAuthCookies(res, access, rotated.newValue);
     res.status(200).json({ success: true, token: access });
 });
