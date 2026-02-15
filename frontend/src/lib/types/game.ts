@@ -45,6 +45,7 @@ export type Game = {
     imageUrl: string | null;
     imagePublicId?: string | null;
     description: string;
+    richDescription: string;
     regions: string[];
     variants: Variant[];
     status: "active" | "inactive";

@@ -52,6 +52,10 @@ export const endpoints = {
         userStatus: (id: Id) => `/api/admin/users/${id}/status`,
     },
 
+    upload: {
+        image: "/api/upload/image",
+    },
+
     orders: {
         base: "/api/orders",
         myOrders: "/api/orders/my-orders",

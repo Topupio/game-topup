@@ -7,6 +7,7 @@ export type GamePayload = {
     paymentCategory?: string;
     topupType?: string;
     description?: string;
+    richDescription?: string;
     status: "active" | "inactive";
     regions: string[];
     variants: Variant[];

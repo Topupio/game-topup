@@ -142,7 +142,7 @@ export default function VariantGrid({
                                 {discountPercent > 0 && (
                                     <p className="text-tertiary text-xs font-medium">
                                         Save {pricing.symbol}
-                                        {pricing.price - pricing.discountedPrice}
+                                        {(pricing.price - pricing.discountedPrice).toFixed(2)}
                                     </p>
                                 )}
                             </div>

@@ -17,6 +17,7 @@ import Input from "@/components/form/Input";
 import Select from "@/components/form/Select";
 import Textarea from "@/components/form/TextArea";
 import RegionMultiSelect from "./RegionMultiSelect";
+import RichTextEditor from "@/components/form/RichTextEditor";
 import VariantManager from "./VariantManager";
 
 interface Props {
@@ -45,6 +46,7 @@ export default function GameForm({ gameId }: Props) {
             paymentCategory: "",
             topupType: "",
             description: "",
+            richDescription: "",
             imageUrl: null,
             status: "active",
             regions: ["global"],
@@ -136,6 +138,7 @@ export default function GameForm({ gameId }: Props) {
                 paymentCategory: formData.paymentCategory || "",
                 topupType: formData.topupType || "",
                 description: formData.description,
+                richDescription: formData.richDescription,
                 status: formData.status,
                 regions: formData.regions,
                 variants: formData.variants,
@@ -240,10 +243,10 @@ export default function GameForm({ gameId }: Props) {
                 </div>
             </FormSection>
 
-            {/* ── Section 2: Description ── */}
-            <FormSection title="Description">
+            {/* ── Section 2: Mini Description ── */}
+            <FormSection title="Mini Description" description="A short 1-2 line summary">
                 <Textarea
-                    placeholder="Describe the game, what it offers, delivery details..."
+                    placeholder="Brief summary of the game and what it offers..."
                     value={form.description}
                     onChange={(e) => {
                         updateForm({ description: e.target.value });
@@ -274,20 +277,33 @@ export default function GameForm({ gameId }: Props) {
                 />
             </FormSection>
 
-            {/* ── Section 4: SEO ── */}
+            {/* ── Section 4: Description (Rich Text) ── */}
+            <FormSection
+                title="Description"
+                description="Detailed description with formatting and images (e.g., how to top-up steps)"
+            >
+                <RichTextEditor
+                    value={form.richDescription}
+                    onChange={(html) => updateForm({ richDescription: html })}
+                    placeholder="Write a detailed description, instructions, or how-to-topup steps..."
+                />
+            </FormSection>
+
+            {/* ── Section 5: SEO ── */}
             <FormSection title="SEO" description="Optional search engine optimization fields">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-4">
                     <Input
                         label="Meta Title"
                         placeholder="SEO Title"
                         value={form.metaTitle}
                         onChange={(e) => updateForm({ metaTitle: e.target.value })}
                     />
-                    <Input
+                    <Textarea
                         label="Meta Description"
                         placeholder="SEO Description"
                         value={form.metaDescription}
                         onChange={(e) => updateForm({ metaDescription: e.target.value })}
+                        className="min-h-[80px]"
                     />
                 </div>
             </FormSection>

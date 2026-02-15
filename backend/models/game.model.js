@@ -178,6 +178,11 @@ const gameSchema = new mongoose.Schema(
             default: "",
         },
 
+        richDescription: {
+            type: String,
+            default: "",
+        },
+
         // Regions this game is available in
         regions: {
             type: [String],

@@ -42,7 +42,7 @@ export default function MobileCheckoutSheet({
     const { symbol, price, discountedPrice } = pricing;
     const hasDiscount = price > discountedPrice;
     const totalAmount = discountedPrice * qty;
-    const totalSavings = (price - discountedPrice) * qty;
+    const totalSavings = parseFloat(((price - discountedPrice) * qty).toFixed(2));
 
     // Lock body scroll when sheet is open
     useEffect(() => {

@@ -234,7 +234,7 @@ const getGameDetails = asyncHandler(async (req, res) => {
 // @route   POST /api/games
 // @access  Admin
 const createGame = asyncHandler(async (req, res) => {
-    const { name, description, status, metaTitle, metaDescription, topupType, paymentCategory } = req.body;
+    const { name, description, richDescription, status, metaTitle, metaDescription, topupType, paymentCategory } = req.body;
 
     // 1. Parse JSON fields from form-data
     let variants = parseJsonField(req.body.variants);
@@ -349,6 +349,7 @@ const createGame = asyncHandler(async (req, res) => {
             imageUrl: uploadedImageUrl,
             imagePublicId: uploadedImagePublicId,
             description: description?.trim() || "",
+            richDescription: richDescription || "",
             topupType: topupType?.trim() || "",
             regions,
             variants,
@@ -379,7 +380,7 @@ const createGame = asyncHandler(async (req, res) => {
 });
 
 const updateGame = asyncHandler(async (req, res) => {
-    const { name, description, status, metaTitle, metaDescription, topupType, paymentCategory } = req.body;
+    const { name, description, richDescription, status, metaTitle, metaDescription, topupType, paymentCategory } = req.body;
     const category = req.body.category?.trim().toLowerCase();
 
     // 1. Fetch existing game
@@ -486,6 +487,7 @@ const updateGame = asyncHandler(async (req, res) => {
     game.paymentCategory = paymentCategory?.trim().toLowerCase() ?? game.paymentCategory;
     game.topupType = topupType ?? game.topupType;
     game.description = description ?? game.description;
+    game.richDescription = richDescription ?? game.richDescription;
     game.status = status ?? game.status;
     game.metaTitle = metaTitle ?? game.metaTitle;
     game.metaDescription = metaDescription ?? game.metaDescription;
