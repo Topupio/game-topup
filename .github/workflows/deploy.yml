@@ -1,0 +1,64 @@
+# =============================================================
+# CI/CD Pipeline for Game Top-Up Platform
+# =============================================================
+# WHAT THIS DOES:
+# Every time you push code to the "master" branch on GitHub,
+# this workflow automatically deploys it to your Hostinger VPS.
+#
+# HOW IT WORKS:
+# 1. GitHub detects your push
+# 2. Spins up a temporary Linux machine (the "runner")
+# 3. SSHs into your VPS server
+# 4. Pulls the latest code
+# 5. Installs dependencies & builds the frontend
+# 6. Restarts the apps via PM2
+# =============================================================
+
+name: Deploy to VPS
+
+# TRIGGER: When does this run?
+# "on push to master" means every time you do `git push origin master`
+on:
+  push:
+    branches:
+      - master
+
+# JOBS: What steps to execute
+jobs:
+  deploy:
+    # This runs on GitHub's free Linux servers (not your VPS)
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: SSH into your VPS and run deployment commands
+      # We use a popular action called "appleboy/ssh-action" that
+      # handles the SSH connection for us
+      - name: Deploy to VPS via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          # These values come from GitHub Secrets (explained below)
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          # The actual commands to run on your VPS:
+          script: |
+            set -e
+
+            echo "=== Pulling latest code ==="
+            cd /var/www/game-topup
+            git pull origin master
+
+            echo "=== Deploying Backend ==="
+            cd /var/www/game-topup/backend
+            npm install --production
+
+            echo "=== Deploying Frontend ==="
+            cd /var/www/game-topup/frontend
+            npm install
+            npm run build
+
+            echo "=== Restarting apps ==="
+            pm2 restart backend
+            pm2 restart frontend
+
+            echo "=== Deploy complete! ==="
