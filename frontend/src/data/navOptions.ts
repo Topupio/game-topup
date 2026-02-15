@@ -63,7 +63,7 @@ export const adminNavOptions = [
         icon: FaGamepad,
     },
     {
-        label: "Checkout Forms",
+        label: "Checkout Templates",
         to: "/admin/checkout-templates",
         icon: TbTemplate,
     },

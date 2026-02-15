@@ -9,9 +9,10 @@ interface Props {
     onChange: (file: File | null, preview: string | null) => void;
     error?: string;
     aspectRatio?: number;
+    compact?: boolean;
 }
 
-export default function ImageUploader({ imageUrl, onChange, error, aspectRatio = 16 / 9 }: Props) {
+export default function ImageUploader({ imageUrl, onChange, error, aspectRatio = 16 / 9, compact = false }: Props) {
     const inputRef = useRef<HTMLInputElement | null>(null);
     const [showCropper, setShowCropper] = useState(false);
     const [selectedImageSrc, setSelectedImageSrc] = useState<string | null>(null);
@@ -61,12 +62,13 @@ export default function ImageUploader({ imageUrl, onChange, error, aspectRatio =
 
     return (
         <div className="w-full">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className={`block font-medium text-gray-700 ${compact ? "text-xs mb-1" : "text-sm mb-2"}`}>
                 Cover Image
             </label>
 
             <div
-                className={`relative h-64 border-2 border-dashed rounded-xl flex flex-col items-center justify-center cursor-pointer transition-all duration-200 overflow-hidden group
+                className={`relative border-2 border-dashed rounded-xl flex flex-col items-center justify-center cursor-pointer transition-all duration-200 overflow-hidden group
+                    ${compact ? "h-28" : "h-64"}
                     ${error ? "border-red-400 bg-red-50" : "border-gray-300 bg-gray-50 hover:border-blue-400 hover:bg-blue-50"}
                 `}
                 onClick={() => inputRef.current?.click()}
@@ -78,19 +80,24 @@ export default function ImageUploader({ imageUrl, onChange, error, aspectRatio =
                             alt="Cover"
                             className="w-auto h-full object-cover"
                         />
-                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
-                            <span className="p-2 bg-white/20 backdrop-blur-sm rounded-full text-white">
-                                <FaEdit size={20} />
+                        <div className={`absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center ${compact ? "gap-1.5" : "gap-3"}`}>
+                            <span className={`bg-white/20 backdrop-blur-sm rounded-full text-white ${compact ? "p-1.5" : "p-2"}`}>
+                                <FaEdit size={compact ? 14 : 20} />
                             </span>
                             <button
                                 type="button"
                                 onClick={handleRemove}
-                                className="p-2 bg-red-500/80 backdrop-blur-sm rounded-full text-white hover:bg-red-600 transition"
+                                className={`bg-red-500/80 backdrop-blur-sm rounded-full text-white hover:bg-red-600 transition ${compact ? "p-1.5" : "p-2"}`}
                             >
-                                <FaTrash size={20} />
+                                <FaTrash size={compact ? 14 : 20} />
                             </button>
                         </div>
                     </>
+                ) : compact ? (
+                    <div className="text-center p-2 text-gray-500">
+                        <FaCloudUploadAlt className="w-6 h-6 mx-auto mb-1 text-gray-400" />
+                        <p className="text-[10px] font-medium text-gray-600">Upload</p>
+                    </div>
                 ) : (
                     <div className="text-center p-6 text-gray-500">
                         <FaCloudUploadAlt className="w-12 h-12 mx-auto mb-3 text-gray-400" />

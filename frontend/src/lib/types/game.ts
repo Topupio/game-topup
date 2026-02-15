@@ -40,6 +40,7 @@ export type Game = {
     name: string;
     slug: string;
     category: string;
+    paymentCategory: string;
     topupType: string;
     imageUrl: string | null;
     imagePublicId?: string | null;

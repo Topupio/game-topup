@@ -8,9 +8,10 @@ interface Props {
     variants: Variant[];
     regions: string[];
     onChange: (variants: Variant[]) => void;
+    onVariantImageChange?: (index: number, file: File | null, preview: string | null) => void;
 }
 
-export default function VariantManager({ variants, regions, onChange }: Props) {
+export default function VariantManager({ variants, regions, onChange, onVariantImageChange }: Props) {
     const addVariant = () => {
         const newVariant: Variant = {
             name: "",
@@ -73,6 +74,7 @@ export default function VariantManager({ variants, regions, onChange }: Props) {
                             regions={regions}
                             onChange={(updated) => updateVariant(i, updated)}
                             onDelete={() => deleteVariant(i)}
+                            onImageChange={(file, preview) => onVariantImageChange?.(i, file, preview)}
                         />
                     ))}
                 </div>

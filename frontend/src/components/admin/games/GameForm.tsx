@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { Game, Variant } from "@/lib/types/game";
 import { GamePayload } from "@/services/games/types";
 import { useAdminForm } from "@/hooks/useAdminForm";
 import { gamesApiClient } from "@/services/games";
 import { GAME_CATEGORY_OPTIONS } from "@/lib/constants/gameCategories";
+import { CATEGORY_OPTIONS } from "@/lib/constants/checkoutTemplates";
 
 import FormWrapper from "@/components/admin/form/FormWrapper";
 import FormSection from "@/components/admin/form/FormSection";
@@ -41,6 +42,7 @@ export default function GameForm({ gameId }: Props) {
             name: "",
             slug: "",
             category: "",
+            paymentCategory: "",
             topupType: "",
             description: "",
             imageUrl: null,
@@ -61,6 +63,8 @@ export default function GameForm({ gameId }: Props) {
             redirectPath: "/admin/games",
         }
     );
+
+    const [variantImages, setVariantImages] = useState<Record<number, File>>({});
 
     // Load game data when editing
     useEffect(() => {
@@ -129,11 +133,13 @@ export default function GameForm({ gameId }: Props) {
             const payload: GamePayload = {
                 name: formData.name,
                 category: formData.category,
+                paymentCategory: formData.paymentCategory || "",
                 topupType: formData.topupType || "",
                 description: formData.description,
                 status: formData.status,
                 regions: formData.regions,
                 variants: formData.variants,
+                variantImages: Object.keys(variantImages).length > 0 ? variantImages : undefined,
                 metaTitle: formData.metaTitle,
                 metaDescription: formData.metaDescription,
                 image: (formData.imageFile as File) ?? null,
@@ -186,7 +192,7 @@ export default function GameForm({ gameId }: Props) {
                             }}
                         />
 
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                             <Select
                                 label="Category"
                                 required
@@ -199,6 +205,16 @@ export default function GameForm({ gameId }: Props) {
                                 options={[
                                     { label: "Select category", value: "" },
                                     ...GAME_CATEGORY_OPTIONS,
+                                ]}
+                            />
+
+                            <Select
+                                label="Payment Category"
+                                value={form.paymentCategory}
+                                onChange={(e) => updateForm({ paymentCategory: e.target.value })}
+                                options={[
+                                    { label: "Select payment category", value: "" },
+                                    ...CATEGORY_OPTIONS,
                                 ]}
                             />
 
@@ -244,6 +260,17 @@ export default function GameForm({ gameId }: Props) {
                     variants={form.variants}
                     regions={form.regions}
                     onChange={(variants) => updateForm({ variants })}
+                    onVariantImageChange={(index, file) => {
+                        setVariantImages((prev) => {
+                            const next = { ...prev };
+                            if (file) {
+                                next[index] = file;
+                            } else {
+                                delete next[index];
+                            }
+                            return next;
+                        });
+                    }}
                 />
             </FormSection>
 

@@ -12,7 +12,7 @@ export default function AdminCheckoutTemplatesPage() {
     return (
         <div>
             <AdminToolbar
-                title="Checkout Forms"
+                title="Checkout Templates"
                 actions={
                     <button
                         onClick={() => toast.info("Add template — coming soon")}

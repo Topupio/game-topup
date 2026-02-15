@@ -234,7 +234,7 @@ const getGameDetails = asyncHandler(async (req, res) => {
 // @route   POST /api/games
 // @access  Admin
 const createGame = asyncHandler(async (req, res) => {
-    const { name, description, status, metaTitle, metaDescription, topupType } = req.body;
+    const { name, description, status, metaTitle, metaDescription, topupType, paymentCategory } = req.body;
 
     // 1. Parse JSON fields from form-data
     let variants = parseJsonField(req.body.variants);
@@ -253,11 +253,12 @@ const createGame = asyncHandler(async (req, res) => {
     }
 
     // Image validation
-    if (!req.file) {
+    const gameImageFile = req.files?.find(f => f.fieldname === "image");
+    if (!gameImageFile) {
         return res.status(400).json({ success: false, message: "Game image is required" });
     }
 
-    if (!["image/jpeg", "image/png", "image/webp"].includes(req.file.mimetype)) {
+    if (!["image/jpeg", "image/png", "image/webp"].includes(gameImageFile.mimetype)) {
         return res.status(400).json({
             success: false,
             message: "Only JPG, PNG, and WEBP images are allowed",
@@ -300,12 +301,12 @@ const createGame = asyncHandler(async (req, res) => {
         });
     }
 
-    // 8. Upload image
+    // 8. Upload game image
     let uploadedImageUrl = null;
     let uploadedImagePublicId = null;
 
     try {
-        const uploadResult = await uploadBufferToCloudinary(req.file.buffer, "games");
+        const uploadResult = await uploadBufferToCloudinary(gameImageFile.buffer, "games");
         uploadedImageUrl = uploadResult.secure_url;
         uploadedImagePublicId = uploadResult.public_id;
     } catch (error) {
@@ -316,6 +317,26 @@ const createGame = asyncHandler(async (req, res) => {
         });
     }
 
+    // 8b. Upload variant images
+    if (variants && variants.length > 0 && req.files) {
+        for (const file of req.files) {
+            const match = file.fieldname.match(/^variantImage_(\d+)$/);
+            if (!match) continue;
+            const idx = parseInt(match[1], 10);
+            if (idx >= variants.length) continue;
+
+            if (!["image/jpeg", "image/png", "image/webp"].includes(file.mimetype)) continue;
+
+            try {
+                const result = await uploadBufferToCloudinary(file.buffer, "game-variants");
+                variants[idx].imageUrl = result.secure_url;
+                variants[idx].imagePublicId = result.public_id;
+            } catch (err) {
+                console.error(`Variant image upload failed for index ${idx}:`, err);
+            }
+        }
+    }
+
     // 9. Create game
     let newGame;
 
@@ -324,6 +345,7 @@ const createGame = asyncHandler(async (req, res) => {
             name: name.trim(),
             slug,
             category: req.body.category.trim().toLowerCase(),
+            paymentCategory: paymentCategory?.trim().toLowerCase() || "",
             imageUrl: uploadedImageUrl,
             imagePublicId: uploadedImagePublicId,
             description: description?.trim() || "",
@@ -357,7 +379,7 @@ const createGame = asyncHandler(async (req, res) => {
 });
 
 const updateGame = asyncHandler(async (req, res) => {
-    const { name, description, status, metaTitle, metaDescription, topupType } = req.body;
+    const { name, description, status, metaTitle, metaDescription, topupType, paymentCategory } = req.body;
     const category = req.body.category?.trim().toLowerCase();
 
     // 1. Fetch existing game
@@ -414,15 +436,16 @@ const updateGame = asyncHandler(async (req, res) => {
     let updatedImageUrl = game.imageUrl;
     let updatedImagePublicId = game.imagePublicId;
 
-    if (req.file) {
-        if (!["image/jpeg", "image/png", "image/webp"].includes(req.file.mimetype)) {
+    const gameImageFile = req.files?.find(f => f.fieldname === "image");
+    if (gameImageFile) {
+        if (!["image/jpeg", "image/png", "image/webp"].includes(gameImageFile.mimetype)) {
             return res.status(400).json({
                 success: false,
                 message: "Only JPG, PNG and WEBP images are allowed",
             });
         }
 
-        const uploadResult = await uploadBufferToCloudinary(req.file.buffer, "games");
+        const uploadResult = await uploadBufferToCloudinary(gameImageFile.buffer, "games");
         updatedImageUrl = uploadResult.secure_url;
         updatedImagePublicId = uploadResult.public_id;
 
@@ -431,10 +454,36 @@ const updateGame = asyncHandler(async (req, res) => {
         }
     }
 
+    // 8b. Variant image uploads
+    if (variants && variants.length > 0 && req.files) {
+        for (const file of req.files) {
+            const match = file.fieldname.match(/^variantImage_(\d+)$/);
+            if (!match) continue;
+            const idx = parseInt(match[1], 10);
+            if (idx >= variants.length) continue;
+
+            if (!["image/jpeg", "image/png", "image/webp"].includes(file.mimetype)) continue;
+
+            try {
+                // Delete old variant image if exists
+                if (variants[idx].imagePublicId) {
+                    await deleteImageFromCloudinary(variants[idx].imagePublicId);
+                }
+
+                const result = await uploadBufferToCloudinary(file.buffer, "game-variants");
+                variants[idx].imageUrl = result.secure_url;
+                variants[idx].imagePublicId = result.public_id;
+            } catch (err) {
+                console.error(`Variant image upload failed for index ${idx}:`, err);
+            }
+        }
+    }
+
     // 9. Apply updates
     game.name = name ?? game.name;
     game.slug = updatedSlug;
     game.category = category ?? game.category;
+    game.paymentCategory = paymentCategory?.trim().toLowerCase() ?? game.paymentCategory;
     game.topupType = topupType ?? game.topupType;
     game.description = description ?? game.description;
     game.status = status ?? game.status;

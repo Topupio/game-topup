@@ -147,6 +147,13 @@ const gameSchema = new mongoose.Schema(
             lowercase: true,
         },
 
+        paymentCategory: {
+            type: String,
+            default: "",
+            trim: true,
+            lowercase: true,
+        },
+
         topupType: {
             type: String,
             required: false,

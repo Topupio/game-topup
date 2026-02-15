@@ -24,7 +24,13 @@ export const gamesApiClient = {
     },
 
     async create(payload: GamePayload): Promise<ApiResponse<Game>> {
-        const fd = toFormData(payload);
+        const { variantImages, ...rest } = payload;
+        const fd = toFormData(rest);
+        if (variantImages) {
+            Object.entries(variantImages).forEach(([idx, file]) => {
+                fd.append(`variantImage_${idx}`, file);
+            });
+        }
         const { data } = await clientApi.post(endpoints.games.root, fd, {
             headers: { "Content-Type": "multipart/form-data" },
         });
@@ -32,7 +38,13 @@ export const gamesApiClient = {
     },
 
     async update(id: string, payload: GamePayload): Promise<ApiResponse<Game>> {
-        const fd = toFormData(payload);
+        const { variantImages, ...rest } = payload;
+        const fd = toFormData(rest);
+        if (variantImages) {
+            Object.entries(variantImages).forEach(([idx, file]) => {
+                fd.append(`variantImage_${idx}`, file);
+            });
+        }
         const { data } = await clientApi.put(endpoints.games.byId(id), fd, {
             headers: { "Content-Type": "multipart/form-data" },
         });
