@@ -155,7 +155,7 @@ nano .env.local
 ```
 
 ```env
-NEXT_PUBLIC_API_BASE=https://yourdomain.com/api
+NEXT_PUBLIC_API_BASE=https://yourdomain.com
 ```
 
 Build and start:
@@ -312,3 +312,40 @@ Keep **frontend on Vercel** (free) and only host the **backend on Hostinger VPS*
 - Zero-config frontend deploys via git push
 - Cheap backend hosting with full control
 - Best of both worlds
+
+---
+
+## CI/CD Auto-Deploy (GitHub Actions)
+
+A GitHub Actions workflow is set up at `.github/workflows/deploy.yml` that auto-deploys on every push to `main`.
+
+### Required GitHub Secrets
+
+Go to **Settings → Secrets → Actions** in your GitHub repo and add:
+
+| Secret Name | Value |
+|---|---|
+| `VPS_HOST` | Your server IP |
+| `VPS_USER` | `root` |
+| `VPS_SSH_KEY` | SSH private key (generated on VPS) |
+
+### Generate SSH Key on VPS
+
+```bash
+ssh-keygen -t ed25519 -C "github-actions" -f ~/.ssh/github_actions -N ""
+cat ~/.ssh/github_actions.pub >> ~/.ssh/authorized_keys
+cat ~/.ssh/github_actions   # ← copy this as VPS_SSH_KEY secret
+```
+
+### Workflow
+
+On every `git push origin main`, GitHub Actions will:
+
+1. SSH into VPS
+2. `git pull` latest code
+3. Install dependencies
+4. Build frontend
+5. Restart backend & frontend via PM2
+
+Monitor deployments at: `https://github.com/ajmal1722/game-topup/actions`
+
