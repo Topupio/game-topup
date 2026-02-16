@@ -37,7 +37,7 @@ export default function VariantGrid({
     }
 
     return (
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-3">
             {activeVariants.map((variant) => {
                 const pricing = getPrice(variant, activeRegion);
                 const isSelected =
@@ -87,11 +87,11 @@ export default function VariantGrid({
 
                         {/* Image */}
                         {imageUrl && (
-                            <div className="relative overflow-hidden rounded-xl bg-muted p-2">
+                            <div className="relative overflow-hidden rounded-xl aspect-square">
                                 <img
                                     src={imageUrl}
                                     alt={variant.name}
-                                    className="w-full h-24 object-contain transition-transform duration-500 group-hover:scale-110"
+                                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                                 />
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                             </div>
@@ -117,9 +117,7 @@ export default function VariantGrid({
                                 </p>
                             )}
 
-                            <p className="text-[11px] text-muted-foreground uppercase tracking-wider">
-                                {variant.deliveryTime}
-                            </p>
+                           
                         </div>
 
                         {/* Price */}

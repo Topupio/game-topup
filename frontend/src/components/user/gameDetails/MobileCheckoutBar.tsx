@@ -17,8 +17,8 @@ export default function MobileCheckoutBar({
 }: Props) {
     const { symbol, price, discountedPrice } = pricing;
     const hasDiscount = price > discountedPrice;
-    const totalAmount = discountedPrice * qty;
-    const totalSavings = parseFloat(((price - discountedPrice) * qty).toFixed(2));
+    const totalAmount = (discountedPrice * qty).toFixed(2);
+    const totalSavings = ((price - discountedPrice) * qty).toFixed(2);
 
     return (
         <div className="fixed bottom-0 left-0 right-0 z-50 bg-card border-t border-border shadow-[0_-4px_20px_rgba(0,0,0,0.1)] lg:hidden">
@@ -34,7 +34,7 @@ export default function MobileCheckoutBar({
                                 Save {symbol}{totalSavings}
                             </span>
                             <span className="text-xs text-muted-foreground line-through">
-                                {symbol}{price * qty}
+                                {symbol}{(price * qty).toFixed(2)}
                             </span>
                         </div>
                     ) : (

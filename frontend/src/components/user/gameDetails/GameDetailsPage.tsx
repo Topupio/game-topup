@@ -25,7 +25,7 @@ function hasRichContent(html: string | undefined): boolean {
     return stripped.length > 0;
 }
 
-export default function GameDetailsClient({
+export default function GameDetailsPage({
     gameDetails,
 }: {
     gameDetails: Game;

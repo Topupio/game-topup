@@ -23,8 +23,8 @@ export default function CheckoutCard({
     const { symbol, price, discountedPrice } = pricing;
 
     const discountPerUnit = price - discountedPrice;
-    const totalDiscount = discountPerUnit * qty;
-    const totalAmount = discountedPrice * qty;
+    const totalDiscount = (discountPerUnit * qty).toFixed(2);
+    const totalAmount = (discountedPrice * qty).toFixed(2);
 
     const isDisabled = isLoading;
 

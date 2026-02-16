@@ -41,8 +41,8 @@ export default function MobileCheckoutSheet({
 }: Props) {
     const { symbol, price, discountedPrice } = pricing;
     const hasDiscount = price > discountedPrice;
-    const totalAmount = discountedPrice * qty;
-    const totalSavings = parseFloat(((price - discountedPrice) * qty).toFixed(2));
+    const totalAmount = (discountedPrice * qty).toFixed(2);
+    const totalSavings = ((price - discountedPrice) * qty).toFixed(2);
 
     // Lock body scroll when sheet is open
     useEffect(() => {
@@ -221,7 +221,7 @@ export default function MobileCheckoutSheet({
                         {hasDiscount && (
                             <div className="flex justify-between text-sm text-green-500">
                                 <span>Discount</span>
-                                <span>-{symbol}{(price - discountedPrice)}</span>
+                                <span>-{symbol}{(price - discountedPrice).toFixed(2)}</span>
                             </div>
                         )}
                         <div className="flex justify-between text-xs text-muted-foreground">
