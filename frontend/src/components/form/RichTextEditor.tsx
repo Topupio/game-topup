@@ -85,7 +85,7 @@ export default function RichTextEditor({
         if (!editor || !value) return;
         const isSame = editor.getHTML() === value;
         if (isSame) return;
-        editor.commands.setContent(value, false);
+        editor.commands.setContent(value, { emitUpdate: false });
     }, [editor, value]);
 
     const handleImageUpload = useCallback(async () => {
