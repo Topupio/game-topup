@@ -27,26 +27,24 @@ function seededRandom(seed: string) {
 
 function generateStats(title: string) {
     const hash = seededRandom(title);
-    // Rating between 4.0 and 5.0 (one decimal)
     const rating = +(4.0 + (hash % 11) / 10).toFixed(1);
-    // Review count around 1,500 - 3,000
     const reviews = 1500 + (hash % 1500);
-    // Sold count: modest tiers
     const soldTiers = ["1k+", "2k+", "3k+", "5k+"];
     const sold = soldTiers[hash % soldTiers.length];
     return { rating, reviews, sold };
 }
 
-function StarRating({ rating }: { rating: number }) {
+function StarRating({ rating, size = "md" }: { rating: number; size?: "sm" | "md" }) {
     const fullStars = Math.floor(rating);
     const hasHalf = rating - fullStars >= 0.3;
     const stars = [];
+    const cls = size === "sm" ? "w-3.5 h-3.5 text-amber-400" : "w-4 h-4 text-amber-400";
 
     for (let i = 0; i < fullStars; i++) {
-        stars.push(<RiStarFill key={`f${i}`} className="w-4 h-4 text-amber-400" />);
+        stars.push(<RiStarFill key={`f${i}`} className={cls} />);
     }
     if (hasHalf) {
-        stars.push(<RiStarHalfFill key="h" className="w-4 h-4 text-amber-400" />);
+        stars.push(<RiStarHalfFill key="h" className={cls} />);
     }
 
     return <div className="flex items-center gap-0.5">{stars}</div>;
@@ -56,68 +54,116 @@ export default function HeroHeader({ imageUrl, title, subtitle }: HeroHeaderProp
     const stats = useMemo(() => generateStats(title), [title]);
 
     return (
-        <div className="bg-card border border-border rounded-2xl p-5 sm:p-6 mx-4 lg:mx-0">
-            <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-5">
-                {/* Left: Icon + Info */}
-                <div className="flex items-center gap-4 sm:gap-5 flex-1 min-w-0">
-                    {/* Game Icon */}
-                    <div className="shrink-0">
-                        <img
-                            src={imageUrl || "/placeholder-game.png"}
-                            alt={title}
-                            className="w-20 h-20 sm:w-24 sm:h-24 object-cover rounded-2xl shadow-lg border border-border"
-                        />
+        <div className="space-y-3">
+            {/* Hero Card */}
+            <div className="bg-card border border-border rounded-2xl p-4 sm:p-6 shadow-sm">
+                {/* Mobile: stacked layout, sm+: side-by-side */}
+                <div className="flex flex-col sm:flex-row sm:items-start gap-3 sm:gap-5">
+                    {/* Game Icon + Title row on mobile */}
+                    <div className="flex items-center gap-3 sm:block">
+                        <div className="shrink-0">
+                            <img
+                                src={imageUrl || "/placeholder-game.png"}
+                                alt={title}
+                                className="w-16 h-16 sm:w-32 sm:h-32 aspect-square object-cover rounded-xl sm:rounded-2xl shadow-lg border border-border"
+                            />
+                        </div>
+                        {/* Title + category visible beside icon on mobile only */}
+                        <div className="min-w-0 sm:hidden">
+                            <h1 className="text-lg font-bold text-foreground leading-tight line-clamp-2">
+                                {title}
+                            </h1>
+                            {subtitle && (
+                                <p className="text-muted-foreground text-xs capitalize mt-0.5">
+                                    {subtitle}
+                                </p>
+                            )}
+                        </div>
                     </div>
 
                     {/* Game Info */}
                     <div className="min-w-0 space-y-2">
-                        <h1 className="text-xl sm:text-2xl font-bold text-foreground truncate">
+                        {/* Title — hidden on mobile (shown beside icon above) */}
+                        <h1 className="hidden sm:block text-2xl font-bold text-foreground truncate">
                             {title}
                         </h1>
 
                         {/* Trust Badges */}
-                        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-400 text-xs font-medium">
+                        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                            <span className="inline-flex items-center gap-1 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-medium">
                                 <RiFlashlightFill className="w-3 h-3" />
-                                Fast
+                                <span className="sm:hidden">Instant</span>
+                                <span className="hidden sm:inline">Instant Delivery</span>
                             </span>
-                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-medium">
+                            <span className="inline-flex items-center gap-1 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-medium">
                                 <RiShieldCheckFill className="w-3 h-3" />
-                                Safe
+                                <span className="sm:hidden">Secure</span>
+                                <span className="hidden sm:inline">Secure Payment</span>
                             </span>
-                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-blue-500/10 text-blue-400 text-xs font-medium">
+                            <span className="inline-flex items-center gap-1 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-medium">
                                 <RiTimeFill className="w-3 h-3" />
-                                24/7
+                                <span className="sm:hidden">24/7</span>
+                                <span className="hidden sm:inline">24/7 Support</span>
                             </span>
                         </div>
 
-                        {/* Category */}
+                        {/* Stars + Sold */}
+                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                            <div className="flex items-center gap-1">
+                                <StarRating rating={stats.rating} />
+                                <span className="text-sm font-semibold text-foreground">
+                                    {stats.rating}
+                                </span>
+                            </div>
+                            <span className="text-xs font-medium text-emerald-400">
+                                {stats.sold} Sold
+                            </span>
+                        </div>
+
+                        {/* Category — hidden on mobile (shown beside icon above) */}
                         {subtitle && (
-                            <p className="text-muted-foreground text-sm capitalize">
+                            <p className="hidden sm:block text-muted-foreground text-sm capitalize">
                                 {subtitle}
                             </p>
                         )}
                     </div>
                 </div>
+            </div>
 
-                {/* Right: Trustpilot Rating & Stats */}
-                <div className="shrink-0 flex sm:flex-col items-center sm:items-end gap-3 sm:gap-1.5 border-t sm:border-t-0 sm:border-l border-border pt-3 sm:pt-0 sm:pl-6">
-                    <img
-                        src="/trustpilot-logo.png"
-                        alt="Trustpilot"
-                        className="h-16 sm:h-20 object-contain"
-                    />
-                    <div className="flex items-center gap-2">
-                        <StarRating rating={stats.rating} />
-                        <span className="text-lg font-bold text-foreground">
-                            {stats.rating}
-                        </span>
-                    </div>
-                    <span className="text-xs text-muted-foreground">
-                        {stats.reviews.toLocaleString()} reviews
+            {/* Trustpilot Pill — always visible */}
+            <div className="flex items-center gap-3 sm:gap-4 bg-card/60 border border-border rounded-lg px-4 sm:px-5 py-2">
+                {/* Brand */}
+                <div className="flex items-center gap-1.5 shrink-0">
+                    <svg className="w-4 h-4 text-emerald-400" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                    </svg>
+                    <span className="text-sm font-bold text-foreground">
+                        Trustpilot
                     </span>
-                    <span className="text-xs font-medium text-emerald-400">
-                        {stats.sold} Sold
+                </div>
+
+                {/* Divider */}
+                <div className="w-px h-4 bg-border shrink-0" />
+
+                {/* Star rating visual */}
+                <div className="flex items-center gap-0.5">
+                    {[...Array(5)].map((_, i) => (
+                        <svg key={i} className="w-3.5 h-3.5 text-emerald-400" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                        </svg>
+                    ))}
+                </div>
+
+                {/* Summary */}
+                <div className="flex items-center gap-1.5 ml-auto shrink-0">
+                    <span className="text-xs font-semibold text-emerald-400">
+                        Excellent
+                    </span>
+                    <span className="hidden sm:inline text-xs text-muted-foreground">
+                        ·
+                    </span>
+                    <span className="hidden sm:inline text-xs text-muted-foreground">
+                        {stats.reviews.toLocaleString()} reviews
                     </span>
                 </div>
             </div>

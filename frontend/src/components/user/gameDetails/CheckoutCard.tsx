@@ -67,18 +67,26 @@ export default function CheckoutCard({
                 <div className="flex items-center justify-between mt-4">
                     <span className="text-muted-foreground">Quantity</span>
 
-                    <div className="flex items-center gap-3 bg-muted px-3 py-2 rounded-xl">
-                        <RiSubtractLine
-                            className={`cursor-pointer text-tertiary ${isDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
-                            onClick={() => !isDisabled && updateQty(-1)}
-                        />
-                        <span className="text-foreground font-semibold">
+                    <div className="flex items-center gap-2 bg-muted px-2 py-1.5 rounded-xl">
+                        <button
+                            type="button"
+                            disabled={isDisabled}
+                            onClick={() => updateQty(-1)}
+                            className="w-7 h-7 flex items-center justify-center rounded-lg text-tertiary hover:bg-background transition disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            <RiSubtractLine className="w-4 h-4" />
+                        </button>
+                        <span className="text-foreground font-semibold min-w-[1.5rem] text-center">
                             {qty}
                         </span>
-                        <RiAddLine
-                            className={`cursor-pointer text-tertiary ${isDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
-                            onClick={() => !isDisabled && updateQty(1)}
-                        />
+                        <button
+                            type="button"
+                            disabled={isDisabled}
+                            onClick={() => updateQty(1)}
+                            className="w-7 h-7 flex items-center justify-center rounded-lg text-tertiary hover:bg-background transition disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            <RiAddLine className="w-4 h-4" />
+                        </button>
                     </div>
                 </div>
 

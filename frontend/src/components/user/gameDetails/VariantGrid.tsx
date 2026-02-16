@@ -58,10 +58,10 @@ export default function VariantGrid({
                     <div
                         key={variant._id || variant.slug}
                         onClick={() => onSelect(variant)}
-                        className={`group relative cursor-pointer rounded-xl sm:rounded-2xl p-2 sm:p-3 border transition-all duration-300 ease-out backdrop-blur-xl ${
+                        className={`group relative cursor-pointer rounded-2xl p-2 sm:p-3 border transition-all duration-300 ease-out ${
                             isSelected
-                                ? "border-secondary bg-secondary/10 ring-2 ring-secondary/40 shadow-xl scale-[1.02]"
-                                : "border-border bg-card hover:border-secondary/60 hover:bg-muted hover:shadow-lg"
+                                ? "border-secondary bg-secondary/10 ring-2 ring-secondary/40 shadow-md"
+                                : "border-border bg-card hover:border-secondary/60 hover:bg-muted hover:shadow-md shadow-sm"
                         }`}
                     >
                         {/* Selected badge */}
@@ -146,10 +146,6 @@ export default function VariantGrid({
                             </div>
                         )}
 
-                        {/* Hover glow */}
-                        <div className="pointer-events-none absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition">
-                            <div className="absolute inset-0 bg-secondary/5 blur-xl" />
-                        </div>
                     </div>
                 );
             })}

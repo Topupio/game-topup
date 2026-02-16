@@ -186,82 +186,85 @@ export default function GameDetailsPage({
     const hasMultipleRegions = gameDetails.regions.length > 1;
 
     return (
-        <div className="text-foreground max-w-7xl mx-auto py-16 pb-28 lg:pb-16">
-            {/* Hero Section */}
-            <HeroHeader
-                imageUrl={gameDetails.imageUrl || ""}
-                title={gameDetails.name}
-                subtitle={gameDetails.category}
-            />
-
+        <div className="text-foreground max-w-7xl mx-auto py-24 pb-28 lg:pb-16">
             {/* Main Layout */}
-            <div className="max-w-7xl mx-auto mt-8 flex flex-col lg:flex-row gap-8 px-4 lg:px-0">
-                {/* LEFT: Packages */}
-                <div className="lg:w-2/3 w-full space-y-6">
-                    {/* Heading + Region selector */}
-                    <div className="flex items-center justify-between">
-                        <h2 className="text-xl font-bold text-foreground">
-                            Select a Package
-                        </h2>
-
-                        {hasMultipleRegions && (
-                            <select
-                                value={activeRegion}
-                                onChange={(e) =>
-                                    setActiveRegion(e.target.value)
-                                }
-                                className="px-3 py-1.5 bg-input border border-border rounded-lg text-sm text-foreground focus:outline-none focus:border-secondary"
-                            >
-                                {gameDetails.regions.map((r) => {
-                                    const region = getRegionByKey(r);
-                                    return (
-                                        <option key={r} value={r}>
-                                            {region?.label || r} (
-                                            {region?.symbol || "$"})
-                                        </option>
-                                    );
-                                })}
-                            </select>
-                        )}
-                    </div>
-
-                    {/* Variant grid */}
-                    <VariantGrid
-                        variants={gameDetails.variants}
-                        selectedVariant={selectedVariant}
-                        onSelect={(v) => {
-                            setSelectedVariant(v);
-                            setQty(1);
-                        }}
-                        activeRegion={activeRegion}
-                        gameImageUrl={gameDetails.imageUrl}
+            <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-8 px-4">
+                {/* LEFT: Hero + Packages */}
+                <div className="lg:w-2/3 w-full space-y-8">
+                    {/* Hero Section */}
+                    <HeroHeader
+                        imageUrl={gameDetails.imageUrl || ""}
+                        title={gameDetails.name}
+                        subtitle={gameDetails.category}
                     />
 
-                    {/* Description */}
-                    {gameDetails.description && (
-                        <div className="mt-8 space-y-3">
-                            <h3 className="text-lg font-semibold text-foreground">
-                                About
-                            </h3>
-                            <p className="text-muted-foreground leading-relaxed">
-                                {gameDetails.description}
-                            </p>
-                        </div>
-                    )}
+                    {/* Package Selection */}
+                    <div className="space-y-6">
+                        {/* Heading + Region selector */}
+                        <div className="flex items-center justify-between">
+                            <h2 className="text-xl font-bold text-foreground">
+                                Select a Package
+                            </h2>
 
-                    {/* Rich Description */}
-                    {hasRichContent(gameDetails.richDescription) && (
-                        <div className="mt-8 rounded-2xl border border-border bg-card p-4 sm:p-6">
-                            <div
-                                className="rich-description"
-                                dangerouslySetInnerHTML={{
-                                    __html: DOMPurify.sanitize(
-                                        gameDetails.richDescription!
-                                    ),
-                                }}
-                            />
+                            {hasMultipleRegions && (
+                                <select
+                                    value={activeRegion}
+                                    onChange={(e) =>
+                                        setActiveRegion(e.target.value)
+                                    }
+                                    className="px-3 py-1.5 bg-input border border-border rounded-lg text-sm text-foreground focus:outline-none focus:border-secondary"
+                                >
+                                    {gameDetails.regions.map((r) => {
+                                        const region = getRegionByKey(r);
+                                        return (
+                                            <option key={r} value={r}>
+                                                {region?.label || r} (
+                                                {region?.symbol || "$"})
+                                            </option>
+                                        );
+                                    })}
+                                </select>
+                            )}
                         </div>
-                    )}
+
+                        {/* Variant grid */}
+                        <VariantGrid
+                            variants={gameDetails.variants}
+                            selectedVariant={selectedVariant}
+                            onSelect={(v) => {
+                                setSelectedVariant(v);
+                                setQty(1);
+                            }}
+                            activeRegion={activeRegion}
+                            gameImageUrl={gameDetails.imageUrl}
+                        />
+
+                        {/* Description */}
+                        {gameDetails.description && (
+                            <div className="mt-8 space-y-3">
+                                <h3 className="text-lg font-semibold text-foreground">
+                                    About
+                                </h3>
+                                <p className="text-muted-foreground leading-relaxed">
+                                    {gameDetails.description}
+                                </p>
+                            </div>
+                        )}
+
+                        {/* Rich Description */}
+                        {hasRichContent(gameDetails.richDescription) && (
+                            <div className="mt-8 rounded-2xl border border-border bg-card p-4 sm:p-6">
+                                <div
+                                    className="rich-description"
+                                    dangerouslySetInnerHTML={{
+                                        __html: DOMPurify.sanitize(
+                                            gameDetails.richDescription!
+                                        ),
+                                    }}
+                                />
+                            </div>
+                        )}
+                    </div>
                 </div>
 
                 {/* RIGHT: Sidebar */}
