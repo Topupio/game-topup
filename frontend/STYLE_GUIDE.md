@@ -239,4 +239,197 @@ Added title underline accent:
 
 ---
 
-*This log documents only the changes made during the February 8, 2026 session.*
+## 🎮 10. Game Variant Card (VariantGrid)
+
+> **Date:** February 16, 2026
+> **Component:** `gameDetails/VariantGrid.tsx`
+
+### Grid Layout
+```tsx
+// Responsive columns: 2 on mobile, 4 on sm+
+grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-4 gap-2 sm:gap-3
+```
+
+### Card Container
+```tsx
+// Responsive padding & rounding
+rounded-xl sm:rounded-2xl p-2 sm:p-3 border backdrop-blur-xl
+
+// Default state
+border-border bg-card hover:border-secondary/60 hover:bg-muted hover:shadow-lg
+
+// Selected state
+border-secondary bg-secondary/10 ring-2 ring-secondary/40 shadow-xl scale-[1.02]
+```
+
+### Badges (Discount / Popular / Selected)
+```tsx
+// Positioned absolute, top corners
+absolute top-2 z-10 text-[10px] font-bold px-2 py-0.5 rounded-full shadow
+
+// Discount badge (top-left): bg-tertiary text-primary
+// Popular badge (top-right): bg-tertiary text-primary
+// Selected badge (top-right): bg-secondary text-white font-semibold
+```
+
+### Image
+```tsx
+// Square aspect ratio, rounded corners, zoom on hover
+relative overflow-hidden rounded-xl aspect-square
+img: w-full h-full object-cover group-hover:scale-110
+// Gradient overlay on hover
+bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100
+```
+
+### Text Layout (all left-aligned)
+```tsx
+// Variant name
+text-base text-left font-semibold tracking-wide truncate
+// Selected: text-secondary | Default: text-foreground group-hover:text-secondary
+
+// Quantity/unit
+text-[10px] text-left sm:text-xs text-muted-foreground
+
+// Content wrapper spacing
+mt-2 sm:mt-3 (after image) | space-y-0.5 sm:space-y-1
+```
+
+### Price Display (left-aligned)
+```tsx
+// Price row
+mt-2 sm:mt-3 space-y-0.5
+flex items-center gap-1 sm:gap-2
+
+// Discounted price
+text-secondary font-bold text-lg
+
+// Original price (strikethrough)
+text-muted-foreground text-sm line-through
+
+// Save amount
+text-tertiary text-xs sm:text-sm font-medium
+// Values use .toFixed(2) to prevent floating point display issues
+```
+
+### Hover Glow Effect
+```tsx
+pointer-events-none absolute inset-0 rounded-2xl
+opacity-0 group-hover:opacity-100 transition
+// Inner glow
+bg-secondary/5 blur-xl
+```
+
+### Quick Reference
+
+| Element | Mobile | Desktop (sm+) |
+|---------|--------|----------------|
+| Grid cols | `grid-cols-2` | `grid-cols-4` |
+| Grid gap | `gap-2` | `gap-3` |
+| Card padding | `p-2` | `p-3` |
+| Card rounding | `rounded-xl` | `rounded-2xl` |
+| Content spacing | `mt-2`, `space-y-0.5` | `mt-3`, `space-y-1` |
+| Variant name | `text-base` | `text-base` |
+| Quantity text | `text-[10px]` | `text-xs` |
+| Price | `text-lg` | `text-lg` |
+| Strikethrough | `text-sm` | `text-sm` |
+| Save text | `text-xs` | `text-sm` |
+| Price gap | `gap-1` | `gap-2` |
+
+---
+
+## 🧾 11. Sidebar Cards (CheckoutCard & UserDetailsForm)
+
+> **Date:** February 16, 2026
+> **Components:** `gameDetails/CheckoutCard.tsx`, `gameDetails/UserDetailsForm.tsx`
+
+These two cards sit side-by-side in the right sidebar on desktop. Their text sizes **must match** to maintain visual consistency.
+
+### Shared Card Container
+```tsx
+bg-card p-6 rounded-2xl border border-border shadow-sm
+```
+
+### Shared Text Hierarchy (sidebar panels)
+```tsx
+// Card heading
+text-lg font-bold text-secondary mb-4
+
+// Body / row text
+text-sm text-muted-foreground
+
+// Labels (form fields)
+text-sm font-medium text-foreground
+
+// Helper / secondary text
+text-xs text-muted-foreground
+
+// Emphasis values (prices on right side)
+text-foreground font-semibold
+```
+
+### CheckoutCard Specifics
+```tsx
+// Content wrapper
+space-y-3 text-sm
+
+// Product row
+flex justify-between text-muted-foreground
+// Name: truncate mr-2 | Price: text-foreground font-semibold shrink-0
+
+// Discount row
+flex justify-between text-tertiary
+
+// Itemized row (smallest text for secondary info)
+flex justify-between text-muted-foreground text-xs
+
+// Quantity selector
+flex items-center gap-3 bg-muted px-3 py-2 rounded-xl
+// Icons: cursor-pointer text-tertiary
+// Qty number: text-foreground font-semibold
+
+// Total row (largest text — key emphasis)
+flex justify-between text-foreground font-bold text-lg
+
+// CTA button
+w-full py-3 rounded-xl bg-secondary text-white font-semibold
+hover:bg-tertiary hover:text-gray-950 transition
+
+// Floating point fix: all computed values use .toFixed(2)
+```
+
+### UserDetailsForm Specifics
+```tsx
+// Input fields
+px-4 py-2 bg-input border text-foreground rounded-xl
+placeholder-muted-foreground
+focus:outline-none focus:border-secondary focus:ring-2 focus:ring-ring/30
+
+// Dropdown
+Same as input + appearance-none
+// Arrow icon: absolute right-3 top-3 text-muted-foreground pointer-events-none
+
+// Error text
+text-red-500 text-xs mt-1
+
+// Footer helper
+text-xs text-muted-foreground mt-3
+```
+
+### Design Rule: Sidebar Consistency
+When adding new sidebar panels on the game details page, follow this sizing:
+
+| Element | Size | Weight |
+|---------|------|--------|
+| Panel heading | `text-lg` | `font-bold text-secondary` |
+| Primary rows | `text-sm` | normal or `font-semibold` for values |
+| Secondary/itemized | `text-xs` | `text-muted-foreground` |
+| Total/emphasis | `text-lg` | `font-bold text-foreground` |
+| Form labels | `text-sm` | `font-medium text-foreground` |
+| Helper text | `text-xs` | `text-muted-foreground` |
+| Error text | `text-xs` | `text-red-500` |
+
+> **Key principle:** Sidebar cards use compact `text-sm` body text to keep the panel tight and not compete visually with the main content area (variant grid, descriptions). Only the Total row gets `text-lg` for emphasis.
+
+---
+
+*This log documents styling changes. Last updated: February 16, 2026.*

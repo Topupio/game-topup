@@ -86,7 +86,7 @@ export default function CheckoutCard({
                 <div className="border-t border-border my-3" />
 
                 {/* Total */}
-                <div className="flex justify-between text-foreground font-bold text-base">
+                <div className="flex justify-between text-foreground font-bold text-lg">
                     <span>Total</span>
                     <span>
                         {symbol}{totalAmount}

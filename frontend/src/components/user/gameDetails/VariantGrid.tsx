@@ -37,7 +37,7 @@ export default function VariantGrid({
     }
 
     return (
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-4 gap-2 sm:gap-3">
             {activeVariants.map((variant) => {
                 const pricing = getPrice(variant, activeRegion);
                 const isSelected =
@@ -58,7 +58,7 @@ export default function VariantGrid({
                     <div
                         key={variant._id || variant.slug}
                         onClick={() => onSelect(variant)}
-                        className={`group relative cursor-pointer rounded-2xl p-3 border transition-all duration-300 ease-out backdrop-blur-xl ${
+                        className={`group relative cursor-pointer rounded-xl sm:rounded-2xl p-2 sm:p-3 border transition-all duration-300 ease-out backdrop-blur-xl ${
                             isSelected
                                 ? "border-secondary bg-secondary/10 ring-2 ring-secondary/40 shadow-xl scale-[1.02]"
                                 : "border-border bg-card hover:border-secondary/60 hover:bg-muted hover:shadow-lg"
@@ -99,10 +99,10 @@ export default function VariantGrid({
 
                         {/* Content */}
                         <div
-                            className={`${imageUrl ? "mt-3" : "mt-1"} space-y-1 text-center`}
+                            className={`${imageUrl ? "mt-2 sm:mt-3" : "mt-1"} space-y-0.5 sm:space-y-1`}
                         >
                             <h3
-                                className={`text-sm font-semibold tracking-wide truncate ${
+                                className={`text-base text-left font-semibold tracking-wide truncate ${
                                     isSelected
                                         ? "text-secondary"
                                         : "text-foreground group-hover:text-secondary"
@@ -112,7 +112,7 @@ export default function VariantGrid({
                             </h3>
 
                             {variant.quantity && variant.unit && (
-                                <p className="text-xs text-muted-foreground">
+                                <p className="text-[10px] text-left sm:text-xs text-muted-foreground">
                                     {variant.quantity} {variant.unit}
                                 </p>
                             )}
@@ -122,15 +122,15 @@ export default function VariantGrid({
 
                         {/* Price */}
                         {pricing && (
-                            <div className="mt-3 text-center space-y-0.5">
-                                <div className="flex items-center justify-center gap-2">
-                                    <span className="text-secondary font-bold text-base">
+                            <div className="mt-2 sm:mt-3 space-y-0.5">
+                                <div className="flex items-center gap-1 sm:gap-2">
+                                    <span className="text-secondary font-bold text-lg">
                                         {pricing.symbol}
                                         {pricing.discountedPrice}
                                     </span>
 
                                     {discountPercent > 0 && (
-                                        <span className="text-muted-foreground text-xs line-through">
+                                        <span className="text-muted-foreground text-sm line-through">
                                             {pricing.symbol}
                                             {pricing.price}
                                         </span>
@@ -138,7 +138,7 @@ export default function VariantGrid({
                                 </div>
 
                                 {discountPercent > 0 && (
-                                    <p className="text-tertiary text-xs font-medium">
+                                    <p className="text-tertiary text-xs sm:text-sm font-medium">
                                         Save {pricing.symbol}
                                         {(pricing.price - pricing.discountedPrice).toFixed(2)}
                                     </p>
