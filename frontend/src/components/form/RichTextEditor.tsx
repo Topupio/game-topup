@@ -80,16 +80,12 @@ export default function RichTextEditor({
         },
     });
 
-    // Sync external value changes (e.g. when loading existing data)
-    const hasInitialised = useRef(false);
+    // Sync external value into editor (e.g. when loading existing data)
     useEffect(() => {
-        if (!editor) return;
-        if (!hasInitialised.current && value) {
-            editor.commands.setContent(value, { emitUpdate: false });
-            hasInitialised.current = true;
-        } else if (!hasInitialised.current && !value) {
-            hasInitialised.current = true;
-        }
+        if (!editor || !value) return;
+        const isSame = editor.getHTML() === value;
+        if (isSame) return;
+        editor.commands.setContent(value, false);
     }, [editor, value]);
 
     const handleImageUpload = useCallback(async () => {

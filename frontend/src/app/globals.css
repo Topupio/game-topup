@@ -214,3 +214,67 @@
 .center {
     @apply flex items-center justify-center;
 }
+
+/* ===============================
+   RICH DESCRIPTION (TipTap output)
+   =============================== */
+.rich-description h1 {
+    @apply text-lg sm:text-2xl font-bold tracking-tight text-foreground mt-6 mb-3;
+}
+
+.rich-description h2 {
+    @apply text-base sm:text-xl font-bold tracking-tight text-foreground mt-5 mb-2;
+}
+
+.rich-description h3 {
+    @apply text-sm sm:text-lg font-semibold text-foreground mt-4 mb-2;
+}
+
+.rich-description p {
+    @apply text-muted-foreground text-sm sm:text-base leading-relaxed mb-3;
+}
+
+.rich-description strong {
+    @apply text-foreground font-semibold;
+}
+
+.rich-description em {
+    @apply italic;
+}
+
+.rich-description a {
+    @apply text-secondary underline hover:text-secondary/80;
+}
+
+.rich-description ul {
+    @apply list-disc pl-6 mb-3 space-y-1 text-muted-foreground text-sm sm:text-base;
+}
+
+.rich-description ol {
+    @apply list-decimal pl-6 mb-3 space-y-1 text-muted-foreground text-sm sm:text-base;
+}
+
+.rich-description blockquote {
+    @apply border-l-4 border-secondary pl-4 my-3 text-muted-foreground italic text-sm sm:text-base;
+}
+
+.rich-description img {
+    @apply rounded-lg h-auto my-4;
+    max-width: min(100%, 320px);
+}
+
+.rich-description hr {
+    @apply border-border my-6;
+}
+
+.rich-description *:first-child {
+    margin-top: 0;
+}
+
+.rich-description li p {
+    @apply mb-0;
+}
+
+.rich-description p:empty {
+    display: none;
+}

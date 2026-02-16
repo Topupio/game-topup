@@ -17,6 +17,13 @@ import MobileCheckoutSheet from "./MobileCheckoutSheet";
 import { ordersApiClient } from "@/services/orders/ordersApi.client";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
+import DOMPurify from "isomorphic-dompurify";
+
+function hasRichContent(html: string | undefined): boolean {
+    if (!html) return false;
+    const stripped = html.replace(/<[^>]*>/g, "").trim();
+    return stripped.length > 0;
+}
 
 export default function GameDetailsClient({
     gameDetails,
@@ -242,18 +249,19 @@ export default function GameDetailsClient({
                         </div>
                     )}
 
-                    {/* How to top-up */}
-                    <div className="mt-6 space-y-3">
-                        <h3 className="text-lg font-semibold text-foreground">
-                            How to Top-up
-                        </h3>
-                        <ol className="list-decimal pl-6 space-y-2 text-muted-foreground text-sm">
-                            <li>Enter your game details correctly</li>
-                            <li>Select your desired package</li>
-                            <li>Complete secure checkout</li>
-                            <li>Receive your items instantly</li>
-                        </ol>
-                    </div>
+                    {/* Rich Description */}
+                    {hasRichContent(gameDetails.richDescription) && (
+                        <div className="mt-8 rounded-2xl border border-border bg-card p-4 sm:p-6">
+                            <div
+                                className="rich-description"
+                                dangerouslySetInnerHTML={{
+                                    __html: DOMPurify.sanitize(
+                                        gameDetails.richDescription!
+                                    ),
+                                }}
+                            />
+                        </div>
+                    )}
                 </div>
 
                 {/* RIGHT: Sidebar */}
