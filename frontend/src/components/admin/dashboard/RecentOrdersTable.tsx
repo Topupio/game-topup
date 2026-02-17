@@ -36,9 +36,9 @@ export default function RecentOrdersTable({ orders }: { orders: DashboardOrder[]
                         {orders.map((order) => (
                             <tr key={order._id} className="bg-white hover:bg-gray-50 transition">
                                 <td className="px-4 py-4 font-medium text-gray-900">{order.orderId}</td>
-                                <td className="px-4 py-4 text-gray-500">{order.user.name}</td>
-                                <td className="px-4 py-4 text-gray-500">{order.game.name}</td>
-                                <td className="px-4 py-4 text-gray-500">{order.product.name}</td>
+                                <td className="px-4 py-4 text-gray-500">{order.user?.name ?? "Deleted User"}</td>
+                                <td className="px-4 py-4 text-gray-500">{order.game?.name ?? "Deleted Game"}</td>
+                                <td className="px-4 py-4 text-gray-500">{order.product?.name ?? "Deleted Product"}</td>
                                 <td className="px-4 py-4 font-semibold text-gray-900">$ {order.amount}</td>
                                 <td className="px-4 py-4">
                                     <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStatusStyles(order.orderStatus)}`}>
