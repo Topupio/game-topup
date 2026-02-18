@@ -96,7 +96,7 @@ export default function CategoryQuickNav({ categories }: CategoryQuickNavProps) 
                 initial="hidden"
                 whileInView="show"
                 viewport={{ once: true }}
-                className="flex overflow-x-auto gap-2.5 sm:grid sm:grid-cols-5 sm:gap-3 hide-scrollbar"
+                className="grid grid-cols-5 gap-1 sm:gap-3"
             >
                 {categories.map((cat) => {
                     const meta = CATEGORY_META[cat];
@@ -104,34 +104,35 @@ export default function CategoryQuickNav({ categories }: CategoryQuickNavProps) 
                     const Icon = meta.icon;
 
                     return (
-                        <motion.div key={cat} variants={itemVariants} className="shrink-0 sm:shrink">
+                        <motion.div key={cat} variants={itemVariants}>
                             <Link
                                 href={`/categories?category=${encodeURIComponent(cat)}&page=1`}
                                 className={`
-                                    flex flex-col sm:flex-row items-center justify-center sm:justify-start
-                                    gap-1.5 sm:gap-2.5 group
-                                    px-3 py-3 sm:px-4 sm:py-2.5
-                                    bg-card border border-border rounded-xl
-                                    hover:border-secondary/40 hover:shadow-md hover:-translate-y-0.5
-                                    transition-all duration-300 cursor-pointer
+                                    flex flex-col items-center gap-1.5 group
+                                    py-2 cursor-pointer
+                                    sm:flex-row sm:justify-start sm:gap-2.5
+                                    sm:px-4 sm:py-2.5
+                                    sm:bg-card sm:border sm:border-border sm:rounded-xl
+                                    sm:hover:border-secondary/40 sm:hover:shadow-md sm:hover:-translate-y-0.5
+                                    transition-all duration-300
                                 `}
                             >
                                 {/* Gradient icon */}
                                 <div
                                     className={`
-                                        w-8 h-8 sm:w-9 sm:h-9 shrink-0
-                                        rounded-lg sm:rounded-xl flex items-center justify-center
+                                        w-11 h-11 sm:w-9 sm:h-9 shrink-0
+                                        rounded-full sm:rounded-xl flex items-center justify-center
                                         bg-gradient-to-br ${meta.gradient}
                                         shadow-sm
                                         group-hover:scale-110 group-hover:shadow-md
                                         transition-all duration-300
                                     `}
                                 >
-                                    <Icon className="w-4 h-4 sm:w-[18px] sm:h-[18px] text-white" />
+                                    <Icon className="w-5 h-5 sm:w-[18px] sm:h-[18px] text-white" />
                                 </div>
 
                                 {/* Label */}
-                                <span className="text-[11px] sm:text-sm font-semibold text-foreground group-hover:text-secondary transition-colors whitespace-nowrap">
+                                <span className="text-[10px] leading-tight sm:text-sm font-medium sm:font-semibold text-foreground group-hover:text-secondary transition-colors text-center sm:text-left">
                                     {meta.label}
                                 </span>
                             </Link>
