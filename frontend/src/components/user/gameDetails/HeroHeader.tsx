@@ -110,7 +110,7 @@ export default function HeroHeader({ imageUrl, title, subtitle }: HeroHeaderProp
                         {/* Stars + Sold */}
                         <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
                             <div className="flex items-center gap-1">
-                                <StarRating ratigetHomePageGamesng={stats.rating} />
+                                <StarRating rating={stats.rating} />
                                 <span className="text-sm font-semibold text-foreground">
                                     {stats.rating}
                                 </span>
