@@ -13,6 +13,10 @@ export const gamesApiServer = {
         return serverApi.get(endpoints.games.home);
     },
 
+    async listPaymentCategories(): Promise<CategoryResponse> {
+        return serverApi.get(endpoints.games.paymentCategories);
+    },
+
     async get(id: string): Promise<ApiResponse<Game>> {
         return serverApi.get(endpoints.games.byId(id));
     },

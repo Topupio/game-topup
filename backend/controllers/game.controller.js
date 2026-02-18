@@ -128,12 +128,15 @@ const getGames = asyncHandler(async (req, res) => {
     const skip = (pageNum - 1) * limitNum;
 
     const query = {};
+    const conditions = [];
 
     if (search) {
-        query.$or = [
-            { name: { $regex: search, $options: "i" } },
-            { description: { $regex: search, $options: "i" } }
-        ];
+        conditions.push({
+            $or: [
+                { name: { $regex: search, $options: "i" } },
+                { description: { $regex: search, $options: "i" } }
+            ]
+        });
     }
 
     if (status && ["active", "inactive"].includes(status)) {
@@ -142,7 +145,16 @@ const getGames = asyncHandler(async (req, res) => {
 
     if (category) {
         const categories = category.split(",");
-        query.category = { $in: categories };
+        conditions.push({
+            $or: [
+                { category: { $in: categories } },
+                { paymentCategory: { $in: categories } },
+            ]
+        });
+    }
+
+    if (conditions.length > 0) {
+        query.$and = conditions;
     }
 
     const sortQuery = {
@@ -209,6 +221,42 @@ const getDistinctCategories = asyncHandler(async (req, res) => {
     return res.status(200).json({
         success: true,
         categories
+    });
+});
+
+const getGamesByPaymentCategory = asyncHandler(async (req, res) => {
+    const result = await Game.aggregate([
+        { $match: { status: "active", paymentCategory: { $ne: "" } } },
+        {
+            $setWindowFields: {
+                partitionBy: "$paymentCategory",
+                sortBy: { createdAt: -1 },
+                output: {
+                    rank: { $rank: {} }
+                }
+            }
+        },
+        { $match: { rank: { $lte: 6 } } },
+        {
+            $group: {
+                _id: "$paymentCategory",
+                games: { $push: "$$ROOT" }
+            }
+        },
+        { $sort: { _id: 1 } },
+        {
+            $project: {
+                _id: 0,
+                category: "$_id",
+                games: 1
+            }
+        }
+    ]);
+
+    res.status(200).json({
+        success: true,
+        categories: result,
+        totalCategories: result.length
     });
 });
 
@@ -560,6 +608,7 @@ export {
     getGames,
     getHomePageGames,
     getDistinctCategories,
+    getGamesByPaymentCategory,
     getGameDetails,
     createGame,
     updateGame,

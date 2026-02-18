@@ -54,11 +54,14 @@ const CategoryListingPage = ({ games, currentPage, totalPages }: CategoryListing
                 {/* Games Grid */}
                 <GamesList games={games} />
 
-                {/* Pagination */}
-                <Pagination currentPage={currentPage} totalPages={totalPages} />
+                {/* Pagination – only when there are results */}
+                {games.length > 0 && (
+                    <Pagination currentPage={currentPage} totalPages={totalPages} />
+                )}
             </div>
         </div>
     );
 }
 
 export default CategoryListingPage;
+

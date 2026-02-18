@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 import { RiArrowRightSLine, RiStarFill, RiStarHalfFill } from "react-icons/ri";
 import { useMemo } from "react";
 
-export default function SingleGameCardCarousel({ game }: { game: Game }) {
+export default function GameCard({ game }: { game: Game }) {
     // Get the cheapest active variant pricing (first region)
     const pricing = useMemo(() => {
         const activeVariants = game.variants.filter((v) => v.status === "active");

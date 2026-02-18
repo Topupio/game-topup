@@ -7,7 +7,7 @@ import "swiper/css/free-mode";
 import { FreeMode } from "swiper/modules";
 import Link from "next/link";
 import { RiFlashlightFill, RiArrowRightSLine } from "react-icons/ri";
-import SingleGameCardCarousel from "../components/SingleGameCardCarousel";
+import GameCard from "../components/GameCard";
 
 interface Props {
     games: Game[];
@@ -48,7 +48,7 @@ export default function HotGames({ games }: Props) {
                         key={game._id}
                         className="!w-[40%] sm:!w-[30%] lg:!w-[15%]"
                     >
-                        <SingleGameCardCarousel game={game} />
+                        <GameCard game={game} />
                     </SwiperSlide>
                 ))}
             </Swiper>

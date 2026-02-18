@@ -24,6 +24,7 @@ export const endpoints = {
         root: "/api/games",
         home: "/api/games/home",
         categories: "/api/games/categories",
+        paymentCategories: "/api/games/payment-categories",
         byId: (id: Id) => `/api/games/${id}`,
         bySlug: (slug: Id) => `/api/games/${slug}`,
     },

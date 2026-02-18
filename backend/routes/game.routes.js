@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getGames, getHomePageGames, getDistinctCategories, getGameDetails, createGame, updateGame, deleteGame } from "../controllers/game.controller.js";
+import { getGames, getHomePageGames, getDistinctCategories, getGamesByPaymentCategory, getGameDetails, createGame, updateGame, deleteGame } from "../controllers/game.controller.js";
 import { protect } from "../middlewares/auth.middleware.js";
 import { authorize } from "../middlewares/role.middleware.js";
 import { upload } from "../middlewares/upload.middleware.js";
@@ -10,6 +10,7 @@ const router = Router();
 router.get("/", getGames);
 router.get("/home", getHomePageGames);
 router.get("/categories", getDistinctCategories);
+router.get("/payment-categories", getGamesByPaymentCategory);
 router.get('/:slug' , getGameDetails)
 
 // Admin only: create, update, delete
