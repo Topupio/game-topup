@@ -96,7 +96,7 @@ export default function CategoryQuickNav({ categories }: CategoryQuickNavProps) 
                 initial="hidden"
                 whileInView="show"
                 viewport={{ once: true }}
-                className="grid grid-cols-3 sm:grid-cols-5 gap-2.5 sm:gap-3"
+                className="flex overflow-x-auto gap-2.5 sm:grid sm:grid-cols-5 sm:gap-3 hide-scrollbar"
             >
                 {categories.map((cat) => {
                     const meta = CATEGORY_META[cat];
@@ -104,7 +104,7 @@ export default function CategoryQuickNav({ categories }: CategoryQuickNavProps) 
                     const Icon = meta.icon;
 
                     return (
-                        <motion.div key={cat} variants={itemVariants}>
+                        <motion.div key={cat} variants={itemVariants} className="shrink-0 sm:shrink">
                             <Link
                                 href={`/categories?category=${encodeURIComponent(cat)}&page=1`}
                                 className={`
