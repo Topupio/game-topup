@@ -4,7 +4,6 @@ import Link from "next/link";
 import { RiLayoutGridFill, RiArrowRightSLine } from "react-icons/ri";
 
 const GameCategoryListing = ({ categories }: { categories: CategoryGameSection[] }) => {
-   console.log("categoriessssss",categories);
    
     return (
         <div className="mt-16 lg:mt-24 relative">

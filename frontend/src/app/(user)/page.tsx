@@ -1,10 +1,12 @@
 import { gamesApiServer } from "@/services/games/gamesApi.server";
 import { bannerApiServer } from "@/services/banner/bannerApi.server";
-import GameCategoryListing from "@/components/user/homePage/GameCategoryListing";
+// import GameCategoryListing from "@/components/user/homePage/GameCategoryListing";
+import CategorySwiperSection from "@/components/user/homePage/CategorySwiperSection";
 import HeroCarousel from "@/components/user/homePage/HeroCarousel";
 import HotGames from "@/components/user/homePage/HotGames";
 import CategoryQuickNav from "@/components/user/homePage/CategoryQuickNav";
 import { CATEGORIES } from "@/lib/constants/checkoutTemplates";
+import WhyChooseUs from "@/components/user/homePage/WhyChooseUs";
 
 export default async function Page() {
     const [banners, homeRes, paymentCatRes] = await Promise.all([
@@ -43,7 +45,9 @@ export default async function Page() {
                 <HeroCarousel banners={bannerData} />
                 <CategoryQuickNav categories={allCategoryNames} />
                 <HotGames games={hotGames} />
-                <GameCategoryListing categories={paymentCategories} />
+                {/* <GameCategoryListing categories={paymentCategories} /> */}
+                <CategorySwiperSection categories={paymentCategories} />
+                <WhyChooseUs />
             </div>
         </div>
     );
