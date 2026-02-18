@@ -30,20 +30,16 @@ export default function WhyChooseUs() {
     return (
         <div className="mt-16 lg:mt-24 mb-8">
             {/* Section Header */}
-            <div className="flex items-center sm:mb-6 mb-4">
-                <div className="flex items-center gap-2 sm:gap-3">
-                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-secondary/10 border border-secondary/20 flex items-center justify-center text-secondary">
-                        <RiVerifiedBadgeFill className="w-4 h-4 sm:w-5 sm:h-5" />
-                    </div>
-                    <div>
-                        <h2 className="text-lg sm:text-2xl font-bold text-gray-900 tracking-tight">
-                            Why Choose Us?
-                        </h2>
-                        <p className="text-gray-500 text-xs sm:text-sm font-normal">
-                            Trusted by thousands of gamers worldwide
-                        </p>
-                    </div>
+            <div className="flex flex-col items-center text-center sm:mb-6 mb-4">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-secondary/10 border border-secondary/20 flex items-center justify-center text-secondary mb-2">
+                    <RiVerifiedBadgeFill className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
+                <h2 className="text-lg sm:text-2xl font-bold text-gray-900 tracking-tight">
+                    Why Choose Us?
+                </h2>
+                <p className="text-gray-500 text-xs sm:text-sm font-normal">
+                    Trusted by thousands of gamers worldwide
+                </p>
             </div>
 
             {/* Cards Container */}
