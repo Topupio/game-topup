@@ -186,7 +186,7 @@ export default function GameDetailsPage({
     const hasMultipleRegions = gameDetails.regions.length > 1;
 
     return (
-        <div className="text-foreground max-w-7xl mx-auto py-24 pb-28 lg:pb-16">
+        <div className="text-foreground max-w-7xl mx-auto sm:py-22 py-20 pb-28 lg:pb-16">
             {/* Main Layout */}
             <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-8 px-4">
                 {/* LEFT: Hero + Packages */}

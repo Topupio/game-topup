@@ -54,9 +54,40 @@ export default function HeroHeader({ imageUrl, title, subtitle }: HeroHeaderProp
     const stats = useMemo(() => generateStats(title), [title]);
 
     return (
-        <div className="space-y-3">
+        <div className="space-y-2">
+            <div className="flex items-center justify-center sm:justify-end gap-2.5 sm:gap-3 mb-2">
+                    <div className="flex items-center gap-1.5 shrink-0">
+                        <svg className="w-4 h-4 text-emerald-400" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                        </svg>
+                        <span className="text-[13px] sm:text-sm font-[500] text-foreground">
+                            Trustpilot
+                        </span>
+                    </div>
+                    <div className="w-px h-4 bg-border shrink-0" />
+                    <div className="flex items-center gap-0.5">
+                        {[...Array(5)].map((_, i) => (
+                            <svg key={i} className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-emerald-500" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                            </svg>
+                        ))}
+                    </div>
+                    <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
+                        <span className="ext-sm font-medium text-emerald-500">
+                            Excellent
+                        </span>
+                        <span className="text-[11px] sm:text-xs text-muted-foreground">
+                            ·
+                        </span>
+                        <span className="text-[14px] sm:text-sm text-muted-foreground">
+                            {stats.reviews.toLocaleString()} reviews
+                        </span>
+                    </div>
+                </div>
             {/* Hero Card */}
             <div className="bg-card border border-border rounded-2xl p-4 sm:p-6 shadow-sm">
+                {/* Trustpilot */}
+                
                 {/* Mobile: stacked layout, sm+: side-by-side */}
                 <div className="flex flex-col sm:flex-row sm:items-start gap-3 sm:gap-5">
                     {/* Game Icon + Title row on mobile */}
@@ -130,43 +161,6 @@ export default function HeroHeader({ imageUrl, title, subtitle }: HeroHeaderProp
                 </div>
             </div>
 
-            {/* Trustpilot Pill — always visible */}
-            <div className="flex items-center gap-3 sm:gap-4 bg-card/60 border border-border rounded-lg px-4 sm:px-5 py-2">
-                {/* Brand */}
-                <div className="flex items-center gap-1.5 shrink-0">
-                    <svg className="w-4 h-4 text-emerald-400" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                    </svg>
-                    <span className="text-sm font-bold text-foreground">
-                        Trustpilot
-                    </span>
-                </div>
-
-                {/* Divider */}
-                <div className="w-px h-4 bg-border shrink-0" />
-
-                {/* Star rating visual */}
-                <div className="flex items-center gap-0.5">
-                    {[...Array(5)].map((_, i) => (
-                        <svg key={i} className="w-3.5 h-3.5 text-emerald-400" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                        </svg>
-                    ))}
-                </div>
-
-                {/* Summary */}
-                <div className="flex items-center gap-1.5 ml-auto shrink-0">
-                    <span className="text-xs font-semibold text-emerald-400">
-                        Excellent
-                    </span>
-                    <span className="hidden sm:inline text-xs text-muted-foreground">
-                        ·
-                    </span>
-                    <span className="hidden sm:inline text-xs text-muted-foreground">
-                        {stats.reviews.toLocaleString()} reviews
-                    </span>
-                </div>
-            </div>
         </div>
     );
 }
