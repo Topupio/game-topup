@@ -313,7 +313,7 @@ export const googleLogin = asyncHandler(async (req, res) => {
         // Existing user registered with email/password - block Google login
         if (user.authProvider === "local") {
             res.status(409);
-            throw new Error("This email is already registered with email/password. Please use your password to log in.");
+            throw new Error("This email is already registered with email/password. Please use your email/password to log in.");
         }
 
         // Blocked check
