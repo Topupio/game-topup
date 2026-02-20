@@ -7,16 +7,16 @@ import { toast } from "react-toastify";
 import { isValidEmail, hasMinLength } from "@/utils/validation";
 import { useRecaptcha } from "@/hooks/useRecaptcha";
 import { ReCaptchaProvider } from "@/providers/ReCaptchaProvider";
-// import { FcGoogle } from "react-icons/fc";
+import { useGoogleLogin } from "@react-oauth/google";
+import { FcGoogle } from "react-icons/fc";
 import axios from "axios";
 
 function LoginContent() {
     const router = useRouter();
-    const { login } = useAuth();
+    const { login, googleLogin } = useAuth();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
-    // const [googleLoading, setGoogleLoading] = useState(false);
 
     const { getRecaptchaToken } = useRecaptcha();
     const [touched, setTouched] = useState<{ email?: boolean; password?: boolean }>({});
@@ -52,20 +52,29 @@ function LoginContent() {
         }
     };
 
-    // const handleGoogleLogin = async () => {
-    //     try {
-    //         setGoogleLoading(true);
-    //         // await googleLogin();
-    //         toast.success("Logged in with Google");
-    //         router.push("/");
-    //     } catch (err: unknown) {
-    //         let message = "Google login failed";
-    //         if (err instanceof Error) message = err.message;
-    //         toast.error(message);
-    //     } finally {
-    //         setGoogleLoading(false);
-    //     }
-    // };
+    const [googleLoading, setGoogleLoading] = useState(false);
+
+    const triggerGoogleLogin = useGoogleLogin({
+        onSuccess: async (tokenResponse) => {
+            try {
+                setGoogleLoading(true);
+                await googleLogin(tokenResponse.access_token);
+                toast.success("Logged in with Google");
+                router.push("/");
+            } catch (err: unknown) {
+                let message = "Google login failed";
+                if (axios.isAxiosError(err)) {
+                    message = err.response?.data?.message || err.message;
+                } else if (err instanceof Error) {
+                    message = err.message;
+                }
+                toast.error(message);
+            } finally {
+                setGoogleLoading(false);
+            }
+        },
+        onError: () => toast.error("Google Sign-In failed"),
+    });
 
     return (
         <div className="min-h-screen flex items-center justify-center px-4 bg-primary">
@@ -80,23 +89,24 @@ function LoginContent() {
                 </p>
 
                 {/* Google Button */}
-                {/* <button
-                    onClick={handleGoogleLogin}
+                <button
+                    type="button"
+                    onClick={() => triggerGoogleLogin()}
                     disabled={googleLoading}
-                    className="w-full flex items-center justify-center gap-3 bg-primary border border-white/10 text-gray-200 rounded-lg py-2.5 mb-6 hover:bg-primary/80 transition shadow-sm"
+                    className="w-full flex items-center justify-center gap-3 bg-white/5 border border-white/10 text-gray-200 rounded-lg py-2.5 mb-2 hover:bg-white/10 transition-all duration-200 cursor-pointer disabled:opacity-60"
                 >
-                    <FcGoogle size={22} />
-                    <span>
+                    <FcGoogle size={20} />
+                    <span className="font-medium text-sm">
                         {googleLoading ? "Signing in..." : "Sign in with Google"}
                     </span>
-                </button> */}
+                </button>
 
                 {/* Divider */}
-                {/* <div className="flex items-center my-4">
+                <div className="flex items-center my-4">
                     <div className="flex-1 h-px bg-white/10"></div>
                     <span className="px-3 text-gray-400 text-sm">OR</span>
                     <div className="flex-1 h-px bg-white/10"></div>
-                </div> */}
+                </div>
 
                 {/* Form */}
                 <form onSubmit={onSubmit} className="space-y-5">

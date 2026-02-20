@@ -13,6 +13,9 @@ export const authApi = {
   async registerUser(payload: RegisterPayload): Promise<void> {
     await apiClient.post("/api/auth/register", payload);
   },
+  async googleLogin(accessToken: string): Promise<void> {
+    await apiClient.post("/api/auth/google", { accessToken });
+  },
   async logoutUser(): Promise<void> {
     await apiClient.post("/api/auth/logout", {});
   },

@@ -16,6 +16,7 @@ type AuthContextType = {
     loading: boolean;
     login: (email: string, password: string, recaptchaToken?: string | null) => Promise<void>;
     register: (name: string, email: string, password: string, recaptchaToken?: string | null) => Promise<void>;
+    googleLogin: (accessToken: string) => Promise<void>;
     logout: () => Promise<void>;
     refresh: () => Promise<void>;
 };
@@ -55,6 +56,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // User will login after email verification
     };
 
+    const googleLogin = async (accessToken: string) => {
+        await authApi.googleLogin(accessToken);
+        const me = await authApi.getProfile();
+        setUser(me);
+    };
+
     const logout = async () => {
         await authApi.logoutUser();
         clearCachedCsrf();
@@ -62,7 +69,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     const value = useMemo(
-        () => ({ user, loading, login, register, logout, refresh: async () => {
+        () => ({ user, loading, login, register, googleLogin, logout, refresh: async () => {
             const me = await authApi.getProfile();
             setUser(me);
         }}),
@@ -77,6 +84,7 @@ const authFallback: AuthContextType = {
     loading: true,
     login: async () => {},
     register: async () => {},
+    googleLogin: async () => {},
     logout: async () => {},
     refresh: async () => {},
 };

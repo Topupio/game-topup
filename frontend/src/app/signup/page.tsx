@@ -6,18 +6,19 @@ import { useAuth } from "@/context/AuthContext";
 import { toast } from "react-toastify";
 import { useRecaptcha } from "@/hooks/useRecaptcha";
 import { ReCaptchaProvider } from "@/providers/ReCaptchaProvider";
-// import { FcGoogle } from "react-icons/fc";
+import { useGoogleLogin } from "@react-oauth/google";
+import { FcGoogle } from "react-icons/fc";
+import axios from "axios";
 
 function SignupContent() {
     const router = useRouter();
-    const { register } = useAuth();
+    const { register, googleLogin } = useAuth();
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
     const [touched, setTouched] = useState<{ name?: boolean; email?: boolean; password?: boolean }>({});
     const { getRecaptchaToken } = useRecaptcha();
-    // const [googleLoading, setGoogleLoading] = useState(false);
 
     const nameValid = name.trim().length >= 2;
     const emailValid = /.+@.+\..+/.test(email);
@@ -44,20 +45,29 @@ function SignupContent() {
         }
     };
 
-    // const handleGoogleSignUp = async () => {
-    //     try {
-    //         setGoogleLoading(true);
-    //         // implement google signup flow
-    //         toast.success("Signed up with Google");
-    //         router.push("/");
-    //     } catch (err: unknown) {
-    //         let message = "Google signup failed";
-    //         if (err instanceof Error) message = err.message;
-    //         toast.error(message);
-    //     } finally {
-    //         setGoogleLoading(false);
-    //     }
-    // };
+    const [googleLoading, setGoogleLoading] = useState(false);
+
+    const triggerGoogleLogin = useGoogleLogin({
+        onSuccess: async (tokenResponse) => {
+            try {
+                setGoogleLoading(true);
+                await googleLogin(tokenResponse.access_token);
+                toast.success("Signed up with Google");
+                router.push("/");
+            } catch (err: unknown) {
+                let message = "Google signup failed";
+                if (axios.isAxiosError(err)) {
+                    message = err.response?.data?.message || err.message;
+                } else if (err instanceof Error) {
+                    message = err.message;
+                }
+                toast.error(message);
+            } finally {
+                setGoogleLoading(false);
+            }
+        },
+        onError: () => toast.error("Google Sign-Up failed"),
+    });
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-blue-50 to-blue-100 px-4">
@@ -72,23 +82,24 @@ function SignupContent() {
                 </p>
 
                 {/* Google Sign Up */}
-                {/* <button
-                    onClick={handleGoogleSignUp}
+                <button
+                    type="button"
+                    onClick={() => triggerGoogleLogin()}
                     disabled={googleLoading}
-                    className="w-full flex items-center justify-center gap-3 bg-white border border-gray-300 rounded-lg py-2.5 mb-6 hover:bg-gray-50 transition shadow-sm"
+                    className="w-full flex items-center justify-center gap-3 bg-white border border-gray-300 text-gray-700 rounded-lg py-2.5 mb-2 hover:bg-gray-50 transition-all duration-200 shadow-sm cursor-pointer disabled:opacity-60"
                 >
-                    <FcGoogle size={22} />
-                    <span className="text-gray-700 font-medium">
+                    <FcGoogle size={20} />
+                    <span className="font-medium text-sm">
                         {googleLoading ? "Signing up..." : "Sign up with Google"}
                     </span>
-                </button> */}
+                </button>
 
                 {/* Divider */}
-                {/* <div className="flex items-center my-4">
+                <div className="flex items-center my-4">
                     <div className="flex-1 h-px bg-gray-300"></div>
                     <span className="px-3 text-gray-500 text-sm">OR</span>
                     <div className="flex-1 h-px bg-gray-300"></div>
-                </div> */}
+                </div>
 
                 {/* Form */}
                 <form onSubmit={onSubmit} className="space-y-5">

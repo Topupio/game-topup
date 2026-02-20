@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { register, login, logout, me, forgotPassword, resetPassword, verifyEmail, resendVerification } from "../controllers/auth.controller.js";
+import { register, login, logout, me, forgotPassword, resetPassword, verifyEmail, resendVerification, googleLogin } from "../controllers/auth.controller.js";
 import { protect } from "../middlewares/auth.middleware.js";
 import { authLimiter, sensitiveLimiter } from "../middlewares/rateLimit.middleware.js";
 import { verifyRecaptcha } from "../middlewares/recaptcha.middleware.js";
@@ -17,6 +17,7 @@ router.post("/resend-verification", authLimiter, verifyRecaptcha("resend_verific
 router.post("/login", authLimiter, verifyRecaptcha("login"), loginValidation, handleValidation, login);
 router.post("/forgot-password", authLimiter, forgotPassword);
 router.put("/reset-password/:token", authLimiter, resetPassword);
+router.post("/google", authLimiter, googleLogin);
 router.post("/logout", sensitiveLimiter, logout);
 router.get("/me", protect, me);
 router.post('/refresh', sensitiveLimiter, (req, res, next) => import('../controllers/auth.controller.js').then(m => m.refreshToken(req, res, next)));

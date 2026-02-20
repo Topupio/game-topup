@@ -279,3 +279,63 @@ export const resetPassword = asyncHandler(async (req, res) => {
         message: "Password reset successful",
     });
 });
+
+export const googleLogin = asyncHandler(async (req, res) => {
+    const { accessToken } = req.body;
+
+    if (!accessToken) {
+        res.status(400);
+        throw new Error("Google access token is required");
+    }
+
+    // Verify the access token by fetching user info from Google
+    const googleRes = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
+        headers: { Authorization: `Bearer ${accessToken}` },
+    });
+
+    if (!googleRes.ok) {
+        res.status(401);
+        throw new Error("Invalid Google access token");
+    }
+
+    const payload = await googleRes.json();
+    if (!payload.email_verified) {
+        res.status(401);
+        throw new Error("Google email not verified");
+    }
+
+    const { sub: googleId, email, name } = payload;
+
+    // Check if user already exists
+    let user = await User.findOne({ email });
+
+    if (user) {
+        // Existing user registered with email/password - block Google login
+        if (user.authProvider === "local") {
+            res.status(409);
+            throw new Error("This email is already registered with email/password. Please use your password to log in.");
+        }
+
+        // Blocked check
+        if (user.status === "blocked") {
+            res.status(403);
+            throw new Error("Your account has been suspended. Please contact support.");
+        }
+    } else {
+        // Create new user via Google
+        user = await User.create({
+            name: name || email.split("@")[0],
+            email,
+            authProvider: "google",
+            googleId,
+            isVerified: true,
+            role: "user",
+        });
+    }
+
+    // Update last login
+    user.lastLoginAt = Date.now();
+    await user.save({ validateBeforeSave: false });
+
+    return sendAuthPair(user, 200, res, req.ip);
+});
