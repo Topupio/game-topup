@@ -1,5 +1,6 @@
 import Order from "../models/order.model.js";
 import Product from "../models/product.model.js";
+import Game from "../models/game.model.js";
 import { asyncHandler } from "../middlewares/asyncHandler.js";
 import mongoose from "mongoose";
 import { logAdminActivity } from "../utils/adminLogger.js";
@@ -14,7 +15,7 @@ export const createOrder = asyncHandler(async (req, res) => {
         return res.status(401).json({ success: false, message: "Unauthorized" });
     }
 
-    const { gameId, productId, qty, userInputs } = req.body;
+    const { gameId, productId, qty, userInputs, currency } = req.body;
 
     // Basic validations
     if (!gameId || !productId || !qty || !Array.isArray(userInputs)) {
@@ -44,14 +45,54 @@ export const createOrder = asyncHandler(async (req, res) => {
         value: input.value
     }));
 
-    // Now hit the DB
-    const product = await Product.findOne({ _id: productId, gameId }).lean();
-    if (!product) {
-        return res.status(404).json({ success: false, message: "Product not found for this game" });
+    // Look up variant from the Game document first, fall back to legacy Product collection
+    let variantData = null;
+
+    const game = await Game.findById(gameId).lean();
+    if (game) {
+        variantData = game.variants?.find(
+            (v) => v._id.toString() === productId
+        );
     }
 
-    const unitPrice = product.discountedPrice ?? product.price;
-    const amount = unitPrice * qty;
+    if (variantData) {
+        // Use variant's region pricing — pick the requested currency or first available
+        const pricing = variantData.regionPricing?.find(
+            (rp) => rp.currency === (currency || "USD")
+        ) || variantData.regionPricing?.[0];
+
+        if (!pricing) {
+            return res.status(400).json({ success: false, message: "No pricing found for this variant" });
+        }
+
+        var unitPrice = pricing.discountedPrice ?? pricing.price;
+        var amount = unitPrice * qty;
+        var productSnapshot = {
+            name: variantData.name,
+            price: pricing.price,
+            discountedPrice: pricing.discountedPrice,
+            deliveryTime: variantData.deliveryTime || "Instant Delivery",
+            qty,
+            totalAmount: amount,
+        };
+    } else {
+        // Fallback: legacy Product collection
+        const product = await Product.findOne({ _id: productId, gameId }).lean();
+        if (!product) {
+            return res.status(404).json({ success: false, message: "Product not found for this game" });
+        }
+
+        var unitPrice = product.discountedPrice ?? product.price;
+        var amount = unitPrice * qty;
+        var productSnapshot = {
+            name: product.name,
+            price: product.price,
+            discountedPrice: product.discountedPrice,
+            deliveryTime: product.deliveryTime || "24-48 Hours",
+            qty,
+            totalAmount: amount,
+        };
+    }
 
     let order;
     for (let i = 0; i < 3; i++) {
@@ -68,15 +109,10 @@ export const createOrder = asyncHandler(async (req, res) => {
                 amount,
                 quantity: qty,
                 unitPrice,
+                currency: currency || "USD",
+                paymentMethod: "paypal",
                 userInputs: sanitizedInputs,
-                productSnapshot: {
-                    name: product.name,
-                    price: product.price,
-                    discountedPrice: product.discountedPrice,
-                    deliveryTime: product.deliveryTime || "24-48 Hours",
-                    qty: qty,
-                    totalAmount: amount
-                },
+                productSnapshot,
                 tracking: [{
                     status: "pending",
                     message: "Order placed successfully. Awaiting payment/verification."

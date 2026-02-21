@@ -54,8 +54,13 @@ const orderSchema = new mongoose.Schema(
 
         paymentMethod: {
             type: String,
-            enum: ["razorpay", "stripe", "wallet", "binancePay"],
-            default: "binancePay",
+            enum: ["razorpay", "stripe", "wallet", "binancePay", "paypal"],
+            default: "paypal",
+        },
+
+        currency: {
+            type: String,
+            default: "USD",
         },
 
         paymentInfo: {

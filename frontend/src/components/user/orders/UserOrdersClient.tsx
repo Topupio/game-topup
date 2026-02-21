@@ -69,10 +69,16 @@ export default function UserOrdersClient({ initialData }: Props) {
 
                                 <div className="flex items-center justify-between md:flex-col md:items-end gap-2">
                                     <span className="text-xl font-bold text-white">₹{order.amount}</span>
-                                    <div className="flex items-center gap-1 text-xs text-gray-400">
-                                        <RiTimeLine />
-                                        <span>Est. {order.productSnapshot.deliveryTime}</span>
-                                    </div>
+                                    {order.paymentStatus === "pending" ? (
+                                        <span className="text-xs px-3 py-1 rounded-full bg-secondary/20 text-secondary border border-secondary/30 font-semibold">
+                                            Pay Now
+                                        </span>
+                                    ) : (
+                                        <div className="flex items-center gap-1 text-xs text-gray-400">
+                                            <RiTimeLine />
+                                            <span>Est. {order.productSnapshot.deliveryTime}</span>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </Link>

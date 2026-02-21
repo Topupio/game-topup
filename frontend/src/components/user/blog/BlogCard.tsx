@@ -31,7 +31,7 @@ export default function BlogCard({ blog }: Props) {
                 <div className="p-5 flex flex-col flex-grow">
                     <div className="flex items-center gap-2 text-gray-400 text-xs mb-3">
                         <FaCalendarAlt />
-                        <span>
+                        <span suppressHydrationWarning>
                             {new Date(blog.createdAt).toLocaleDateString('en-US', {
                                 year: 'numeric',
                                 month: 'long',

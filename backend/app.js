@@ -14,6 +14,7 @@ import bannerRouter from './routes/banner.routes.js';
 import blogRouter from './routes/blog.routes.js';
 import orderRouter from './routes/order.routes.js';
 import uploadRouter from './routes/upload.routes.js';
+import paymentRouter from './routes/payment.routes.js';
 
 // Create and configure the Express app
 const app = express();
@@ -44,6 +45,9 @@ const corsOptions = {
     credentials: true,
 };
 
+// Raw body parser for PayPal webhook (must be before express.json())
+app.use('/api/payments/paypal/webhook', express.raw({ type: 'application/json' }));
+
 // Middleware Setup
 app.use(express.json());                            // Parse incoming JSON requests
 app.use(express.urlencoded({ extended: true }));    // Parse URL-encoded data
@@ -67,6 +71,11 @@ app.use((req, res, next) => {
         return next();
     }
 
+    // Skip CSRF for PayPal webhook (verified via PayPal signature instead)
+    if (req.method === 'POST' && req.path === '/api/payments/paypal/webhook') {
+        return next();
+    }
+
     // Apply CSRF to everything else
     csrfProtection(req, res, next);
 });
@@ -81,6 +90,7 @@ app.use('/api/banners', bannerRouter);
 app.use('/api/blogs', blogRouter);
 app.use('/api/orders', orderRouter);
 app.use('/api/upload', uploadRouter);
+app.use('/api/payments', paymentRouter);
 
 // Root route
 app.get('/', (req, res) => {

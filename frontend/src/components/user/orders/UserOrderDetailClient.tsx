@@ -1,7 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import { Order } from "@/services/orders/types";
 import Link from "next/link";
+import { toast } from "react-toastify";
 import {
     RiArrowLeftLine,
     RiTimeLine,
@@ -10,12 +12,14 @@ import {
     RiWallet3Line,
     RiFileListLine
 } from "react-icons/ri";
+import PayPalCheckout from "@/components/user/gameDetails/PayPalCheckout";
 
 interface Props {
     order: Order;
 }
 
-export default function UserOrderDetailClient({ order }: Props) {
+export default function UserOrderDetailClient({ order: initialOrder }: Props) {
+    const [order, setOrder] = useState(initialOrder);
     const getStatusStyles = (status: string) => {
         switch (status) {
             case "completed": return "bg-green-500/10 text-green-500 border-green-500/20";
@@ -73,7 +77,7 @@ export default function UserOrderDetailClient({ order }: Props) {
                             <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 sm:gap-6 text-sm text-gray-400 border-t border-white/10 pt-5">
                                 <div className="flex items-center gap-2">
                                     <RiTimeLine className="text-secondary shrink-0" />
-                                    <span>Placed on: {new Date(order.createdAt).toLocaleString()}</span>
+                                    <span suppressHydrationWarning>Placed on: {new Date(order.createdAt).toLocaleString()}</span>
                                 </div>
 
                                 <div className="flex items-center gap-2">
@@ -82,6 +86,36 @@ export default function UserOrderDetailClient({ order }: Props) {
                                 </div>
                             </div>
                         </div>
+
+                        {/* Complete Payment (for pending orders) */}
+                        {order.paymentStatus === "pending" && (
+                            <div className="bg-gradient-to-br from-secondary/10 to-tertiary/10 border border-secondary/30 p-6 rounded-2xl">
+                                <h3 className="text-white font-bold text-lg mb-2">
+                                    Complete Your Payment
+                                </h3>
+                                <p className="text-gray-400 text-sm mb-4">
+                                    Your order is awaiting payment. Complete it
+                                    now to start processing.
+                                </p>
+                                <PayPalCheckout
+                                    orderId={order._id}
+                                    amount={order.amount.toFixed(2)}
+                                    symbol="$"
+                                    onSuccess={() => {
+                                        toast.success("Payment successful!");
+                                        window.location.reload();
+                                    }}
+                                    onError={() => {
+                                        toast.error(
+                                            "Payment failed. Please try again."
+                                        );
+                                    }}
+                                    onCancel={() => {
+                                        toast.info("Payment cancelled.");
+                                    }}
+                                />
+                            </div>
+                        )}
 
                         {/* User Inputs / Game Details */}
                         <div className="bg-white/5 border border-white/10 p-6 rounded-2xl">
@@ -112,7 +146,7 @@ export default function UserOrderDetailClient({ order }: Props) {
                                         <div>
                                             <p className="text-white font-semibold text-sm uppercase tracking-wide">{track.status}</p>
                                             <p className="text-gray-400 text-sm">{track.message}</p>
-                                            <p className="text-gray-500 text-xs mt-1">{new Date(track.at).toLocaleString()}</p>
+                                            <p className="text-gray-500 text-xs mt-1" suppressHydrationWarning>{new Date(track.at).toLocaleString()}</p>
                                         </div>
                                     </div>
                                 ))}

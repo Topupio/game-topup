@@ -170,7 +170,7 @@ export default function OrderDetailPage({ initialOrder }: Props) {
                                     <div className="flex-1 pb-2">
                                         <div className="flex justify-between items-start">
                                             <p className="text-gray-900 text-sm font-bold uppercase tracking-wide">{track.status}</p>
-                                            <p className="text-gray-400 text-[10px]">{new Date(track.at).toLocaleString()}</p>
+                                            <p className="text-gray-400 text-[10px]" suppressHydrationWarning>{new Date(track.at).toLocaleString()}</p>
                                         </div>
                                         <p className="text-gray-600 text-sm mt-0.5">{track.message}</p>
                                     </div>

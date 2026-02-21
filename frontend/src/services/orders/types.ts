@@ -2,7 +2,7 @@
 
 export type PaymentStatus = "pending" | "paid" | "failed" | "refunded";
 
-export type PaymentMethod = "razorpay" | "stripe" | "wallet" | "binancePay";
+export type PaymentMethod = "razorpay" | "stripe" | "wallet" | "binancePay" | "paypal";
 
 export type OrderStatus =
     | "pending"
@@ -114,4 +114,5 @@ export interface CreateOrderPayload {
     productId: string;
     qty: number;
     userInputs: { label: string; value: string | number }[];
+    currency?: string;
 }

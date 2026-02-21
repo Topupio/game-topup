@@ -18,6 +18,7 @@ import { ordersApiClient } from "@/services/orders/ordersApi.client";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import DOMPurify from "isomorphic-dompurify";
+import PayPalCheckout from "./PayPalCheckout";
 
 function hasRichContent(html: string | undefined): boolean {
     if (!html) return false;
@@ -38,6 +39,11 @@ export default function GameDetailsPage({
     const [qty, setQty] = useState(1);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isSheetOpen, setIsSheetOpen] = useState(false);
+    const [pendingOrder, setPendingOrder] = useState<{
+        _id: string;
+        orderId: string;
+    } | null>(null);
+    const [showPayment, setShowPayment] = useState(false);
     const [activeRegion, setActiveRegion] = useState(() => {
         return gameDetails.regions?.[0] || "global";
     });
@@ -59,7 +65,10 @@ export default function GameDetailsPage({
                 // UID topup: conditionally show zone field
                 if (field.fieldKey === "zone_server") {
                     if (!options.zoneRequired) return null;
-                    const customOptions = options.zoneOptions || [];
+                    const raw = options.zoneOptions || [];
+                    const customOptions = typeof raw === "string"
+                        ? raw.split(",").map((s: string) => s.trim()).filter(Boolean)
+                        : Array.isArray(raw) ? raw : [];
                     return {
                         ...field,
                         required: true,
@@ -74,7 +83,10 @@ export default function GameDetailsPage({
                     field.fieldKey === "region" &&
                     templateKey === "gift_cards"
                 ) {
-                    const regionOptions = options.regionOptions || [];
+                    const raw = options.regionOptions || [];
+                    const regionOptions = typeof raw === "string"
+                        ? raw.split(",").map((s: string) => s.trim()).filter(Boolean)
+                        : Array.isArray(raw) ? raw : [];
                     if (regionOptions.length > 0) {
                         return { ...field, options: regionOptions };
                     }
@@ -165,13 +177,17 @@ export default function GameDetailsPage({
                 productId: selectedVariant._id || "",
                 qty,
                 userInputs: inputs,
+                currency: selectedPricing.currency || "USD",
                 // @ts-ignore
                 productSnapshot,
             });
 
             if (res.success) {
-                toast.success("Order placed successfully!");
-                router.push(`/orders/${res.data._id}`);
+                setPendingOrder({
+                    _id: res.data._id,
+                    orderId: res.data.orderId,
+                });
+                setShowPayment(true);
             }
         } catch (error: any) {
             toast.error(
@@ -327,6 +343,76 @@ export default function GameDetailsPage({
                         onFieldChange={updateUserDetails}
                     />
                 </>
+            )}
+
+            {/* PayPal Payment Modal */}
+            {showPayment && pendingOrder && selectedPricing && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
+                    <div className="bg-card border border-border rounded-2xl p-6 w-full max-w-md shadow-2xl">
+                        <div className="flex items-center justify-between mb-4">
+                            <h3 className="text-lg font-bold text-foreground">
+                                Complete Payment
+                            </h3>
+                            <button
+                                onClick={() => {
+                                    setShowPayment(false);
+                                    toast.info(
+                                        "Order saved. You can pay later from My Orders."
+                                    );
+                                }}
+                                className="text-muted-foreground hover:text-foreground transition text-xl leading-none"
+                            >
+                                &times;
+                            </button>
+                        </div>
+
+                        <div className="mb-4 p-3 bg-muted rounded-xl text-sm">
+                            <div className="flex justify-between text-muted-foreground">
+                                <span>Order</span>
+                                <span className="text-foreground font-mono text-xs">
+                                    {pendingOrder.orderId}
+                                </span>
+                            </div>
+                            <div className="flex justify-between mt-1">
+                                <span className="text-muted-foreground">
+                                    Total
+                                </span>
+                                <span className="text-foreground font-bold">
+                                    {selectedPricing.symbol}
+                                    {(
+                                        selectedPricing.discountedPrice * qty
+                                    ).toFixed(2)}
+                                </span>
+                            </div>
+                        </div>
+
+                        <PayPalCheckout
+                            orderId={pendingOrder._id}
+                            amount={(
+                                selectedPricing.discountedPrice * qty
+                            ).toFixed(2)}
+                            symbol={selectedPricing.symbol}
+                            onSuccess={() => {
+                                toast.success("Payment successful!");
+                                router.push(
+                                    `/orders/${pendingOrder._id}`
+                                );
+                            }}
+                            onCancel={() => {
+                                setShowPayment(false);
+                                toast.info(
+                                    "Payment cancelled. You can pay later from My Orders."
+                                );
+                            }}
+                            onError={() => {
+                                setShowPayment(false);
+                                toast.error(
+                                    "Payment failed. Please try again from My Orders."
+                                );
+                            }}
+                        />
+                    </div>
+                </div>
             )}
         </div>
     );

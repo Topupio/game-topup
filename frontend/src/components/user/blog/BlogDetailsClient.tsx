@@ -67,7 +67,7 @@ export default function BlogDetailsClient({ blog, readTime }: Props) {
                                 <span className="flex items-center gap-1.5 bg-secondary text-primary px-4 py-1.5 rounded-xl text-[11px] font-semibold uppercase tracking-[0.12em] shadow-[0_0_20px_rgba(var(--secondary),0.3)]">
                                     {blog.category}
                                 </span>
-                                <span className="flex items-center gap-2 text-white/55 font-normal tracking-wide">
+                                <span className="flex items-center gap-2 text-white/55 font-normal tracking-wide" suppressHydrationWarning>
                                     <FaCalendarAlt className="text-secondary/60" />
                                     {new Date(blog.createdAt).toLocaleDateString(undefined, { dateStyle: 'long' })}
                                 </span>
@@ -120,7 +120,7 @@ export default function BlogDetailsClient({ blog, readTime }: Props) {
 
                 {/* Bottom Metadata */}
                 <div className="mt-20 pt-8 border-t border-gray-800 text-center">
-                    <p className="text-[0.95rem] text-gray-500 italic tracking-wide">
+                    <p className="text-[0.95rem] text-gray-500 italic tracking-wide" suppressHydrationWarning>
                         Published in <span className="text-secondary">{blog.category}</span> on{" "}
                         {new Date(blog.createdAt).toLocaleDateString()}
                     </p>

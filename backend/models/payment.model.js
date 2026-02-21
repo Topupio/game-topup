@@ -18,7 +18,7 @@ const paymentSchema = new mongoose.Schema(
         // Razorpay / Stripe / Wallet etc.
         paymentGateway: {
             type: String,
-            enum: ["razorpay", "stripe", "wallet", "binancePay"],
+            enum: ["razorpay", "stripe", "wallet", "binancePay", "paypal"],
             required: true,
         },
 

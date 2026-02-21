@@ -89,7 +89,7 @@ export default function UserDetailsForm({
                                             {field.placeholder ||
                                                 `Select ${capitalize(field.fieldName)}`}
                                         </option>
-                                        {field.options?.map((opt: string) => (
+                                        {Array.isArray(field.options) && field.options.map((opt: string) => (
                                             <option
                                                 key={opt}
                                                 value={opt}

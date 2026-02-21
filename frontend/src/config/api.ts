@@ -57,6 +57,11 @@ export const endpoints = {
         image: "/api/upload/image",
     },
 
+    payments: {
+        paypalCreateOrder: "/api/payments/paypal/create-order",
+        paypalCaptureOrder: "/api/payments/paypal/capture-order",
+    },
+
     orders: {
         base: "/api/orders",
         myOrders: "/api/orders/my-orders",

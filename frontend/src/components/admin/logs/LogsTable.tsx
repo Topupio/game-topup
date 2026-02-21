@@ -73,7 +73,7 @@ export default function LogsTable({ items }: Props) {
             id: "date",
             header: "Date",
             cell: (row) => (
-                <div className="text-xs text-gray-500">
+                <div className="text-xs text-gray-500" suppressHydrationWarning>
                     <p>{new Date(row.createdAt).toLocaleDateString()}</p>
                     <p>{new Date(row.createdAt).toLocaleTimeString()}</p>
                 </div>

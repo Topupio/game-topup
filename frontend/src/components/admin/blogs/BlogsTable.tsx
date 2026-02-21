@@ -57,7 +57,7 @@ export default function BlogsTable({ blogs, onEdit, onDelete }: Props) {
             id: "createdAt",
             header: "Created At",
             cell: (row) => (
-                <span className="text-sm text-gray-500">
+                <span className="text-sm text-gray-500" suppressHydrationWarning>
                     {new Date(row.createdAt).toLocaleDateString()}
                 </span>
             ),

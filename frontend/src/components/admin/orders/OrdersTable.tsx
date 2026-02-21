@@ -69,7 +69,7 @@ export default function OrdersTable({ items }: Props) {
             id: "date",
             header: "Date",
             cell: (row) => (
-                <span className="text-gray-500">
+                <span className="text-gray-500" suppressHydrationWarning>
                     {new Date(row.createdAt).toLocaleDateString()}
                 </span>
             ),

@@ -81,7 +81,7 @@ export default function UsersTable({ items, onToggleStatus, isUpdating }: Props)
             id: "lastLogin",
             header: "Last Login",
             cell: (row) => (
-                <div className="text-sm text-gray-600">
+                <div className="text-sm text-gray-600" suppressHydrationWarning>
                     {row.lastLoginAt ? (
                         <>
                             <p>{new Date(row.lastLoginAt).toLocaleDateString()}</p>
