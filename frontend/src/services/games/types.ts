@@ -9,6 +9,7 @@ export type GamePayload = {
     description?: string;
     richDescription?: string;
     status: "active" | "inactive";
+    isPopular?: boolean;
     regions: string[];
     variants: Variant[];
     image?: File | null;

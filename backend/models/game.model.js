@@ -195,6 +195,11 @@ const gameSchema = new mongoose.Schema(
             default: [],
         },
 
+        isPopular: {
+            type: Boolean,
+            default: false,
+        },
+
         status: {
             type: String,
             enum: ["active", "inactive"],

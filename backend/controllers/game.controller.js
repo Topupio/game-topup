@@ -282,7 +282,7 @@ const getGameDetails = asyncHandler(async (req, res) => {
 // @route   POST /api/games
 // @access  Admin
 const createGame = asyncHandler(async (req, res) => {
-    const { name, description, richDescription, status, metaTitle, metaDescription, topupType, paymentCategory } = req.body;
+    const { name, description, richDescription, status, metaTitle, metaDescription, topupType, paymentCategory, isPopular } = req.body;
 
     // 1. Parse JSON fields from form-data
     let variants = parseJsonField(req.body.variants);
@@ -402,6 +402,7 @@ const createGame = asyncHandler(async (req, res) => {
             regions,
             variants,
             status: status === "inactive" ? "inactive" : "active",
+            isPopular: isPopular === "true" || isPopular === true,
             metaTitle: metaTitle || "",
             metaDescription: metaDescription || "",
         });
@@ -428,7 +429,7 @@ const createGame = asyncHandler(async (req, res) => {
 });
 
 const updateGame = asyncHandler(async (req, res) => {
-    const { name, description, richDescription, status, metaTitle, metaDescription, topupType, paymentCategory } = req.body;
+    const { name, description, richDescription, status, metaTitle, metaDescription, topupType, paymentCategory, isPopular } = req.body;
     const category = req.body.category?.trim().toLowerCase();
 
     // 1. Fetch existing game
@@ -537,6 +538,7 @@ const updateGame = asyncHandler(async (req, res) => {
     game.description = description ?? game.description;
     game.richDescription = richDescription ?? game.richDescription;
     game.status = status ?? game.status;
+    game.isPopular = isPopular !== undefined ? (isPopular === "true" || isPopular === true) : game.isPopular;
     game.metaTitle = metaTitle ?? game.metaTitle;
     game.metaDescription = metaDescription ?? game.metaDescription;
     game.imageUrl = updatedImageUrl;

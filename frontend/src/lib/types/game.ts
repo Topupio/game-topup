@@ -49,6 +49,7 @@ export type Game = {
     regions: string[];
     variants: Variant[];
     status: "active" | "inactive";
+    isPopular: boolean;
     metaTitle?: string;
     metaDescription?: string;
 };

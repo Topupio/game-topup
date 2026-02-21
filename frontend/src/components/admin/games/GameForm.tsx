@@ -49,6 +49,7 @@ export default function GameForm({ gameId }: Props) {
             richDescription: "",
             imageUrl: null,
             status: "active",
+            isPopular: false,
             regions: ["global"],
             variants: [],
             metaTitle: "",
@@ -140,6 +141,7 @@ export default function GameForm({ gameId }: Props) {
                 description: formData.description,
                 richDescription: formData.richDescription,
                 status: formData.status,
+                isPopular: formData.isPopular,
                 regions: formData.regions,
                 variants: formData.variants,
                 variantImages: Object.keys(variantImages).length > 0 ? variantImages : undefined,
@@ -233,6 +235,16 @@ export default function GameForm({ gameId }: Props) {
                                 </div>
                             </div>
                         </div>
+
+                        <label className="flex items-center gap-1.5 cursor-pointer">
+                            <input
+                                type="checkbox"
+                                checked={form.isPopular}
+                                onChange={(e) => updateForm({ isPopular: e.target.checked })}
+                                className="rounded text-amber-500 focus:ring-amber-200"
+                            />
+                            <span className="text-xs text-gray-500">Mark as popular</span>
+                        </label>
 
                         <RegionMultiSelect
                             selectedRegions={form.regions}
