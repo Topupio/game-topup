@@ -63,7 +63,7 @@ export default function UserOrdersClient({ initialData }: Props) {
                                             </span>
                                         </div>
                                         <h3 className="text-lg font-bold text-white group-hover:text-secondary transition">{order.productSnapshot.name}</h3>
-                                        <p className="text-gray-400 text-sm">{new Date(order.createdAt).toLocaleDateString()} • {new Date(order.createdAt).toLocaleTimeString()}</p>
+                                        <p className="text-gray-400 text-sm" suppressHydrationWarning>{new Date(order.createdAt).toLocaleDateString()} • {new Date(order.createdAt).toLocaleTimeString()}</p>
                                     </div>
                                 </div>
 
