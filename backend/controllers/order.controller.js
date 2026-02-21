@@ -114,14 +114,19 @@ export const getMyOrders = async (req, res) => {
         const limit = Math.min(50, Math.max(1, parseInt(req.query.limit) || 10));
         const skip = (page - 1) * limit;
 
+        const filter = { user: req.user.id };
+        if (req.query.status) {
+            filter.orderStatus = req.query.status;
+        }
+
         const [orders, total] = await Promise.all([
-            Order.find({ user: req.user.id })
+            Order.find(filter)
                 .populate("game", "name imageUrl")
                 .sort({ createdAt: -1 })
                 .skip(skip)
                 .limit(limit),
 
-            Order.countDocuments({ user: req.user.id })
+            Order.countDocuments(filter)
         ]);
 
         res.status(200).json({
