@@ -187,6 +187,7 @@ export default function GameDetailsPage({
                     _id: res.data._id,
                     orderId: res.data.orderId,
                 });
+                setIsSheetOpen(false);
                 setShowPayment(true);
             }
         } catch (error: any) {
