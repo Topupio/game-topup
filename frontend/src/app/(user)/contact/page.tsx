@@ -18,7 +18,7 @@ export default function ContactPage() {
         <div className="min-h-screen bg-background pt-32 pb-20 px-4 lg:px-0">
             <div className="max-w-4xl mx-auto">
                 {/* Header */}
-                <div className="mb-12 border-b border-border pb-10">
+                <div className="mb-6 border-b border-border pb-10">
                     <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
                         Contact <span className="text-secondary">Us</span>
                     </h1>
@@ -77,19 +77,29 @@ export default function ContactPage() {
                             </div>
 
                             {/* WhatsApp */}
-                            <div className="flex items-center gap-4 p-4 rounded-xl bg-muted border border-border">
-                                <div className="w-10 h-10 rounded-xl bg-success/10 border border-success/20 flex items-center justify-center text-success shrink-0">
-                                    <RiWhatsappLine className="w-5 h-5" />
-                                </div>
-                                <div className="flex-1">
-                                    <p className="text-xs text-muted-foreground mb-1">WhatsApp</p>
-                                    <p className="text-foreground font-semibold">+91 9497110191</p>
+                            <div className="p-4 rounded-xl bg-muted border border-border">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-10 h-10 rounded-xl bg-success/10 border border-success/20 flex items-center justify-center text-success shrink-0">
+                                        <RiWhatsappLine className="w-5 h-5" />
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <p className="text-xs text-muted-foreground mb-1">WhatsApp</p>
+                                        <p className="text-foreground font-semibold">+91 9497110191</p>
+                                    </div>
+                                    <Link
+                                        href="https://wa.me/919497110191"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="hidden sm:block px-4 py-2 bg-success text-white text-sm font-semibold rounded-xl hover:opacity-90"
+                                    >
+                                        Chat on WhatsApp
+                                    </Link>
                                 </div>
                                 <Link
                                     href="https://wa.me/919497110191"
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="px-4 py-2 bg-success text-white text-sm font-semibold rounded-xl hover:opacity-90"
+                                    className="sm:hidden mt-3 block w-full text-center px-4 py-2 bg-success text-white text-sm font-semibold rounded-xl hover:opacity-90"
                                 >
                                     Chat on WhatsApp
                                 </Link>
