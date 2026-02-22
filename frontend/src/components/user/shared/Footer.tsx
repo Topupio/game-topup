@@ -41,7 +41,7 @@ const Footer = () => {
                     <div>
                         <h3 className="text-white font-semibold mb-5 text-sm uppercase tracking-wider">Quick Links</h3>
                         <ul className="space-y-3">
-                            <FooterLink href="/" label="Home" />
+                          
                             <FooterLink href="/categories" label="Games Catalog" />
                             <FooterLink href="/blogs" label="Latest News" />
                         </ul>

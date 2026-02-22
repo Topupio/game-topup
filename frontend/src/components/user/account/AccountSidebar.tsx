@@ -3,15 +3,13 @@
 
 import { AuthUser } from "@/context/AuthContext";
 import { toast } from "react-toastify";
+import Link from "next/link";
 import {
     RiUserLine,
     RiShoppingBag3Line,
     RiCouponLine,
     RiSettings3Line,
     RiQuestionLine,
-    RiFeedbackLine,
-    RiGiftLine,
-    RiMoneyDollarCircleLine,
     RiLogoutBoxLine,
     RiWallet3Line,
     RiCoinLine,
@@ -23,13 +21,10 @@ interface AccountSidebarProps {
 }
 
 const navItems = [
-    { label: "Buy History", icon: RiShoppingBag3Line, active: true },
+    { label: "Order History", icon: RiShoppingBag3Line, active: true },
     { label: "Coupon", icon: RiCouponLine, comingSoon: true },
     { label: "Settings", icon: RiSettings3Line, comingSoon: true },
-    { label: "Help Center", icon: RiQuestionLine, comingSoon: true },
-    { label: "Feedback", icon: RiFeedbackLine, comingSoon: true },
-    { label: "Invite for Coupons", icon: RiGiftLine, comingSoon: true },
-    { label: "Affiliate Program", icon: RiMoneyDollarCircleLine, comingSoon: true },
+    { label: "Help Center", icon: RiQuestionLine, href: "/faq" },
 ];
 
 export default function AccountSidebar({ user, onLogout }: AccountSidebarProps) {
@@ -75,15 +70,24 @@ export default function AccountSidebar({ user, onLogout }: AccountSidebarProps) 
             <nav className="hidden lg:block py-2">
                 {navItems.map((item) => {
                     const Icon = item.icon;
+                    const className = `w-full flex items-center gap-3 px-6 py-3 text-sm font-medium transition-colors ${
+                        item.active
+                            ? "text-secondary bg-secondary/5 border-l-3 border-secondary"
+                            : "text-gray-600 hover:bg-gray-50 hover:text-gray-900 border-l-3 border-transparent"
+                    }`;
+                    if (item.href) {
+                        return (
+                            <Link key={item.label} href={item.href} className={className}>
+                                <Icon className="text-lg shrink-0" />
+                                <span>{item.label}</span>
+                            </Link>
+                        );
+                    }
                     return (
                         <button
                             key={item.label}
                             onClick={item.comingSoon ? handleComingSoon : undefined}
-                            className={`w-full flex items-center gap-3 px-6 py-3 text-sm font-medium transition-colors ${
-                                item.active
-                                    ? "text-secondary bg-secondary/5 border-l-3 border-secondary"
-                                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-900 border-l-3 border-transparent"
-                            }`}
+                            className={className}
                         >
                             <Icon className="text-lg shrink-0" />
                             <span>{item.label}</span>
@@ -97,15 +101,24 @@ export default function AccountSidebar({ user, onLogout }: AccountSidebarProps) 
                 <div className="flex gap-2 min-w-max">
                     {navItems.map((item) => {
                         const Icon = item.icon;
+                        const className = `flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
+                            item.active
+                                ? "bg-secondary text-white"
+                                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                        }`;
+                        if (item.href) {
+                            return (
+                                <Link key={item.label} href={item.href} className={className}>
+                                    <Icon className="text-base" />
+                                    <span>{item.label}</span>
+                                </Link>
+                            );
+                        }
                         return (
                             <button
                                 key={item.label}
                                 onClick={item.comingSoon ? handleComingSoon : undefined}
-                                className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
-                                    item.active
-                                        ? "bg-secondary text-white"
-                                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                                }`}
+                                className={className}
                             >
                                 <Icon className="text-base" />
                                 <span>{item.label}</span>

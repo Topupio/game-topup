@@ -70,6 +70,10 @@ export default function AccountOrdersList() {
 
     return (
         <div>
+            <div className="mb-4">
+                <h2 className="text-lg font-bold text-gray-900">Order History</h2>
+                <p className="text-sm text-gray-500 mt-1">Track the status of your placed orders and view their details.</p>
+            </div>
             <OrderStatusTabs activeTab={activeStatus} onTabChange={handleTabChange} />
 
             <div className="mt-6">

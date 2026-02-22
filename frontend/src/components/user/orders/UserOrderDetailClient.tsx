@@ -10,7 +10,8 @@ import {
     RiCheckboxCircleLine,
     RiMapPinLine,
     RiWallet3Line,
-    RiFileListLine
+    RiFileListLine,
+    RiCustomerService2Line,
 } from "react-icons/ri";
 import PayPalCheckout from "@/components/user/gameDetails/PayPalCheckout";
 
@@ -20,21 +21,22 @@ interface Props {
 
 export default function UserOrderDetailClient({ order: initialOrder }: Props) {
     const [order, setOrder] = useState(initialOrder);
+
     const getStatusStyles = (status: string) => {
         switch (status) {
-            case "completed": return "bg-green-500/10 text-green-500 border-green-500/20";
-            case "processing": return "bg-blue-500/10 text-blue-500 border-blue-500/20";
+            case "completed": return "bg-success/10 text-success border-success/20";
+            case "processing": return "bg-secondary/10 text-secondary border-secondary/20";
             case "cancelled":
-            case "failed": return "bg-red-500/10 text-red-500 border-red-500/20";
-            default: return "bg-yellow-500/10 text-yellow-500 border-yellow-500/20";
+            case "failed": return "bg-danger/10 text-danger border-danger/20";
+            default: return "bg-warning/10 text-warning border-warning/20";
         }
     };
 
     return (
-        <div className="min-h-screen bg-primary pt-24 pb-16 px-4">
+        <div className="min-h-screen bg-background pt-32 pb-20 px-4 lg:px-0">
             <div className="max-w-7xl mx-auto">
-                <Link href="/orders" className="text-gray-400 hover:text-white flex items-center gap-2 mb-8 transition w-fit">
-                    <RiArrowLeftLine /> Back to My Orders
+                <Link href="/account" className="text-muted-foreground hover:text-secondary flex items-center gap-2 mb-8 transition w-fit">
+                    <RiArrowLeftLine /> Back to My Account
                 </Link>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -43,43 +45,35 @@ export default function UserOrderDetailClient({ order: initialOrder }: Props) {
                     <div className="lg:col-span-2 space-y-6">
 
                         {/* Order Header */}
-                        <div className="bg-white/5 border border-white/10 p-6 rounded-2xl">
-
-                            {/* Header */}
+                        <div className="bg-card border border-border p-6 rounded-2xl shadow-soft">
                             <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6">
-
-                                {/* Left */}
                                 <div className="space-y-1 w-full">
                                     <div className="flex flex-wrap items-center justify-between gap-2">
                                         <span className="text-secondary font-bold tracking-wider uppercase text-sm">
                                             Order {order.orderId}
                                         </span>
-
                                         <span className={`text-xs px-2 py-0.5 rounded-full border ${getStatusStyles(order.orderStatus)}`}>
                                             {order.orderStatus.toUpperCase()}
                                         </span>
                                     </div>
 
                                     <div className="flex justify-between mt-4">
-                                        <h2 className="text-xl sm:text-2xl font-bold text-white leading-tight">
+                                        <h2 className="text-xl sm:text-2xl font-bold text-foreground leading-tight">
                                             {order.productSnapshot?.name ?? "Product"}
                                         </h2>
-                                        <span className="text-xl sm:text-2xl font-bold text-white">
+                                        <span className="text-xl sm:text-2xl font-bold text-foreground">
                                             ₹{order.amount}
                                         </span>
                                     </div>
                                 </div>
-
-                                {/* Right */}
                             </div>
 
                             {/* Meta info */}
-                            <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 sm:gap-6 text-sm text-gray-400 border-t border-white/10 pt-5">
+                            <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 sm:gap-6 text-sm text-muted-foreground border-t border-border pt-5">
                                 <div className="flex items-center gap-2">
                                     <RiTimeLine className="text-secondary shrink-0" />
                                     <span suppressHydrationWarning>Placed on: {new Date(order.createdAt).toLocaleString()}</span>
                                 </div>
-
                                 <div className="flex items-center gap-2">
                                     <RiWallet3Line className="text-secondary shrink-0" />
                                     <span>Payment: {order.paymentMethod?.toUpperCase()}</span>
@@ -89,13 +83,12 @@ export default function UserOrderDetailClient({ order: initialOrder }: Props) {
 
                         {/* Complete Payment (for pending orders) */}
                         {order.paymentStatus === "pending" && (
-                            <div className="bg-gradient-to-br from-secondary/10 to-tertiary/10 border border-secondary/30 p-6 rounded-2xl">
-                                <h3 className="text-white font-bold text-lg mb-2">
+                            <div className="bg-secondary/5 border border-secondary/20 p-6 rounded-2xl">
+                                <h3 className="text-foreground font-bold text-lg mb-2">
                                     Complete Your Payment
                                 </h3>
-                                <p className="text-gray-400 text-sm mb-4">
-                                    Your order is awaiting payment. Complete it
-                                    now to start processing.
+                                <p className="text-muted-foreground text-sm mb-4">
+                                    Your order is awaiting payment. Complete it now to start processing.
                                 </p>
                                 <PayPalCheckout
                                     orderId={order._id}
@@ -106,9 +99,7 @@ export default function UserOrderDetailClient({ order: initialOrder }: Props) {
                                         window.location.reload();
                                     }}
                                     onError={() => {
-                                        toast.error(
-                                            "Payment failed. Please try again."
-                                        );
+                                        toast.error("Payment failed. Please try again.");
                                     }}
                                     onCancel={() => {
                                         toast.info("Payment cancelled.");
@@ -118,35 +109,35 @@ export default function UserOrderDetailClient({ order: initialOrder }: Props) {
                         )}
 
                         {/* User Inputs / Game Details */}
-                        <div className="bg-white/5 border border-white/10 p-6 rounded-2xl">
-                            <div className="flex items-center gap-2 mb-6 text-white font-bold text-lg">
+                        <div className="bg-card border border-border p-6 rounded-2xl shadow-soft">
+                            <div className="flex items-center gap-2 mb-6 text-foreground font-bold text-lg">
                                 <RiFileListLine className="text-secondary" />
                                 <h2>Account Details</h2>
                             </div>
-                            <div className="grid sm:grid-cols-2 gap-6">
+                            <div className="grid sm:grid-cols-2 gap-4">
                                 {order.userInputs.map((input, index) => (
-                                    <div key={index} className="bg-white/5 p-4 rounded-xl border border-white/5">
-                                        <p className="text-gray-400 text-xs mb-1 uppercase tracking-wider">{input.label}</p>
-                                        <p className="text-white font-semibold break-all">{input.value}</p>
+                                    <div key={index} className="bg-muted p-4 rounded-xl border border-border">
+                                        <p className="text-muted-foreground text-xs mb-1 uppercase tracking-wider">{input.label}</p>
+                                        <p className="text-foreground font-semibold break-all">{input.value}</p>
                                     </div>
                                 ))}
                             </div>
                         </div>
 
                         {/* Order Tracking */}
-                        <div className="bg-white/5 border border-white/10 p-6 rounded-2xl">
-                            <div className="flex items-center gap-2 mb-6 text-white font-bold text-lg">
+                        <div className="bg-card border border-border p-6 rounded-2xl shadow-soft">
+                            <div className="flex items-center gap-2 mb-6 text-foreground font-bold text-lg">
                                 <RiCheckboxCircleLine className="text-secondary" />
                                 <h2>Order Timeline</h2>
                             </div>
-                            <div className="space-y-6 relative before:absolute before:left-2 before:top-2 before:bottom-2 before:w-px before:bg-white/10">
+                            <div className="space-y-6 relative before:absolute before:left-2 before:top-2 before:bottom-2 before:w-px before:bg-border">
                                 {order.tracking.map((track, index) => (
                                     <div key={index} className="relative pl-8">
-                                        <div className={`absolute left-0 top-1.5 w-4 h-4 rounded-full border-2 border-primary ${index === order.tracking.length - 1 ? 'bg-secondary' : 'bg-gray-600'}`}></div>
+                                        <div className={`absolute left-0 top-1.5 w-4 h-4 rounded-full border-2 border-card ${index === order.tracking.length - 1 ? "bg-secondary" : "bg-muted-foreground/40"}`} />
                                         <div>
-                                            <p className="text-white font-semibold text-sm uppercase tracking-wide">{track.status}</p>
-                                            <p className="text-gray-400 text-sm">{track.message}</p>
-                                            <p className="text-gray-500 text-xs mt-1" suppressHydrationWarning>{new Date(track.at).toLocaleString()}</p>
+                                            <p className="text-foreground font-semibold text-sm uppercase tracking-wide">{track.status}</p>
+                                            <p className="text-muted-foreground text-sm">{track.message}</p>
+                                            <p className="text-muted-foreground/60 text-xs mt-1" suppressHydrationWarning>{new Date(track.at).toLocaleString()}</p>
                                         </div>
                                     </div>
                                 ))}
@@ -154,32 +145,37 @@ export default function UserOrderDetailClient({ order: initialOrder }: Props) {
                         </div>
                     </div>
 
-                    {/* Right Column - Sidebar Info */}
+                    {/* Right Column - Sidebar */}
                     <div className="space-y-6">
                         {/* Game Info Card */}
-                        <div className="bg-white/5 border border-white/10 p-6 rounded-2xl overflow-hidden relative group">
-                            <div className="absolute inset-0 bg-secondary/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                            <div className="relative z-10 text-center">
-                                <div className="w-24 h-24 mx-auto rounded-2xl overflow-hidden mb-4 border border-white/10 bg-white/5 p-1">
-                                    {order.game?.imageUrl ? (
-                                        <img src={order.game.imageUrl} alt={order.game.name} className="w-full h-full object-cover rounded-xl" />
-                                    ) : (
-                                        <div className="w-full h-full flex items-center justify-center text-gray-500 text-xs">No Img</div>
-                                    )}
-                                </div>
-                                <h3 className="text-lg font-bold text-white mb-1">{order.game?.name}</h3>
-                                <div className="flex items-center justify-center gap-2 text-sm text-gray-400">
-                                    <RiMapPinLine className="text-secondary" />
-                                    <span>Global Delivery</span>
-                                </div>
+                        <div className="bg-card border border-border p-6 rounded-2xl shadow-soft text-center">
+                            <div className="w-24 h-24 mx-auto rounded-2xl overflow-hidden mb-4 border border-border bg-muted p-1">
+                                {order.game?.imageUrl ? (
+                                    <img src={order.game.imageUrl} alt={order.game.name} className="w-full h-full object-cover rounded-xl" />
+                                ) : (
+                                    <div className="w-full h-full flex items-center justify-center text-muted-foreground text-xs">No Img</div>
+                                )}
+                            </div>
+                            <h3 className="text-lg font-bold text-foreground mb-1">{order.game?.name}</h3>
+                            <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+                                <RiMapPinLine className="text-secondary" />
+                                <span>Global Delivery</span>
                             </div>
                         </div>
 
                         {/* Customer Support Card */}
-                        <div className="bg-gradient-to-br from-secondary/20 to-tertiary/20 border border-white/10 p-6 rounded-2xl">
-                            <h3 className="text-white font-bold mb-2">Need Help?</h3>
-                            <p className="text-gray-400 text-sm mb-4">If you have any issues with your order, please contact our support team with your Order ID.</p>
-                            <Link href="/support" className="block w-full text-center bg-white/10 hover:bg-white/20 text-white font-bold py-2 rounded-xl transition">
+                        <div className="bg-card border border-border p-6 rounded-2xl shadow-soft">
+                            <div className="flex items-center gap-2 mb-2">
+                                <RiCustomerService2Line className="text-secondary" />
+                                <h3 className="text-foreground font-bold">Need Help?</h3>
+                            </div>
+                            <p className="text-muted-foreground text-sm mb-4">
+                                If you have any issues with your order, please contact our support team with your Order ID.
+                            </p>
+                            <Link
+                                href="/contact"
+                                className="block w-full text-center bg-secondary text-white font-semibold py-2.5 rounded-xl hover:opacity-90 transition"
+                            >
                                 Contact Support
                             </Link>
                         </div>
