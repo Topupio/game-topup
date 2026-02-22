@@ -61,8 +61,8 @@ const Footer = () => {
                         <h3 className="text-white font-semibold mb-5 text-sm uppercase tracking-wider">Get in Touch</h3>
                         <div className="space-y-3">
                             <ContactItem icon={<RiMailLine />} text="support@topupio.com" />
-                            <ContactItem icon={<RiPhoneLine />} text="+1 (555) 000-0000" />
-                            <ContactItem icon={<RiMapPinLine />} text="Gaming Street, Silicon Valley, CA" />
+                            <ContactItem icon={<RiPhoneLine />} text="+91 9497110191" />
+                            <ContactItem icon={<RiMapPinLine />} text="Kerala, India" />
                         </div>
 
                         {/* Payment Methods */}
