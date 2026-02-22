@@ -24,14 +24,14 @@ export default function HotGames({ games }: Props) {
                         <RiFlashlightFill className="w-4 h-4 sm:w-5 sm:h-5 animate-pulse" />
                     </div>
                     <div>
-                        <h2 className="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight">Hot Games</h2>
-                        <p className="text-gray-500 text-xs sm:text-sm font-normal">Top-up your favourite games</p>
+                        <h2 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight">Hot Games</h2>
+                        <p className="text-muted-foreground text-xs sm:text-sm font-normal">Top-up your favourite games</p>
                     </div>
                 </div>
 
                 <Link
                     href="/categories"
-                    className="flex items-center sm:gap-2 gap-1 text-sm text-gray-500 hover:text-secondary transition-colors group"
+                    className="flex items-center sm:gap-2 gap-1 text-sm text-muted-foreground hover:text-secondary transition-colors group"
                 >
                     View All <RiArrowRightSLine className="group-hover:translate-x-1 transition-transform" />
                 </Link>

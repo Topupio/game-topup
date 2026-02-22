@@ -11,7 +11,7 @@ function CheckEmailContent() {
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 px-4">
-            <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl p-8 text-center">
+            <div className="w-full max-w-md bg-card rounded-2xl shadow-2xl p-8 text-center">
 
                 {/* Email Icon */}
                 <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -19,30 +19,30 @@ function CheckEmailContent() {
                 </div>
 
                 {/* Title */}
-                <h1 className="text-3xl font-bold text-gray-800 mb-3">
+                <h1 className="text-3xl font-bold text-foreground mb-3">
                     Check Your Email
                 </h1>
 
                 {/* Message */}
-                <p className="text-gray-600 mb-2">
+                <p className="text-muted-foreground mb-2">
                     We've sent a verification link to:
                 </p>
                 <p className="text-blue-600 font-semibold mb-6">
                     {email}
                 </p>
 
-                <p className="text-sm text-gray-500 mb-8">
+                <p className="text-sm text-muted-foreground mb-8">
                     Click the link in the email to verify your account and complete your registration.
                 </p>
 
                 {/* Divider */}
-                <div className="border-t border-gray-200 my-6"></div>
+                <div className="border-t border-border my-6"></div>
 
                 {/* Actions */}
                 <div className="space-y-3">
                     <button
                         onClick={() => router.push("/resend-verification")}
-                        className="w-full flex items-center justify-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 py-2.5 rounded-lg font-medium transition"
+                        className="w-full flex items-center justify-center gap-2 bg-muted hover:bg-muted text-foreground py-2.5 rounded-lg font-medium transition"
                     >
                         <FiRefreshCw className="text-lg" />
                         Resend Verification Email
@@ -57,7 +57,7 @@ function CheckEmailContent() {
                 </div>
 
                 {/* Help Text */}
-                <p className="text-xs text-gray-400 mt-6">
+                <p className="text-xs text-muted-foreground mt-6">
                     Didn't receive the email? Check your spam folder or click "Resend Verification Email"
                 </p>
             </div>

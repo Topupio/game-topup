@@ -82,7 +82,7 @@ export default function SearchBoxDesktop() {
 
             {/* Dropdown Panel */}
             <div
-                className={`absolute left-0 w-full mt-2 rounded-xl z-40 overflow-hidden bg-white border border-border shadow-lg transition-all duration-300 ${
+                className={`absolute left-0 w-full mt-2 rounded-xl z-40 overflow-hidden bg-card border border-border shadow-lg transition-all duration-300 ${
                     drawerOpen
                         ? "max-h-96 opacity-100 translate-y-0"
                         : "max-h-0 opacity-0 -translate-y-2 pointer-events-none"

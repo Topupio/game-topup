@@ -94,8 +94,8 @@ export default function FilterSection() {
                                     key={label}
                                     icon={style?.icon}
                                     label={label}
-                                    iconColor={style?.color || "text-gray-500"}
-                                    iconBg={style?.bg || "bg-gray-100"}
+                                    iconColor={style?.color || "text-muted-foreground"}
+                                    iconBg={style?.bg || "bg-muted"}
                                     selected={selectedCategory === label}
                                     onClick={() => updateCategory(label)}
                                 />
@@ -132,7 +132,7 @@ function CategoryItem({
                 transition-all duration-200
                 ${selected
                     ? "bg-secondary/10 text-secondary font-semibold border border-secondary/20"
-                    : "text-gray-600 hover:bg-muted hover:text-foreground border border-transparent"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground border border-transparent"
                 }
             `}
         >

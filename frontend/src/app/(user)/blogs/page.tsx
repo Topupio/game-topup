@@ -16,12 +16,12 @@ export default async function BlogsPage() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6">
 
                 {/* BREADCRUMB */}
-                <nav className="flex items-center gap-2 text-sm text-gray-400 mb-6">
+                <nav className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
                     <Link href="/" className="hover:text-secondary transition">
                         Home
                     </Link>
                     <span className="opacity-50">›</span>
-                    <span className="text-gray-300">News</span>
+                    <span className="text-muted-foreground">News</span>
                 </nav>
 
                 {/* PAGE TITLE */}
@@ -29,7 +29,7 @@ export default async function BlogsPage() {
                     <h1 className="text-2xl md:text-3xl font-semibold text-white">
                         Latest News
                     </h1>
-                    <p className="text-sm text-gray-400 mt-1">
+                    <p className="text-sm text-muted-foreground mt-1">
                         Updates, guides, and announcements from GameTopup
                     </p>
                 </div>
@@ -46,7 +46,7 @@ export default async function BlogsPage() {
                         <h3 className="text-lg font-medium mb-1">
                             No articles available
                         </h3>
-                        <p className="text-gray-400 text-sm">
+                        <p className="text-muted-foreground text-sm">
                             Please check back later for updates.
                         </p>
                     </div>

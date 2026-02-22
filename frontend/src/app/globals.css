@@ -1,6 +1,9 @@
 /* Import Tailwind */
 @import "tailwindcss";
 
+/* Enable class-based dark mode for Tailwind v4 */
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* ===============================
    THEME TOKENS
    =============================== */
@@ -72,6 +75,22 @@
         @apply transition-all duration-200;
     }
 
+    /* Dark mode semantic token overrides */
+    .dark {
+        --color-background: #0F172A;
+        --color-foreground: #E2E8F0;
+        --color-card: #1E293B;
+        --color-card-foreground: #F1F5F9;
+        --color-muted: #1E293B;
+        --color-muted-foreground: #94A3B8;
+        --color-secondary-foreground: #818CF8;
+        --color-border: #334155;
+        --color-input: #1E293B;
+        --color-ring: #818CF8;
+        --shadow-soft: 0 4px 14px rgba(0, 0, 0, 0.3);
+        --shadow-glow: 0 0 15px rgba(129, 140, 248, 0.4);
+    }
+
     /* Default border color */
     .border {
         @apply border-border;
@@ -125,7 +144,7 @@
 /* Glassmorphic Navbar */
 .nav-glass {
     backdrop-filter: blur(12px);
-    background: rgba(255, 255, 255, 0.8);
+    background: color-mix(in srgb, var(--color-card) 80%, transparent);
     @apply border-b border-border shadow-lg;
 }
 
@@ -135,7 +154,7 @@
 }
 
 ::-webkit-scrollbar-thumb {
-    background: #CBD5E1;
+    background: var(--color-border);
     border-radius: 10px;
 }
 
@@ -199,7 +218,7 @@
 }
 
 .skeleton {
-    background: linear-gradient(90deg, #E2E8F0 0%, #F1F5F9 50%, #E2E8F0 100%);
+    background: linear-gradient(90deg, var(--color-border) 0%, var(--color-muted) 50%, var(--color-border) 100%);
     background-size: 400% 100%;
     animation: shimmer 1.5s infinite;
 }

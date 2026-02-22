@@ -32,13 +32,13 @@ function ResendVerificationContent() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-            <div className="w-full max-w-md bg-white rounded-2xl p-8 shadow-xl">
+        <div className="min-h-screen flex items-center justify-center bg-muted px-4">
+            <div className="w-full max-w-md bg-card rounded-2xl p-8 shadow-xl">
 
-                <h1 className="text-2xl font-bold text-gray-900 text-center mb-2">
+                <h1 className="text-2xl font-bold text-foreground text-center mb-2">
                     Verify Your Email
                 </h1>
-                <p className="text-center text-gray-500 mb-6">
+                <p className="text-center text-muted-foreground mb-6">
                     Enter your email to receive a verification link
                 </p>
 
@@ -49,7 +49,7 @@ function ResendVerificationContent() {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="you@example.com"
-                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 outline-none transition-all"
+                        className="w-full px-4 py-2.5 border border-border rounded-lg focus:ring-2 focus:ring-blue-600 outline-none transition-all"
                     />
 
                     <button

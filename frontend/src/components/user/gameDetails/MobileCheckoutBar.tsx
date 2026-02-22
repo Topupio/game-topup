@@ -47,7 +47,7 @@ export default function MobileCheckoutBar({
                 {/* Right: CTA Button with price */}
                 <button
                     onClick={onOpenSheet}
-                    className="shrink-0 px-5 py-2.5 rounded-xl bg-secondary text-white font-semibold hover:bg-tertiary hover:text-gray-950 transition flex items-center justify-center gap-1.5 text-sm"
+                    className="shrink-0 px-5 py-2.5 rounded-xl bg-secondary text-white font-semibold hover:bg-tertiary hover:text-foreground transition flex items-center justify-center gap-1.5 text-sm"
                 >
                     Top-up Now &middot; {symbol}{totalAmount}
                 </button>

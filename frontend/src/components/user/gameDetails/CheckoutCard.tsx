@@ -104,7 +104,7 @@ export default function CheckoutCard({
                 <button
                     onClick={onProceed}
                     disabled={isDisabled}
-                    className="w-full mt-4 py-3 rounded-xl bg-secondary text-white font-semibold hover:bg-tertiary hover:text-gray-950 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    className="w-full mt-4 py-3 rounded-xl bg-secondary text-white font-semibold hover:bg-tertiary hover:text-foreground transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                     {isLoading ? (
                         <>

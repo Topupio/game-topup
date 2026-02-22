@@ -25,10 +25,10 @@ export default function CategorySwiperSection({ categories }: Props) {
                         <RiLayoutGridFill className="w-4 h-4 sm:w-5 sm:h-5" />
                     </div>
                     <div>
-                        <h2 className="text-lg sm:text-2xl font-bold text-gray-900 tracking-tight">
+                        <h2 className="text-lg sm:text-2xl font-bold text-foreground tracking-tight">
                             Explore Categories
                         </h2>
-                        <p className="text-gray-500 text-xs sm:text-sm font-normal">
+                        <p className="text-muted-foreground text-xs sm:text-sm font-normal">
                             Find your favorite games
                         </p>
                     </div>
@@ -36,7 +36,7 @@ export default function CategorySwiperSection({ categories }: Props) {
 
                 <Link
                     href="/categories"
-                    className="hidden sm:flex items-center sm:gap-2 gap-1 text-sm text-gray-500 hover:text-secondary transition-colors group"
+                    className="hidden sm:flex items-center sm:gap-2 gap-1 text-sm text-muted-foreground hover:text-secondary transition-colors group"
                 >
                     View All Categories{" "}
                     <RiArrowRightSLine className="group-hover:translate-x-1 transition-transform" />
@@ -53,14 +53,14 @@ export default function CategorySwiperSection({ categories }: Props) {
                             {/* Category Header */}
                             <div className="flex items-center justify-between mb-4">
                                 <div>
-                                    <h3 className="text-base sm:text-lg font-bold text-gray-900 capitalize tracking-tight">
+                                    <h3 className="text-base sm:text-lg font-bold text-foreground capitalize tracking-tight">
                                         {category.category}
                                     </h3>
                                     <div className="h-1 w-10 bg-secondary rounded-full mt-1" />
                                 </div>
                                 <Link
                                     href={`/categories?category=${category.category}&page=1`}
-                                    className="flex items-center gap-1 text-sm text-gray-500 hover:text-secondary transition-colors group"
+                                    className="flex items-center gap-1 text-sm text-muted-foreground hover:text-secondary transition-colors group"
                                 >
                                     View All{" "}
                                     <RiArrowRightSLine className="group-hover:translate-x-1 transition-transform" />

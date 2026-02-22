@@ -82,10 +82,10 @@ export default function CategoryQuickNav({ categories }: CategoryQuickNavProps) 
                     <RiApps2Fill className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
                 <div>
-                    <h2 className="text-lg sm:text-2xl font-bold text-gray-900 tracking-tight">
+                    <h2 className="text-lg sm:text-2xl font-bold text-foreground tracking-tight">
                         Browse Categories
                     </h2>
-                    <p className="text-gray-500 text-xs sm:text-sm font-normal">
+                    <p className="text-muted-foreground text-xs sm:text-sm font-normal">
                         Quick access to all categories
                     </p>
                 </div>

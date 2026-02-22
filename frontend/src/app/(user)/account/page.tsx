@@ -28,25 +28,25 @@ export default function AccountPage() {
             <div className="max-w-7xl mx-auto pt-24 pb-16 px-4">
                 <div className="flex flex-col lg:flex-row gap-8">
                     <div className="w-full lg:w-72 shrink-0">
-                        <div className="bg-white border border-gray-200 rounded-2xl p-6 animate-pulse">
+                        <div className="bg-card border border-border rounded-2xl p-6 animate-pulse">
                             <div className="flex items-center gap-4">
-                                <div className="w-14 h-14 rounded-full bg-gray-200" />
+                                <div className="w-14 h-14 rounded-full bg-muted" />
                                 <div className="flex-1 space-y-2">
-                                    <div className="h-4 bg-gray-200 rounded w-2/3" />
-                                    <div className="h-3 bg-gray-200 rounded w-1/2" />
+                                    <div className="h-4 bg-muted rounded w-2/3" />
+                                    <div className="h-3 bg-muted rounded w-1/2" />
                                 </div>
                             </div>
                             <div className="mt-6 space-y-3">
                                 {[1, 2, 3, 4, 5].map((i) => (
-                                    <div key={i} className="h-10 bg-gray-100 rounded-lg" />
+                                    <div key={i} className="h-10 bg-muted rounded-lg" />
                                 ))}
                             </div>
                         </div>
                     </div>
                     <div className="flex-1 space-y-4">
-                        <div className="h-10 bg-gray-200 rounded w-1/2" />
+                        <div className="h-10 bg-muted rounded w-1/2" />
                         {[1, 2, 3].map((i) => (
-                            <div key={i} className="h-28 bg-gray-100 rounded-2xl" />
+                            <div key={i} className="h-28 bg-muted rounded-2xl" />
                         ))}
                     </div>
                 </div>

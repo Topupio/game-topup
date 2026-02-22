@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 import { GoogleOAuthWrapper } from "@/providers/GoogleOAuthWrapper";
+import { ThemeProvider } from "@/providers/ThemeProvider";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -29,15 +30,17 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}
         suppressHydrationWarning
       >
-        <GoogleOAuthWrapper>
-          <AuthProvider>
-            {children}
-            <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} newestOnTop={false} closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover theme="colored" />
-          </AuthProvider>
-        </GoogleOAuthWrapper>
+        <ThemeProvider>
+          <GoogleOAuthWrapper>
+            <AuthProvider>
+              {children}
+              <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} newestOnTop={false} closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover theme="colored" />
+            </AuthProvider>
+          </GoogleOAuthWrapper>
+        </ThemeProvider>
       </body>
     </html>
   );

@@ -48,7 +48,7 @@ export default function CategoryTabs() {
                     border whitespace-nowrap transition-all duration-200
                     ${isAll
                         ? "bg-secondary text-white border-secondary shadow-md shadow-secondary/20"
-                        : "bg-white text-gray-600 border-gray-200 hover:border-secondary/40 hover:text-secondary"
+                        : "bg-card text-muted-foreground border-border hover:border-secondary/40 hover:text-secondary"
                     }
                 `}
             >
@@ -72,7 +72,7 @@ export default function CategoryTabs() {
                             border whitespace-nowrap transition-all duration-200
                             ${isActive
                                 ? "bg-secondary text-white border-secondary shadow-md shadow-secondary/20"
-                                : "bg-white text-gray-600 border-gray-200 hover:border-secondary/40 hover:text-secondary"
+                                : "bg-card text-muted-foreground border-border hover:border-secondary/40 hover:text-secondary"
                             }
                         `}
                     >

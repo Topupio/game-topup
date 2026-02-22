@@ -74,10 +74,10 @@ function SignupContent() {
             <div className="w-full max-w-md bg-white/70 backdrop-blur-xl shadow-xl rounded-2xl p-8 border border-white/40">
 
                 {/* Title */}
-                <h1 className="text-3xl font-bold text-gray-800 text-center mb-2">
+                <h1 className="text-3xl font-bold text-foreground text-center mb-2">
                     Create an Account
                 </h1>
-                <p className="text-center text-gray-500 mb-8">
+                <p className="text-center text-muted-foreground mb-8">
                     Sign up to access exclusive gaming tools, deals, and utilities.
                 </p>
 
@@ -86,7 +86,7 @@ function SignupContent() {
                     type="button"
                     onClick={() => triggerGoogleLogin()}
                     disabled={googleLoading}
-                    className="w-full flex items-center justify-center gap-3 bg-white border border-gray-300 text-gray-700 rounded-lg py-2.5 mb-2 hover:bg-gray-50 transition-all duration-200 shadow-sm cursor-pointer disabled:opacity-60"
+                    className="w-full flex items-center justify-center gap-3 bg-card border border-border text-foreground rounded-lg py-2.5 mb-2 hover:bg-muted transition-all duration-200 shadow-sm cursor-pointer disabled:opacity-60"
                 >
                     <FcGoogle size={20} />
                     <span className="font-medium text-sm">
@@ -96,9 +96,9 @@ function SignupContent() {
 
                 {/* Divider */}
                 <div className="flex items-center my-4">
-                    <div className="flex-1 h-px bg-gray-300"></div>
-                    <span className="px-3 text-gray-500 text-sm">OR</span>
-                    <div className="flex-1 h-px bg-gray-300"></div>
+                    <div className="flex-1 h-px bg-border"></div>
+                    <span className="px-3 text-muted-foreground text-sm">OR</span>
+                    <div className="flex-1 h-px bg-border"></div>
                 </div>
 
                 {/* Form */}
@@ -106,7 +106,7 @@ function SignupContent() {
 
                     {/* Name */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700">Name</label>
+                        <label className="block text-sm font-medium text-foreground">Name</label>
                         <input
                             type="text"
                             value={name}
@@ -114,7 +114,7 @@ function SignupContent() {
                             onBlur={() => setTouched((t) => ({ ...t, name: true }))}
                             required
                             minLength={2}
-                            className={`w-full mt-1 px-4 py-2.5 rounded-lg border text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-400 transition ${touched.name && !nameValid ? "border-red-500" : "border-gray-300"
+                            className={`w-full mt-1 px-4 py-2.5 rounded-lg border text-foreground focus:outline-none focus:ring-2 focus:ring-blue-400 transition ${touched.name && !nameValid ? "border-red-500" : "border-border"
                                 }`}
                             placeholder="John Doe"
                         />
@@ -125,14 +125,14 @@ function SignupContent() {
 
                     {/* Email */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700">Email</label>
+                        <label className="block text-sm font-medium text-foreground">Email</label>
                         <input
                             type="email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             onBlur={() => setTouched((t) => ({ ...t, email: true }))}
                             required
-                            className={`w-full mt-1 px-4 py-2.5 rounded-lg border text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-400 transition ${touched.email && !emailValid ? "border-red-500" : "border-gray-300"
+                            className={`w-full mt-1 px-4 py-2.5 rounded-lg border text-foreground focus:outline-none focus:ring-2 focus:ring-blue-400 transition ${touched.email && !emailValid ? "border-red-500" : "border-border"
                                 }`}
                             placeholder="you@example.com"
                         />
@@ -143,7 +143,7 @@ function SignupContent() {
 
                     {/* Password */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700">Password</label>
+                        <label className="block text-sm font-medium text-foreground">Password</label>
                         <input
                             type="password"
                             value={password}
@@ -151,7 +151,7 @@ function SignupContent() {
                             onBlur={() => setTouched((t) => ({ ...t, password: true }))}
                             required
                             minLength={6}
-                            className={`w-full mt-1 px-4 py-2.5 rounded-lg border text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-400 transition ${touched.password && !passwordValid ? "border-red-500" : "border-gray-300"
+                            className={`w-full mt-1 px-4 py-2.5 rounded-lg border text-foreground focus:outline-none focus:ring-2 focus:ring-blue-400 transition ${touched.password && !passwordValid ? "border-red-500" : "border-border"
                                 }`}
                             placeholder="••••••••"
                         />
@@ -171,7 +171,7 @@ function SignupContent() {
                 </form>
 
                 {/* Login link */}
-                <p className="text-center text-sm mt-6 text-gray-700">
+                <p className="text-center text-sm mt-6 text-foreground">
                     Already have an account?{" "}
                     <button
                         className="text-blue-600 hover:underline cursor-pointer"

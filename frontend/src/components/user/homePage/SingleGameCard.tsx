@@ -32,7 +32,7 @@ const SingleGameCard = ({ game }: { game: Game }) => {
                     <h3 className="text-foreground font-bold text-sm lg:text-base truncate group-hover:text-secondary transition-colors">
                         {game.name}
                     </h3>
-                    <p className="text-gray-500 text-[11px] uppercase tracking-wide mt-1">
+                    <p className="text-muted-foreground text-[11px] uppercase tracking-wide mt-1">
                         {game.topupType}
                     </p>
                     <div className="flex items-center gap-1 text-secondary text-[10px] font-bold mt-2 opacity-0 group-hover:opacity-100 transition-opacity">

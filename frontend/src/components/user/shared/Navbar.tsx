@@ -26,6 +26,7 @@ import {
 } from "react-icons/ri";
 import { motion, AnimatePresence } from "framer-motion";
 import Drawer from "./Drawer";
+import ThemeToggle from "./ThemeToggle";
 
 export default function Navbar() {
     const [open, setOpen] = useState(false);
@@ -65,6 +66,7 @@ export default function Navbar() {
                 {/* Right: Search + Lang + Account */}
                 <div className="flex items-center gap-3">
                     <SearchBoxDesktop />
+                    <ThemeToggle />
                     <LangCurrencySelector />
 
                     {user ? (
@@ -110,6 +112,7 @@ export default function Navbar() {
 
                 {/* RIGHT: Language & Account */}
                 <div className="flex items-center gap-2 text-white">
+                    <ThemeToggle />
                     <LangCurrencySelector hideLabelOnMobile />
 
                     <Link
@@ -285,7 +288,7 @@ function LangCurrencySelector({ hideLabelOnMobile = false }) {
                         initial={{ opacity: 0, scale: 0.95, y: 10 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                        className="relative w-full max-w-lg bg-white border border-border rounded-2xl p-6 shadow-xl"
+                        className="relative w-full max-w-lg bg-card border border-border rounded-2xl p-6 shadow-xl"
                     >
                         <div className="flex items-center justify-between mb-6">
                             <div>

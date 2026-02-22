@@ -29,7 +29,7 @@ export default function BlogCard({ blog }: Props) {
                 </div>
 
                 <div className="p-5 flex flex-col flex-grow">
-                    <div className="flex items-center gap-2 text-gray-400 text-xs mb-3">
+                    <div className="flex items-center gap-2 text-muted-foreground text-xs mb-3">
                         <FaCalendarAlt />
                         <span suppressHydrationWarning>
                             {new Date(blog.createdAt).toLocaleDateString('en-US', {
@@ -44,7 +44,7 @@ export default function BlogCard({ blog }: Props) {
                         {blog.title}
                     </h3>
 
-                    <p className="text-gray-400 text-sm line-clamp-3 mb-4 flex-grow">
+                    <p className="text-muted-foreground text-sm line-clamp-3 mb-4 flex-grow">
                         {blog.description}
                     </p>
 

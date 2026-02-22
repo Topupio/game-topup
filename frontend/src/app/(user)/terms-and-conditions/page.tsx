@@ -2,14 +2,14 @@ import { RiInformationLine, RiShieldCheckLine, RiTruckLine, RiAccountBoxLine, Ri
 
 export default function TermsAndConditions() {
     return (
-        <div className="min-h-screen bg-gray-50 pt-32 pb-20 px-4 lg:px-0">
+        <div className="min-h-screen bg-muted pt-32 pb-20 px-4 lg:px-0">
             <div className="max-w-4xl mx-auto">
                 {/* Header */}
-                <div className="mb-12 border-b border-gray-200 pb-10">
-                    <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                <div className="mb-12 border-b border-border pb-10">
+                    <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
                         Terms and <span className="text-secondary">Conditions</span>
                     </h1>
-                    <p className="text-gray-500 leading-relaxed max-w-3xl">
+                    <p className="text-muted-foreground leading-relaxed max-w-3xl">
                         Welcome to Topupio.com. By accessing or using our website and services, you agree to be bound by the following Terms and Conditions. Please read them carefully before making any purchase.
                     </p>
                 </div>
@@ -24,8 +24,8 @@ export default function TermsAndConditions() {
                             </div>
                         </div>
                         <div>
-                            <h2 className="text-lg font-bold text-gray-900 mb-3">1. About Us</h2>
-                            <div className="text-gray-600 space-y-3 leading-relaxed">
+                            <h2 className="text-lg font-bold text-foreground mb-3">1. About Us</h2>
+                            <div className="text-muted-foreground space-y-3 leading-relaxed">
                                 <p>Topupio.com is an online digital store that sells:</p>
                                 <ul className="list-disc pl-5 space-y-1">
                                     <li>Mobile and PC game in-game currencies and items</li>
@@ -45,8 +45,8 @@ export default function TermsAndConditions() {
                             </div>
                         </div>
                         <div>
-                            <h2 className="text-lg font-bold text-gray-900 mb-3">2. Eligibility</h2>
-                            <div className="text-gray-600 space-y-3 leading-relaxed">
+                            <h2 className="text-lg font-bold text-foreground mb-3">2. Eligibility</h2>
+                            <div className="text-muted-foreground space-y-3 leading-relaxed">
                                 <p>You must be 18 years or older to use this website.</p>
                                 <p>By using our services, you confirm that the information you provide is accurate and complete.</p>
                             </div>
@@ -61,8 +61,8 @@ export default function TermsAndConditions() {
                             </div>
                         </div>
                         <div>
-                            <h2 className="text-lg font-bold text-gray-900 mb-3">3. Digital Products & Delivery</h2>
-                            <div className="text-gray-600 space-y-3 leading-relaxed">
+                            <h2 className="text-lg font-bold text-foreground mb-3">3. Digital Products & Delivery</h2>
+                            <div className="text-muted-foreground space-y-3 leading-relaxed">
                                 <p>All products sold on Topupio.com are digital and non-physical.</p>
                                 <p>Delivery is usually instant or within a few minutes, but in some cases may take longer due to verification, technical issues, or high demand.</p>
                                 <p>No physical shipment will be made.</p>
@@ -78,8 +78,8 @@ export default function TermsAndConditions() {
                             </div>
                         </div>
                         <div>
-                            <h2 className="text-lg font-bold text-gray-900 mb-3">4. In-Game Login Top-Ups</h2>
-                            <div className="text-gray-600 space-y-4 leading-relaxed">
+                            <h2 className="text-lg font-bold text-foreground mb-3">4. In-Game Login Top-Ups</h2>
+                            <div className="text-muted-foreground space-y-4 leading-relaxed">
                                 <p>Some services require you to provide in-game login credentials (such as Player ID, User ID, or game account login).</p>
                                 <div className="space-y-2">
                                     <p>By placing such an order, you agree that:</p>
@@ -110,8 +110,8 @@ export default function TermsAndConditions() {
                             </div>
                         </div>
                         <div>
-                            <h2 className="text-lg font-bold text-gray-900 mb-3">5. Pricing & Payments</h2>
-                            <div className="text-gray-600 space-y-3 leading-relaxed">
+                            <h2 className="text-lg font-bold text-foreground mb-3">5. Pricing & Payments</h2>
+                            <div className="text-muted-foreground space-y-3 leading-relaxed">
                                 <p>All prices are displayed in Indian Rupees (INR) unless stated otherwise.</p>
                                 <p>Prices may change at any time without prior notice.</p>
                                 <p>Payments are processed via secure third-party payment gateways.</p>
@@ -128,8 +128,8 @@ export default function TermsAndConditions() {
                             </div>
                         </div>
                         <div>
-                            <h2 className="text-lg font-bold text-gray-900 mb-3">6. Order Verification</h2>
-                            <div className="text-gray-600 space-y-3 leading-relaxed">
+                            <h2 className="text-lg font-bold text-foreground mb-3">6. Order Verification</h2>
+                            <div className="text-muted-foreground space-y-3 leading-relaxed">
                                 <p>To prevent fraud, we may:</p>
                                 <ul className="list-disc pl-5 space-y-1">
                                     <li>Request additional verification</li>
@@ -149,8 +149,8 @@ export default function TermsAndConditions() {
                             </div>
                         </div>
                         <div>
-                            <h2 className="text-lg font-bold text-gray-900 mb-3">7. Prohibited Use</h2>
-                            <div className="text-gray-600 space-y-3 leading-relaxed">
+                            <h2 className="text-lg font-bold text-foreground mb-3">7. Prohibited Use</h2>
+                            <div className="text-muted-foreground space-y-3 leading-relaxed">
                                 <p>You agree not to:</p>
                                 <ul className="list-disc pl-5 space-y-1">
                                     <li>Use the website for illegal activities</li>
@@ -170,8 +170,8 @@ export default function TermsAndConditions() {
                             </div>
                         </div>
                         <div>
-                            <h2 className="text-lg font-bold text-gray-900 mb-3">8. Limitation of Liability</h2>
-                            <div className="text-gray-600 space-y-3 leading-relaxed">
+                            <h2 className="text-lg font-bold text-foreground mb-3">8. Limitation of Liability</h2>
+                            <div className="text-muted-foreground space-y-3 leading-relaxed">
                                 <p>Topupio.com shall not be liable for:</p>
                                 <ul className="list-disc pl-5 space-y-1">
                                     <li>Game account bans or penalties imposed by game publishers</li>
@@ -190,8 +190,8 @@ export default function TermsAndConditions() {
                             </div>
                         </div>
                         <div>
-                            <h2 className="text-lg font-bold text-gray-900 mb-3">9. Changes to Terms</h2>
-                            <div className="text-gray-600 leading-relaxed">
+                            <h2 className="text-lg font-bold text-foreground mb-3">9. Changes to Terms</h2>
+                            <div className="text-muted-foreground leading-relaxed">
                                 <p>We reserve the right to update these Terms at any time. Continued use of the website means you accept the revised Terms.</p>
                             </div>
                         </div>
@@ -205,8 +205,8 @@ export default function TermsAndConditions() {
                             </div>
                         </div>
                         <div>
-                            <h2 className="text-lg font-bold text-gray-900 mb-3">10. Contact</h2>
-                            <div className="text-gray-600 space-y-2 leading-relaxed">
+                            <h2 className="text-lg font-bold text-foreground mb-3">10. Contact</h2>
+                            <div className="text-muted-foreground space-y-2 leading-relaxed">
                                 <p>For any questions, please contact us via:</p>
                                 <ul className="list-none space-y-1">
                                     <li>Email: <span className="text-secondary font-medium">support@topupio.com</span></li>

@@ -2,14 +2,14 @@ import { RiCheckboxCircleLine, RiCloseCircleLine, RiErrorWarningLine, RiBankCard
 
 export default function RefundPolicy() {
     return (
-        <div className="min-h-screen bg-gray-50 pt-32 pb-20 px-4 lg:px-0">
+        <div className="min-h-screen bg-muted pt-32 pb-20 px-4 lg:px-0">
             <div className="max-w-4xl mx-auto">
                 {/* Header */}
-                <div className="mb-12 border-b border-gray-200 pb-10">
-                    <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                <div className="mb-12 border-b border-border pb-10">
+                    <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
                         Refund & <span className="text-secondary">Cancellation</span>
                     </h1>
-                    <p className="text-gray-500 leading-relaxed max-w-3xl">
+                    <p className="text-muted-foreground leading-relaxed max-w-3xl">
                         Because Topupio.com sells digital goods, refunds are limited and subject to the conditions below.
                     </p>
                 </div>
@@ -24,8 +24,8 @@ export default function RefundPolicy() {
                             </div>
                         </div>
                         <div>
-                            <h2 className="text-lg font-bold text-gray-900 mb-3">1. No Refund After Successful Delivery</h2>
-                            <div className="text-gray-600 space-y-3 leading-relaxed">
+                            <h2 className="text-lg font-bold text-foreground mb-3">1. No Refund After Successful Delivery</h2>
+                            <div className="text-muted-foreground space-y-3 leading-relaxed">
                                 <p>Once a digital product is:</p>
                                 <ul className="list-disc pl-5 space-y-1">
                                     <li>Successfully delivered</li>
@@ -45,15 +45,15 @@ export default function RefundPolicy() {
                             </div>
                         </div>
                         <div>
-                            <h2 className="text-lg font-bold text-gray-900 mb-3">2. Refund Eligibility</h2>
-                            <div className="text-gray-600 space-y-3 leading-relaxed">
+                            <h2 className="text-lg font-bold text-foreground mb-3">2. Refund Eligibility</h2>
+                            <div className="text-muted-foreground space-y-3 leading-relaxed">
                                 <p>You may be eligible for a refund if:</p>
                                 <ul className="list-disc pl-5 space-y-1">
                                     <li>The top-up failed and was not delivered</li>
                                     <li>The digital code is invalid or unused</li>
                                     <li>Payment was deducted but the order was not processed</li>
                                 </ul>
-                                <p className="italic text-gray-500">All refund requests must be made within 24 hours of purchase.</p>
+                                <p className="italic text-muted-foreground">All refund requests must be made within 24 hours of purchase.</p>
                             </div>
                         </div>
                     </section>
@@ -66,8 +66,8 @@ export default function RefundPolicy() {
                             </div>
                         </div>
                         <div>
-                            <h2 className="text-lg font-bold text-gray-900 mb-3">3. In-Game Login Top-Up Refunds</h2>
-                            <div className="text-gray-600 space-y-3 leading-relaxed">
+                            <h2 className="text-lg font-bold text-foreground mb-3">3. In-Game Login Top-Up Refunds</h2>
+                            <div className="text-muted-foreground space-y-3 leading-relaxed">
                                 <p>Refunds will not be provided if:</p>
                                 <ul className="list-disc pl-5 space-y-1">
                                     <li>Incorrect login details were provided</li>
@@ -86,8 +86,8 @@ export default function RefundPolicy() {
                             </div>
                         </div>
                         <div>
-                            <h2 className="text-lg font-bold text-gray-900 mb-3">4. Refund Method</h2>
-                            <div className="text-gray-600 space-y-2 leading-relaxed">
+                            <h2 className="text-lg font-bold text-foreground mb-3">4. Refund Method</h2>
+                            <div className="text-muted-foreground space-y-2 leading-relaxed">
                                 <p>Approved refunds will be issued to the original payment method</p>
                                 <p>Processing time: 5–7 business days (depends on payment gateway)</p>
                             </div>
@@ -102,8 +102,8 @@ export default function RefundPolicy() {
                             </div>
                         </div>
                         <div>
-                            <h2 className="text-lg font-bold text-gray-900 mb-3">5. Fraud & Abuse</h2>
-                            <div className="text-gray-600 space-y-3 leading-relaxed">
+                            <h2 className="text-lg font-bold text-foreground mb-3">5. Fraud & Abuse</h2>
+                            <div className="text-muted-foreground space-y-3 leading-relaxed">
                                 <p>Orders suspected of:</p>
                                 <ul className="list-disc pl-5 space-y-1">
                                     <li>Fraud</li>
@@ -123,10 +123,10 @@ export default function RefundPolicy() {
                             </div>
                         </div>
                         <div>
-                            <h2 className="text-lg font-bold text-gray-900 mb-3">6. Order Cancellation</h2>
-                            <div className="text-gray-600 space-y-2 leading-relaxed">
+                            <h2 className="text-lg font-bold text-foreground mb-3">6. Order Cancellation</h2>
+                            <div className="text-muted-foreground space-y-2 leading-relaxed">
                                 <p>Orders cannot be cancelled once processing has started</p>
-                                <p className="font-medium text-gray-900 italic">Please double-check product, game, region, and account details before payment</p>
+                                <p className="font-medium text-foreground italic">Please double-check product, game, region, and account details before payment</p>
                             </div>
                         </div>
                     </section>
@@ -139,8 +139,8 @@ export default function RefundPolicy() {
                             </div>
                         </div>
                         <div>
-                            <h2 className="text-lg font-bold text-gray-900 mb-3">7. Contact for Refunds</h2>
-                            <div className="text-gray-600 space-y-2 leading-relaxed">
+                            <h2 className="text-lg font-bold text-foreground mb-3">7. Contact for Refunds</h2>
+                            <div className="text-muted-foreground space-y-2 leading-relaxed">
                                 <p>For refund requests:</p>
                                 <ul className="list-none space-y-1">
                                     <li>Email: <span className="text-secondary font-medium">support@topupio.com</span></li>

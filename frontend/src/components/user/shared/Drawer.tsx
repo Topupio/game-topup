@@ -59,7 +59,7 @@ const Drawer = ({ isOpen, onClose, title, children, side = "right" }: DrawerProp
                     {/* Drawer Content */}
                     <motion.div
                         {...drawerMotionProps}
-                        className={`relative bg-white shadow-xl z-20 flex flex-col
+                        className={`relative bg-card shadow-xl z-20 flex flex-col
                             ${side === "bottom" ? "w-full h-[80%] rounded-t-2xl border-t border-border mt-auto" : "w-80 h-full border-l border-border"}
                         `}
                     >
