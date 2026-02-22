@@ -10,7 +10,7 @@ export default async function LogsPage() {
     const response = await adminLogsApiServer.list({ page: 1, limit: 12 });
 
     return (
-        <div className="p-6 max-w-[1600px] mx-auto">
+        <div className="p-2 md:p-6 max-w-[1600px] mx-auto">
             {/* Pass correct data structure */}
             <AdminLogsPage initialData={response.data} />
         </div>

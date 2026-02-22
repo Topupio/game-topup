@@ -74,8 +74,8 @@ export default function ActionRequiredPanel({ actions }: { actions: DashboardAct
     }
 
     return (
-        <div className="bg-white border shadow-sm rounded-xl p-6 h-full">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">Action Required</h3>
+        <div className="bg-white border shadow-sm rounded-xl p-3 md:p-6 h-full">
+            <h3 className="text-base md:text-lg font-semibold text-gray-800 mb-3 md:mb-4">Action Required</h3>
 
             <div className="space-y-4">
                 {visibleActions.map((action, index) => (

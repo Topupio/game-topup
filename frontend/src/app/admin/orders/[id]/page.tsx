@@ -20,7 +20,7 @@ export default async function AdminOrderDetailServerPage({ params }: { params: P
         }
 
         return (
-            <div className="p-6 max-w-[1400px] mx-auto">
+            <div className="p-2 md:p-6 max-w-[1400px] mx-auto">
                 <OrderDetailPage initialOrder={res.data} />
             </div>
         );

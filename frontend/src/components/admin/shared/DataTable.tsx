@@ -23,12 +23,12 @@ export default function DataTable<T>({ rows, columns, getRowKey, minWidth = 700,
     return (
         <div className={`bg-white rounded-xl shadow-sm border border-gray-300 overflow-x-auto ${className}`}>
             <table className="w-full border-collapse" style={{ minWidth }}>
-                <thead className="bg-gray-100 text-left text-sm text-gray-600">
+                <thead className="bg-gray-100 text-left text-xs md:text-sm text-gray-600">
                     <tr>
                         {columns.map((col) => (
                             <th
                                 key={col.id}
-                                className={`p-4 ${col.className || ""} ${col.headerAlign === "right" ? "text-right" : col.headerAlign === "center" ? "text-center" : ""
+                                className={`px-2 py-2 md:p-4 ${col.className || ""} ${col.headerAlign === "right" ? "text-right" : col.headerAlign === "center" ? "text-center" : ""
                                     }`}
                             >
                                 {col.header}
@@ -36,7 +36,7 @@ export default function DataTable<T>({ rows, columns, getRowKey, minWidth = 700,
                         ))}
                     </tr>
                 </thead>
-                <tbody className="text-sm">
+                <tbody className="text-xs md:text-sm">
                     {rows.length === 0 ? (
                         <tr>
                             <td
@@ -55,7 +55,7 @@ export default function DataTable<T>({ rows, columns, getRowKey, minWidth = 700,
                                 {columns.map((col) => (
                                     <td
                                         key={col.id}
-                                        className={`p-4 ${col.cellAlign === "right"
+                                        className={`px-2 py-2 md:p-4 ${col.cellAlign === "right"
                                                 ? "text-right"
                                                 : col.cellAlign === "center"
                                                     ? "text-center"

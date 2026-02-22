@@ -14,19 +14,19 @@ export default function StatsCards({ data }: { data: DashboardStats }) {
     ];
 
     return (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 md:gap-4">
             {stats.map((stat) => (
-                <div key={stat.label} className="bg-white border text-card-foreground shadow-sm rounded-xl p-6">
+                <div key={stat.label} className="bg-white border text-card-foreground shadow-sm rounded-xl p-3 md:p-6">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-sm font-medium text-gray-500">{stat.label}</p>
-                            <h3 className="text-2xl font-bold mt-2 text-gray-900">{stat.value}</h3>
+                            <p className="text-xs md:text-sm font-medium text-gray-500">{stat.label}</p>
+                            <h3 className="text-lg md:text-2xl font-bold mt-1 md:mt-2 text-gray-900">{stat.value}</h3>
                         </div>
-                        <div className={`p-3 rounded-lg ${stat.bg} ${stat.color}`}>
-                            <stat.icon size={24} />
+                        <div className={`p-2 md:p-3 rounded-lg ${stat.bg} ${stat.color}`}>
+                            <stat.icon className="w-4 h-4 md:w-6 md:h-6" />
                         </div>
                     </div>
-                    <div className="mt-4 flex items-center text-xs">
+                    <div className="mt-2 md:mt-4 flex items-center text-[10px] md:text-xs">
                         <span className={stat.trend === "up" ? "text-green-600 font-medium" : "text-red-600 font-medium"}>
                             {stat.change}
                         </span>

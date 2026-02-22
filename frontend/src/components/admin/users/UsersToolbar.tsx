@@ -19,7 +19,7 @@ export default function UsersToolbar({ filters, onFilterChange, onClearFilters }
     const hasFilters = search !== "" || role !== "" || status !== "" || verified !== "";
 
     return (
-        <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100/80 mb-6">
+        <div className="bg-white p-3 md:p-5 rounded-2xl shadow-sm border border-gray-100/80 mb-4 md:mb-6">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
 
                 {/* Search Box */}

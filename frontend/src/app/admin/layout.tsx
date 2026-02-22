@@ -9,11 +9,17 @@ import AdminSidebar from "@/components/admin/shared/AdminSidebar";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
     const [isCollapsed, setIsCollapsed] = useState(false);
+    const [isMobileOpen, setIsMobileOpen] = useState(false);
     const router = useRouter();
     const pathname = usePathname();
     const { user, loading } = useAuth();
 
     const isLogin = pathname === "/admin/login";
+
+    // Close mobile sidebar on route change
+    useEffect(() => {
+        setIsMobileOpen(false);
+    }, [pathname]);
 
     useEffect(() => {
         if (loading || isLogin) return;
@@ -35,11 +41,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
     return (
         <div className="w-full h-auto bg-[#f5f6fa] flex flex-col">
-            <AdminNavbar />
+            <AdminNavbar onMenuToggle={() => setIsMobileOpen(!isMobileOpen)} />
             <div className="flex flex-1 relative">
-                <AdminSidebar isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
-                <main className={`flex-1 px-6 py-6 transition-all duration-300 mt-[70px] ${isCollapsed ? "ml-20" : "ml-68"}`}>
-                    <div className="bg-white shadow-sm rounded-xl p-6 min-h-[calc(100vh-120px)]">
+                <AdminSidebar
+                    isCollapsed={isCollapsed}
+                    setIsCollapsed={setIsCollapsed}
+                    isMobileOpen={isMobileOpen}
+                    onMobileClose={() => setIsMobileOpen(false)}
+                />
+                <main className={`flex-1 px-3 py-4 md:px-6 md:py-6 transition-all duration-300 mt-[70px] ml-0 ${isCollapsed ? "md:ml-20" : "md:ml-68"}`}>
+                    <div className="bg-white shadow-sm rounded-xl p-3 md:p-6 min-h-[calc(100vh-120px)]">
                         {children}
                     </div>
                 </main>

@@ -132,8 +132,8 @@ export default function AdminActivityFeed({ activities = [] }: Props) {
     }
 
     return (
-        <div className="bg-white border shadow-sm rounded-xl p-6 h-full">
-            <h2 className="text-lg font-bold text-gray-800 mb-6 flex items-center gap-2">
+        <div className="bg-white border shadow-sm rounded-xl p-3 md:p-6 h-full">
+            <h2 className="text-base md:text-lg font-bold text-gray-800 mb-3 md:mb-6 flex items-center gap-2">
                 Recent Activity
                 <span className="text-xs font-normal text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full ml-auto">
                     Real-time

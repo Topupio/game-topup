@@ -32,12 +32,12 @@ const statusData = [
 
 export default function DashboardCharts() {
     return (
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-3 md:gap-6">
 
             {/* Orders Trend */}
-            <div className="bg-white border text-card-foreground shadow-sm rounded-xl p-6">
-                <h3 className="text-lg font-semibold text-gray-800 mb-6">Orders Trend</h3>
-                <div className="h-[300px] w-full">
+            <div className="bg-white border text-card-foreground shadow-sm rounded-xl p-3 md:p-6">
+                <h3 className="text-base md:text-lg font-semibold text-gray-800 mb-3 md:mb-6">Orders Trend</h3>
+                <div className="h-[200px] md:h-[300px] w-full">
                     <ResponsiveContainer width="100%" height="100%">
                         <AreaChart data={ordersData}>
                             <defs>
@@ -57,9 +57,9 @@ export default function DashboardCharts() {
             </div>
 
             {/* Revenue Trend */}
-            <div className="bg-white border text-card-foreground shadow-sm rounded-xl p-6">
-                <h3 className="text-lg font-semibold text-gray-800 mb-6">Revenue Trend</h3>
-                <div className="h-[300px] w-full">
+            <div className="bg-white border text-card-foreground shadow-sm rounded-xl p-3 md:p-6">
+                <h3 className="text-base md:text-lg font-semibold text-gray-800 mb-3 md:mb-6">Revenue Trend</h3>
+                <div className="h-[200px] md:h-[300px] w-full">
                     <ResponsiveContainer width="100%" height="100%">
                         <AreaChart data={revenueData}>
                             <defs>
@@ -79,9 +79,9 @@ export default function DashboardCharts() {
             </div>
 
             {/* Order Status Breakdown */}
-            <div className="bg-white border text-card-foreground shadow-sm rounded-xl p-6">
-                <h3 className="text-lg font-semibold text-gray-800 mb-6">Order Status Distribution</h3>
-                <div className="h-[300px] w-full flex justify-center items-center">
+            <div className="bg-white border text-card-foreground shadow-sm rounded-xl p-3 md:p-6">
+                <h3 className="text-base md:text-lg font-semibold text-gray-800 mb-3 md:mb-6">Order Status Distribution</h3>
+                <div className="h-[200px] md:h-[300px] w-full flex justify-center items-center">
                     <ResponsiveContainer width="100%" height="100%">
                         <PieChart>
                             <Pie
@@ -103,9 +103,9 @@ export default function DashboardCharts() {
             </div>
 
             {/* Payment Status Breakdown - For Later or Empty for now */}
-            <div className="bg-white border text-card-foreground shadow-sm rounded-xl p-6">
-                <h3 className="text-lg font-semibold text-gray-800 mb-6">Payment Method Split</h3>
-                <div className="h-[300px] flex items-center justify-center text-gray-400 border-2 border-dashed border-gray-100 rounded-lg bg-gray-50/50">
+            <div className="bg-white border text-card-foreground shadow-sm rounded-xl p-3 md:p-6">
+                <h3 className="text-base md:text-lg font-semibold text-gray-800 mb-3 md:mb-6">Payment Method Split</h3>
+                <div className="h-[200px] md:h-[300px] flex items-center justify-center text-gray-400 border-2 border-dashed border-gray-100 rounded-lg bg-gray-50/50">
                     <p>Insufficient Data</p>
                 </div>
             </div>

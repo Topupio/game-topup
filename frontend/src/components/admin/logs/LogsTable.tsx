@@ -105,7 +105,7 @@ export default function LogsTable({ items }: Props) {
                             {columns.map((col) => (
                                 <th
                                     key={col.id}
-                                    className={`px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider text-${col.headerAlign || "left"}`}
+                                    className={`px-2 md:px-6 py-2 md:py-3 text-[10px] md:text-xs font-semibold text-gray-500 uppercase tracking-wider text-${col.headerAlign || "left"}`}
                                 >
                                     {col.header}
                                 </th>
@@ -126,7 +126,7 @@ export default function LogsTable({ items }: Props) {
                                         {columns.map((col) => (
                                             <td
                                                 key={`${row._id}-${col.id}`}
-                                                className={`px-6 py-4 whitespace-nowrap text-${col.cellAlign || "left"}`}
+                                                className={`px-2 md:px-6 py-2 md:py-4 whitespace-nowrap text-${col.cellAlign || "left"}`}
                                             >
                                                 {col.cell(row, 0)}
                                             </td>
@@ -134,9 +134,9 @@ export default function LogsTable({ items }: Props) {
                                     </tr>
                                     {expandedRow === row._id && (
                                         <tr className="bg-gray-50/50">
-                                            <td colSpan={columns.length} className="px-6 py-4">
+                                            <td colSpan={columns.length} className="px-2 md:px-6 py-2 md:py-4">
                                                 <div className="text-xs text-gray-700 space-y-2">
-                                                    <div className="grid grid-cols-2 gap-4">
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-4">
                                                         <div>
                                                             <p className="font-semibold mb-1">Target ID</p>
                                                             <code className="bg-gray-100 px-2 py-1 rounded">{row.targetId || "N/A"}</code>

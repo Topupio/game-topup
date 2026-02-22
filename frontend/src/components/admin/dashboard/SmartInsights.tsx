@@ -10,8 +10,8 @@ export default function SmartInsights() {
     ];
 
     return (
-        <div className="bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-lg rounded-xl p-6">
-            <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+        <div className="bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-lg rounded-xl p-3 md:p-6">
+            <h3 className="text-base md:text-lg font-bold mb-3 md:mb-4 flex items-center gap-2">
                 <RiLightbulbFlashLine className="text-yellow-300" /> Smart Insights
             </h3>
             <div className="space-y-3">

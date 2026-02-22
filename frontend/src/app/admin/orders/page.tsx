@@ -11,7 +11,7 @@ export default async function OrdersAdminPage() {
     const initialData = await ordersApiServer.adminGetOrders({ page: 1, limit: 12 });
 
     return (
-        <div className="p-6 max-w-[1600px] mx-auto">
+        <div className="p-2 md:p-6 max-w-[1600px] mx-auto">
             <AdminOrderPage initialData={initialData} />
         </div>
     );

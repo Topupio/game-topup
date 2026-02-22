@@ -15,38 +15,38 @@ export default function RecentOrdersTable({ orders }: { orders: DashboardOrder[]
 
     return (
         <div className="bg-white border text-card-foreground shadow-sm rounded-xl overflow-hidden">
-            <div className="p-6 border-b border-gray-100 flex justify-between items-center">
-                <h3 className="text-lg font-semibold text-gray-800">Recent Orders</h3>
-                <Link href="/admin/orders" className="text-sm text-blue-600 hover:underline">View All</Link>
+            <div className="p-3 md:p-6 border-b border-gray-100 flex justify-between items-center">
+                <h3 className="text-base md:text-lg font-semibold text-gray-800">Recent Orders</h3>
+                <Link href="/admin/orders" className="text-xs md:text-sm text-blue-600 hover:underline">View All</Link>
             </div>
             <div className="overflow-x-auto">
-                <table className="w-full text-sm text-left">
-                    <thead className="text-xs text-gray-500 uppercase bg-gray-50 border-b">
+                <table className="w-full text-xs md:text-sm text-left">
+                    <thead className="text-[10px] md:text-xs text-gray-500 uppercase bg-gray-50 border-b">
                         <tr>
-                            <th className="px-4 py-3">Order ID</th>
-                            <th className="px-4 py-3">User</th>
-                            <th className="px-4 py-3">Game</th>
-                            <th className="px-4 py-3">Product</th>
-                            <th className="px-4 py-3">Amount</th>
-                            <th className="px-4 py-3">Status</th>
-                            <th className="px-4 py-3">Action</th>
+                            <th className="px-2 md:px-4 py-2 md:py-3">Order ID</th>
+                            <th className="px-2 md:px-4 py-2 md:py-3">User</th>
+                            <th className="px-2 md:px-4 py-2 md:py-3">Game</th>
+                            <th className="px-2 md:px-4 py-2 md:py-3">Product</th>
+                            <th className="px-2 md:px-4 py-2 md:py-3">Amount</th>
+                            <th className="px-2 md:px-4 py-2 md:py-3">Status</th>
+                            <th className="px-2 md:px-4 py-2 md:py-3">Action</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
                         {orders.map((order) => (
                             <tr key={order._id} className="bg-white hover:bg-gray-50 transition">
-                                <td className="px-4 py-4 font-medium text-gray-900">{order.orderId}</td>
-                                <td className="px-4 py-4 text-gray-500">{order.user?.name ?? "Deleted User"}</td>
-                                <td className="px-4 py-4 text-gray-500">{order.game?.name ?? "Deleted Game"}</td>
-                                <td className="px-4 py-4 text-gray-500">{order.product?.name ?? "Deleted Product"}</td>
-                                <td className="px-4 py-4 font-semibold text-gray-900">$ {order.amount}</td>
-                                <td className="px-4 py-4">
-                                    <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStatusStyles(order.orderStatus)}`}>
+                                <td className="px-2 md:px-4 py-2 md:py-4 font-medium text-gray-900">{order.orderId}</td>
+                                <td className="px-2 md:px-4 py-2 md:py-4 text-gray-500">{order.user?.name ?? "Deleted User"}</td>
+                                <td className="px-2 md:px-4 py-2 md:py-4 text-gray-500">{order.game?.name ?? "Deleted Game"}</td>
+                                <td className="px-2 md:px-4 py-2 md:py-4 text-gray-500">{order.product?.name ?? "Deleted Product"}</td>
+                                <td className="px-2 md:px-4 py-2 md:py-4 font-semibold text-gray-900">$ {order.amount}</td>
+                                <td className="px-2 md:px-4 py-2 md:py-4">
+                                    <span className={`px-1.5 md:px-2.5 py-0.5 rounded-full text-[10px] md:text-xs font-medium border ${getStatusStyles(order.orderStatus)}`}>
                                         {order.orderStatus.toUpperCase()}
                                     </span>
                                 </td>
-                                <td className="px-4 py-4">
-                                    <Link href={`/admin/orders/${order._id}`} className="text-blue-600 hover:text-blue-800 font-medium text-xs uppercase tracking-wide">
+                                <td className="px-2 md:px-4 py-2 md:py-4">
+                                    <Link href={`/admin/orders/${order._id}`} className="text-blue-600 hover:text-blue-800 font-medium text-[10px] md:text-xs uppercase tracking-wide">
                                         View
                                     </Link>
                                 </td>

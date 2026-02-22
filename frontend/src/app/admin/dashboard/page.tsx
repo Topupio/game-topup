@@ -14,7 +14,7 @@ export default async function AdminDashboardPage() {
     const data = await dashboardApiServer.get();
 
     return (
-        <div className="p-6 w-full space-y-4 relative">
+        <div className="p-2 md:p-6 w-full space-y-4 relative">
 
             {/* Header */}
             <AdminToolbar title="Dashboard" />

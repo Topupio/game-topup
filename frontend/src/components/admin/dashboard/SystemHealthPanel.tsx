@@ -26,14 +26,14 @@ export default function SystemHealthPanel({ health }: Props) {
     ];
 
     return (
-        <div className="bg-white border text-card-foreground shadow-sm rounded-xl p-6">
-            <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+        <div className="bg-white border text-card-foreground shadow-sm rounded-xl p-3 md:p-6">
+            <h3 className="text-base md:text-lg font-bold text-gray-800 mb-3 md:mb-4 flex items-center gap-2">
                 System Health
                 <span className="flex h-2 w-2 rounded-full bg-green-500 relative ml-auto">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
                 </span>
             </h3>
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 md:gap-4">
                 {systems.map((system, index) => {
                     const style = getStatusColor(system.status);
 

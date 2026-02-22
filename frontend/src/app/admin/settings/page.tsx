@@ -6,7 +6,7 @@ export const metadata = {
 
 export default function SettingsPage() {
     return (
-        <div className="p-6 max-w-[1600px] mx-auto">
+        <div className="p-2 md:p-6 max-w-[1600px] mx-auto">
             <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
                 <div className="bg-gray-800/50 border border-gray-700 rounded-2xl p-12 max-w-md w-full">
                     <FaCogs className="text-6xl text-gray-500 mx-auto mb-4" />

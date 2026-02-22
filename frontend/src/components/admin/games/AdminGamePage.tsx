@@ -94,7 +94,7 @@ const AdminGamePage = ({ initialData }: { initialData: GamesListResponse }) => {
     };
 
     return (
-        <div className="p-6 w-full space-y-4">
+        <div className="p-2 md:p-6 w-full space-y-4">
             <GamesToolbar />
 
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">

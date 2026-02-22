@@ -25,20 +25,20 @@ const Pagination = ({
     const endItem = Math.min(currentPage * limit, totalItems);
 
     return (
-        <div className="flex flex-col sm:flex-row items-center justify-between px-4 py-3 bg-white border-t border-gray-200 gap-4">
+        <div className="flex flex-col sm:flex-row items-center justify-between px-2 md:px-4 py-3 bg-white border-t border-gray-200 gap-3 md:gap-4">
             {/* Items Range Info */}
-            <div className="text-sm text-gray-700">
+            <div className="text-xs md:text-sm text-gray-700">
                 Showing <span className="font-medium">{startItem}</span> to <span className="font-medium">{endItem}</span> of <span className="font-medium">{totalItems}</span> results
             </div>
 
-            <div className="flex items-center gap-6">
+            <div className="flex items-center gap-3 md:gap-6">
                 {/* Limit Selector */}
                 <div className="flex items-center gap-2">
-                    <span className="text-sm text-gray-700">Rows per page:</span>
+                    <span className="text-xs md:text-sm text-gray-700">Rows per page:</span>
                     <select
                         value={limit}
                         onChange={(e) => onLimitChange(Number(e.target.value))}
-                        className="text-sm border border-gray-300 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all capitalize"
+                        className="text-xs md:text-sm border border-gray-300 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all capitalize"
                     >
                         {limits.map((l) => (
                             <option key={l} value={l}>
@@ -58,7 +58,7 @@ const Pagination = ({
                         <FaChevronLeft size={14} />
                     </button>
 
-                    <div className="text-sm font-medium text-gray-700">
+                    <div className="text-xs md:text-sm font-medium text-gray-700">
                         Page {currentPage} of {totalPages}
                     </div>
 
