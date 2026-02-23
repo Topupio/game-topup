@@ -106,12 +106,12 @@ export default function GameCard({ game }: { game: Game }) {
                 {/* Price & CTA */}
                 <div className="mt-3 flex items-center justify-between px-1">
                     {pricing ? (
-                        <div className="flex items-center gap-2">
-                            <span className="text-secondary font-bold text-lg">
+                        <div className="flex flex-wrap items-baseline gap-x-1 sm:gap-x-2">
+                            <span className="text-secondary font-bold text-sm sm:text-lg">
                                 {formatPrice(pricing.discountedPrice, pricing.currency)}
                             </span>
                             {hasDiscount && (
-                                <span className="text-muted-foreground text-sm line-through">
+                                <span className="text-muted-foreground text-[10px] sm:text-xs line-through">
                                     {formatPrice(pricing.price, pricing.currency)}
                                 </span>
                             )}
@@ -119,8 +119,8 @@ export default function GameCard({ game }: { game: Game }) {
                     ) : (
                         <span className="text-muted-foreground text-sm">View options</span>
                     )}
-                    <div className="w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center group-hover:bg-secondary transition-colors duration-300">
-                        <RiArrowRightSLine className="text-secondary group-hover:text-white transition-colors duration-300" size={18} />
+                    <div className="w-5 h-5 sm:w-8 sm:h-8 shrink-0 rounded-full bg-secondary/10 flex items-center justify-center group-hover:bg-secondary transition-colors duration-300">
+                        <RiArrowRightSLine className="w-3.5 h-3.5 sm:w-[18px] sm:h-[18px] text-secondary group-hover:text-white transition-colors duration-300" />
                     </div>
                 </div>
             </Link>
