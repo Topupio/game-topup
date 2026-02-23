@@ -43,7 +43,7 @@ export default function VariantManager({ variants, regions, onChange, onVariantI
     return (
         <div className="space-y-4">
             <div className="flex items-center justify-between">
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-muted-foreground">
                     {variants.length} variant{variants.length !== 1 ? "s" : ""}
                 </p>
                 <button
@@ -56,11 +56,11 @@ export default function VariantManager({ variants, regions, onChange, onVariantI
             </div>
 
             {variants.length === 0 ? (
-                <div className="text-center py-8 bg-gray-50 rounded-lg border border-dashed border-gray-300">
-                    <p className="text-gray-500 text-sm">
+                <div className="text-center py-8 bg-muted rounded-lg border border-dashed border-border">
+                    <p className="text-muted-foreground text-sm">
                         No variants yet. Click "Add Variant" to add items/packages.
                     </p>
-                    <p className="text-gray-400 text-xs mt-1">
+                    <p className="text-muted-foreground text-xs mt-1">
                         e.g., Gems 80, Gems 170, Brawl Pass
                     </p>
                 </div>

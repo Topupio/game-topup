@@ -12,7 +12,7 @@ type Props = {
 export default function SearchBox({ value, onChange, placeholder = "Search...", className = "w-full md:w-64 mb-3" }: Props) {
     return (
         <div className={`relative ${className}`}>
-            <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+            <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <input
                 type="text"
                 value={value}

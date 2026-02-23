@@ -43,7 +43,7 @@ export default function RegionPricingTable({ regions, pricing, onChange }: Props
 
     if (regions.length === 0) {
         return (
-            <p className="text-sm text-gray-500 italic">
+            <p className="text-sm text-muted-foreground italic">
                 Select regions in the game settings to set pricing.
             </p>
         );
@@ -53,7 +53,7 @@ export default function RegionPricingTable({ regions, pricing, onChange }: Props
         <div className="overflow-x-auto">
             <table className="w-full text-sm">
                 <thead>
-                    <tr className="text-left text-gray-600 border-b">
+                    <tr className="text-left text-muted-foreground border-b">
                         <th className="pb-2 pr-4 font-medium">Region</th>
                         <th className="pb-2 pr-4 font-medium">Original Price</th>
                         <th className="pb-2 font-medium">Selling Price</th>
@@ -71,7 +71,7 @@ export default function RegionPricingTable({ regions, pricing, onChange }: Props
 
                         return (
                             <tr key={regionKey} className="border-b last:border-b-0">
-                                <td className="py-2 pr-4 text-gray-700 font-medium whitespace-nowrap">
+                                <td className="py-2 pr-4 text-foreground font-medium whitespace-nowrap">
                                     {region.label} ({region.symbol})
                                 </td>
                                 <td className="py-2 pr-4">
@@ -84,7 +84,7 @@ export default function RegionPricingTable({ regions, pricing, onChange }: Props
                                         onChange={(e) =>
                                             updatePricing(regionKey, "price", parseFloat(e.target.value) || 0)
                                         }
-                                        className="w-28 px-2 py-1.5 rounded border border-gray-300 text-sm focus:ring-2 focus:ring-blue-200 focus:border-blue-500 outline-none"
+                                        className="w-28 px-2 py-1.5 rounded border border-border text-sm focus:ring-2 focus:ring-blue-200 focus:border-blue-500 outline-none"
                                     />
                                 </td>
                                 <td className="py-2">
@@ -100,7 +100,7 @@ export default function RegionPricingTable({ regions, pricing, onChange }: Props
                                         className={`w-28 px-2 py-1.5 rounded border text-sm focus:ring-2 focus:ring-blue-200 outline-none ${
                                             hasError
                                                 ? "border-red-500 focus:border-red-500"
-                                                : "border-gray-300 focus:border-blue-500"
+                                                : "border-border focus:border-blue-500"
                                         }`}
                                     />
                                     {hasError && (

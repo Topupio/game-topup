@@ -25,7 +25,7 @@ export default function StatusFilter({ value, onChange }: Props) {
                     onClick={() => onChange(item.key)}
                     className={`px-4 py-2 rounded-full border flex items-center gap-2 text-sm transition ${value === item.key
                             ? "bg-black text-white border-black"
-                            : "bg-white border-gray-300 hover:bg-gray-100"
+                            : "bg-card border-border hover:bg-muted"
                         }`}
                 >
                     {item.icon} {item.label}

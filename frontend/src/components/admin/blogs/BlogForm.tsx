@@ -260,7 +260,7 @@ export default function BlogForm({ blogId }: Props) {
                     <button
                         type="button"
                         onClick={addSection}
-                        className="flex items-center gap-1 text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1.5 rounded transition"
+                        className="flex items-center gap-1 text-sm bg-muted hover:bg-muted text-foreground px-3 py-1.5 rounded transition"
                     >
                         <TbPlus /> Add Section
                     </button>
@@ -270,13 +270,13 @@ export default function BlogForm({ blogId }: Props) {
                     {form.content.map((section, index) => (
                         <div
                             key={index}
-                            className="bg-gray-50 p-4 rounded-lg border border-gray-200 relative group"
+                            className="bg-muted p-4 rounded-lg border border-border relative group"
                         >
                             <div className="absolute top-3 right-3 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                 <button
                                     type="button"
                                     onClick={() => moveSection(index, "up")}
-                                    className="p-1.5 text-gray-500 hover:bg-white rounded"
+                                    className="p-1.5 text-muted-foreground hover:bg-card rounded"
                                     disabled={index === 0}
                                 >
                                     <TbArrowUp />
@@ -284,7 +284,7 @@ export default function BlogForm({ blogId }: Props) {
                                 <button
                                     type="button"
                                     onClick={() => moveSection(index, "down")}
-                                    className="p-1.5 text-gray-500 hover:bg-white rounded"
+                                    className="p-1.5 text-muted-foreground hover:bg-card rounded"
                                     disabled={index === form.content.length - 1}
                                 >
                                     <TbArrowDown />
@@ -292,7 +292,7 @@ export default function BlogForm({ blogId }: Props) {
                                 <button
                                     type="button"
                                     onClick={() => removeSection(index)}
-                                    className="p-1.5 text-red-500 hover:bg-white rounded"
+                                    className="p-1.5 text-red-500 hover:bg-card rounded"
                                 >
                                     <TbTrash />
                                 </button>
@@ -328,7 +328,7 @@ export default function BlogForm({ blogId }: Props) {
                     ))}
 
                     {form.content.length === 0 && (
-                        <div className="text-center py-6 bg-gray-50 rounded-lg border border-dashed border-gray-300 text-gray-500 text-sm">
+                        <div className="text-center py-6 bg-muted rounded-lg border border-dashed border-border text-muted-foreground text-sm">
                             No content sections yet. Click "Add Section" to add
                             one.
                         </div>

@@ -10,7 +10,7 @@ interface Props {
 }
 
 const ActionBadge = ({ action }: { action: string }) => {
-    let colorClass = "bg-gray-100 text-gray-700";
+    let colorClass = "bg-muted text-foreground";
     if (action === "CREATE") colorClass = "bg-green-100 text-green-700";
     if (action === "UPDATE") colorClass = "bg-blue-100 text-blue-700";
     if (action === "DELETE") colorClass = "bg-red-100 text-red-700";
@@ -43,7 +43,7 @@ export default function LogsTable({ items }: Props) {
                     </div>
                     <div>
                         <p className="text-sm font-medium">{row.admin?.name || "Unknown"}</p>
-                        <p className="text-xs text-gray-500">{row.admin?.email}</p>
+                        <p className="text-xs text-muted-foreground">{row.admin?.email}</p>
                     </div>
                 </div>
             ),
@@ -57,14 +57,14 @@ export default function LogsTable({ items }: Props) {
             id: "module",
             header: "Module",
             cell: (row) => (
-                <span className="capitalize text-sm text-gray-700">{row.module}</span>
+                <span className="capitalize text-sm text-foreground">{row.module}</span>
             ),
         },
         {
             id: "description",
             header: "Description",
             cell: (row) => (
-                <span className="text-sm text-gray-600 truncate max-w-[200px] block" title={row.description}>
+                <span className="text-sm text-muted-foreground truncate max-w-[200px] block" title={row.description}>
                     {row.description}
                 </span>
             ),
@@ -73,7 +73,7 @@ export default function LogsTable({ items }: Props) {
             id: "date",
             header: "Date",
             cell: (row) => (
-                <div className="text-xs text-gray-500" suppressHydrationWarning>
+                <div className="text-xs text-muted-foreground" suppressHydrationWarning>
                     <p>{new Date(row.createdAt).toLocaleDateString()}</p>
                     <p>{new Date(row.createdAt).toLocaleTimeString()}</p>
                 </div>
@@ -87,7 +87,7 @@ export default function LogsTable({ items }: Props) {
             cell: (row) => (
                 <button
                     onClick={() => toggleExpand(row._id)}
-                    className="p-1.5 text-gray-500 hover:bg-gray-100 rounded-md transition"
+                    className="p-1.5 text-muted-foreground hover:bg-muted rounded-md transition"
                 >
                     {expandedRow === row._id ? <TbChevronUp /> : <TbChevronDown />}
                 </button>
@@ -97,32 +97,32 @@ export default function LogsTable({ items }: Props) {
 
     // Wrap the DataTable to inject expanded content
     return (
-        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+        <div className="bg-card rounded-xl shadow-sm overflow-hidden">
             <div className="overflow-x-auto">
                 <table className="w-full">
-                    <thead className="bg-gray-50 border-b border-gray-100">
+                    <thead className="bg-muted border-b border-border">
                         <tr>
                             {columns.map((col) => (
                                 <th
                                     key={col.id}
-                                    className={`px-2 md:px-6 py-2 md:py-3 text-[10px] md:text-xs font-semibold text-gray-500 uppercase tracking-wider text-${col.headerAlign || "left"}`}
+                                    className={`px-2 md:px-6 py-2 md:py-3 text-[10px] md:text-xs font-semibold text-muted-foreground uppercase tracking-wider text-${col.headerAlign || "left"}`}
                                 >
                                     {col.header}
                                 </th>
                             ))}
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-100">
+                    <tbody className="divide-y divide-border">
                         {items.length === 0 ? (
                             <tr>
-                                <td colSpan={columns.length} className="px-6 py-8 text-center text-gray-500 text-sm">
+                                <td colSpan={columns.length} className="px-6 py-8 text-center text-muted-foreground text-sm">
                                     No logs found.
                                 </td>
                             </tr>
                         ) : (
                             items.map((row) => (
                                 <Fragment key={row._id}>
-                                    <tr className="hover:bg-gray-50 transition">
+                                    <tr className="hover:bg-muted transition">
                                         {columns.map((col) => (
                                             <td
                                                 key={`${row._id}-${col.id}`}
@@ -133,21 +133,21 @@ export default function LogsTable({ items }: Props) {
                                         ))}
                                     </tr>
                                     {expandedRow === row._id && (
-                                        <tr className="bg-gray-50/50">
+                                        <tr className="bg-muted/50">
                                             <td colSpan={columns.length} className="px-2 md:px-6 py-2 md:py-4">
-                                                <div className="text-xs text-gray-700 space-y-2">
+                                                <div className="text-xs text-foreground space-y-2">
                                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-4">
                                                         <div>
                                                             <p className="font-semibold mb-1">Target ID</p>
-                                                            <code className="bg-gray-100 px-2 py-1 rounded">{row.targetId || "N/A"}</code>
+                                                            <code className="bg-muted px-2 py-1 rounded">{row.targetId || "N/A"}</code>
                                                         </div>
                                                         <div>
                                                             <p className="font-semibold mb-1">Target Model</p>
-                                                            <code className="bg-gray-100 px-2 py-1 rounded">{row.targetModel || "N/A"}</code>
+                                                            <code className="bg-muted px-2 py-1 rounded">{row.targetModel || "N/A"}</code>
                                                         </div>
                                                         <div>
                                                             <p className="font-semibold mb-1">IP Address</p>
-                                                            <code className="bg-gray-100 px-2 py-1 rounded">{row.ip || "N/A"}</code>
+                                                            <code className="bg-muted px-2 py-1 rounded">{row.ip || "N/A"}</code>
                                                         </div>
                                                         <div>
                                                             <p className="font-semibold mb-1">User Agent</p>

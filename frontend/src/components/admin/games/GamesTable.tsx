@@ -30,12 +30,12 @@ export default function GamesTable({ items, onEdit, onDelete, onToggle }: Props)
                             className="rounded-md object-cover"
                         />
                     ) : (
-                        <div className="w-10 h-10 bg-gray-200 rounded-md" />
+                        <div className="w-10 h-10 bg-muted rounded-md" />
                     )}
 
                     <div>
                         <p className="font-medium">{row.name}</p>
-                        <span className="text-xs text-gray-500">{row.slug}</span>
+                        <span className="text-xs text-muted-foreground">{row.slug}</span>
                     </div>
                 </div>
             ),
@@ -44,7 +44,7 @@ export default function GamesTable({ items, onEdit, onDelete, onToggle }: Props)
             id: "variants",
             header: "Variants",
             cell: (row) => (
-                <span className="text-gray-700">
+                <span className="text-foreground">
                     {row.variants?.length || 0} variant{(row.variants?.length || 0) !== 1 ? "s" : ""}
                 </span>
             ),
@@ -59,7 +59,7 @@ export default function GamesTable({ items, onEdit, onDelete, onToggle }: Props)
                         return (
                             <span
                                 key={r}
-                                className="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded-full"
+                                className="text-xs px-2 py-0.5 bg-muted text-muted-foreground rounded-full"
                             >
                                 {region?.label || r}
                             </span>
@@ -77,7 +77,7 @@ export default function GamesTable({ items, onEdit, onDelete, onToggle }: Props)
                         .map((v) => v.checkoutTemplate)
                         .filter(Boolean)
                 )];
-                if (unique.length === 0) return <span className="text-sm text-gray-400">—</span>;
+                if (unique.length === 0) return <span className="text-sm text-muted-foreground">—</span>;
                 return (
                     <div className="flex flex-wrap gap-1">
                         {unique.map((key) => {
@@ -107,7 +107,7 @@ export default function GamesTable({ items, onEdit, onDelete, onToggle }: Props)
                             <TbToggleRight size={22} /> Active
                         </>
                     ) : (
-                        <span className="text-gray-500 inline-flex items-center gap-1">
+                        <span className="text-muted-foreground inline-flex items-center gap-1">
                             <TbToggleLeft size={22} /> Inactive
                         </span>
                     )}
@@ -122,14 +122,14 @@ export default function GamesTable({ items, onEdit, onDelete, onToggle }: Props)
             cell: (row, idx) => (
                 <div className="flex items-center justify-end gap-3">
                     <button
-                        className="flex items-center gap-1 px-3 py-1.5 text-sm rounded-md border text-gray-700 hover:bg-gray-100 transition"
+                        className="flex items-center gap-1 px-3 py-1.5 text-sm rounded-md border text-foreground hover:bg-muted transition"
                         onClick={() => onEdit?.(idx, row)}
                         disabled={typeof onEdit !== "function"}
                     >
                         <TbPencil size={16} /> Edit
                     </button>
                     <button
-                        className="flex items-center gap-1 px-3 py-1.5 text-sm rounded-md border border-red-300 text-red-600 hover:bg-red-50 transition"
+                        className="flex items-center gap-1 px-3 py-1.5 text-sm rounded-md border border-red-300 text-red-600 hover:bg-red-500/10 transition"
                         onClick={() => onDelete?.(idx, row)}
                         disabled={typeof onDelete !== "function"}
                     >
@@ -141,7 +141,7 @@ export default function GamesTable({ items, onEdit, onDelete, onToggle }: Props)
     ];
 
     return (
-        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+        <div className="bg-card rounded-xl shadow-sm overflow-hidden">
             <DataTable rows={items} columns={columns} minWidth={800} />
         </div>
     );

@@ -28,7 +28,7 @@ export default function ModalFooter({
 
             <button
                 onClick={onSecondary}
-                className="flex-1 py-2 bg-gray-200 rounded-lg"
+                className="flex-1 py-2 bg-muted rounded-lg"
             >
                 {secondaryLabel}
             </button>

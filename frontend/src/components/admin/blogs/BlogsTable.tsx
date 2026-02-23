@@ -18,7 +18,7 @@ export default function BlogsTable({ blogs, onEdit, onDelete }: Props) {
             id: "image",
             header: "Image",
             cell: (row) => (
-                <div className="w-16 h-10 rounded overflow-hidden bg-gray-200 relative">
+                <div className="w-16 h-10 rounded overflow-hidden bg-muted relative">
                     {row.coverImage ? (
                         <Image
                             src={row.coverImage}
@@ -27,7 +27,7 @@ export default function BlogsTable({ blogs, onEdit, onDelete }: Props) {
                             className="object-cover"
                         />
                     ) : (
-                        <div className="w-full h-full flex items-center justify-center text-xs text-gray-500">
+                        <div className="w-full h-full flex items-center justify-center text-xs text-muted-foreground">
                             No Img
                         </div>
                     )}
@@ -39,8 +39,8 @@ export default function BlogsTable({ blogs, onEdit, onDelete }: Props) {
             header: "Title",
             cell: (row) => (
                 <div>
-                    <p className="font-medium text-gray-900">{row.title}</p>
-                    <span className="text-xs text-gray-500">{row.slug}</span>
+                    <p className="font-medium text-foreground">{row.title}</p>
+                    <span className="text-xs text-muted-foreground">{row.slug}</span>
                 </div>
             )
         },
@@ -48,7 +48,7 @@ export default function BlogsTable({ blogs, onEdit, onDelete }: Props) {
             id: "category",
             header: "Category",
             cell: (row) => (
-                <span className="bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs">
+                <span className="bg-muted text-foreground px-2 py-1 rounded text-xs">
                     {row.category}
                 </span>
             ),
@@ -57,7 +57,7 @@ export default function BlogsTable({ blogs, onEdit, onDelete }: Props) {
             id: "createdAt",
             header: "Created At",
             cell: (row) => (
-                <span className="text-sm text-gray-500" suppressHydrationWarning>
+                <span className="text-sm text-muted-foreground" suppressHydrationWarning>
                     {new Date(row.createdAt).toLocaleDateString()}
                 </span>
             ),
@@ -71,13 +71,13 @@ export default function BlogsTable({ blogs, onEdit, onDelete }: Props) {
                 <div className="flex items-center justify-end gap-3">
                     <button
                         onClick={() => onEdit?.(row._id, row)}
-                        className="flex items-center gap-1 px-3 py-1.5 text-sm rounded-md border text-gray-700 hover:bg-gray-100 transition"
+                        className="flex items-center gap-1 px-3 py-1.5 text-sm rounded-md border text-foreground hover:bg-muted transition"
                     >
                         <TbPencil size={16} /> Edit
                     </button>
                     <button
                         onClick={() => onDelete?.(row._id)}
-                        className="flex items-center gap-1 px-3 py-1.5 text-sm rounded-md border border-red-300 text-red-600 hover:bg-red-50 transition"
+                        className="flex items-center gap-1 px-3 py-1.5 text-sm rounded-md border border-red-300 text-red-600 hover:bg-red-500/10 transition"
                     >
                         <TbTrash size={16} /> Delete
                     </button>

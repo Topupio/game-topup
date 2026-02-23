@@ -26,21 +26,21 @@ export default function VariantCard({ variant, index, regions, onChange, onDelet
     };
 
     return (
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+        <div className="bg-card rounded-xl border border-border shadow-sm overflow-hidden">
             {/* Header — always visible */}
             <div
-                className="flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-gray-50 transition bg-gray-50/50"
+                className="flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-muted transition bg-muted/50"
                 onClick={() => setCollapsed(!collapsed)}
             >
                 <div className="flex items-center gap-2 min-w-0">
                     <span className="text-[11px] font-semibold text-white bg-gray-400 w-5 h-5 rounded flex items-center justify-center shrink-0">
                         {index + 1}
                     </span>
-                    <span className="font-medium text-gray-800 truncate">
+                    <span className="font-medium text-foreground truncate">
                         {variant.name || "Untitled Variant"}
                     </span>
                     {variant.quantity && variant.unit && (
-                        <span className="text-xs text-gray-400 shrink-0">
+                        <span className="text-xs text-muted-foreground shrink-0">
                             · {variant.quantity} {variant.unit}
                         </span>
                     )}
@@ -48,7 +48,7 @@ export default function VariantCard({ variant, index, regions, onChange, onDelet
                         className={`text-[10px] font-medium px-1.5 py-0.5 rounded shrink-0 ${
                             variant.status === "active"
                                 ? "bg-emerald-50 text-emerald-600"
-                                : "bg-gray-100 text-gray-400"
+                                : "bg-muted text-muted-foreground"
                         }`}
                     >
                         {variant.status}
@@ -66,18 +66,18 @@ export default function VariantCard({ variant, index, regions, onChange, onDelet
                             e.stopPropagation();
                             onDelete();
                         }}
-                        className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition"
+                        className="p-1.5 text-muted-foreground hover:text-red-500 hover:bg-red-500/10 rounded-lg transition"
                         title="Delete variant"
                     >
                         <TbTrash size={15} />
                     </button>
-                    {collapsed ? <TbChevronDown size={16} className="text-gray-400" /> : <TbChevronUp size={16} className="text-gray-400" />}
+                    {collapsed ? <TbChevronDown size={16} className="text-muted-foreground" /> : <TbChevronUp size={16} className="text-muted-foreground" />}
                 </div>
             </div>
 
             {/* Body — collapsible */}
             {!collapsed && (
-                <div className="border-t border-gray-100">
+                <div className="border-t border-border">
                     {/* ── Section: Basic Info ── */}
                     <div className="p-4 flex gap-4">
                         {/* Image */}
@@ -135,7 +135,7 @@ export default function VariantCard({ variant, index, regions, onChange, onDelet
                                         value={variant.status}
                                         onChange={(status) => update({ status })}
                                     />
-                                    <span className="text-xs text-gray-500">
+                                    <span className="text-xs text-muted-foreground">
                                         {variant.status === "active" ? "Active" : "Inactive"}
                                     </span>
                                 </div>
@@ -146,15 +146,15 @@ export default function VariantCard({ variant, index, regions, onChange, onDelet
                                         onChange={(e) => update({ isPopular: e.target.checked })}
                                         className="rounded text-amber-500 focus:ring-amber-200"
                                     />
-                                    <span className="text-xs text-gray-500">Mark as popular</span>
+                                    <span className="text-xs text-muted-foreground">Mark as popular</span>
                                 </label>
                             </div>
                         </div>
                     </div>
 
                     {/* ── Section: Pricing ── */}
-                    <div className="px-4 py-3 border-t border-gray-100 bg-gray-50/40">
-                        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
+                    <div className="px-4 py-3 border-t border-border bg-muted/40">
+                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">
                             Region Pricing
                         </p>
                         <RegionPricingTable
@@ -165,8 +165,8 @@ export default function VariantCard({ variant, index, regions, onChange, onDelet
                     </div>
 
                     {/* ── Section: Checkout Template ── */}
-                    <div className="px-4 py-3 border-t border-gray-100">
-                        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
+                    <div className="px-4 py-3 border-t border-border">
+                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">
                             Checkout Configuration
                         </p>
                         <CheckoutTemplateSelector

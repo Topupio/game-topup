@@ -48,7 +48,7 @@ export default function RequiredFieldsBuilder({
                 <button
                     type="button"
                     onClick={addField}
-                    className="flex items-center gap-1 text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1.5 rounded transition"
+                    className="flex items-center gap-1 text-sm bg-muted hover:bg-muted text-foreground px-3 py-1.5 rounded transition"
                 >
                     <TbPlus /> Add Field
                 </button>
@@ -59,14 +59,14 @@ export default function RequiredFieldsBuilder({
                 {fields.map((field, i) => (
                     <div
                         key={i}
-                        className="bg-gray-50 p-4 rounded-lg border border-gray-200 relative group"
+                        className="bg-muted p-4 rounded-lg border border-border relative group"
                     >
                         {/* Delete */}
                         <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition">
                             <button
                                 type="button"
                                 onClick={() => removeField(i)}
-                                className="p-1.5 text-red-500 hover:bg-white rounded"
+                                className="p-1.5 text-red-500 hover:bg-card rounded"
                             >
                                 <TbTrash />
                             </button>
@@ -154,7 +154,7 @@ export default function RequiredFieldsBuilder({
                                         Options (comma-separated)
                                     </label>
                                     <textarea
-                                        className="border border-gray-300 p-2 rounded w-full text-sm focus:outline-none focus:border-blue-500"
+                                        className="border border-border p-2 rounded w-full text-sm focus:outline-none focus:border-blue-500"
                                         rows={2}
                                         placeholder="e.g. Option A, Option B"
                                         value={field.optionsText ?? ""}
@@ -198,7 +198,7 @@ export default function RequiredFieldsBuilder({
                 ))}
 
                 {fields.length === 0 && (
-                    <div className="text-center py-6 bg-gray-50 rounded-lg border border-dashed border-gray-300 text-gray-500 text-sm">
+                    <div className="text-center py-6 bg-muted rounded-lg border border-dashed border-border text-muted-foreground text-sm">
                         No fields yet. Click "Add Field" to add one.
                     </div>
                 )}

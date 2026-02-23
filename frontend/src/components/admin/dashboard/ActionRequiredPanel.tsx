@@ -67,33 +67,33 @@ export default function ActionRequiredPanel({ actions }: { actions: DashboardAct
 
     if (!visibleActions.length) {
         return (
-            <div className="bg-white border shadow-sm rounded-xl p-6 h-full flex items-center justify-center text-gray-500">
+            <div className="bg-card border shadow-sm rounded-xl p-6 h-full flex items-center justify-center text-muted-foreground">
                 🎉 No urgent actions right now
             </div>
         );
     }
 
     return (
-        <div className="bg-white border shadow-sm rounded-xl p-3 md:p-6 h-full">
-            <h3 className="text-base md:text-lg font-semibold text-gray-800 mb-3 md:mb-4">Action Required</h3>
+        <div className="bg-card border shadow-sm rounded-xl p-3 md:p-6 h-full">
+            <h3 className="text-base md:text-lg font-semibold text-foreground mb-3 md:mb-4">Action Required</h3>
 
             <div className="space-y-4">
                 {visibleActions.map((action, index) => (
                     <Link
                         key={index}
                         href={action.href}
-                        className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition group"
+                        className="flex items-center justify-between p-3 rounded-lg hover:bg-muted transition group"
                     >
                         <div className="flex items-center gap-3">
                             <div className={`p-2 rounded-full ${action.bg} ${action.color}`}>
                                 <action.icon size={18} />
                             </div>
-                            <span className="text-sm font-medium text-gray-700 group-hover:text-gray-900 transition">
+                            <span className="text-sm font-medium text-foreground group-hover:text-foreground transition">
                                 {action.label}
                             </span>
                         </div>
 
-                        <span className={`text-sm font-bold ${action.color} bg-white px-2 py-0.5 rounded-full border shadow-sm`}>
+                        <span className={`text-sm font-bold ${action.color} bg-card px-2 py-0.5 rounded-full border shadow-sm`}>
                             {action.count}
                         </span>
                     </Link>

@@ -35,18 +35,18 @@ export default function AdminFormShell({
     };
 
     return (
-        <form onSubmit={onSubmit} className="max-w-4xl mx-auto bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <form onSubmit={onSubmit} className="max-w-4xl mx-auto bg-card rounded-xl shadow-sm border border-border overflow-hidden">
             {/* Header */}
-            <div className="px-6 py-4 border-b border-gray-200 flex items-center gap-3 bg-gray-50/50">
+            <div className="px-6 py-4 border-b border-border flex items-center gap-3 bg-muted/50">
                 <button
                     type="button"
                     onClick={handleCancel}
-                    className="p-1.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                    className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors"
                     title="Go Back"
                 >
                     <FaArrowLeft size={16} />
                 </button>
-                <h1 className="text-xl font-semibold text-gray-900">{title}</h1>
+                <h1 className="text-xl font-semibold text-foreground">{title}</h1>
             </div>
 
             {/* Body */}
@@ -55,11 +55,11 @@ export default function AdminFormShell({
             </div>
 
             {/* Footer */}
-            <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-end gap-3">
+            <div className="px-6 py-4 bg-muted border-t border-border flex justify-end gap-3">
                 <button
                     type="button"
                     onClick={handleCancel}
-                    className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 font-medium transition text-sm"
+                    className="px-4 py-2 rounded-lg border border-border text-foreground hover:bg-muted font-medium transition text-sm"
                 >
                     Cancel
                 </button>

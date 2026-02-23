@@ -82,7 +82,7 @@ export default function AdminOrderPage({ initialData }: { initialData: ListOrder
                     <button
                         disabled={loading}
                         onClick={() => fetchData()}
-                        className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 transition disabled:opacity-50 shadow-sm"
+                        className="flex items-center gap-2 px-4 py-2 bg-card border border-border rounded-xl text-foreground hover:bg-muted transition disabled:opacity-50 shadow-sm"
                     >
                         <RiRefreshLine className={loading ? "animate-spin" : ""} /> Refresh
                     </button>
@@ -97,10 +97,10 @@ export default function AdminOrderPage({ initialData }: { initialData: ListOrder
                     className="w-full md:w-96"
                 />
 
-                <div className="flex items-center gap-2 bg-white border border-gray-300 rounded-xl px-3 py-2 shadow-sm">
-                    <RiFilter3Line className="text-gray-500" />
+                <div className="flex items-center gap-2 bg-card border border-border rounded-xl px-3 py-2 shadow-sm">
+                    <RiFilter3Line className="text-muted-foreground" />
                     <select
-                        className="bg-transparent text-sm focus:outline-none cursor-pointer pr-4 text-gray-700"
+                        className="bg-transparent text-sm focus:outline-none cursor-pointer pr-4 text-foreground"
                         value={status}
                         onChange={(e) => {
                             const value = e.target.value as '' | OrderStatus;
@@ -121,7 +121,7 @@ export default function AdminOrderPage({ initialData }: { initialData: ListOrder
                 {(search || status) && (
                     <button
                         onClick={handleClearFilters}
-                        className="text-sm text-gray-500 hover:text-red-500 transition"
+                        className="text-sm text-muted-foreground hover:text-red-500 transition"
                     >
                         Clear Filters
                     </button>

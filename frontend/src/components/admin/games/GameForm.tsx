@@ -224,7 +224,7 @@ export default function GameForm({ gameId }: Props) {
                             />
 
                             <div>
-                                <label className="text-sm font-medium text-gray-700 block mb-1">
+                                <label className="text-sm font-medium text-foreground block mb-1">
                                     Status
                                 </label>
                                 <div className="pt-1">
@@ -243,7 +243,7 @@ export default function GameForm({ gameId }: Props) {
                                 onChange={(e) => updateForm({ isPopular: e.target.checked })}
                                 className="rounded text-amber-500 focus:ring-amber-200"
                             />
-                            <span className="text-xs text-gray-500">Mark as popular</span>
+                            <span className="text-xs text-muted-foreground">Mark as popular</span>
                         </label>
 
                         <RegionMultiSelect

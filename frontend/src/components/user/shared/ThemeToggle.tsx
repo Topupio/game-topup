@@ -4,7 +4,11 @@ import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { RiSunLine, RiMoonLine } from "react-icons/ri";
 
-export default function ThemeToggle() {
+interface ThemeToggleProps {
+    variant?: "dark" | "light";
+}
+
+export default function ThemeToggle({ variant = "dark" }: ThemeToggleProps) {
     const { setTheme, resolvedTheme } = useTheme();
     const [mounted, setMounted] = useState(false);
 
@@ -16,10 +20,14 @@ export default function ThemeToggle() {
 
     const isDark = resolvedTheme === "dark";
 
+    const styles = variant === "dark"
+        ? "border-slate-700 text-slate-300 hover:text-white hover:border-secondary/50 hover:bg-slate-800/50"
+        : "border-border text-muted-foreground hover:text-foreground hover:border-secondary/50 hover:bg-muted";
+
     return (
         <button
             onClick={() => setTheme(isDark ? "light" : "dark")}
-            className="p-1.5 rounded-lg border border-slate-700 text-slate-300 hover:text-white hover:border-secondary/50 hover:bg-slate-800/50 transition"
+            className={`p-1.5 rounded-lg border transition ${styles}`}
             aria-label={`Switch to ${isDark ? "light" : "dark"} mode`}
         >
             {isDark ? <RiSunLine size={18} /> : <RiMoonLine size={18} />}

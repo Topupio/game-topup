@@ -33,19 +33,19 @@ export default function FormWrapper({
     return (
         <form
             onSubmit={onSubmit}
-            className="p-6  mx-auto space-y-8 bg-white rounded-xl shadow-sm"
+            className="p-6  mx-auto space-y-8 bg-card rounded-xl shadow-sm"
         >
             {/* Header */}
             <div className="flex items-center gap-3">
                 <button
                     type="button"
                     onClick={handleCancel}
-                    className="p-1.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                    className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors"
                     title="Go Back"
                 >
                     <FaArrowLeft size={16} />
                 </button>
-                <h1 className="text-2xl font-semibold text-gray-900">
+                <h1 className="text-2xl font-semibold text-foreground">
                     {title}
                 </h1>
             </div>
@@ -54,11 +54,11 @@ export default function FormWrapper({
             {children}
 
             {/* Footer Actions */}
-            <div className="flex justify-end gap-3 pt-6 border-t border-gray-200">
+            <div className="flex justify-end gap-3 pt-6 border-t border-border">
                 <button
                     type="button"
                     onClick={handleCancel}
-                    className="px-5 py-2.5 rounded-lg border border-gray-300 text-sm text-gray-700 hover:bg-gray-50 font-medium transition"
+                    className="px-5 py-2.5 rounded-lg border border-border text-sm text-foreground hover:bg-muted font-medium transition"
                 >
                     Cancel
                 </button>

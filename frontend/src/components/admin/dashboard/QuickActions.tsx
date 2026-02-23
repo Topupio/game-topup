@@ -13,8 +13,8 @@ export default function QuickActions() {
     const actions = [
         { label: "Add Game", icon: RiAddLine, href: "/admin/games/new", color: "bg-indigo-600 text-white" },
         { label: "Add Product", icon: RiAddLine, href: "/admin/products/new", color: "bg-indigo-600 text-white" },
-        { label: "View Orders", icon: RiFileList3Line, href: "/admin/orders", color: "bg-white text-gray-700" },
-        { label: "Manage Users", icon: RiUserSettingsLine, href: "/admin/users", color: "bg-white text-gray-700" },
+        { label: "View Orders", icon: RiFileList3Line, href: "/admin/orders", color: "bg-card text-foreground" },
+        { label: "Manage Users", icon: RiUserSettingsLine, href: "/admin/users", color: "bg-card text-foreground" },
     ];
 
     const containerVariants = {
@@ -49,7 +49,7 @@ export default function QuickActions() {
                             <motion.div key={index} variants={itemVariants}>
                                 <Link
                                     href={action.href}
-                                    className={`${action.color} p-3 rounded-full shadow-lg hover:shadow-xl transition flex items-center gap-2 group border border-gray-200/50 backdrop-blur-sm`}
+                                    className={`${action.color} p-3 rounded-full shadow-lg hover:shadow-xl transition flex items-center gap-2 group border border-border/50 backdrop-blur-sm`}
                                 >
                                     <span className="text-sm font-medium px-2">{action.label}</span>
                                     <action.icon size={20} />

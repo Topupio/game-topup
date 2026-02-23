@@ -40,24 +40,24 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ isCollapsed, setIsCollapsed
             <aside
                 className={`
                     fixed top-0 left-0 h-full w-72
-                    bg-white shadow-lg border-r border-gray-200
+                    bg-card shadow-lg border-r border-border
                     flex flex-col transition-all duration-300
                     z-[70]
                     ${isMobileOpen ? "translate-x-0" : "-translate-x-full"}
                     md:translate-x-0
                     md:top-[85px] md:left-4
                     md:h-[calc(100vh-100px)]
-                    md:rounded-2xl md:border md:border-gray-200
+                    md:rounded-2xl md:border md:border-border
                     md:z-50
                     ${isCollapsed ? "md:w-16" : "md:w-64"}
                 `}
             >
                 {/* Mobile header */}
-                <div className="flex items-center justify-between p-4 border-b border-gray-200 md:hidden">
-                    <h2 className="text-lg font-semibold text-gray-800">Menu</h2>
+                <div className="flex items-center justify-between p-4 border-b border-border md:hidden">
+                    <h2 className="text-lg font-semibold text-foreground">Menu</h2>
                     <button
                         onClick={onMobileClose}
-                        className="p-2 rounded-lg hover:bg-gray-100 text-gray-600"
+                        className="p-2 rounded-lg hover:bg-muted text-muted-foreground"
                     >
                         <IoClose size={22} />
                     </button>
@@ -65,7 +65,7 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ isCollapsed, setIsCollapsed
 
                 <div className="flex flex-col flex-1 overflow-y-auto px-3 py-6">
                     {!isCollapsed && (
-                        <h2 className="hidden md:block text-xl font-semibold text-gray-800 mb-6 pl-2">
+                        <h2 className="hidden md:block text-xl font-semibold text-foreground mb-6 pl-2">
                             Dashboard
                         </h2>
                     )}
@@ -88,7 +88,7 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ isCollapsed, setIsCollapsed
                 {/* Desktop collapse toggle */}
                 <button
                     onClick={toggleSidebar}
-                    className="hidden md:flex p-4 border-t border-gray-200 hover:bg-gray-100 rounded-b-2xl items-center justify-end text-gray-600"
+                    className="hidden md:flex p-4 border-t border-border hover:bg-muted rounded-b-2xl items-center justify-end text-muted-foreground"
                 >
                     {isCollapsed ? <FaChevronRight size={18} /> : <FaChevronLeft size={18} />}
                 </button>
@@ -115,10 +115,10 @@ const SidebarLink: React.FC<SidebarLinkProps> = ({
             className={`
                 group flex items-center w-full px-3 py-2 rounded-xl transition-all
                 ${!showLabel ? "justify-center" : "space-x-3"}
-                ${isActive ? "bg-[#eef6ff] text-[#0074cc] font-medium" : "text-gray-600 hover:bg-gray-100"}
+                ${isActive ? "bg-[#eef6ff] text-[#0074cc] font-medium" : "text-muted-foreground hover:bg-muted"}
             `}
         >
-            <span className={`${isActive ? "text-[#0074cc]" : "text-gray-500"}`}>
+            <span className={`${isActive ? "text-[#0074cc]" : "text-muted-foreground"}`}>
                 {icon}
             </span>
 

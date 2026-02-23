@@ -40,7 +40,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     if (!user || user.role !== "admin") return null;
 
     return (
-        <div className="w-full h-auto bg-[#f5f6fa] flex flex-col">
+        <div className="w-full h-auto bg-background flex flex-col">
             <AdminNavbar onMenuToggle={() => setIsMobileOpen(!isMobileOpen)} />
             <div className="flex flex-1 relative">
                 <AdminSidebar
@@ -50,7 +50,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     onMobileClose={() => setIsMobileOpen(false)}
                 />
                 <main className={`flex-1 px-3 py-4 md:px-6 md:py-6 transition-all duration-300 mt-[70px] ml-0 ${isCollapsed ? "md:ml-20" : "md:ml-68"}`}>
-                    <div className="bg-white shadow-sm rounded-xl p-3 md:p-6 min-h-[calc(100vh-120px)]">
+                    <div className="bg-card shadow-sm rounded-xl p-3 md:p-6 min-h-[calc(100vh-120px)]">
                         {children}
                     </div>
                 </main>

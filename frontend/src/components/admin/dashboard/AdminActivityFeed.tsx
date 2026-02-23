@@ -73,7 +73,7 @@ const DEFAULT_STYLE = {
     icon: RiEdit2Line,
     color: "text-gray-600",
     bg: "bg-gray-500/10",
-    border: "border-gray-200",
+    border: "border-border",
 };
 
 function getIconAndStyle(action: string) {
@@ -124,7 +124,7 @@ interface Props {
 export default function AdminActivityFeed({ activities = [] }: Props) {
     if (activities.length === 0) {
         return (
-            <div className="bg-white border shadow-sm rounded-xl p-6 h-full flex flex-col items-center justify-center text-gray-400">
+            <div className="bg-card border shadow-sm rounded-xl p-6 h-full flex flex-col items-center justify-center text-muted-foreground">
                 <RiUser3Line size={48} className="mb-3 opacity-20" />
                 <p>No recent activity</p>
             </div>
@@ -132,15 +132,15 @@ export default function AdminActivityFeed({ activities = [] }: Props) {
     }
 
     return (
-        <div className="bg-white border shadow-sm rounded-xl p-3 md:p-6 h-full">
-            <h2 className="text-base md:text-lg font-bold text-gray-800 mb-3 md:mb-6 flex items-center gap-2">
+        <div className="bg-card border shadow-sm rounded-xl p-3 md:p-6 h-full">
+            <h2 className="text-base md:text-lg font-bold text-foreground mb-3 md:mb-6 flex items-center gap-2">
                 Recent Activity
-                <span className="text-xs font-normal text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full ml-auto">
+                <span className="text-xs font-normal text-muted-foreground bg-muted px-2 py-0.5 rounded-full ml-auto">
                     Real-time
                 </span>
             </h2>
 
-            <div className="space-y-0 relative before:absolute before:left-[23px] before:top-4 before:bottom-4 before:w-[2px] before:bg-gradient-to-b before:from-gray-200 before:to-transparent">
+            <div className="space-y-0 relative before:absolute before:left-[23px] before:top-4 before:bottom-4 before:w-[2px] before:bg-gradient-to-b before:from-border before:to-transparent">
                 {activities.slice(0, 10).map((activity) => {
                     const style = getIconAndStyle(activity.action);
 
@@ -155,18 +155,18 @@ export default function AdminActivityFeed({ activities = [] }: Props) {
                             </div>
 
                             <div className="flex flex-col">
-                                <p className="text-sm text-gray-700 leading-relaxed">
-                                    <span className="font-bold text-gray-900">
+                                <p className="text-sm text-foreground leading-relaxed">
+                                    <span className="font-bold text-foreground">
                                         {activity.admin?.name || "System"}
                                     </span>
-                                    <span className="mx-1 text-gray-500">
+                                    <span className="mx-1 text-muted-foreground">
                                         {activity.description}
                                     </span>
                                 </p>
 
-                                <span className="text-xs text-gray-400 font-medium mt-1 flex items-center gap-1">
+                                <span className="text-xs text-muted-foreground font-medium mt-1 flex items-center gap-1">
                                     {timeAgo(activity.createdAt)} •{" "}
-                                    <span className="uppercase text-[10px] tracking-wider bg-gray-100 px-1.5 rounded text-gray-500">
+                                    <span className="uppercase text-[10px] tracking-wider bg-muted px-1.5 rounded text-muted-foreground">
                                         {activity.module}
                                     </span>
                                 </span>
@@ -178,7 +178,7 @@ export default function AdminActivityFeed({ activities = [] }: Props) {
 
             <Link
                 href="/admin/logs"
-                className="block w-full text-center mt-4 py-2 text-sm text-gray-500 hover:text-gray-900 font-medium border border-dashed border-gray-200 rounded-lg hover:border-gray-400 transition"
+                className="block w-full text-center mt-4 py-2 text-sm text-muted-foreground hover:text-foreground font-medium border border-dashed border-border rounded-lg hover:border-border transition"
             >
                 View User Activity Log
             </Link>

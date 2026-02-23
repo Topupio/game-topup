@@ -62,7 +62,7 @@ export default function FilterDropdown({
     return (
         <div className={`relative ${className}`} ref={dropdownRef}>
             {label && (
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-foreground mb-1">
                     {label}
                 </label>
             )}
@@ -72,25 +72,25 @@ export default function FilterDropdown({
                 type="button"
                 onClick={() => setIsOpen(!isOpen)}
                 className={`
-                    w-full flex items-center justify-between px-4 py-2 bg-white border rounded-xl shadow-sm transition-all duration-200 text-left
-                    ${isOpen ? 'ring-2 ring-indigo-100 border-indigo-500' : 'border-gray-200 hover:border-gray-300'}
+                    w-full flex items-center justify-between px-4 py-2 bg-card border rounded-xl shadow-sm transition-all duration-200 text-left
+                    ${isOpen ? 'ring-2 ring-indigo-100 border-indigo-500' : 'border-border hover:border-border'}
                     ${error ? 'border-red-500 ring-red-50 focus:ring-red-100' : ''}
                 `}
             >
-                <span className={`block truncate ${!value ? 'text-gray-400' : 'text-gray-900 font-medium'}`}>
+                <span className={`block truncate ${!value ? 'text-muted-foreground' : 'text-foreground font-medium'}`}>
                     {selectedOption ? selectedOption.label : placeholder}
                 </span>
                 <span className="flex items-center gap-2">
                     {value && (
                         <FiX
-                            className="text-gray-400 hover:text-red-500 transition-colors"
+                            className="text-muted-foreground hover:text-red-500 transition-colors"
                             onClick={(e) => {
                                 e.stopPropagation();
                                 handleSelect("");
                             }}
                         />
                     )}
-                    <FiChevronDown className={`text-gray-400 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+                    <FiChevronDown className={`text-muted-foreground transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
                 </span>
             </button>
 
@@ -105,19 +105,19 @@ export default function FilterDropdown({
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: -10, scale: 0.95 }}
                         transition={{ duration: 0.15, ease: "easeOut" }}
-                        className="absolute z-50 w-full mt-2 bg-white border border-gray-100 rounded-2xl shadow-xl overflow-hidden backdrop-blur-sm"
+                        className="absolute z-50 w-full mt-2 bg-card border border-border rounded-2xl shadow-xl overflow-hidden backdrop-blur-sm"
                     >
                         {/* Search Input */}
-                        <div className="p-2 border-b border-gray-50 bg-gray-50/50">
+                        <div className="p-2 border-b border-border bg-muted/50">
                             <div className="relative">
-                                <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm" />
+                                <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm" />
                                 <input
                                     autoFocus
                                     type="text"
                                     placeholder="Search..."
                                     value={search}
                                     onChange={(e) => setSearch(e.target.value)}
-                                    className="w-full pl-9 pr-4 py-1.5 text-sm bg-white border border-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-100 transition-all"
+                                    className="w-full pl-9 pr-4 py-1.5 text-sm bg-card border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-100 transition-all"
                                 />
                             </div>
                         </div>
@@ -127,7 +127,7 @@ export default function FilterDropdown({
                             <button
                                 type="button"
                                 onClick={() => handleSelect("")}
-                                className={`w-full text-left px-3 py-2 text-sm rounded-lg transition-colors ${!value ? 'bg-indigo-50 text-indigo-600 font-medium' : 'hover:bg-gray-50 text-gray-700'}`}
+                                className={`w-full text-left px-3 py-2 text-sm rounded-lg transition-colors ${!value ? 'bg-indigo-50 text-indigo-600 font-medium' : 'hover:bg-muted text-foreground'}`}
                             >
                                 {placeholder}
                             </button>
@@ -138,13 +138,13 @@ export default function FilterDropdown({
                                         key={opt.value}
                                         type="button"
                                         onClick={() => handleSelect(opt.value)}
-                                        className={`w-full text-left px-3 py-2 text-sm rounded-lg transition-colors ${value === opt.value ? 'bg-indigo-50 text-indigo-600 font-medium' : 'hover:bg-gray-50 text-gray-700'}`}
+                                        className={`w-full text-left px-3 py-2 text-sm rounded-lg transition-colors ${value === opt.value ? 'bg-indigo-50 text-indigo-600 font-medium' : 'hover:bg-muted text-foreground'}`}
                                     >
                                         {opt.label}
                                     </button>
                                 ))
                             ) : (
-                                <div className="px-3 py-4 text-center text-sm text-gray-400 italic">
+                                <div className="px-3 py-4 text-center text-sm text-muted-foreground italic">
                                     No results found
                                 </div>
                             )}

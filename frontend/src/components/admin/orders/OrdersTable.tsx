@@ -34,8 +34,8 @@ export default function OrdersTable({ items }: Props) {
             header: "Customer",
             cell: (row) => (
                 <div>
-                    <div className="font-medium text-gray-900">{row.user?.name || "Deleted User"}</div>
-                    <div className="text-gray-500 text-xs">{row.user?.email || "No email"}</div>
+                    <div className="font-medium text-foreground">{row.user?.name || "Deleted User"}</div>
+                    <div className="text-muted-foreground text-xs">{row.user?.email || "No email"}</div>
                 </div>
             ),
         },
@@ -44,8 +44,8 @@ export default function OrdersTable({ items }: Props) {
             header: "Product",
             cell: (row) => (
                 <div>
-                    <div className="text-gray-900">{row.productSnapshot.name}</div>
-                    <div className="text-gray-500 text-xs">{row.game?.name || "Deleted Game"}</div>
+                    <div className="text-foreground">{row.productSnapshot.name}</div>
+                    <div className="text-muted-foreground text-xs">{row.game?.name || "Deleted Game"}</div>
                 </div>
             ),
         },
@@ -53,7 +53,7 @@ export default function OrdersTable({ items }: Props) {
             id: "amount",
             header: "Amount",
             cell: (row) => (
-                <span className="font-bold text-gray-900">₹{row.amount}</span>
+                <span className="font-bold text-foreground">₹{row.amount}</span>
             ),
         },
         {
@@ -69,7 +69,7 @@ export default function OrdersTable({ items }: Props) {
             id: "date",
             header: "Date",
             cell: (row) => (
-                <span className="text-gray-500" suppressHydrationWarning>
+                <span className="text-muted-foreground" suppressHydrationWarning>
                     {new Date(row.createdAt).toLocaleDateString()}
                 </span>
             ),

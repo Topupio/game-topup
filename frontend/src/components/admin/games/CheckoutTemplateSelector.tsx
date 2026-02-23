@@ -54,7 +54,7 @@ export default function CheckoutTemplateSelector({
                                     <span className="text-xs text-red-500">Required</span>
                                 )}
                                 {!field.required && (
-                                    <span className="text-xs text-gray-400">Optional</span>
+                                    <span className="text-xs text-muted-foreground">Optional</span>
                                 )}
                             </div>
                         ))}
@@ -85,7 +85,7 @@ export default function CheckoutTemplateSelector({
                                 </label>
                                 <input
                                     type="text"
-                                    className="w-full px-2 py-1.5 text-sm border border-blue-200 rounded bg-white focus:ring-2 focus:ring-blue-200 outline-none"
+                                    className="w-full px-2 py-1.5 text-sm border border-blue-200 rounded bg-card focus:ring-2 focus:ring-blue-200 outline-none"
                                     placeholder="e.g. Asia, Europe, America"
                                     value={templateOptions.zoneOptions ?? ""}
                                     onChange={(e) =>

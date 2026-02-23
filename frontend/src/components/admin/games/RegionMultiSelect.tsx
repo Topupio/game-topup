@@ -21,7 +21,7 @@ export default function RegionMultiSelect({ selectedRegions, onChange, error }: 
 
     return (
         <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700">
+            <label className="text-sm font-medium text-foreground">
                 Regions Available <span className="text-red-500">*</span>
             </label>
             <div className="flex flex-wrap gap-2">
@@ -35,7 +35,7 @@ export default function RegionMultiSelect({ selectedRegions, onChange, error }: 
                             className={`px-3 py-1.5 text-sm rounded-full border transition ${
                                 isSelected
                                     ? "bg-blue-50 border-blue-500 text-blue-700 font-medium"
-                                    : "bg-white border-gray-300 text-gray-600 hover:bg-gray-50"
+                                    : "bg-card border-border text-muted-foreground hover:bg-muted"
                             }`}
                         >
                             {region.label} ({region.symbol})
@@ -44,7 +44,7 @@ export default function RegionMultiSelect({ selectedRegions, onChange, error }: 
                 })}
             </div>
             {error && <p className="text-xs text-red-500">{error}</p>}
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-muted-foreground">
                 Select at least one region. Variants will have pricing per selected region.
             </p>
         </div>

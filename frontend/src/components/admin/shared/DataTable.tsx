@@ -21,9 +21,9 @@ export type DataTableProps<T> = {
 
 export default function DataTable<T>({ rows, columns, getRowKey, minWidth = 700, className = "" }: DataTableProps<T>) {
     return (
-        <div className={`bg-white rounded-xl shadow-sm border border-gray-300 overflow-x-auto ${className}`}>
+        <div className={`bg-card rounded-xl shadow-sm border border-border overflow-x-auto ${className}`}>
             <table className="w-full border-collapse" style={{ minWidth }}>
-                <thead className="bg-gray-100 text-left text-xs md:text-sm text-gray-600">
+                <thead className="bg-muted text-left text-xs md:text-sm text-muted-foreground">
                     <tr>
                         {columns.map((col) => (
                             <th
@@ -41,7 +41,7 @@ export default function DataTable<T>({ rows, columns, getRowKey, minWidth = 700,
                         <tr>
                             <td
                                 colSpan={columns.length}
-                                className="p-4 text-center text-gray-500 border-t border-gray-300"
+                                className="p-4 text-center text-muted-foreground border-t border-border"
                             >
                                 No items available
                             </td>
@@ -50,7 +50,7 @@ export default function DataTable<T>({ rows, columns, getRowKey, minWidth = 700,
                         rows.map((row, idx) => (
                             <tr
                                 key={getRowKey ? getRowKey(row, idx) : idx}
-                                className="border-t border-gray-300 hover:bg-gray-50 transition"
+                                className="border-t border-border hover:bg-muted transition"
                             >
                                 {columns.map((col) => (
                                     <td

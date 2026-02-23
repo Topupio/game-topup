@@ -12,8 +12,8 @@ export default async function UsersPage() {
     return (
         <div className="p-2 md:p-6 max-w-[1600px] mx-auto">
             <div className="mb-4 md:mb-6">
-                <h1 className="text-xl md:text-2xl font-bold text-gray-800">User Management</h1>
-                <p className="text-gray-500 text-xs md:text-sm mt-1">Manage user accounts, monitor activity, and enforce security policies.</p>
+                <h1 className="text-xl md:text-2xl font-bold text-foreground">User Management</h1>
+                <p className="text-muted-foreground text-xs md:text-sm mt-1">Manage user accounts, monitor activity, and enforce security policies.</p>
             </div>
 
             <AdminUsersPage initialData={initialData} />

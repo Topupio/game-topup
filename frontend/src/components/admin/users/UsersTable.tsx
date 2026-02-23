@@ -24,8 +24,8 @@ export default function UsersTable({ items, onToggleStatus, isUpdating }: Props)
                         </span>
                     </div>
                     <div>
-                        <p className="font-medium text-gray-900">{row.name}</p>
-                        <p className="text-xs text-gray-500">{row.email}</p>
+                        <p className="font-medium text-foreground">{row.name}</p>
+                        <p className="text-xs text-muted-foreground">{row.email}</p>
                     </div>
                 </div>
             ),
@@ -38,7 +38,7 @@ export default function UsersTable({ items, onToggleStatus, isUpdating }: Props)
                     inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border
                     ${row.role === 'admin'
                         ? "bg-purple-50 text-purple-700 border-purple-200"
-                        : "bg-gray-50 text-gray-600 border-gray-200"}
+                        : "bg-muted text-muted-foreground border-border"}
                 `}>
                     {row.role === 'admin' ? <TbShieldCheck size={14} /> : <TbUser size={14} />}
                     {row.role.toUpperCase()}
@@ -55,7 +55,7 @@ export default function UsersTable({ items, onToggleStatus, isUpdating }: Props)
                             Verified
                         </span>
                     ) : (
-                        <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-gray-50 text-gray-500 border border-gray-200">
+                        <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-muted text-muted-foreground border border-border">
                             Unverified
                         </span>
                     )}
@@ -81,14 +81,14 @@ export default function UsersTable({ items, onToggleStatus, isUpdating }: Props)
             id: "lastLogin",
             header: "Last Login",
             cell: (row) => (
-                <div className="text-sm text-gray-600" suppressHydrationWarning>
+                <div className="text-sm text-muted-foreground" suppressHydrationWarning>
                     {row.lastLoginAt ? (
                         <>
                             <p>{new Date(row.lastLoginAt).toLocaleDateString()}</p>
-                            <p className="text-xs text-gray-400">{new Date(row.lastLoginAt).toLocaleTimeString()}</p>
+                            <p className="text-xs text-muted-foreground">{new Date(row.lastLoginAt).toLocaleTimeString()}</p>
                         </>
                     ) : (
-                        <span className="text-gray-400 italic">Never</span>
+                        <span className="text-muted-foreground italic">Never</span>
                     )}
                 </div>
             ),
@@ -125,7 +125,7 @@ export default function UsersTable({ items, onToggleStatus, isUpdating }: Props)
     ];
 
     return (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div className="bg-card rounded-xl shadow-sm border border-border overflow-hidden">
             <DataTable rows={items} columns={columns} minWidth={800} />
         </div>
     );
