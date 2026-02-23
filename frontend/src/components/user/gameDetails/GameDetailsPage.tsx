@@ -215,6 +215,13 @@ export default function GameDetailsPage({
                         subtitle={gameDetails.category}
                     />
 
+                    {/* Mini Description */}
+                    {gameDetails.description && (
+                        <p className="text-sm text-muted-foreground mb-4 bg-muted/50 border border-border rounded-xl px-4 py-2.5 leading-relaxed">
+                            {gameDetails.description}
+                        </p>
+                    )}
+
                     {/* Package Selection */}
                     <div className="space-y-6">
                         {/* Heading + Region selector */}
