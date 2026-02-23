@@ -1,6 +1,7 @@
 "use client";
 
 import { Variant, RegionPricing } from "@/lib/types/game";
+import { useCurrency } from "@/context/CurrencyContext";
 
 interface Props {
     variants: Variant[];
@@ -25,6 +26,7 @@ export default function VariantGrid({
     activeRegion,
     gameImageUrl,
 }: Props) {
+    const { formatPrice } = useCurrency();
     const activeVariants = variants.filter((v) => v.status === "active");
 
     if (activeVariants.length === 0) {
@@ -125,22 +127,19 @@ export default function VariantGrid({
                             <div className="mt-2 sm:mt-3 space-y-0.5">
                                 <div className="flex items-center gap-1 sm:gap-2">
                                     <span className="text-secondary font-bold text-lg">
-                                        {pricing.symbol}
-                                        {pricing.discountedPrice}
+                                        {formatPrice(pricing.discountedPrice, pricing.currency)}
                                     </span>
 
                                     {discountPercent > 0 && (
                                         <span className="text-muted-foreground text-sm line-through">
-                                            {pricing.symbol}
-                                            {pricing.price}
+                                            {formatPrice(pricing.price, pricing.currency)}
                                         </span>
                                     )}
                                 </div>
 
                                 {discountPercent > 0 && (
                                     <p className="text-tertiary text-xs sm:text-sm font-medium">
-                                        Save {pricing.symbol}
-                                        {(pricing.price - pricing.discountedPrice).toFixed(2)}
+                                        Save {formatPrice(pricing.price - pricing.discountedPrice, pricing.currency)}
                                     </p>
                                 )}
                             </div>

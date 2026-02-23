@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { Variant, RegionPricing } from "@/lib/types/game";
 import { TemplateField } from "@/lib/constants/checkoutTemplates";
 import { RiCloseLine, RiAddLine, RiSubtractLine, RiArrowDownSLine } from "react-icons/ri";
+import { useCurrency } from "@/context/CurrencyContext";
 
 function capitalize(str: string) {
     if (!str) return "";
@@ -39,10 +40,11 @@ export default function MobileCheckoutSheet({
     errors,
     onFieldChange,
 }: Props) {
-    const { symbol, price, discountedPrice } = pricing;
+    const { formatPrice } = useCurrency();
+    const { price, discountedPrice, currency } = pricing;
     const hasDiscount = price > discountedPrice;
-    const totalAmount = (discountedPrice * qty).toFixed(2);
-    const totalSavings = ((price - discountedPrice) * qty).toFixed(2);
+    const totalAmount = discountedPrice * qty;
+    const totalSavings = (price - discountedPrice) * qty;
 
     // Lock body scroll when sheet is open
     useEffect(() => {
@@ -85,7 +87,7 @@ export default function MobileCheckoutSheet({
                         </h3>
                         {hasDiscount && (
                             <span className="text-xs font-medium text-green-500">
-                                Save {symbol}{totalSavings}
+                                Save {formatPrice(totalSavings, currency)}
                             </span>
                         )}
                     </div>
@@ -215,24 +217,24 @@ export default function MobileCheckoutSheet({
                         <div className="flex justify-between text-sm text-muted-foreground">
                             <span className="truncate mr-2">{variant.name}</span>
                             <span className="text-foreground font-medium shrink-0">
-                                {symbol}{price}
+                                {formatPrice(price, currency)}
                             </span>
                         </div>
                         {hasDiscount && (
                             <div className="flex justify-between text-sm text-green-500">
                                 <span>Discount</span>
-                                <span>-{symbol}{(price - discountedPrice).toFixed(2)}</span>
+                                <span>-{formatPrice(price - discountedPrice, currency)}</span>
                             </div>
                         )}
                         <div className="flex justify-between text-xs text-muted-foreground">
                             <span>
-                                {symbol}{discountedPrice} &times; {qty}
+                                {formatPrice(discountedPrice, currency)} &times; {qty}
                             </span>
-                            <span>{symbol}{totalAmount}</span>
+                            <span>{formatPrice(totalAmount, currency)}</span>
                         </div>
                         <div className="border-t border-border pt-2 flex justify-between text-foreground font-bold text-sm">
                             <span>Total</span>
-                            <span>{symbol}{totalAmount}</span>
+                            <span>{formatPrice(totalAmount, currency)}</span>
                         </div>
                     </div>
                 </div>
@@ -250,7 +252,7 @@ export default function MobileCheckoutSheet({
                                 Processing...
                             </>
                         ) : (
-                            <>Confirm &amp; Pay &middot; {symbol}{totalAmount}</>
+                            <>Confirm &amp; Pay &middot; {formatPrice(totalAmount, currency)}</>
                         )}
                     </button>
                 </div>

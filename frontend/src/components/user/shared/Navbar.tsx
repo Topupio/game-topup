@@ -6,6 +6,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import { useCurrency } from "@/context/CurrencyContext";
+import { CURRENCIES } from "@/lib/constants/currencies";
 import logo from "@/assets/logo/logo.png";
 import SearchBoxDesktop from "./SearchBoxDesktop";
 
@@ -255,17 +257,18 @@ function MobileLink({ href, label, icon, onClick }: { href: string; label: strin
 /* ----------------------------------- */
 function LangCurrencySelector({ hideLabelOnMobile = false }) {
     const [isShowing, setIsShowing] = useState(false);
+    const { currency, setCurrency } = useCurrency();
 
     const [selectedLang, setSelectedLang] = useState("English");
-    const [selectedCurrency, setSelectedCurrency] = useState("USD");
+    const [tempCurrency, setTempCurrency] = useState(currency);
 
     const [mounted, setMounted] = useState(false);
-    if (!mounted && typeof window !== "undefined") {
+    useEffect(() => {
         setMounted(true);
-    }
+    }, []);
 
     const languages = ["English", "Russian", "Arabic", "Bengali"];
-    const currencies = ["USD", "INR", "RUB", "AED", "BDT"];
+    const currencies = CURRENCIES.map((c) => c.code);
 
     const modal = (
         <AnimatePresence>
@@ -330,9 +333,9 @@ function LangCurrencySelector({ hideLabelOnMobile = false }) {
                                     {currencies.map(cur => (
                                         <button
                                             key={cur}
-                                            onClick={() => setSelectedCurrency(cur)}
+                                            onClick={() => setTempCurrency(cur)}
                                             className={`px-3 py-2.5 rounded-lg border text-sm font-medium transition ${
-                                                selectedCurrency === cur
+                                                tempCurrency === cur
                                                     ? "bg-secondary/10 border-secondary text-secondary"
                                                     : "bg-muted/50 border-border text-muted-foreground hover:border-secondary/30 hover:text-foreground"
                                             }`}
@@ -346,11 +349,11 @@ function LangCurrencySelector({ hideLabelOnMobile = false }) {
 
                         <div className="mt-6 pt-4 border-t border-border flex justify-between items-center">
                             <p className="text-xs text-muted-foreground">
-                                Prices shown in {selectedCurrency}
+                                Prices shown in {tempCurrency}
                             </p>
 
                             <button
-                                onClick={() => setIsShowing(false)}
+                                onClick={() => { setCurrency(tempCurrency); setIsShowing(false); }}
                                 className="px-5 py-2 bg-secondary text-white rounded-lg text-sm font-medium hover:bg-secondary/90 transition"
                             >
                                 Apply
@@ -365,12 +368,12 @@ function LangCurrencySelector({ hideLabelOnMobile = false }) {
     return (
         <>
             <button
-                onClick={() => setIsShowing(true)}
+                onClick={() => { setTempCurrency(currency); setIsShowing(true); }}
                 className="flex items-center gap-2 px-3 py-2 rounded-lg border border-slate-700 text-sm text-slate-300 hover:text-white hover:border-secondary/50 hover:bg-slate-800/50 transition"
             >
                 <RiGlobalLine size={16} className="text-secondary" />
-                <span className={hideLabelOnMobile ? "hidden sm:inline" : "inline"}>
-                    {selectedLang} · {selectedCurrency}
+                <span className={hideLabelOnMobile ? "hidden sm:inline" : "inline"} suppressHydrationWarning>
+                    {selectedLang} · {currency}
                 </span>
             </button>
 

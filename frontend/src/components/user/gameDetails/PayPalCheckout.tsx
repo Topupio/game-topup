@@ -46,16 +46,18 @@ export default function PayPalCheckout({
 
     return (
         <div className="space-y-4">
-            <div className="text-center">
-                <p className="text-muted-foreground text-sm">
-                    Pay{" "}
-                    <span className="text-foreground font-bold text-lg">
-                        {symbol}
-                        {amount}
-                    </span>{" "}
-                    via PayPal
-                </p>
-            </div>
+            {(symbol || amount) && (
+                <div className="text-center">
+                    <p className="text-muted-foreground text-sm">
+                        Pay{" "}
+                        <span className="text-foreground font-bold text-lg">
+                            {symbol}
+                            {amount}
+                        </span>{" "}
+                        via PayPal
+                    </p>
+                </div>
+            )}
 
             <PayPalButtons
                 style={{

@@ -62,6 +62,11 @@ export const endpoints = {
         paypalCaptureOrder: "/api/payments/paypal/capture-order",
     },
 
+    exchangeRates: {
+        root: "/api/exchange-rates",
+        byId: (id: Id) => `/api/exchange-rates/${id}`,
+    },
+
     orders: {
         base: "/api/orders",
         myOrders: "/api/orders/my-orders",

@@ -4,6 +4,7 @@ import Game from "../models/game.model.js";
 import { asyncHandler } from "../middlewares/asyncHandler.js";
 import mongoose from "mongoose";
 import { logAdminActivity } from "../utils/adminLogger.js";
+import { getExchangeRates, convertAmount } from "../utils/currencyConverter.js";
 
 /**
  * @desc    Create a new order
@@ -15,7 +16,7 @@ export const createOrder = asyncHandler(async (req, res) => {
         return res.status(401).json({ success: false, message: "Unauthorized" });
     }
 
-    const { gameId, productId, qty, userInputs, currency } = req.body;
+    const { gameId, productId, qty, userInputs, currency, displayCurrency } = req.body;
 
     // Basic validations
     if (!gameId || !productId || !qty || !Array.isArray(userInputs)) {
@@ -94,6 +95,38 @@ export const createOrder = asyncHandler(async (req, res) => {
         };
     }
 
+    // Currency conversion: if user wants to pay in a different currency
+    const nativeCurrency = currency || "USD";
+    let finalCurrency = nativeCurrency;
+    let finalUnitPrice = unitPrice;
+    let finalAmount = amount;
+    let exchangeRateUsed = null;
+
+    if (displayCurrency && displayCurrency !== nativeCurrency) {
+        const rates = await getExchangeRates();
+        finalUnitPrice = convertAmount(unitPrice, nativeCurrency, displayCurrency, rates);
+        finalAmount = convertAmount(amount, nativeCurrency, displayCurrency, rates);
+        finalCurrency = displayCurrency;
+        exchangeRateUsed = {
+            from: nativeCurrency,
+            to: displayCurrency,
+            fromRate: rates[nativeCurrency] || 1,
+            toRate: rates[displayCurrency] || 1,
+        };
+
+        // Store original pricing in snapshot for audit
+        productSnapshot.originalCurrency = nativeCurrency;
+        productSnapshot.originalPrice = productSnapshot.price;
+        productSnapshot.originalDiscountedPrice = productSnapshot.discountedPrice;
+        productSnapshot.originalTotalAmount = productSnapshot.totalAmount;
+        productSnapshot.exchangeRateUsed = exchangeRateUsed;
+
+        // Update snapshot with converted values
+        productSnapshot.price = convertAmount(productSnapshot.price, nativeCurrency, displayCurrency, rates);
+        productSnapshot.discountedPrice = convertAmount(productSnapshot.discountedPrice, nativeCurrency, displayCurrency, rates);
+        productSnapshot.totalAmount = finalAmount;
+    }
+
     let order;
     for (let i = 0; i < 3; i++) {
         try {
@@ -106,10 +139,10 @@ export const createOrder = asyncHandler(async (req, res) => {
                 user: req.user.id,
                 game: gameId,
                 product: productId,
-                amount,
+                amount: finalAmount,
                 quantity: qty,
-                unitPrice,
-                currency: currency || "USD",
+                unitPrice: finalUnitPrice,
+                currency: finalCurrency,
                 paymentMethod: "paypal",
                 userInputs: sanitizedInputs,
                 productSnapshot,

@@ -5,8 +5,11 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { RiArrowRightSLine, RiStarFill, RiStarHalfFill } from "react-icons/ri";
 import { useMemo } from "react";
+import { useCurrency } from "@/context/CurrencyContext";
 
 export default function GameCard({ game }: { game: Game }) {
+    const { formatPrice, convertPrice } = useCurrency();
+
     // Get the cheapest active variant pricing (first region)
     const pricing = useMemo(() => {
         const activeVariants = game.variants.filter((v) => v.status === "active");
@@ -14,6 +17,7 @@ export default function GameCard({ game }: { game: Game }) {
 
         let cheapestPrice = Infinity;
         let cheapestDiscounted = Infinity;
+        let cheapestCurrency = "USD";
 
         for (const variant of activeVariants) {
             const rp = variant.regionPricing[0];
@@ -21,11 +25,12 @@ export default function GameCard({ game }: { game: Game }) {
             if (rp.discountedPrice < cheapestDiscounted) {
                 cheapestPrice = rp.price;
                 cheapestDiscounted = rp.discountedPrice;
+                cheapestCurrency = rp.currency;
             }
         }
 
         if (cheapestDiscounted === Infinity) return null;
-        return { price: cheapestPrice, discountedPrice: cheapestDiscounted };
+        return { price: cheapestPrice, discountedPrice: cheapestDiscounted, currency: cheapestCurrency };
     }, [game.variants]);
 
     const hasDiscount = pricing ? pricing.discountedPrice < pricing.price : false;
@@ -103,11 +108,11 @@ export default function GameCard({ game }: { game: Game }) {
                     {pricing ? (
                         <div className="flex items-center gap-2">
                             <span className="text-secondary font-bold text-lg">
-                                ${pricing.discountedPrice}
+                                {formatPrice(pricing.discountedPrice, pricing.currency)}
                             </span>
                             {hasDiscount && (
                                 <span className="text-muted-foreground text-sm line-through">
-                                    ${pricing.price}
+                                    {formatPrice(pricing.price, pricing.currency)}
                                 </span>
                             )}
                         </div>

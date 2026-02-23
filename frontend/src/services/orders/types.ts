@@ -37,6 +37,7 @@ export interface Order {
 
     product: string;
     amount: number;
+    currency?: string;
 
     paymentStatus: PaymentStatus;
     paymentMethod: PaymentMethod;
@@ -115,4 +116,5 @@ export interface CreateOrderPayload {
     qty: number;
     userInputs: { label: string; value: string | number }[];
     currency?: string;
+    displayCurrency?: string;
 }

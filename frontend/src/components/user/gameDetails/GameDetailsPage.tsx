@@ -8,6 +8,7 @@ import {
 } from "@/lib/constants/checkoutTemplates";
 import { getRegionByKey } from "@/lib/constants/regions";
 import { useAuth } from "@/context/AuthContext";
+import { useCurrency } from "@/context/CurrencyContext";
 import HeroHeader from "./HeroHeader";
 import VariantGrid from "./VariantGrid";
 import CheckoutCard from "./CheckoutCard";
@@ -48,6 +49,7 @@ export default function GameDetailsPage({
         return gameDetails.regions?.[0] || "global";
     });
     const { user } = useAuth();
+    const { currency: displayCurrency, formatPrice, rates } = useCurrency();
     const router = useRouter();
 
     // Resolve checkout fields from the selected variant's template + options
@@ -163,23 +165,13 @@ export default function GameDetailsPage({
                 value: userDetails[field.fieldKey] || "",
             }));
 
-            const productSnapshot = {
-                name: selectedVariant.name,
-                price: selectedPricing.price,
-                discountedPrice: selectedPricing.discountedPrice,
-                deliveryTime: selectedVariant.deliveryTime,
-                qty,
-                totalAmount: selectedPricing.discountedPrice * qty,
-            };
-
             const res = await ordersApiClient.create({
                 gameId: gameDetails._id,
                 productId: selectedVariant._id || "",
                 qty,
                 userInputs: inputs,
                 currency: selectedPricing.currency || "USD",
-                // @ts-ignore
-                productSnapshot,
+                displayCurrency,
             });
 
             if (res.success) {
@@ -207,7 +199,7 @@ export default function GameDetailsPage({
             {/* Main Layout */}
             <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-8 px-4">
                 {/* LEFT: Hero + Packages */}
-                <div className="lg:w-2/3 w-full space-y-8">
+                <div className="lg:w-2/3 w-full space-y-3">
                     {/* Hero Section */}
                     <HeroHeader
                         imageUrl={gameDetails.imageUrl || ""}
@@ -262,18 +254,6 @@ export default function GameDetailsPage({
                             activeRegion={activeRegion}
                             gameImageUrl={gameDetails.imageUrl}
                         />
-
-                        {/* Description */}
-                        {gameDetails.description && (
-                            <div className="mt-8 space-y-3">
-                                <h3 className="text-lg font-semibold text-foreground">
-                                    About
-                                </h3>
-                                <p className="text-muted-foreground leading-relaxed">
-                                    {gameDetails.description}
-                                </p>
-                            </div>
-                        )}
 
                         {/* Rich Description */}
                         {hasRichContent(gameDetails.richDescription) && (
@@ -374,32 +354,58 @@ export default function GameDetailsPage({
                             </button>
                         </div>
 
-                        <div className="mb-4 p-3 bg-muted rounded-xl text-sm">
-                            <div className="flex justify-between text-muted-foreground">
-                                <span>Order</span>
-                                <span className="text-foreground font-mono text-xs">
-                                    {pendingOrder.orderId}
-                                </span>
-                            </div>
-                            <div className="flex justify-between mt-1">
-                                <span className="text-muted-foreground">
-                                    Total
-                                </span>
-                                <span className="text-foreground font-bold">
-                                    {selectedPricing.symbol}
-                                    {(
-                                        selectedPricing.discountedPrice * qty
-                                    ).toFixed(2)}
-                                </span>
-                            </div>
-                        </div>
+                        {(() => {
+                            const nativeTotal = selectedPricing.discountedPrice * qty;
+                            const nativeCurrency = selectedPricing.currency;
+                            const isNonUSD = displayCurrency !== "USD";
+                            const fromRate = rates[nativeCurrency] || 1;
+                            const usdAmount = isNonUSD ? (nativeTotal / fromRate).toFixed(2) : null;
+
+                            return (
+                                <>
+                                    <div className="mb-4 p-3 bg-muted rounded-xl text-sm">
+                                        <div className="flex justify-between text-muted-foreground">
+                                            <span>Order</span>
+                                            <span className="text-foreground font-mono text-xs">
+                                                {pendingOrder.orderId}
+                                            </span>
+                                        </div>
+                                        <div className="flex justify-between mt-1">
+                                            <span className="text-muted-foreground">
+                                                Total
+                                            </span>
+                                            <span className="text-foreground font-bold">
+                                                {formatPrice(nativeTotal, nativeCurrency)}
+                                            </span>
+                                        </div>
+                                        {isNonUSD && (
+                                            <>
+                                                <div className="border-t border-border my-2" />
+                                                <div className="flex justify-between">
+                                                    <span className="text-muted-foreground">
+                                                        You pay (USD)
+                                                    </span>
+                                                    <span className="text-foreground font-bold text-secondary">
+                                                        ~${usdAmount}
+                                                    </span>
+                                                </div>
+                                            </>
+                                        )}
+                                    </div>
+
+                                    {isNonUSD && (
+                                        <p className="text-xs text-muted-foreground mb-4 text-center">
+                                            PayPal processes all payments in USD
+                                        </p>
+                                    )}
+                                </>
+                            );
+                        })()}
 
                         <PayPalCheckout
                             orderId={pendingOrder._id}
-                            amount={(
-                                selectedPricing.discountedPrice * qty
-                            ).toFixed(2)}
-                            symbol={selectedPricing.symbol}
+                            amount=""
+                            symbol=""
                             onSuccess={() => {
                                 toast.success("Payment successful!");
                                 router.push(

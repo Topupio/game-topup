@@ -2,6 +2,7 @@
 
 import { Variant, RegionPricing } from "@/lib/types/game";
 import { RiAddLine, RiSubtractLine } from "react-icons/ri";
+import { useCurrency } from "@/context/CurrencyContext";
 
 interface Props {
     variant: Variant;
@@ -20,11 +21,12 @@ export default function CheckoutCard({
     onProceed,
     isLoading,
 }: Props) {
-    const { symbol, price, discountedPrice } = pricing;
+    const { formatPrice } = useCurrency();
+    const { price, discountedPrice, currency } = pricing;
 
     const discountPerUnit = price - discountedPrice;
-    const totalDiscount = (discountPerUnit * qty).toFixed(2);
-    const totalAmount = (discountedPrice * qty).toFixed(2);
+    const totalDiscount = discountPerUnit * qty;
+    const totalAmount = discountedPrice * qty;
 
     const isDisabled = isLoading;
 
@@ -39,7 +41,7 @@ export default function CheckoutCard({
                 <div className="flex justify-between text-muted-foreground">
                     <span className="truncate mr-2">{variant.name}</span>
                     <span className="text-foreground font-semibold shrink-0">
-                        {symbol}{price}
+                        {formatPrice(price, currency)}
                     </span>
                 </div>
 
@@ -48,7 +50,7 @@ export default function CheckoutCard({
                     <div className="flex justify-between text-tertiary">
                         <span>Discount</span>
                         <span>
-                            -{symbol}{totalDiscount}
+                            -{formatPrice(totalDiscount, currency)}
                         </span>
                     </div>
                 )}
@@ -56,10 +58,10 @@ export default function CheckoutCard({
                 {/* Itemized */}
                 <div className="flex justify-between text-muted-foreground text-xs">
                     <span>
-                        {symbol}{discountedPrice} &times; {qty}
+                        {formatPrice(discountedPrice, currency)} &times; {qty}
                     </span>
                     <span>
-                        {symbol}{totalAmount}
+                        {formatPrice(totalAmount, currency)}
                     </span>
                 </div>
 
@@ -97,7 +99,7 @@ export default function CheckoutCard({
                 <div className="flex justify-between text-foreground font-bold text-lg">
                     <span>Total</span>
                     <span>
-                        {symbol}{totalAmount}
+                        {formatPrice(totalAmount, currency)}
                     </span>
                 </div>
 

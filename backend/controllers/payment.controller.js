@@ -4,6 +4,7 @@ import { asyncHandler } from "../middlewares/asyncHandler.js";
 import mongoose from "mongoose";
 import { logAdminActivity } from "../utils/adminLogger.js";
 import * as paypalService from "../services/paypal.service.js";
+import { getExchangeRates, convertAmount } from "../utils/currencyConverter.js";
 
 /**
  * @desc    Create a PayPal order for an existing pending order
@@ -36,15 +37,24 @@ export const createPayPalOrder = asyncHandler(async (req, res) => {
         });
     }
 
-    // Create PayPal order with amount from DB (prevents tampering)
+    // Always charge PayPal in USD — convert from order currency if needed
+    const orderCurrency = order.currency || "USD";
+    let paypalAmount = order.amount;
+    if (orderCurrency !== "USD") {
+        const rates = await getExchangeRates();
+        paypalAmount = convertAmount(order.amount, orderCurrency, "USD", rates);
+    }
+
     console.log("Creating PayPal order:", {
-        amount: order.amount,
-        currency: order.currency || "USD",
+        originalAmount: order.amount,
+        originalCurrency: orderCurrency,
+        paypalAmount,
+        paypalCurrency: "USD",
         orderId: order.orderId,
     });
     const paypalOrder = await paypalService.createOrder(
-        order.amount,
-        order.currency || "USD",
+        paypalAmount,
+        "USD",
         order.orderId
     );
     console.log("PayPal order created:", paypalOrder);

@@ -1,6 +1,7 @@
 "use client";
 
 import { Variant, RegionPricing } from "@/lib/types/game";
+import { useCurrency } from "@/context/CurrencyContext";
 
 interface Props {
     variant: Variant;
@@ -15,10 +16,11 @@ export default function MobileCheckoutBar({
     qty,
     onOpenSheet,
 }: Props) {
-    const { symbol, price, discountedPrice } = pricing;
+    const { formatPrice } = useCurrency();
+    const { price, discountedPrice, currency } = pricing;
     const hasDiscount = price > discountedPrice;
-    const totalAmount = (discountedPrice * qty).toFixed(2);
-    const totalSavings = ((price - discountedPrice) * qty).toFixed(2);
+    const totalAmount = discountedPrice * qty;
+    const totalSavings = (price - discountedPrice) * qty;
 
     return (
         <div className="fixed bottom-0 left-0 right-0 z-50 bg-card border-t border-border shadow-[0_-4px_20px_rgba(0,0,0,0.1)] lg:hidden">
@@ -31,15 +33,15 @@ export default function MobileCheckoutBar({
                     {hasDiscount ? (
                         <div className="flex items-center gap-1.5">
                             <span className="text-xs font-medium text-green-500">
-                                Save {symbol}{totalSavings}
+                                Save {formatPrice(totalSavings, currency)}
                             </span>
                             <span className="text-xs text-muted-foreground line-through">
-                                {symbol}{(price * qty).toFixed(2)}
+                                {formatPrice(price * qty, currency)}
                             </span>
                         </div>
                     ) : (
                         <span className="text-xs text-muted-foreground">
-                            {symbol}{discountedPrice} each
+                            {formatPrice(discountedPrice, currency)} each
                         </span>
                     )}
                 </div>
@@ -49,7 +51,7 @@ export default function MobileCheckoutBar({
                     onClick={onOpenSheet}
                     className="shrink-0 px-5 py-2.5 rounded-xl bg-secondary text-white font-semibold hover:bg-tertiary hover:text-gray-950 transition flex items-center justify-center gap-1.5 text-sm"
                 >
-                    Top-up Now &middot; {symbol}{totalAmount}
+                    Top-up Now &middot; {formatPrice(totalAmount, currency)}
                 </button>
             </div>
         </div>

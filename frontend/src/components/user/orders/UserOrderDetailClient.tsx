@@ -14,6 +14,7 @@ import {
     RiCustomerService2Line,
 } from "react-icons/ri";
 import PayPalCheckout from "@/components/user/gameDetails/PayPalCheckout";
+import { getCurrencySymbol } from "@/lib/constants/currencies";
 
 interface Props {
     order: Order;
@@ -62,7 +63,7 @@ export default function UserOrderDetailClient({ order: initialOrder }: Props) {
                                             {order.productSnapshot?.name ?? "Product"}
                                         </h2>
                                         <span className="text-xl sm:text-2xl font-bold text-foreground">
-                                            ₹{order.amount}
+                                            {getCurrencySymbol(order.currency || "USD")}{order.amount.toFixed(2)}
                                         </span>
                                     </div>
                                 </div>
@@ -90,10 +91,15 @@ export default function UserOrderDetailClient({ order: initialOrder }: Props) {
                                 <p className="text-muted-foreground text-sm mb-4">
                                     Your order is awaiting payment. Complete it now to start processing.
                                 </p>
+                                {(order.currency || "USD") !== "USD" && (
+                                    <p className="text-xs text-muted-foreground mb-4 text-center">
+                                        PayPal processes all payments in USD
+                                    </p>
+                                )}
                                 <PayPalCheckout
                                     orderId={order._id}
-                                    amount={order.amount.toFixed(2)}
-                                    symbol="$"
+                                    amount=""
+                                    symbol=""
                                     onSuccess={() => {
                                         toast.success("Payment successful!");
                                         window.location.reload();

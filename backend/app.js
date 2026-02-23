@@ -15,6 +15,7 @@ import blogRouter from './routes/blog.routes.js';
 import orderRouter from './routes/order.routes.js';
 import uploadRouter from './routes/upload.routes.js';
 import paymentRouter from './routes/payment.routes.js';
+import exchangeRateRouter from './routes/exchangeRate.routes.js';
 
 // Create and configure the Express app
 const app = express();
@@ -91,6 +92,7 @@ app.use('/api/blogs', blogRouter);
 app.use('/api/orders', orderRouter);
 app.use('/api/upload', uploadRouter);
 app.use('/api/payments', paymentRouter);
+app.use('/api/exchange-rates', exchangeRateRouter);
 
 // Root route
 app.get('/', (req, res) => {
