@@ -42,11 +42,12 @@ export default function PopularGames({ games }: Props) {
                 spaceBetween={20}
                 freeMode={true}
                 modules={[FreeMode]}
+                className="!overflow-visible"
             >
                 {games.map((game) => (
                     <SwiperSlide
                         key={game._id}
-                        className="!w-[40%] sm:!w-[30%] lg:!w-[15%]"
+                        className="!w-[40%] sm:!w-[30%] lg:!w-[15%] pb-1"
                     >
                         <GameCard game={game} />
                     </SwiperSlide>
