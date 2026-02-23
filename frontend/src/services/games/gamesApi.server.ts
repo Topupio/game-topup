@@ -17,6 +17,10 @@ export const gamesApiServer = {
         return serverApi.get(endpoints.games.paymentCategories);
     },
 
+    async listPopular(): Promise<{ success: boolean; games: Game[] }> {
+        return serverApi.get(endpoints.games.popular);
+    },
+
     async get(id: string): Promise<ApiResponse<Game>> {
         return serverApi.get(endpoints.games.byId(id));
     },

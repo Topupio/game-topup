@@ -4,15 +4,17 @@ import { bannerApiServer } from "@/services/banner/bannerApi.server";
 import CategorySwiperSection from "@/components/user/homePage/CategorySwiperSection";
 import HeroCarousel from "@/components/user/homePage/HeroCarousel";
 import HotGames from "@/components/user/homePage/HotGames";
+import PopularGames from "@/components/user/homePage/PopularGames";
 import CategoryQuickNav from "@/components/user/homePage/CategoryQuickNav";
 import { CATEGORIES } from "@/lib/constants/checkoutTemplates";
 import WhyChooseUs from "@/components/user/homePage/WhyChooseUs";
 
 export default async function Page() {
-    const [banners, homeRes, paymentCatRes] = await Promise.all([
+    const [banners, homeRes, paymentCatRes, popularRes] = await Promise.all([
         bannerApiServer.listActive(),
         gamesApiServer.listHomeGames(),
         gamesApiServer.listPaymentCategories(),
+        gamesApiServer.listPopular(),
     ]);
 
     const bannerData = banners.data || [];
@@ -30,6 +32,9 @@ export default async function Page() {
     // Payment categories for the category listing section
     const paymentCategories = paymentCatRes.categories;
 
+    // Popular games (marked as popular in admin)
+    const popularGames = popularRes.games || [];
+
     // All category names: hardcoded CATEGORIES first + any extra from API
     const apiCategoryNames = paymentCategories.map((c) => c.category);
     const allCategoryNames = [
@@ -45,6 +50,7 @@ export default async function Page() {
                 <HeroCarousel banners={bannerData} />
                 <CategoryQuickNav categories={allCategoryNames} />
                 <HotGames games={hotGames} />
+                <PopularGames games={popularGames} />
                 {/* <GameCategoryListing categories={paymentCategories} /> */}
                 <CategorySwiperSection categories={paymentCategories} />
                 <WhyChooseUs />

@@ -260,6 +260,17 @@ const getGamesByPaymentCategory = asyncHandler(async (req, res) => {
     });
 });
 
+const getPopularGames = asyncHandler(async (req, res) => {
+    const games = await Game.find({ isPopular: true, status: "active" })
+        .sort({ createdAt: -1 })
+        .limit(20);
+
+    res.status(200).json({
+        success: true,
+        games,
+    });
+});
+
 const getGameDetails = asyncHandler(async (req, res) => {
     const { slug } = req.params;
 
@@ -611,6 +622,7 @@ export {
     getHomePageGames,
     getDistinctCategories,
     getGamesByPaymentCategory,
+    getPopularGames,
     getGameDetails,
     createGame,
     updateGame,
