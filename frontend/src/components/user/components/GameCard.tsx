@@ -71,7 +71,7 @@ export default function GameCard({ game }: { game: Game }) {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="group relative h-full rounded-2xl p-3 bg-card border border-border shadow-sm hover:border-secondary/30 hover:shadow-md transition-all duration-300"
+            className="group relative h-full rounded-2xl p-2 sm:p-3 bg-card border border-border shadow-sm hover:border-secondary/30 hover:shadow-md transition-all duration-300"
         >
             <Link href={`/games/${game.slug}`} className="block">
                 {/* Image */}

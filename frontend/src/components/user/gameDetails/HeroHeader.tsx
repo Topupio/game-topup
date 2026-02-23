@@ -101,7 +101,7 @@ export default function HeroHeader({ imageUrl, title, subtitle }: HeroHeaderProp
                         </div>
                         {/* Title + category visible beside icon on mobile only */}
                         <div className="min-w-0 sm:hidden">
-                            <h1 className="text-lg font-bold text-foreground leading-tight line-clamp-2">
+                            <h1 className="text-xl font-bold text-foreground leading-tight line-clamp-2">
                                 {title}
                             </h1>
                             {subtitle && (
@@ -123,17 +123,17 @@ export default function HeroHeader({ imageUrl, title, subtitle }: HeroHeaderProp
                         <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
                             <span className="inline-flex items-center gap-1 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-medium">
                                 <RiFlashlightFill className="w-3 h-3" />
-                                <span className="sm:hidden">Instant</span>
+                                <span className="sm:hidden text-sm">Instant</span>
                                 <span className="hidden sm:inline">Instant Delivery</span>
                             </span>
                             <span className="inline-flex items-center gap-1 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-medium">
                                 <RiShieldCheckFill className="w-3 h-3" />
-                                <span className="sm:hidden">Secure</span>
+                                <span className="sm:hidden text-sm">Secure</span>
                                 <span className="hidden sm:inline">Secure Payment</span>
                             </span>
                             <span className="inline-flex items-center gap-1 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-medium">
                                 <RiTimeFill className="w-3 h-3" />
-                                <span className="sm:hidden">24/7</span>
+                                <span className="sm:hidden text-sm">24/7</span>
                                 <span className="hidden sm:inline">24/7 Support</span>
                             </span>
                         </div>
@@ -146,7 +146,7 @@ export default function HeroHeader({ imageUrl, title, subtitle }: HeroHeaderProp
                                     {stats.rating}
                                 </span>
                             </div>
-                            <span className="text-xs font-medium text-emerald-400">
+                            <span className="sm:text-xs text-sm font-medium text-emerald-400">
                                 {stats.sold} Sold
                             </span>
                         </div>

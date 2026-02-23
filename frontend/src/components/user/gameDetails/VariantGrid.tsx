@@ -104,7 +104,7 @@ export default function VariantGrid({
                             className={`${imageUrl ? "mt-2 sm:mt-3" : "mt-1"} space-y-0.5 sm:space-y-1`}
                         >
                             <h3
-                                className={`text-base text-left font-semibold tracking-wide truncate ${
+                                className={`text-sm sm:text-base text-left font-semibold tracking-wide ${
                                     isSelected
                                         ? "text-secondary"
                                         : "text-foreground group-hover:text-secondary"

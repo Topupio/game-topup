@@ -17,7 +17,7 @@ export default function CategorySwiperSection({ categories }: Props) {
     if (!categories || categories.length === 0) return null;
 
     return (
-        <div className="mt-16 lg:mt-24 relative">
+        <div className="mt-8 sm:mt-16 relative">
             {/* Header Section */}
             <div className="flex items-center justify-between sm:mb-6 mb-4">
                 <div className="flex items-center gap-2 sm:gap-3">
