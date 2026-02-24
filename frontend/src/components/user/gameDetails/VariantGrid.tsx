@@ -126,12 +126,12 @@ export default function VariantGrid({
                         {pricing && (
                             <div className="mt-2 sm:mt-3 space-y-0.5">
                                 <div className="flex items-center gap-1 sm:gap-2">
-                                    <span className="text-secondary font-bold text-lg">
+                                    <span className="text-secondary font-bold text-sm sm:text-base">
                                         {formatPrice(pricing.discountedPrice, pricing.currency)}
                                     </span>
 
                                     {discountPercent > 0 && (
-                                        <span className="text-muted-foreground text-sm line-through">
+                                        <span className="text-muted-foreground text-xs sm:text-sm line-through">
                                             {formatPrice(pricing.price, pricing.currency)}
                                         </span>
                                     )}

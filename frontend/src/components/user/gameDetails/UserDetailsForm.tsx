@@ -2,6 +2,7 @@
 
 import { TemplateField } from "@/lib/constants/checkoutTemplates";
 import { RiArrowDownSLine } from "react-icons/ri";
+import PhoneInput from "./PhoneInput";
 
 function capitalize(str: string) {
     if (!str) return "";
@@ -13,6 +14,7 @@ interface UserDetailsFormProps {
     value: Record<string, string>;
     onChange: (key: string, value: string) => void;
     errors: Record<string, string>;
+    templateKey?: string;
 }
 
 export default function UserDetailsForm({
@@ -20,13 +22,14 @@ export default function UserDetailsForm({
     value,
     onChange,
     errors,
+    templateKey,
 }: UserDetailsFormProps) {
     if (fields.length === 0) return null;
 
     return (
         <div className="bg-card border border-border rounded-2xl p-6 shadow-sm">
             <h3 className="text-lg font-bold text-secondary mb-4">
-                Enter Player Details
+                {templateKey === "ai_subscriptions" ? "Customer Details" : "Enter Player Details"}
             </h3>
 
             <div className="grid grid-cols-1 gap-5">
@@ -38,6 +41,27 @@ export default function UserDetailsForm({
                                 <span className="text-red-400"> *</span>
                             )}
                         </label>
+
+                        {field.fieldType === "tel" && (
+                            <>
+                                <PhoneInput
+                                    value={value[field.fieldKey] || ""}
+                                    onChange={(val) =>
+                                        onChange(field.fieldKey, val)
+                                    }
+                                    placeholder={
+                                        field.placeholder ||
+                                        `Enter ${capitalize(field.fieldName)}`
+                                    }
+                                    hasError={!!errors[field.fieldKey]}
+                                />
+                                {errors[field.fieldKey] && (
+                                    <p className="text-red-500 text-xs mt-1">
+                                        {errors[field.fieldKey]}
+                                    </p>
+                                )}
+                            </>
+                        )}
 
                         {(field.fieldType === "text" ||
                             field.fieldType === "email" ||

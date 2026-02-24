@@ -100,23 +100,19 @@ export const CHECKOUT_TEMPLATES = {
     label: "AI & Subscriptions",
     fields: [
       {
-        fieldKey: "delivery_method",
-        fieldName: "Delivery Method",
-        fieldType: "dropdown",
+        fieldKey: "whatsapp_number",
+        fieldName: "WhatsApp Number",
+        fieldType: "tel",
         required: true,
-        placeholder: "Select Delivery Method",
-        options: [
-          "Send account details",
-          "Invite to email",
-          "Activate on existing account",
-        ],
+        placeholder: "Enter WhatsApp number",
+        options: [],
       },
       {
         fieldKey: "email",
         fieldName: "Email",
         fieldType: "email",
         required: false,
-        placeholder: "Enter email (if invite)",
+        placeholder: "Enter email address",
         options: [],
       },
       {

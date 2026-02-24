@@ -24,7 +24,7 @@ export default function PopularGames({ games }: Props) {
                         <RiFireFill className="w-4 h-4 sm:w-5 sm:h-5" />
                     </div>
                     <div>
-                        <h2 className="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight">Popular Games</h2>
+                        <h2 className="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight">Popular Digital Services</h2>
                         <p className="text-gray-500 text-xs sm:text-sm font-normal">Trending picks loved by players</p>
                     </div>
                 </div>

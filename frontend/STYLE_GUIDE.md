@@ -241,7 +241,7 @@ Added title underline accent:
 
 ## 🎮 10. Game Variant Card (VariantGrid)
 
-> **Date:** February 16, 2026
+> **Date:** February 24, 2026
 > **Component:** `gameDetails/VariantGrid.tsx`
 
 ### Grid Layout
@@ -252,14 +252,14 @@ grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-4 gap-2 sm:gap-3
 
 ### Card Container
 ```tsx
-// Responsive padding & rounding
-rounded-xl sm:rounded-2xl p-2 sm:p-3 border backdrop-blur-xl
+// Consistent rounding, responsive padding
+rounded-2xl p-2 sm:p-3 border transition-all duration-300 ease-out
 
 // Default state
-border-border bg-card hover:border-secondary/60 hover:bg-muted hover:shadow-lg
+border-border bg-card hover:border-secondary/60 hover:bg-muted hover:shadow-md shadow-sm
 
 // Selected state
-border-secondary bg-secondary/10 ring-2 ring-secondary/40 shadow-xl scale-[1.02]
+border-secondary bg-secondary/10 ring-2 ring-secondary/40 shadow-md
 ```
 
 ### Badges (Discount / Popular / Selected)
@@ -276,15 +276,15 @@ absolute top-2 z-10 text-[10px] font-bold px-2 py-0.5 rounded-full shadow
 ```tsx
 // Square aspect ratio, rounded corners, zoom on hover
 relative overflow-hidden rounded-xl aspect-square
-img: w-full h-full object-cover group-hover:scale-110
+img: w-full h-full object-cover transition-transform duration-500 group-hover:scale-110
 // Gradient overlay on hover
-bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100
+bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity
 ```
 
 ### Text Layout (all left-aligned)
 ```tsx
 // Variant name
-text-base text-left font-semibold tracking-wide truncate
+text-sm sm:text-base text-left font-semibold tracking-wide
 // Selected: text-secondary | Default: text-foreground group-hover:text-secondary
 
 // Quantity/unit
@@ -301,22 +301,13 @@ mt-2 sm:mt-3 space-y-0.5
 flex items-center gap-1 sm:gap-2
 
 // Discounted price
-text-secondary font-bold text-lg
+text-secondary font-bold text-sm sm:text-base
 
 // Original price (strikethrough)
-text-muted-foreground text-sm line-through
+text-muted-foreground text-xs sm:text-sm line-through
 
 // Save amount
 text-tertiary text-xs sm:text-sm font-medium
-// Values use .toFixed(2) to prevent floating point display issues
-```
-
-### Hover Glow Effect
-```tsx
-pointer-events-none absolute inset-0 rounded-2xl
-opacity-0 group-hover:opacity-100 transition
-// Inner glow
-bg-secondary/5 blur-xl
 ```
 
 ### Quick Reference
@@ -326,12 +317,13 @@ bg-secondary/5 blur-xl
 | Grid cols | `grid-cols-2` | `grid-cols-4` |
 | Grid gap | `gap-2` | `gap-3` |
 | Card padding | `p-2` | `p-3` |
-| Card rounding | `rounded-xl` | `rounded-2xl` |
+| Card rounding | `rounded-2xl` | `rounded-2xl` |
+| Card shadow | `shadow-sm` | `shadow-sm` (hover/selected: `shadow-md`) |
 | Content spacing | `mt-2`, `space-y-0.5` | `mt-3`, `space-y-1` |
-| Variant name | `text-base` | `text-base` |
+| Variant name | `text-sm` | `text-base` |
 | Quantity text | `text-[10px]` | `text-xs` |
-| Price | `text-lg` | `text-lg` |
-| Strikethrough | `text-sm` | `text-sm` |
+| Price | `text-sm` | `text-base` |
+| Strikethrough | `text-xs` | `text-sm` |
 | Save text | `text-xs` | `text-sm` |
 | Price gap | `gap-1` | `gap-2` |
 
@@ -432,4 +424,4 @@ When adding new sidebar panels on the game details page, follow this sizing:
 
 ---
 
-*This log documents styling changes. Last updated: February 16, 2026.*
+*This log documents styling changes. Last updated: February 24, 2026.*

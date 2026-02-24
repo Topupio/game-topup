@@ -14,6 +14,7 @@ const TYPE_COLORS: Record<string, string> = {
     password: "bg-red-50 text-red-600",
     number: "bg-amber-50 text-amber-600",
     dropdown: "bg-green-50 text-green-600",
+    tel: "bg-teal-50 text-teal-600",
 };
 
 export default function TemplateCard({ template }: Props) {

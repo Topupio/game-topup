@@ -13,7 +13,7 @@ const requiredFieldSchema = new mongoose.Schema({
     },
     fieldType: {
         type: String,
-        enum: ["text", "number", "email", "password", "dropdown"],
+        enum: ["text", "number", "email", "password", "dropdown", "tel"],
         default: "text",
     },
     placeholder: {

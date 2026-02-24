@@ -52,6 +52,8 @@ export default function GameDetailsPage({
     const { currency: displayCurrency, formatPrice, rates } = useCurrency();
     const router = useRouter();
 
+    const templateKey = selectedVariant?.checkoutTemplate || "";
+
     // Resolve checkout fields from the selected variant's template + options
     const checkoutFields = useMemo(() => {
         if (!selectedVariant) return [];
@@ -209,7 +211,7 @@ export default function GameDetailsPage({
 
                     {/* Mini Description */}
                     {gameDetails.description && (
-                        <p className="text-sm text-muted-foreground mb-4 bg-muted/50 border border-border rounded-xl px-4 py-2.5 leading-relaxed">
+                        <p className="text-sm text-muted-foreground mb-4 bg-muted/50 border border-border rounded-xl sm:px-4 sm:py-2.5 p-2 leading-relaxed">
                             {gameDetails.description}
                         </p>
                     )}
@@ -280,6 +282,7 @@ export default function GameDetailsPage({
                                 value={userDetails}
                                 errors={errors}
                                 onChange={updateUserDetails}
+                                templateKey={templateKey}
                             />
                         </div>
                     )}
@@ -329,6 +332,7 @@ export default function GameDetailsPage({
                         userDetails={userDetails}
                         errors={errors}
                         onFieldChange={updateUserDetails}
+                        templateKey={templateKey}
                     />
                 </>
             )}

@@ -70,7 +70,10 @@ export default function CategorySwiperSection({ categories }: Props) {
                             {/* Swiper */}
                             <Swiper
                                 slidesPerView="auto"
-                                spaceBetween={20}
+                                spaceBetween={10}
+                                breakpoints={{
+                                    640: { spaceBetween: 20 },
+                                }}
                                 freeMode={true}
                                 modules={[FreeMode]}
                                 className="!overflow-visible"

@@ -5,6 +5,7 @@ import { Variant, RegionPricing } from "@/lib/types/game";
 import { TemplateField } from "@/lib/constants/checkoutTemplates";
 import { RiCloseLine, RiAddLine, RiSubtractLine, RiArrowDownSLine } from "react-icons/ri";
 import { useCurrency } from "@/context/CurrencyContext";
+import PhoneInput from "./PhoneInput";
 
 function capitalize(str: string) {
     if (!str) return "";
@@ -24,6 +25,7 @@ interface Props {
     userDetails: Record<string, string>;
     errors: Record<string, string>;
     onFieldChange: (key: string, value: string) => void;
+    templateKey?: string;
 }
 
 export default function MobileCheckoutSheet({
@@ -39,6 +41,7 @@ export default function MobileCheckoutSheet({
     userDetails,
     errors,
     onFieldChange,
+    templateKey,
 }: Props) {
     const { formatPrice } = useCurrency();
     const { price, discountedPrice, currency } = pricing;
@@ -134,7 +137,7 @@ export default function MobileCheckoutSheet({
                     {checkoutFields.length > 0 && (
                         <div className="space-y-4">
                             <h4 className="text-sm font-bold text-secondary">
-                                Enter Your Details
+                                {templateKey === "ai_subscriptions" ? "Customer Details" : "Enter Your Details"}
                             </h4>
 
                             {checkoutFields.map((field) => (
@@ -146,7 +149,20 @@ export default function MobileCheckoutSheet({
                                         )}
                                     </label>
 
-                                    {field.fieldType !== "dropdown" ? (
+                                    {field.fieldType === "tel" ? (
+                                        <PhoneInput
+                                            value={userDetails[field.fieldKey] || ""}
+                                            onChange={(val) =>
+                                                onFieldChange(field.fieldKey, val)
+                                            }
+                                            placeholder={
+                                                field.placeholder ||
+                                                `Enter ${capitalize(field.fieldName)}`
+                                            }
+                                            hasError={!!errors[field.fieldKey]}
+                                            size="mobile"
+                                        />
+                                    ) : field.fieldType !== "dropdown" ? (
                                         <input
                                             type={field.fieldType}
                                             value={userDetails[field.fieldKey] || ""}
