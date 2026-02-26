@@ -81,3 +81,28 @@ export type CategoryResponse = {
 export interface ApiResponse<T> {
     data: T;
 }
+
+export interface CheckoutTemplateField {
+    fieldKey: string;
+    fieldName: string;
+    fieldType: "text" | "number" | "email" | "password" | "dropdown" | "tel";
+    required: boolean;
+    placeholder: string;
+    options: string[];
+    enabled: boolean;
+}
+
+export interface CheckoutTemplateDoc {
+    _id: string;
+    key: string;
+    label: string;
+    fields: CheckoutTemplateField[];
+    createdAt?: string;
+    updatedAt?: string;
+}
+
+export interface GameDetailResponse {
+    success: boolean;
+    data: Game;
+    checkoutTemplates: Record<string, CheckoutTemplateDoc>;
+}

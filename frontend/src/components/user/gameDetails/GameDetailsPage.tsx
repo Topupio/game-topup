@@ -1,7 +1,12 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Game, Variant, RegionPricing } from "@/lib/types/game";
+import {
+    Game,
+    Variant,
+    RegionPricing,
+    CheckoutTemplateDoc,
+} from "@/lib/types/game";
 import {
     CHECKOUT_TEMPLATES,
     TemplateField,
@@ -29,8 +34,10 @@ function hasRichContent(html: string | undefined): boolean {
 
 export default function GameDetailsPage({
     gameDetails,
+    checkoutTemplates = {},
 }: {
     gameDetails: Game;
+    checkoutTemplates?: Record<string, CheckoutTemplateDoc>;
 }) {
     const [selectedVariant, setSelectedVariant] = useState<Variant | null>(
         null
@@ -59,12 +66,30 @@ export default function GameDetailsPage({
         if (!selectedVariant) return [];
 
         const templateKey = selectedVariant.checkoutTemplate;
-        const template = CHECKOUT_TEMPLATES[templateKey];
-        if (!template) return [];
+
+        // Try DB template first, fall back to hardcoded constants
+        const dbTemplate = checkoutTemplates[templateKey];
+        const constTemplate = CHECKOUT_TEMPLATES[templateKey];
+        const templateFields = dbTemplate
+            ? dbTemplate.fields.map((f) => ({
+                  fieldKey: f.fieldKey,
+                  fieldName: f.fieldName,
+                  fieldType: f.fieldType,
+                  required: f.required,
+                  placeholder: f.placeholder,
+                  options: f.options || [],
+                  enabled: f.enabled,
+              }))
+            : constTemplate
+              ? constTemplate.fields.map((f) => ({ ...f, enabled: true }))
+              : null;
+
+        if (!templateFields) return [];
 
         const options = selectedVariant.checkoutTemplateOptions || {};
 
-        return template.fields
+        return templateFields
+            .filter((field) => field.enabled !== false)
             .map((field) => {
                 // UID topup: conditionally show zone field
                 if (field.fieldKey === "zone_server") {
@@ -98,7 +123,7 @@ export default function GameDetailsPage({
                 return field;
             })
             .filter(Boolean) as TemplateField[];
-    }, [selectedVariant]);
+    }, [selectedVariant, checkoutTemplates]);
 
     // Get pricing for selected variant in active region
     const selectedPricing = useMemo<RegionPricing | null>(() => {

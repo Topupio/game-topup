@@ -1,11 +1,11 @@
 "use client";
 
-import { CheckoutTemplate } from "@/lib/constants/checkoutTemplates";
+import { CheckoutTemplateDoc } from "@/lib/types/game";
 import { TbPencil } from "react-icons/tb";
-import { toast } from "react-toastify";
 
 interface Props {
-    template: CheckoutTemplate;
+    template: CheckoutTemplateDoc;
+    onEdit?: () => void;
 }
 
 const TYPE_COLORS: Record<string, string> = {
@@ -17,7 +17,9 @@ const TYPE_COLORS: Record<string, string> = {
     tel: "bg-teal-50 text-teal-600",
 };
 
-export default function TemplateCard({ template }: Props) {
+export default function TemplateCard({ template, onEdit }: Props) {
+    const enabledCount = template.fields.filter((f) => f.enabled).length;
+
     return (
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5 flex flex-col">
             {/* Header */}
@@ -31,7 +33,8 @@ export default function TemplateCard({ template }: Props) {
             </div>
 
             <p className="text-xs text-gray-400 mb-3">
-                {template.fields.length} field{template.fields.length !== 1 ? "s" : ""}
+                {enabledCount}/{template.fields.length} field
+                {template.fields.length !== 1 ? "s" : ""} enabled
             </p>
 
             {/* Fields list */}
@@ -39,7 +42,9 @@ export default function TemplateCard({ template }: Props) {
                 {template.fields.map((field) => (
                     <div
                         key={field.fieldKey}
-                        className="flex items-center justify-between gap-2 text-sm"
+                        className={`flex items-center justify-between gap-2 text-sm ${
+                            !field.enabled ? "opacity-40" : ""
+                        }`}
                     >
                         <span className="text-gray-700 truncate">
                             {field.fieldName}
@@ -47,12 +52,17 @@ export default function TemplateCard({ template }: Props) {
                         <div className="flex items-center gap-1.5 shrink-0">
                             <span
                                 className={`text-[10px] font-medium px-1.5 py-0.5 rounded ${
-                                    TYPE_COLORS[field.fieldType] || "bg-gray-50 text-gray-500"
+                                    TYPE_COLORS[field.fieldType] ||
+                                    "bg-gray-50 text-gray-500"
                                 }`}
                             >
                                 {field.fieldType}
                             </span>
-                            {field.required ? (
+                            {!field.enabled ? (
+                                <span className="text-[10px] font-medium text-orange-400">
+                                    Disabled
+                                </span>
+                            ) : field.required ? (
                                 <span className="text-[10px] font-medium text-red-400">
                                     Required
                                 </span>
@@ -69,7 +79,7 @@ export default function TemplateCard({ template }: Props) {
             {/* Footer */}
             <div className="border-t border-gray-100 pt-3 mt-3 flex justify-end">
                 <button
-                    onClick={() => toast.info("Edit template — coming soon")}
+                    onClick={() => onEdit?.()}
                     className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 px-3 py-1.5 rounded-lg transition"
                 >
                     <TbPencil size={15} /> Edit

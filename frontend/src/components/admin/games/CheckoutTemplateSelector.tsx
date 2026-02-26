@@ -1,6 +1,8 @@
 "use client";
 
-import { CHECKOUT_TEMPLATES, CHECKOUT_TEMPLATE_OPTIONS } from "@/lib/constants/checkoutTemplates";
+import { useState, useEffect } from "react";
+import { CheckoutTemplateDoc } from "@/lib/types/game";
+import { checkoutTemplatesApiClient } from "@/services/checkoutTemplates/checkoutTemplatesApi.client";
 import Select from "@/components/form/Select";
 
 interface Props {
@@ -18,7 +20,22 @@ export default function CheckoutTemplateSelector({
     onOptionsChange,
     error,
 }: Props) {
-    const template = CHECKOUT_TEMPLATES[selectedTemplate];
+    const [templates, setTemplates] = useState<CheckoutTemplateDoc[]>([]);
+
+    useEffect(() => {
+        checkoutTemplatesApiClient
+            .getAll()
+            .then((res) => setTemplates(res.data))
+            .catch(() => {});
+    }, []);
+
+    const selectOptions = [
+        { value: "", label: "Select a template" },
+        ...templates.map((t) => ({ value: t.key, label: t.label })),
+    ];
+
+    const template = templates.find((t) => t.key === selectedTemplate);
+    const enabledFields = template?.fields.filter((f) => f.enabled) || [];
 
     return (
         <div className="space-y-4">
@@ -28,18 +45,18 @@ export default function CheckoutTemplateSelector({
                 required
                 value={selectedTemplate}
                 onChange={(e) => onTemplateChange(e.target.value)}
-                options={CHECKOUT_TEMPLATE_OPTIONS}
+                options={selectOptions}
                 error={error}
             />
 
-            {/* Template Preview (for predefined templates) */}
+            {/* Template Preview */}
             {template && (
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 space-y-3">
                     <p className="text-sm font-medium text-blue-800">
                         Template Fields Preview — {template.label}
                     </p>
                     <div className="space-y-2">
-                        {template.fields.map((field) => (
+                        {enabledFields.map((field) => (
                             <div
                                 key={field.fieldKey}
                                 className="flex items-center gap-3 text-sm"
@@ -50,11 +67,14 @@ export default function CheckoutTemplateSelector({
                                 <span className="text-blue-400 text-xs">
                                     ({field.fieldType})
                                 </span>
-                                {field.required && (
-                                    <span className="text-xs text-red-500">Required</span>
-                                )}
-                                {!field.required && (
-                                    <span className="text-xs text-gray-400">Optional</span>
+                                {field.required ? (
+                                    <span className="text-xs text-red-500">
+                                        Required
+                                    </span>
+                                ) : (
+                                    <span className="text-xs text-gray-400">
+                                        Optional
+                                    </span>
                                 )}
                             </div>
                         ))}
@@ -66,7 +86,9 @@ export default function CheckoutTemplateSelector({
                             <div className="flex items-center gap-2">
                                 <input
                                     type="checkbox"
-                                    checked={templateOptions.zoneRequired ?? false}
+                                    checked={
+                                        templateOptions.zoneRequired ?? false
+                                    }
                                     onChange={(e) =>
                                         onOptionsChange({
                                             ...templateOptions,

@@ -68,6 +68,11 @@ export const endpoints = {
         byId: (id: Id) => `/api/exchange-rates/${id}`,
     },
 
+    checkoutTemplates: {
+        root: "/api/checkout-templates",
+        byKey: (key: string) => `/api/checkout-templates/${key}`,
+    },
+
     orders: {
         base: "/api/orders",
         myOrders: "/api/orders/my-orders",

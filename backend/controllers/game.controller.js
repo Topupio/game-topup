@@ -6,6 +6,7 @@ import { deleteImageFromCloudinary } from "../utils/deleteFromCloudinary.js";
 import { logAdminActivity } from "../utils/adminLogger.js";
 import { CHECKOUT_TEMPLATE_KEYS } from "../constants/checkoutTemplates.js";
 import { REGION_KEYS } from "../constants/regions.js";
+import CheckoutTemplate from "../models/checkoutTemplate.model.js";
 
 /**
  * Parse a JSON field from form-data (may arrive as a string).
@@ -283,9 +284,23 @@ const getGameDetails = asyncHandler(async (req, res) => {
         });
     }
 
+    // Fetch checkout templates from DB for this game's variants
+    const templateKeys = [
+        ...new Set(game.variants.map((v) => v.checkoutTemplate).filter(Boolean)),
+    ];
+    const templates =
+        templateKeys.length > 0
+            ? await CheckoutTemplate.find({ key: { $in: templateKeys } }).lean()
+            : [];
+    const checkoutTemplates = {};
+    for (const t of templates) {
+        checkoutTemplates[t.key] = t;
+    }
+
     return res.status(200).json({
         success: true,
         data: game,
+        checkoutTemplates,
     });
 });
 

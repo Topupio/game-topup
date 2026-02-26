@@ -16,6 +16,7 @@ import orderRouter from './routes/order.routes.js';
 import uploadRouter from './routes/upload.routes.js';
 import paymentRouter from './routes/payment.routes.js';
 import exchangeRateRouter from './routes/exchangeRate.routes.js';
+import checkoutTemplateRouter from './routes/checkoutTemplate.routes.js';
 
 // Create and configure the Express app
 const app = express();
@@ -93,6 +94,7 @@ app.use('/api/orders', orderRouter);
 app.use('/api/upload', uploadRouter);
 app.use('/api/payments', paymentRouter);
 app.use('/api/exchange-rates', exchangeRateRouter);
+app.use('/api/checkout-templates', checkoutTemplateRouter);
 
 // Root route
 app.get('/', (req, res) => {

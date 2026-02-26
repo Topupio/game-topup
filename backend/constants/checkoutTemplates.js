@@ -4,6 +4,14 @@ export const CHECKOUT_TEMPLATES = {
     label: "UID Top-Up",
     fields: [
       {
+        fieldKey: "whatsapp_number",
+        fieldName: "WhatsApp Number",
+        fieldType: "tel",
+        required: true,
+        placeholder: "Enter WhatsApp number",
+        options: [],
+      },
+      {
         fieldKey: "player_uid",
         fieldName: "Player UID",
         fieldType: "text",
@@ -25,6 +33,14 @@ export const CHECKOUT_TEMPLATES = {
     key: "login_topup",
     label: "Login Top-Up",
     fields: [
+      {
+        fieldKey: "whatsapp_number",
+        fieldName: "WhatsApp Number",
+        fieldType: "tel",
+        required: true,
+        placeholder: "Enter WhatsApp number",
+        options: [],
+      },
       {
         fieldKey: "email_username",
         fieldName: "Email/Username",
@@ -56,6 +72,14 @@ export const CHECKOUT_TEMPLATES = {
     label: "Live Apps Top-Up",
     fields: [
       {
+        fieldKey: "whatsapp_number",
+        fieldName: "WhatsApp Number",
+        fieldType: "tel",
+        required: true,
+        placeholder: "Enter WhatsApp number",
+        options: [],
+      },
+      {
         fieldKey: "account_id",
         fieldName: "Phone / Account ID / Username",
         fieldType: "text",
@@ -77,6 +101,14 @@ export const CHECKOUT_TEMPLATES = {
     key: "gift_cards",
     label: "Gift Cards",
     fields: [
+      {
+        fieldKey: "whatsapp_number",
+        fieldName: "WhatsApp Number",
+        fieldType: "tel",
+        required: true,
+        placeholder: "Enter WhatsApp number",
+        options: [],
+      },
       {
         fieldKey: "email",
         fieldName: "Email to receive code",
