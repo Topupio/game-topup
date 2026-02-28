@@ -15,6 +15,14 @@ const bannerSchema = new mongoose.Schema(
             type: String,
             required: [true, "Image Public ID is required for management"],
         },
+        mobileImageUrl: {
+            type: String,
+            default: "",
+        },
+        mobileImagePublicId: {
+            type: String,
+            default: "",
+        },
         link: {
             type: String, // Optional URL to redirect to when clicked
             default: "",
