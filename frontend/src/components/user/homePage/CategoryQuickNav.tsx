@@ -10,6 +10,7 @@ import {
     RiCoupon3Fill,
     RiSparklingFill,
 } from "react-icons/ri";
+import { categoryToSlug } from "@/lib/constants/checkoutTemplates";
 
 /* ── icon + color mapping per category ── */
 const CATEGORY_META: Record<
@@ -106,7 +107,7 @@ export default function CategoryQuickNav({ categories }: CategoryQuickNavProps) 
                     return (
                         <motion.div key={cat} variants={itemVariants}>
                             <Link
-                                href={`/categories?category=${encodeURIComponent(cat)}&page=1`}
+                                href={`/categories?category=${categoryToSlug(cat)}&page=1`}
                                 className={`
                                     flex flex-col items-center gap-1.5 group
                                     py-2 cursor-pointer

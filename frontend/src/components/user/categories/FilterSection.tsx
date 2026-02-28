@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { gamesApiClient } from "@/services/games";
 import FilterGroup from "./FilterGroup";
 import CategoryShimmer from "./CategoryShimmer";
-import { CATEGORIES } from "@/lib/constants/checkoutTemplates";
+import { CATEGORIES, categoryToSlug, slugToCategory } from "@/lib/constants/checkoutTemplates";
 import {
     RiGamepadFill,
     RiLoginBoxFill,
@@ -32,7 +32,8 @@ export default function FilterSection() {
     const [apiCategories, setApiCategories] = useState<string[]>([]);
     const [loading, setLoading] = useState(true);
 
-    const selectedCategory = searchParams.get("category") || "";
+    const selectedSlug = searchParams.get("category") || "";
+    const selectedCategory = selectedSlug ? slugToCategory(selectedSlug) : "";
 
     useEffect(() => {
         const fetchCategories = async () => {
@@ -60,7 +61,7 @@ export default function FilterSection() {
         if (label === null) {
             params.delete("category");
         } else {
-            params.set("category", label);
+            params.set("category", categoryToSlug(label));
         }
 
         params.set("page", "1");

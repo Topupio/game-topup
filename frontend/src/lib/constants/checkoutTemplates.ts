@@ -196,3 +196,26 @@ export const CATEGORY_OPTIONS = CATEGORIES.map((c) => ({
   label: c.charAt(0).toUpperCase() + c.slice(1),
   value: c,
 }));
+
+/** Slug → DB category name mapping */
+export const CATEGORY_SLUG_MAP: Record<string, string> = {
+  "uid-instant-top-up": "uid instant top-up",
+  "login-top-up": "login top-up",
+  "live-apps-top-up": "live apps top-up",
+  "gift-cards": "gift cards",
+  "ai-subscriptions": "ai & subscriptions",
+};
+
+const CATEGORY_NAME_TO_SLUG = Object.fromEntries(
+  Object.entries(CATEGORY_SLUG_MAP).map(([slug, name]) => [name, slug])
+);
+
+/** Convert a category display name to a URL-safe slug */
+export const categoryToSlug = (name: string): string => {
+  return CATEGORY_NAME_TO_SLUG[name.toLowerCase()] || name.toLowerCase().replace(/[&]/g, "").replace(/\s+/g, "-").replace(/-+/g, "-");
+};
+
+/** Convert a URL slug back to the DB category name */
+export const slugToCategory = (slug: string): string => {
+  return CATEGORY_SLUG_MAP[slug] || slug;
+};

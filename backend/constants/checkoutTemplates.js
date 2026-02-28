@@ -168,3 +168,17 @@ export const CATEGORIES = [
   "gift cards",
   "ai & subscriptions",
 ];
+
+/** Slug → DB category name mapping */
+export const CATEGORY_SLUG_MAP = {
+  "uid-instant-top-up": "uid instant top-up",
+  "login-top-up": "login top-up",
+  "live-apps-top-up": "live apps top-up",
+  "gift-cards": "gift cards",
+  "ai-subscriptions": "ai & subscriptions",
+};
+
+/** Convert a URL slug back to the DB category name */
+export const slugToCategory = (slug) => {
+  return CATEGORY_SLUG_MAP[slug] || slug;
+};

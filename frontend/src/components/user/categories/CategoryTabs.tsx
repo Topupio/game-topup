@@ -9,7 +9,7 @@ import {
     RiSparklingFill,
     RiApps2Fill,
 } from "react-icons/ri";
-import { CATEGORIES } from "@/lib/constants/checkoutTemplates";
+import { CATEGORIES, categoryToSlug, slugToCategory } from "@/lib/constants/checkoutTemplates";
 
 /* ── short labels + icons ── */
 const TAB_META: Record<string, { icon: React.ElementType; label: string }> = {
@@ -23,14 +23,15 @@ const TAB_META: Record<string, { icon: React.ElementType; label: string }> = {
 export default function CategoryTabs() {
     const router = useRouter();
     const searchParams = useSearchParams();
-    const selectedCategory = searchParams.get("category") || "";
+    const selectedSlug = searchParams.get("category") || "";
+    const selectedCategory = selectedSlug ? slugToCategory(selectedSlug) : "";
 
     const navigate = (cat: string | null) => {
         const params = new URLSearchParams(searchParams.toString());
         if (cat === null) {
             params.delete("category");
         } else {
-            params.set("category", cat);
+            params.set("category", categoryToSlug(cat));
         }
         params.set("page", "1");
         router.push(`/categories?${params.toString()}`);

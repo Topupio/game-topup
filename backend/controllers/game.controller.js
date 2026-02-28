@@ -4,7 +4,7 @@ import slugify from "slugify";
 import { uploadBufferToCloudinary } from "../utils/uploadToCloudinary.js";
 import { deleteImageFromCloudinary } from "../utils/deleteFromCloudinary.js";
 import { logAdminActivity } from "../utils/adminLogger.js";
-import { CHECKOUT_TEMPLATE_KEYS } from "../constants/checkoutTemplates.js";
+import { CHECKOUT_TEMPLATE_KEYS, slugToCategory } from "../constants/checkoutTemplates.js";
 import { REGION_KEYS } from "../constants/regions.js";
 import CheckoutTemplate from "../models/checkoutTemplate.model.js";
 
@@ -145,7 +145,7 @@ const getGames = asyncHandler(async (req, res) => {
     }
 
     if (category) {
-        const categories = category.split(",");
+        const categories = category.split(",").map((c) => slugToCategory(c.trim()));
         conditions.push({
             $or: [
                 { category: { $in: categories } },

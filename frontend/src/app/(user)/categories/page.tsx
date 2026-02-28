@@ -1,6 +1,7 @@
 import { gamesApiServer } from "@/services/games/gamesApi.server";
 import { Game } from "@/services/games";
 import CategoryListingPage from "@/components/user/categories/CategoryListingPage";
+import { slugToCategory } from "@/lib/constants/checkoutTemplates";
 
 export default async function CategoryPage({
     searchParams,
@@ -8,7 +9,8 @@ export default async function CategoryPage({
     searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
     const params = await searchParams;
-    const category = typeof params.category === "string" ? params.category : undefined;
+    const categorySlug = typeof params.category === "string" ? params.category : undefined;
+    const category = categorySlug ? slugToCategory(categorySlug) : undefined;
     const page = Number(params.page) || 1;
     const limit = 12;
 
