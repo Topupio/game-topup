@@ -10,21 +10,30 @@ import { logAdminActivity } from "../utils/adminLogger.js";
 export const createBanner = asyncHandler(async (req, res) => {
     const { title, link, isActive, order } = req.body;
 
-    if (!req.file) {
+    const desktopFile = req.files?.image?.[0];
+    const mobileFile = req.files?.mobileImage?.[0];
+
+    if (!desktopFile) {
         res.status(400);
         throw new Error("Banner image is required");
     }
 
-    // Upload to Cloudinary
-    const upload = await uploadBufferToCloudinary(req.file.buffer, "banners");
+    // Upload desktop image (and mobile if provided)
+    const uploads = [uploadBufferToCloudinary(desktopFile.buffer, "banners")];
+    if (mobileFile) uploads.push(uploadBufferToCloudinary(mobileFile.buffer, "banners"));
+    const [desktopUpload, mobileUpload] = await Promise.all(uploads);
 
     const banner = await Banner.create({
         title,
         link,
         isActive: isActive === "true" || isActive === true,
         order: order ? parseInt(order) : 0,
-        imageUrl: upload.secure_url,
-        imagePublicId: upload.public_id,
+        imageUrl: desktopUpload.secure_url,
+        imagePublicId: desktopUpload.public_id,
+        ...(mobileUpload && {
+            mobileImageUrl: mobileUpload.secure_url,
+            mobileImagePublicId: mobileUpload.public_id,
+        }),
     });
 
     logAdminActivity(req, {
@@ -98,28 +107,46 @@ export const updateBanner = asyncHandler(async (req, res) => {
     if (isActive !== undefined) updates.isActive = isActive === "true" || isActive === true;
     if (order !== undefined) updates.order = parseInt(order);
 
+    const desktopFile = req.files?.image?.[0];
+    const mobileFile = req.files?.mobileImage?.[0];
+
     let existingBanner;
 
-    if (req.file) {
-        // Only select imagePublicId to minimize DB overhead 
-        existingBanner = await Banner.findById(req.params.id).select("imagePublicId");
+    if (desktopFile || mobileFile) {
+        existingBanner = await Banner.findById(req.params.id).select("imagePublicId mobileImagePublicId");
 
         if (!existingBanner) {
             res.status(404);
             throw new Error("Banner not found");
         }
 
-        // Upload new image and delete old image
-        const uploadPromise = uploadBufferToCloudinary(req.file.buffer, "banners");
-        const deletePromise = existingBanner.imagePublicId
-            ? deleteImageFromCloudinary(existingBanner.imagePublicId)
-            : Promise.resolve();
+        const promises = [];
 
-        // Wait for both promises to resolve
-        const [upload] = await Promise.all([uploadPromise, deletePromise]);
+        if (desktopFile) {
+            promises.push(uploadBufferToCloudinary(desktopFile.buffer, "banners"));
+            if (existingBanner.imagePublicId) promises.push(deleteImageFromCloudinary(existingBanner.imagePublicId));
+        }
 
-        updates.imageUrl = upload.secure_url;
-        updates.imagePublicId = upload.public_id;
+        if (mobileFile) {
+            promises.push(uploadBufferToCloudinary(mobileFile.buffer, "banners"));
+            if (existingBanner.mobileImagePublicId) promises.push(deleteImageFromCloudinary(existingBanner.mobileImagePublicId));
+        }
+
+        const results = await Promise.all(promises);
+
+        // Extract upload results (uploads return objects, deletes return undefined-ish)
+        let idx = 0;
+        if (desktopFile) {
+            const upload = results[idx++];
+            if (existingBanner.imagePublicId) idx++; // skip delete result
+            updates.imageUrl = upload.secure_url;
+            updates.imagePublicId = upload.public_id;
+        }
+        if (mobileFile) {
+            const upload = results[idx++];
+            updates.mobileImageUrl = upload.secure_url;
+            updates.mobileImagePublicId = upload.public_id;
+        }
     }
 
     // Update banner
@@ -151,22 +178,22 @@ export const updateBanner = asyncHandler(async (req, res) => {
 // @route   DELETE /api/banners/:id
 // @access  Private/Admin
 export const deleteBanner = asyncHandler(async (req, res) => {
-    const banner = await Banner.findById(req.params.id).select('imagePublicId');
+    const banner = await Banner.findById(req.params.id).select('imagePublicId mobileImagePublicId');
 
     if (!banner) {
         res.status(404);
         throw new Error("Banner not found");
     }
 
-    // Delete image from Cloudinary
-    const deleteImagePromise = banner.imagePublicId
-        ? deleteImageFromCloudinary(banner.imagePublicId)
-        : Promise.resolve();
+    // Delete images from Cloudinary
+    const deletePromises = [];
+    if (banner.imagePublicId) deletePromises.push(deleteImageFromCloudinary(banner.imagePublicId));
+    if (banner.mobileImagePublicId) deletePromises.push(deleteImageFromCloudinary(banner.mobileImagePublicId));
 
     // Delete banner from database
-    const deleteBannerPromise = Banner.findByIdAndDelete(req.params.id);
+    deletePromises.push(Banner.findByIdAndDelete(req.params.id));
 
-    await Promise.all([deleteImagePromise, deleteBannerPromise]);
+    await Promise.all(deletePromises);
 
     logAdminActivity(req, {
         action: "DELETE",
