@@ -3,6 +3,8 @@ export interface Banner {
     title: string;
     imageUrl: string;
     imagePublicId: string;
+    mobileImageUrl?: string;
+    mobileImagePublicId?: string;
     link: string;
     isActive: boolean;
     order: number;
@@ -16,6 +18,7 @@ export interface BannerPayload {
     isActive?: boolean | string;
     order?: number | string;
     image?: File;
+    mobileImage?: File;
 }
 
 export interface BannerListResponse {

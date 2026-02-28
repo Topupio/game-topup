@@ -45,7 +45,7 @@ export default function HeroCarousel({ banners }: { banners: Banner[] }) {
                 <div className="relative lg:mt-8 mt-3">
                     <div className="relative overflow-hidden rounded-xl">
 
-                        <div className="relative max-h-[80vh] lg:min-h-[60vh] min-h-[30vh]">
+                        <div className="relative aspect-[30/8] w-full">
 
                             {banners.map((banner, index) => (
                                 <div
@@ -57,17 +57,24 @@ export default function HeroCarousel({ banners }: { banners: Banner[] }) {
                                                 : "opacity-0 scale-95 -translate-x-full"
                                         }`}
                                 >
-                                    {/* CLICKABLE WHOLE SLIDE */}
                                     <div
-                                        className="h-full w-full cursor-pointer relative"
-                                        onClick={() => handleRedirect(banner.link)}
+                                        className={`h-full w-full relative ${banner.link ? "cursor-pointer" : ""}`}
+                                        onClick={() => banner.link && handleRedirect(banner.link)}
                                     >
-                                        {/* Background Image */}
+                                        {/* Desktop Image */}
                                         <img
                                             src={banner.imageUrl ?? "/placeholder.png"}
                                             alt={banner.title}
-                                            className="absolute inset-0 w-full h-full object-cover"
+                                            className={`absolute inset-0 w-full h-full object-cover ${banner.mobileImageUrl ? "hidden lg:block" : ""}`}
                                         />
+                                        {/* Mobile Image (if available) */}
+                                        {banner.mobileImageUrl && (
+                                            <img
+                                                src={banner.mobileImageUrl}
+                                                alt={banner.title}
+                                                className="absolute inset-0 w-full h-full object-cover lg:hidden"
+                                            />
+                                        )}
 
                                         {/* Black Overlay to keep text readable if needed */}
                                         <div className="absolute inset-0 bg-black/30" />

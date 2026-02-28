@@ -19,6 +19,7 @@ interface Props {
 
 interface BannerFormData extends Partial<Banner> {
     imageFile?: File | null;
+    mobileImageFile?: File | null;
 }
 
 export default function BannerForm({ bannerId }: Props) {
@@ -37,9 +38,11 @@ export default function BannerForm({ bannerId }: Props) {
             title: "",
             link: "",
             imageUrl: "",
+            mobileImageUrl: "",
             isActive: true,
             order: 0,
             imageFile: null,
+            mobileImageFile: null,
         },
         {
             onSuccess: () => {
@@ -68,9 +71,11 @@ export default function BannerForm({ bannerId }: Props) {
                     title: banner.title,
                     link: banner.link,
                     imageUrl: banner.imageUrl,
+                    mobileImageUrl: banner.mobileImageUrl || "",
                     isActive: banner.isActive,
                     order: banner.order,
                     imageFile: null,
+                    mobileImageFile: null,
                 });
             } catch (error) {
                 console.error(error);
@@ -104,6 +109,7 @@ export default function BannerForm({ bannerId }: Props) {
                 isActive: String(formData.isActive),
                 order: String(formData.order),
                 image: (formData.imageFile as File) ?? undefined,
+                mobileImage: (formData.mobileImageFile as File) ?? undefined,
             };
 
             if (isEdit) {
@@ -122,18 +128,39 @@ export default function BannerForm({ bannerId }: Props) {
             onSubmit={onSubmit}
             submitLabel={isEdit ? "Update Banner" : "Create Banner"}
         >
-            <FormSection title="Banner Information">
-                <ImageUploader
-                    imageUrl={(form.imageUrl as string | null) || null}
-                    onChange={(file, preview) => {
-                        updateForm({
-                            imageFile: file,
-                            imageUrl: preview ?? undefined,
-                        });
-                        clearError("imageUrl");
-                    }}
-                    error={errors.imageUrl}
-                />
+            <FormSection title="Banner Images">
+                <div>
+                    <label className="font-medium block mb-2">Banner Image (30:8)</label>
+                    <ImageUploader
+                        imageUrl={(form.imageUrl as string | null) || null}
+                        onChange={(file, preview) => {
+                            updateForm({
+                                imageFile: file,
+                                imageUrl: preview ?? undefined,
+                            });
+                            clearError("imageUrl");
+                        }}
+                        aspectRatio={30 / 8}
+                        error={errors.imageUrl}
+                    />
+                </div>
+
+                <div>
+                    <label className="font-medium block mb-2">Mobile Banner (16:9) — Optional</label>
+                    <ImageUploader
+                        imageUrl={(form.mobileImageUrl as string | null) || null}
+                        onChange={(file, preview) => {
+                            updateForm({
+                                mobileImageFile: file,
+                                mobileImageUrl: preview ?? undefined,
+                            });
+                        }}
+                        aspectRatio={16 / 9}
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">
+                        If not provided, the desktop banner will be used on mobile too.
+                    </p>
+                </div>
 
                 <Input
                     label="Title (Optional)"
