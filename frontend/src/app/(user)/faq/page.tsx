@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import {
     RiQuestionLine,
     RiTruckLine,
@@ -10,6 +11,7 @@ import {
     RiCustomerService2Line,
     RiToolsLine,
     RiArrowDownSLine,
+    RiHeadphoneLine,
 } from "react-icons/ri";
 
 type FaqItem = { question: string; answer: string | string[] };
@@ -227,7 +229,7 @@ export default function FaqPage() {
                         Frequently Asked <span className="text-secondary">Questions</span>
                     </h1>
                     <p className="text-muted-foreground leading-relaxed max-w-3xl">
-                        Find answers to common questions about TopUpIO.
+                        Find answers to common questions about TopUpio.com
                     </p>
                 </div>
 
@@ -294,6 +296,24 @@ export default function FaqPage() {
                             </div>
                         ))}
                     </div>
+                </div>
+
+                {/* Contact CTA */}
+                <div className="mt-10 max-w-5xl mx-auto bg-card rounded-2xl border border-border p-6 sm:p-8 shadow-soft text-center">
+                    <div className="w-12 h-12 rounded-xl bg-secondary/10 border border-secondary/20 flex items-center justify-center text-secondary mx-auto mb-4">
+                        <RiHeadphoneLine className="w-6 h-6" />
+                    </div>
+                    <h3 className="text-lg font-bold text-foreground mb-2">Still have questions?</h3>
+                    <p className="text-sm text-muted-foreground mb-6 max-w-md mx-auto">
+                        Can&apos;t find what you&apos;re looking for? Our support team is available 24/7 to help you.
+                    </p>
+                    <Link
+                        href="/contact"
+                        className="inline-flex items-center gap-2 px-6 py-3 bg-secondary text-white text-sm font-semibold rounded-xl hover:opacity-90 transition-opacity"
+                    >
+                        <RiCustomerService2Line className="w-4 h-4" />
+                        Contact Us
+                    </Link>
                 </div>
             </div>
         </div>
