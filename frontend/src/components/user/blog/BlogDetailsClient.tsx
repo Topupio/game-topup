@@ -4,6 +4,7 @@ import { motion, useScroll, useSpring } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import { FaCalendarAlt, FaChevronLeft, FaClock, FaShareAlt } from "react-icons/fa";
+import DOMPurify from "isomorphic-dompurify";
 import { Blog } from "@/services/blog/types";
 
 interface Props {
@@ -111,9 +112,12 @@ export default function BlogDetailsClient({ blog, readTime }: Props) {
                                     {section.contentTitle}
                                 </h2>
                             )}
-                            <p className="text-[1.02rem] text-gray-300 leading-[1.8] tracking-wide font-light whitespace-pre-line">
-                                {section.contentDescription}
-                            </p>
+                            <div
+                                className="rich-description"
+                                dangerouslySetInnerHTML={{
+                                    __html: DOMPurify.sanitize(section.contentDescription),
+                                }}
+                            />
                         </div>
                     ))}
                 </article>

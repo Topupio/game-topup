@@ -12,6 +12,7 @@ import FormSection from "@/components/admin/form/FormSection";
 import ImageUploader from "@/components/form/ImageUploader";
 import Input from "@/components/form/Input";
 import Textarea from "@/components/form/TextArea";
+import RichTextEditor from "@/components/form/RichTextEditor";
 
 interface Props {
     blogId: string | "new";
@@ -311,18 +312,22 @@ export default function BlogForm({ blogId }: Props) {
                                     }
                                     placeholder="Section Header"
                                 />
-                                <Textarea
-                                    label="Content Body"
-                                    value={section.contentDescription}
-                                    onChange={(e) =>
-                                        updateSection(
-                                            index,
-                                            "contentDescription",
-                                            e.target.value
-                                        )
-                                    }
-                                    placeholder="Write section content here..."
-                                />
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Content Body
+                                    </label>
+                                    <RichTextEditor
+                                        value={section.contentDescription}
+                                        onChange={(html) =>
+                                            updateSection(
+                                                index,
+                                                "contentDescription",
+                                                html
+                                            )
+                                        }
+                                        placeholder="Write section content here..."
+                                    />
+                                </div>
                             </div>
                         </div>
                     ))}

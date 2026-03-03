@@ -44,7 +44,7 @@ export default async function BlogDetailsPage({ params }: Props) {
     }
 
     // Calculate generic read time (approx 200 words per minute)
-    const totalWords = blog.content.reduce((acc, curr) => acc + curr.contentDescription.split(" ").length, 0);
+    const totalWords = blog.content.reduce((acc, curr) => acc + curr.contentDescription.replace(/<[^>]*>/g, "").split(" ").length, 0);
     const readTime = Math.max(1, Math.ceil(totalWords / 200));
 
     return <BlogDetailsClient blog={blog} readTime={readTime} />;
