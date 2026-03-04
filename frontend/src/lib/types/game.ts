@@ -33,6 +33,8 @@ export interface Variant {
     imagePublicId?: string | null;
     checkoutTemplate: string;
     checkoutTemplateOptions: Record<string, any>;
+    apiGameName?: string;
+    apiPackId?: string;
 }
 
 export type Game = {

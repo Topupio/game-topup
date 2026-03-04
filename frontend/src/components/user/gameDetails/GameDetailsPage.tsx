@@ -25,6 +25,7 @@ import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import DOMPurify from "isomorphic-dompurify";
 import PayPalCheckout from "./PayPalCheckout";
+import { usePlayerVerification } from "@/hooks/usePlayerVerification";
 
 function hasRichContent(html: string | undefined): boolean {
     if (!html) return false;
@@ -58,6 +59,7 @@ export default function GameDetailsPage({
     const { user } = useAuth();
     const { currency: displayCurrency, formatPrice, rates } = useCurrency();
     const router = useRouter();
+    const playerVerification = usePlayerVerification();
 
     const templateKey = selectedVariant?.checkoutTemplate || "";
 
@@ -144,6 +146,12 @@ export default function GameDetailsPage({
     const updateUserDetails = (key: string, value: string) => {
         setUserDetails((prev) => ({ ...prev, [key]: value }));
         setErrors((prev) => ({ ...prev, [key]: "" }));
+
+        // Trigger player verification for uid_topup when UID changes
+        if (key === "player_uid" && templateKey === "uid_topup") {
+            const zoneId = userDetails["zone_server"] || undefined;
+            playerVerification.triggerVerify(value, zoneId);
+        }
     };
 
     const validateFields = () => {
@@ -308,6 +316,7 @@ export default function GameDetailsPage({
                                 errors={errors}
                                 onChange={updateUserDetails}
                                 templateKey={templateKey}
+                                verification={templateKey === "uid_topup" ? playerVerification : undefined}
                             />
                         </div>
                     )}
@@ -358,6 +367,7 @@ export default function GameDetailsPage({
                         errors={errors}
                         onFieldChange={updateUserDetails}
                         templateKey={templateKey}
+                        verification={templateKey === "uid_topup" ? playerVerification : undefined}
                     />
                 </>
             )}

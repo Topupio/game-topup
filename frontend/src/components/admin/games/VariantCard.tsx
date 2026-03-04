@@ -180,6 +180,32 @@ export default function VariantCard({ variant, index, regions, onChange, onDelet
                             }
                         />
                     </div>
+
+                    {/* ── Section: Auto Fulfillment (API) ── */}
+                    {(variant.checkoutTemplate === "uid_topup" || variant.checkoutTemplate === "gift_cards") && (
+                        <div className="px-4 py-3 border-t border-purple-100 bg-purple-50/60">
+                            <p className="text-xs font-semibold text-purple-600 uppercase tracking-wide mb-3">
+                                Auto Fulfillment (API)
+                            </p>
+                            <div className="grid grid-cols-2 gap-3">
+                                <Input
+                                    label={variant.checkoutTemplate === "gift_cards" ? "API Platform" : "API Game Name"}
+                                    placeholder={variant.checkoutTemplate === "gift_cards" ? "e.g. psn, steam, xbox" : "e.g. mobilelegend"}
+                                    value={variant.apiGameName || ""}
+                                    onChange={(e) => update({ apiGameName: e.target.value })}
+                                />
+                                <Input
+                                    label={variant.checkoutTemplate === "gift_cards" ? "API Denomination" : "API Pack ID"}
+                                    placeholder={variant.checkoutTemplate === "gift_cards" ? "e.g. 50" : "e.g. 86"}
+                                    value={variant.apiPackId || ""}
+                                    onChange={(e) => update({ apiPackId: e.target.value })}
+                                />
+                            </div>
+                            <p className="text-xs text-purple-400 mt-2">
+                                Set both fields to enable automatic order processing via Gamers Workshop API
+                            </p>
+                        </div>
+                    )}
                 </div>
             )}
         </div>

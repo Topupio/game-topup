@@ -5,6 +5,60 @@ import mongoose from "mongoose";
 import { logAdminActivity } from "../utils/adminLogger.js";
 import * as paypalService from "../services/paypal.service.js";
 import { getExchangeRates, convertAmount } from "../utils/currencyConverter.js";
+import { placeExternalOrderIfEligible } from "../utils/externalOrderPlacer.js";
+
+/**
+ * @desc    [DEV ONLY] Simulate payment success for testing external order placement
+ * @route   POST /api/payments/mock-success
+ * @access  Private (admin)
+ */
+export const mockPaymentSuccess = asyncHandler(async (req, res) => {
+    if (process.env.NODE_ENV === "production") {
+        return res.status(403).json({ success: false, message: "Not available in production" });
+    }
+
+    const { orderId } = req.body;
+    if (!orderId) {
+        return res.status(400).json({ success: false, message: "orderId is required" });
+    }
+
+    const order = await Order.findById(orderId);
+    if (!order) {
+        return res.status(404).json({ success: false, message: "Order not found" });
+    }
+
+    // Simulate payment success
+    order.paymentStatus = "paid";
+    order.orderStatus = "paid";
+    order.paymentInfo = {
+        transactionId: `MOCK-${Date.now()}`,
+        paymentGatewayResponse: { mock: true },
+    };
+    order.tracking.push({
+        status: "paid",
+        message: "Payment simulated (dev mock)",
+    });
+    await order.save();
+
+    // Trigger external order placement
+    try {
+        await placeExternalOrderIfEligible(order);
+    } catch (extError) {
+        console.error("External order placement failed:", extError);
+        return res.status(200).json({
+            success: true,
+            message: "Payment mocked but external order failed",
+            error: extError.message,
+            data: order,
+        });
+    }
+
+    res.status(200).json({
+        success: true,
+        message: "Payment mocked and external order placed",
+        data: order,
+    });
+});
 
 /**
  * @desc    Create a PayPal order for an existing pending order
@@ -150,6 +204,13 @@ export const capturePayPalOrder = asyncHandler(async (req, res) => {
                 gatewayResponse: captureResult.fullResponse,
             });
 
+            // Auto-place external order if eligible (uid_topup / gift_cards)
+            try {
+                await placeExternalOrderIfEligible(order);
+            } catch (extError) {
+                console.error("External order placement failed:", extError);
+            }
+
             return res.status(200).json({
                 success: true,
                 data: order,
@@ -275,6 +336,13 @@ export const handlePayPalWebhook = async (req, res) => {
                             transactionId: captureId,
                             gatewayResponse: resource,
                         });
+                    }
+
+                    // Auto-place external order if eligible
+                    try {
+                        await placeExternalOrderIfEligible(targetOrder);
+                    } catch (extError) {
+                        console.error("External order placement from webhook failed:", extError);
                     }
                 }
                 break;

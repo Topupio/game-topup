@@ -121,6 +121,17 @@ const variantSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.Mixed,
         default: {},
     },
+    // External API mapping for auto-fulfillment (Gamers Workshop)
+    apiGameName: {
+        type: String,
+        default: "",
+        trim: true,
+    },
+    apiPackId: {
+        type: String,
+        default: "",
+        trim: true,
+    },
 });
 
 const gameSchema = new mongoose.Schema(

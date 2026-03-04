@@ -1,3 +1,6 @@
+import dns from 'node:dns';
+dns.setDefaultResultOrder('ipv4first');
+
 import express from 'express';
 import morgan from 'morgan';
 import cors from 'cors';
@@ -17,6 +20,7 @@ import uploadRouter from './routes/upload.routes.js';
 import paymentRouter from './routes/payment.routes.js';
 import exchangeRateRouter from './routes/exchangeRate.routes.js';
 import checkoutTemplateRouter from './routes/checkoutTemplate.routes.js';
+import webhookRouter from './routes/webhook.routes.js';
 
 // Create and configure the Express app
 const app = express();
@@ -78,6 +82,11 @@ app.use((req, res, next) => {
         return next();
     }
 
+    // Skip CSRF for Gamers Workshop webhook
+    if (req.method === 'POST' && req.path === '/api/webhooks/gamers-workshop') {
+        return next();
+    }
+
     // Apply CSRF to everything else
     csrfProtection(req, res, next);
 });
@@ -95,6 +104,7 @@ app.use('/api/upload', uploadRouter);
 app.use('/api/payments', paymentRouter);
 app.use('/api/exchange-rates', exchangeRateRouter);
 app.use('/api/checkout-templates', checkoutTemplateRouter);
+app.use('/api/webhooks', webhookRouter);
 
 // Root route
 app.get('/', (req, res) => {

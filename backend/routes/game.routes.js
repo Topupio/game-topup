@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { getGames, getHomePageGames, getDistinctCategories, getGamesByPaymentCategory, getPopularGames, getGameDetails, createGame, updateGame, deleteGame } from "../controllers/game.controller.js";
+import { verifyPlayer } from "../controllers/gamersWorkshop.controller.js";
 import { protect } from "../middlewares/auth.middleware.js";
 import { authorize } from "../middlewares/role.middleware.js";
 import { upload } from "../middlewares/upload.middleware.js";
@@ -12,6 +13,10 @@ router.get("/home", getHomePageGames);
 router.get("/categories", getDistinctCategories);
 router.get("/payment-categories", getGamesByPaymentCategory);
 router.get("/popular", getPopularGames);
+
+// Player verification via external API
+router.post("/verify-player", protect, verifyPlayer);
+
 router.get('/:slug' , getGameDetails)
 
 // Admin only: create, update, delete

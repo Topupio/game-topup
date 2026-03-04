@@ -55,4 +55,16 @@ export const gamesApiClient = {
         const { data } = await clientApi.delete(endpoints.games.byId(id));
         return data;
     },
+
+    async verifyPlayer(uid: string, zoneId?: string, server?: string): Promise<{
+        success: boolean;
+        data: { uid: string; playerName: string; verified: boolean };
+    }> {
+        const { data } = await clientApi.post(endpoints.games.verifyPlayer, {
+            uid,
+            zoneId,
+            server,
+        });
+        return data;
+    },
 };

@@ -68,6 +68,16 @@ const orderSchema = new mongoose.Schema(
             paymentGatewayResponse: { type: mongoose.Schema.Types.Mixed }, // optional raw response
         },
 
+        // External fulfillment tracking (e.g., Gamers Workshop API)
+        externalOrder: {
+            provider: { type: String },
+            externalOrderId: { type: String },
+            externalStatus: { type: String },
+            placedAt: { type: Date },
+            lastCheckedAt: { type: Date },
+            rawResponse: { type: mongoose.Schema.Types.Mixed },
+        },
+
         // Required fields collected from UI (like email, playerId, server)
         userInputs: {
             type: [
@@ -117,6 +127,7 @@ const orderSchema = new mongoose.Schema(
 orderSchema.index({ user: 1, createdAt: -1 });
 orderSchema.index({ orderStatus: 1, createdAt: -1 });
 orderSchema.index({ paymentStatus: 1 });
+orderSchema.index({ "externalOrder.externalOrderId": 1 });
 orderSchema.index({ orderId: 1 });
 
 export default mongoose.model("Order", orderSchema);

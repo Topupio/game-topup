@@ -103,6 +103,8 @@ function validateAndPrepareVariants(variants, regions) {
         }
         v.checkoutTemplate = v.checkoutTemplate || "";
         v.checkoutTemplateOptions = v.checkoutTemplateOptions || {};
+        v.apiGameName = v.apiGameName || "";
+        v.apiPackId = v.apiPackId || "";
 
         // Set defaults
         v.status = v.status || "active";

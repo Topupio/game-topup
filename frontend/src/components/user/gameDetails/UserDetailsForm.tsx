@@ -15,6 +15,11 @@ interface UserDetailsFormProps {
     onChange: (key: string, value: string) => void;
     errors: Record<string, string>;
     templateKey?: string;
+    verification?: {
+        verifiedName: string | null;
+        isVerifying: boolean;
+        verificationError: string | null;
+    };
 }
 
 export default function UserDetailsForm({
@@ -23,6 +28,7 @@ export default function UserDetailsForm({
     onChange,
     errors,
     templateKey,
+    verification,
 }: UserDetailsFormProps) {
     if (fields.length === 0) return null;
 
@@ -84,6 +90,27 @@ export default function UserDetailsForm({
                                             : "border-border focus:border-secondary"
                                     }`}
                                 />
+                                {/* Player UID verification status */}
+                                {field.fieldKey === "player_uid" && verification && (
+                                    <div className="mt-1">
+                                        {verification.isVerifying && (
+                                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                                <span className="w-3 h-3 border-2 border-muted-foreground border-t-transparent rounded-full animate-spin" />
+                                                Verifying...
+                                            </div>
+                                        )}
+                                        {verification.verifiedName && (
+                                            <p className="text-xs text-green-500 font-medium">
+                                                &#10003; Verified: {verification.verifiedName}
+                                            </p>
+                                        )}
+                                        {verification.verificationError && (
+                                            <p className="text-xs text-red-500">
+                                                {verification.verificationError}
+                                            </p>
+                                        )}
+                                    </div>
+                                )}
                                 {errors[field.fieldKey] && (
                                     <p className="text-red-500 text-xs mt-1">
                                         {errors[field.fieldKey]}

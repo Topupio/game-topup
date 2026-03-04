@@ -28,6 +28,7 @@ export const endpoints = {
         popular: "/api/games/popular",
         byId: (id: Id) => `/api/games/${id}`,
         bySlug: (slug: Id) => `/api/games/${slug}`,
+        verifyPlayer: "/api/games/verify-player",
     },
 
     products: {

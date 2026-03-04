@@ -26,6 +26,11 @@ interface Props {
     errors: Record<string, string>;
     onFieldChange: (key: string, value: string) => void;
     templateKey?: string;
+    verification?: {
+        verifiedName: string | null;
+        isVerifying: boolean;
+        verificationError: string | null;
+    };
 }
 
 export default function MobileCheckoutSheet({
@@ -42,6 +47,7 @@ export default function MobileCheckoutSheet({
     errors,
     onFieldChange,
     templateKey,
+    verification,
 }: Props) {
     const { formatPrice } = useCurrency();
     const { price, discountedPrice, currency } = pricing;
@@ -163,22 +169,44 @@ export default function MobileCheckoutSheet({
                                             size="mobile"
                                         />
                                     ) : field.fieldType !== "dropdown" ? (
-                                        <input
-                                            type={field.fieldType}
-                                            value={userDetails[field.fieldKey] || ""}
-                                            onChange={(e) =>
-                                                onFieldChange(field.fieldKey, e.target.value)
-                                            }
-                                            placeholder={
-                                                field.placeholder ||
-                                                `Enter ${capitalize(field.fieldName)}`
-                                            }
-                                            className={`px-3.5 py-2.5 bg-input border text-foreground text-sm rounded-xl placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/30 transition-all ${
-                                                errors[field.fieldKey]
-                                                    ? "border-red-500"
-                                                    : "border-border focus:border-secondary"
-                                            }`}
-                                        />
+                                        <>
+                                            <input
+                                                type={field.fieldType}
+                                                value={userDetails[field.fieldKey] || ""}
+                                                onChange={(e) =>
+                                                    onFieldChange(field.fieldKey, e.target.value)
+                                                }
+                                                placeholder={
+                                                    field.placeholder ||
+                                                    `Enter ${capitalize(field.fieldName)}`
+                                                }
+                                                className={`px-3.5 py-2.5 bg-input border text-foreground text-sm rounded-xl placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/30 transition-all ${
+                                                    errors[field.fieldKey]
+                                                        ? "border-red-500"
+                                                        : "border-border focus:border-secondary"
+                                                }`}
+                                            />
+                                            {field.fieldKey === "player_uid" && verification && (
+                                                <div className="mt-0.5">
+                                                    {verification.isVerifying && (
+                                                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                                            <span className="w-3 h-3 border-2 border-muted-foreground border-t-transparent rounded-full animate-spin" />
+                                                            Verifying...
+                                                        </div>
+                                                    )}
+                                                    {verification.verifiedName && (
+                                                        <p className="text-xs text-green-500 font-medium">
+                                                            &#10003; Verified: {verification.verifiedName}
+                                                        </p>
+                                                    )}
+                                                    {verification.verificationError && (
+                                                        <p className="text-xs text-red-500">
+                                                            {verification.verificationError}
+                                                        </p>
+                                                    )}
+                                                </div>
+                                            )}
+                                        </>
                                     ) : (
                                         <div className="relative">
                                             <select

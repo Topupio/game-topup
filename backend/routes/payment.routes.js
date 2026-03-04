@@ -6,6 +6,7 @@ import {
     capturePayPalOrder,
     handlePayPalWebhook,
     refundPayPalPayment,
+    mockPaymentSuccess,
 } from "../controllers/payment.controller.js";
 
 const router = express.Router();
@@ -19,5 +20,8 @@ router.post("/paypal/webhook", handlePayPalWebhook);
 
 // Admin routes
 router.post("/paypal/refund", protect, authorize("admin"), refundPayPalPayment);
+
+// Dev only - mock payment success for testing
+router.post("/mock-success", protect, authorize("admin"), mockPaymentSuccess);
 
 export default router;
