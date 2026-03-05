@@ -8,7 +8,7 @@ import Order from "../models/order.model.js";
  * @access  Private
  */
 export const verifyPlayer = asyncHandler(async (req, res) => {
-    const { uid, zoneId, server } = req.body;
+    const { uid, zoneId, server, game } = req.body;
 
     if (!uid || typeof uid !== "string" || uid.trim().length < 3) {
         return res.status(400).json({
@@ -17,7 +17,7 @@ export const verifyPlayer = asyncHandler(async (req, res) => {
         });
     }
 
-    const result = await gwService.verifyPlayer(uid.trim(), zoneId, server);
+    const result = await gwService.verifyPlayer(uid.trim(), zoneId, server, game);
 
     res.status(200).json({
         success: true,

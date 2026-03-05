@@ -150,7 +150,7 @@ export default function GameDetailsPage({
         // Trigger player verification for uid_topup when UID changes
         if (key === "player_uid" && templateKey === "uid_topup") {
             const zoneId = userDetails["zone_server"] || undefined;
-            playerVerification.triggerVerify(value, zoneId);
+            playerVerification.triggerVerify(value, zoneId, undefined, selectedVariant?.apiGameName);
         }
     };
 

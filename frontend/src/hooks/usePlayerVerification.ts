@@ -27,7 +27,7 @@ export function usePlayerVerification() {
         }
     }, []);
 
-    const triggerVerify = useCallback((uid: string, zoneId?: string, server?: string) => {
+    const triggerVerify = useCallback((uid: string, zoneId?: string, server?: string, game?: string) => {
         // Clear previous timer
         if (timerRef.current) {
             clearTimeout(timerRef.current);
@@ -51,7 +51,12 @@ export function usePlayerVerification() {
         // Debounce the actual API call
         timerRef.current = setTimeout(async () => {
             try {
-                const result = await gamesApiClient.verifyPlayer(trimmed, zoneId, server);
+                const result = await gamesApiClient.verifyPlayer(trimmed, zoneId, server, game);
+                if (result.success && result.data?.unsupported) {
+                    // Game doesn't support verification — silently skip
+                    setState({ verifiedName: null, isVerifying: false, verificationError: null });
+                    return;
+                }
                 if (result.success && result.data?.verified) {
                     setState({
                         verifiedName: result.data.playerName,

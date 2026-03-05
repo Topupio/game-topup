@@ -61,14 +61,37 @@ async function apiRequest(method, path, body = null) {
 
 /**
  * Verify a player's UID and retrieve their player name.
- * POST /player/verify
+ * Routes to the correct endpoint based on the game.
+ *  - PUBG Mobile → POST /player/verify
+ *  - Mobile Legends → POST /ml/check-region
  */
-export async function verifyPlayer(uid, zoneId, server) {
-    const body = { uid };
-    if (zoneId) body.zoneId = zoneId;
-    if (server) body.server = server;
+export async function verifyPlayer(uid, zoneId, server, game) {
+    const gameLower = (game || "").toLowerCase();
 
-    return apiRequest("POST", "/player/verify", body);
+    // Mobile Legends uses a different endpoint
+    if (gameLower.includes("mobile-legends") || gameLower === "ml") {
+        return checkMlRegion(uid, zoneId);
+    }
+
+    // PUBG Mobile
+    if (gameLower.includes("pubg")) {
+        const body = { uid };
+        if (zoneId) body.zoneId = zoneId;
+        if (server) body.server = server;
+        return apiRequest("POST", "/player/verify", body);
+    }
+
+    // Unsupported game — return not-verifiable so frontend can skip
+    return { data: { verified: false, unsupported: true } };
+}
+
+/**
+ * Check a Mobile Legends player's region.
+ * POST /ml/check-region
+ */
+export async function checkMlRegion(userId, zoneId) {
+    const body = { userId, zoneId };
+    return apiRequest("POST", "/ml/check-region", body);
 }
 
 /**
