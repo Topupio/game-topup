@@ -15,7 +15,7 @@ router.get("/payment-categories", getGamesByPaymentCategory);
 router.get("/popular", getPopularGames);
 
 // Player verification via external API
-router.post("/verify-player", protect, verifyPlayer);
+router.post("/verify-player", verifyPlayer);
 
 router.get('/:slug' , getGameDetails)
 
