@@ -39,7 +39,7 @@ export const CHECKOUT_TEMPLATES: Record<string, CheckoutTemplate> = {
         fieldName: "Zone/Server",
         fieldType: "dropdown",
         required: false,
-        placeholder: "Select Zone/Server",
+        placeholder: "Select Server",
         options: [],
       },
     ],

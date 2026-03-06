@@ -96,12 +96,25 @@ export default function GameDetailsPage({
                 // UID topup: conditionally show zone field
                 if (field.fieldKey === "zone_server") {
                     if (!options.zoneRequired) return null;
+                    const zoneFieldType = options.zoneFieldType || "dropdown";
+                    if (zoneFieldType === "text") {
+                        return {
+                            ...field,
+                            fieldName: "Zone ID",
+                            fieldType: "text",
+                            placeholder: "Enter Zone ID",
+                            required: true,
+                            options: [],
+                        };
+                    }
                     const raw = options.zoneOptions || [];
                     const customOptions = typeof raw === "string"
                         ? raw.split(",").map((s: string) => s.trim()).filter(Boolean)
                         : Array.isArray(raw) ? raw : [];
                     return {
                         ...field,
+                        fieldName: "Server",
+                        placeholder: "Select Server",
                         required: true,
                         options:
                             customOptions.length > 0
@@ -151,6 +164,14 @@ export default function GameDetailsPage({
         if (key === "player_uid" && templateKey === "uid_topup") {
             const zoneId = userDetails["zone_server"] || undefined;
             playerVerification.triggerVerify(value, zoneId, undefined, selectedVariant?.apiGameName);
+        }
+
+        // Re-trigger verification when zone changes
+        if (key === "zone_server" && templateKey === "uid_topup") {
+            const uid = userDetails["player_uid"] || "";
+            if (uid.trim().length >= 5) {
+                playerVerification.triggerVerify(uid, value, undefined, selectedVariant?.apiGameName);
+            }
         }
     };
 

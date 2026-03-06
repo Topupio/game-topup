@@ -98,26 +98,48 @@ export default function CheckoutTemplateSelector({
                                     className="rounded"
                                 />
                                 <label className="text-sm text-blue-800">
-                                    Zone/Server is required
+                                    Zone field required
                                 </label>
                             </div>
-                            <div>
-                                <label className="text-xs font-medium text-blue-700 block mb-1">
-                                    Zone/Server options (comma-separated)
-                                </label>
-                                <input
-                                    type="text"
-                                    className="w-full px-2 py-1.5 text-sm border border-blue-200 rounded bg-white focus:ring-2 focus:ring-blue-200 outline-none"
-                                    placeholder="e.g. Asia, Europe, America"
-                                    value={templateOptions.zoneOptions ?? ""}
-                                    onChange={(e) =>
-                                        onOptionsChange({
-                                            ...templateOptions,
-                                            zoneOptions: e.target.value,
-                                        })
-                                    }
-                                />
-                            </div>
+                            {templateOptions.zoneRequired && (
+                                <div>
+                                    <label className="text-xs font-medium text-blue-700 block mb-1">
+                                        Zone field type
+                                    </label>
+                                    <select
+                                        className="w-full px-2 py-1.5 text-sm border border-blue-200 rounded bg-white focus:ring-2 focus:ring-blue-200 outline-none"
+                                        value={templateOptions.zoneFieldType ?? "dropdown"}
+                                        onChange={(e) =>
+                                            onOptionsChange({
+                                                ...templateOptions,
+                                                zoneFieldType: e.target.value,
+                                            })
+                                        }
+                                    >
+                                        <option value="dropdown">Dropdown (Server)</option>
+                                        <option value="text">Text Input (Zone ID)</option>
+                                    </select>
+                                </div>
+                            )}
+                            {templateOptions.zoneRequired && (templateOptions.zoneFieldType ?? "dropdown") === "dropdown" && (
+                                <div>
+                                    <label className="text-xs font-medium text-blue-700 block mb-1">
+                                        Server options (comma-separated)
+                                    </label>
+                                    <input
+                                        type="text"
+                                        className="w-full px-2 py-1.5 text-sm border border-blue-200 rounded bg-white focus:ring-2 focus:ring-blue-200 outline-none"
+                                        placeholder="e.g. Asia, Europe, America"
+                                        value={templateOptions.zoneOptions ?? ""}
+                                        onChange={(e) =>
+                                            onOptionsChange({
+                                                ...templateOptions,
+                                                zoneOptions: e.target.value,
+                                            })
+                                        }
+                                    />
+                                </div>
+                            )}
                         </div>
                     )}
                 </div>

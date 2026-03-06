@@ -37,8 +37,8 @@ export async function placeExternalOrderIfEligible(order) {
             game: variant.apiGameName,
             pack: variant.apiPackId,
             uid: inputMap["Player UID"] || "",
-            zoneId: inputMap["Zone/Server"] || undefined,
-            server: inputMap["Zone/Server"] || undefined,
+            zoneId: inputMap["Zone/Server"] || inputMap["Zone ID"] || inputMap["Server"] || undefined,
+            server: inputMap["Zone/Server"] || inputMap["Zone ID"] || inputMap["Server"] || undefined,
             webhookUrl,
         });
     } else if (variant.checkoutTemplate === "gift_cards") {

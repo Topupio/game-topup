@@ -24,7 +24,7 @@ export const CHECKOUT_TEMPLATES = {
         fieldName: "Zone/Server",
         fieldType: "dropdown",
         required: false,
-        placeholder: "Select Zone/Server",
+        placeholder: "Select Server",
         options: [],
       },
     ],
