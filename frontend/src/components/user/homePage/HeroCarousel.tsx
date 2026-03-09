@@ -9,12 +9,18 @@ import { Banner } from "@/services/banner";
 import { useRouter } from "next/navigation";
 import "./hero-carousel.css";
 
-// --- Opacity tween (1:1 from Embla docs) ---
+// --- Scale tween (1:1 from Embla docs) ---
 
-const TWEEN_FACTOR_BASE = 0.84;
+const TWEEN_FACTOR_BASE = 0.15;
+const MAX_ROTATE = 40;
+const ROTATE_FACTOR = 160;
+const AUTOPLAY_DELAY = 4000;
+const SIDE_FADE_FACTOR = 0.8;
+const MIN_SLIDE_OPACITY = 0.5;
 
 const numberWithinRange = (number: number, min: number, max: number): number =>
     Math.min(Math.max(number, min), max);
+type AutoplayApi = ReturnType<typeof Autoplay>;
 
 // --- Hooks (1:1 from Embla v9 docs) ---
 
@@ -84,28 +90,140 @@ function useDotButton(emblaApi: EmblaCarouselType | undefined) {
     return { selectedIndex, scrollSnaps, onDotButtonClick };
 }
 
-function useAutoplay(emblaApi: EmblaCarouselType | undefined) {
+function useAutoplay(
+    emblaApi: EmblaCarouselType | undefined,
+    autoplay: AutoplayApi
+) {
+    const fallbackIntervalRef = useRef<number | null>(null);
+
+    const clearFallbackInterval = useCallback(() => {
+        if (fallbackIntervalRef.current !== null) {
+            window.clearInterval(fallbackIntervalRef.current);
+            fallbackIntervalRef.current = null;
+        }
+    }, []);
+
+    const startFallbackInterval = useCallback(() => {
+        if (!emblaApi) return;
+        if (emblaApi.snapList().length <= 1) return;
+
+        clearFallbackInterval();
+        fallbackIntervalRef.current = window.setInterval(() => {
+            emblaApi.goToNext();
+        }, AUTOPLAY_DELAY);
+    }, [clearFallbackInterval, emblaApi]);
+
+    const resumeAutoplay = useCallback(() => {
+        if (!emblaApi) return;
+
+        if (emblaApi.snapList().length <= 1) {
+            autoplay.stop();
+            clearFallbackInterval();
+            return;
+        }
+
+        autoplay.play();
+        // Fallback for RC autoplay edge cases where play() doesn't start.
+        window.setTimeout(() => {
+            if (autoplay.isPlaying()) {
+                clearFallbackInterval();
+                return;
+            }
+
+            startFallbackInterval();
+        }, 50);
+    }, [autoplay, clearFallbackInterval, emblaApi, startFallbackInterval]);
+
     const onAutoplayButtonClick = useCallback(
         (callback: () => void) => {
-            const autoplay = emblaApi?.plugins()?.autoplay;
-            if (!autoplay) return;
-            autoplay.stop();
             callback();
+            resumeAutoplay();
         },
-        [emblaApi]
+        [resumeAutoplay]
     );
 
     useEffect(() => {
-        const autoplay = emblaApi?.plugins()?.autoplay;
-        if (!autoplay) return;
-        emblaApi.on("reinit", () => autoplay.isPlaying());
-    }, [emblaApi]);
+        if (!emblaApi) return;
+
+        const handleReinit = () => resumeAutoplay();
+        resumeAutoplay();
+        emblaApi.on("reinit", handleReinit);
+
+        return () => {
+            emblaApi.off("reinit", handleReinit);
+        };
+    }, [emblaApi, resumeAutoplay]);
+
+    useEffect(() => {
+        if (!emblaApi) return;
+
+        const rootNode = emblaApi.rootNode();
+        if (!rootNode) return;
+
+        let isHovering = false;
+        let isFocusedWithin = false;
+
+        const syncAutoplay = () => {
+            if (isHovering || isFocusedWithin) {
+                autoplay.pause();
+                clearFallbackInterval();
+                return;
+            }
+
+            resumeAutoplay();
+        };
+
+        const handleMouseEnter = () => {
+            isHovering = true;
+            syncAutoplay();
+        };
+
+        const handleMouseLeave = () => {
+            isHovering = false;
+            syncAutoplay();
+        };
+
+        const handleFocusIn = () => {
+            isFocusedWithin = true;
+            syncAutoplay();
+        };
+
+        const handleFocusOut = (event: FocusEvent) => {
+            const nextTarget = event.relatedTarget as Node | null;
+
+            if (nextTarget && rootNode.contains(nextTarget)) {
+                return;
+            }
+
+            isFocusedWithin = false;
+            syncAutoplay();
+        };
+
+        rootNode.addEventListener("mouseenter", handleMouseEnter);
+        rootNode.addEventListener("mouseleave", handleMouseLeave);
+        rootNode.addEventListener("focusin", handleFocusIn);
+        rootNode.addEventListener("focusout", handleFocusOut);
+
+        return () => {
+            rootNode.removeEventListener("mouseenter", handleMouseEnter);
+            rootNode.removeEventListener("mouseleave", handleMouseLeave);
+            rootNode.removeEventListener("focusin", handleFocusIn);
+            rootNode.removeEventListener("focusout", handleFocusOut);
+        };
+    }, [autoplay, clearFallbackInterval, emblaApi, resumeAutoplay]);
+
+    useEffect(() => {
+        return () => {
+            clearFallbackInterval();
+        };
+    }, [clearFallbackInterval]);
 
     return { onAutoplayButtonClick };
 }
 
 function useAutoplayProgress<T extends HTMLElement>(
     emblaApi: EmblaCarouselType | undefined,
+    autoplay: AutoplayApi,
     progressNode: React.RefObject<T | null>
 ) {
     const [showAutoplayProgress, setShowAutoplayProgress] = useState(false);
@@ -140,8 +258,7 @@ function useAutoplayProgress<T extends HTMLElement>(
     );
 
     useEffect(() => {
-        const autoplay = emblaApi?.plugins()?.autoplay;
-        if (!autoplay) return;
+        if (!emblaApi) return;
         emblaApi
             .on("autoplay:timerset" as any, () =>
                 startProgress(autoplay.timeUntilNext())
@@ -149,7 +266,7 @@ function useAutoplayProgress<T extends HTMLElement>(
             .on("autoplay:timerstopped" as any, () =>
                 setShowAutoplayProgress(false)
             );
-    }, [emblaApi, startProgress]);
+    }, [autoplay, emblaApi, startProgress]);
 
     useEffect(() => {
         return () => {
@@ -167,9 +284,19 @@ export default function HeroCarousel({ banners }: { banners: Banner[] }) {
     const router = useRouter();
     const progressNode = useRef<HTMLDivElement>(null);
     const tweenFactor = useRef(0);
+    const tweenNodes = useRef<HTMLElement[]>([]);
+    const autoplayRef = useRef<ReturnType<typeof Autoplay> | null>(null);
+
+    if (!autoplayRef.current) {
+        autoplayRef.current = Autoplay({
+            delay: AUTOPLAY_DELAY,
+            defaultInteraction: false,
+        });
+    }
+    const autoplay = autoplayRef.current;
 
     const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true }, [
-        Autoplay({ delay: 5000 }),
+        autoplay,
     ]);
 
     const {
@@ -182,20 +309,30 @@ export default function HeroCarousel({ banners }: { banners: Banner[] }) {
     const { selectedIndex, scrollSnaps, onDotButtonClick } =
         useDotButton(emblaApi);
 
-    const { onAutoplayButtonClick } = useAutoplay(emblaApi);
+    const { onAutoplayButtonClick } = useAutoplay(emblaApi, autoplay);
 
     const { showAutoplayProgress } = useAutoplayProgress(
         emblaApi,
+        autoplay,
         progressNode
     );
 
-    // --- Opacity tween logic (1:1 from Embla docs) ---
+    // --- Scale tween logic (1:1 from Embla docs) ---
+
+    const setTweenNodes = useCallback((emblaApi: EmblaCarouselType): void => {
+        tweenNodes.current = emblaApi.slideNodes().map((slideNode) => {
+            return slideNode.querySelector(
+                ".embla__slide__inner"
+            ) as HTMLElement;
+        });
+    }, []);
+
     const setTweenFactor = useCallback((emblaApi: EmblaCarouselType) => {
         tweenFactor.current =
             TWEEN_FACTOR_BASE * emblaApi.snapList().length;
     }, []);
 
-    const tweenOpacity = useCallback(
+    const tweenScale = useCallback(
         (emblaApi: EmblaCarouselType, event?: any) => {
             const engine = emblaApi.internalEngine();
             const scrollProgress = emblaApi.scrollProgress();
@@ -235,12 +372,34 @@ export default function HeroCarousel({ banners }: { banners: Banner[] }) {
 
                     const tweenValue =
                         1 - Math.abs(diffToTarget * tweenFactor.current);
-                    const opacity = numberWithinRange(
+                    const scale = numberWithinRange(
                         tweenValue,
                         0,
                         1
                     ).toString();
-                    emblaApi.slideNodes()[slideIndex].style.opacity = opacity;
+                    const rotateY = numberWithinRange(
+                        diffToTarget * ROTATE_FACTOR,
+                        -MAX_ROTATE,
+                        MAX_ROTATE
+                    );
+                    const opacity = numberWithinRange(
+                        1 - Math.abs(diffToTarget) * SIDE_FADE_FACTOR,
+                        MIN_SLIDE_OPACITY,
+                        1
+                    ).toString();
+                    const tweenNode = tweenNodes.current[slideIndex];
+                    if (tweenNode) {
+                        tweenNode.style.transform = `perspective(1200px) scale(${scale}) rotateY(${rotateY}deg)`;
+                        tweenNode.style.opacity = opacity;
+                        // Pull scaled-down slides closer to active slide
+                        if (diffToTarget > 0) {
+                            tweenNode.style.transformOrigin = "left center";
+                        } else if (diffToTarget < 0) {
+                            tweenNode.style.transformOrigin = "right center";
+                        } else {
+                            tweenNode.style.transformOrigin = "center center";
+                        }
+                    }
                 });
             });
         },
@@ -250,23 +409,26 @@ export default function HeroCarousel({ banners }: { banners: Banner[] }) {
     useEffect(() => {
         if (!emblaApi) return;
 
+        setTweenNodes(emblaApi);
         setTweenFactor(emblaApi);
-        tweenOpacity(emblaApi);
+        tweenScale(emblaApi);
 
         emblaApi
+            .on("reinit", setTweenNodes)
             .on("reinit", setTweenFactor)
-            .on("reinit", tweenOpacity)
-            .on("scroll", tweenOpacity)
-            .on("slidefocus", tweenOpacity);
+            .on("reinit", tweenScale)
+            .on("scroll", tweenScale)
+            .on("slidefocus", tweenScale);
 
         return () => {
             emblaApi
+                .off("reinit", setTweenNodes)
                 .off("reinit", setTweenFactor)
-                .off("reinit", tweenOpacity)
-                .off("scroll", tweenOpacity)
-                .off("slidefocus", tweenOpacity);
+                .off("reinit", tweenScale)
+                .off("scroll", tweenScale)
+                .off("slidefocus", tweenScale);
         };
-    }, [emblaApi, tweenOpacity, setTweenFactor]);
+    }, [emblaApi, tweenScale, setTweenNodes, setTweenFactor]);
 
     const handleRedirect = (slug: string) => {
         router.push(`/games/${slug}`);
@@ -276,8 +438,8 @@ export default function HeroCarousel({ banners }: { banners: Banner[] }) {
 
     return (
         <section className="relative">
-            <div className="max-w-7xl mx-auto relative z-10">
-                <div className="relative lg:mt-8 mt-3">
+            <div className="relative z-10">
+                <div className="relative  mt-2">
                     <div className="embla">
                         <div className="embla__viewport" ref={emblaRef}>
                             <div className="embla__container">
@@ -366,7 +528,11 @@ export default function HeroCarousel({ banners }: { banners: Banner[] }) {
                             {scrollSnaps.map((_, index) => (
                                 <button
                                     key={index}
-                                    onClick={() => onDotButtonClick(index)}
+                                    onClick={() =>
+                                        onAutoplayButtonClick(() =>
+                                            onDotButtonClick(index)
+                                        )
+                                    }
                                     className={`h-2 rounded-full transition-all duration-300 ${
                                         index === selectedIndex
                                             ? "bg-gradient-neon w-8"

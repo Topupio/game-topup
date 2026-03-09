@@ -9,13 +9,13 @@
 .embla {
   max-width: 100%;
   margin: auto;
-  --slide-spacing: 0.6rem;
-  --slide-size: 90%;
+  --slide-spacing: 1.5rem;
+  --slide-size: 85%;
   position: relative;
 }
 
 .embla__viewport {
-  overflow: hidden;
+  /* overflow: hidden; */
 }
 
 .embla__container {
@@ -89,14 +89,14 @@
 
 @media (max-width: 1024px) {
   .embla {
-    --slide-size: 92%;
-    --slide-spacing: 0.5rem;
+    --slide-size: 65%;
+    --slide-spacing: 0.75rem;
   }
 }
 
 @media (max-width: 640px) {
   .embla {
-    --slide-size: 95%;
-    --slide-spacing: 0.4rem;
+    --slide-size: 80%;
+    --slide-spacing: 0.5rem;
   }
 }
