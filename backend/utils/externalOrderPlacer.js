@@ -17,7 +17,7 @@ export async function placeExternalOrderIfEligible(order) {
     );
     if (!variant) return;
 
-    if (!ELIGIBLE_TEMPLATES.includes(variant.checkoutTemplate)) return;
+    if (!ELIGIBLE_TEMPLATES.includes(game.checkoutTemplate)) return;
     if (!variant.apiGameName || !variant.apiPackId) return;
 
     // Build a map of user inputs by label for easy lookup
@@ -32,7 +32,7 @@ export async function placeExternalOrderIfEligible(order) {
 
     let externalResult;
 
-    if (variant.checkoutTemplate === "uid_topup") {
+    if (game.checkoutTemplate === "uid_topup") {
         externalResult = await gwService.placeGameOrder({
             game: variant.apiGameName,
             pack: variant.apiPackId,
@@ -41,7 +41,7 @@ export async function placeExternalOrderIfEligible(order) {
             server: inputMap["Zone/Server"] || inputMap["Zone ID"] || inputMap["Server"] || undefined,
             webhookUrl,
         });
-    } else if (variant.checkoutTemplate === "gift_cards") {
+    } else if (game.checkoutTemplate === "gift_cards") {
         externalResult = await gwService.placeGiftcardOrder({
             platform: variant.apiGameName,
             denomination: variant.apiPackId,

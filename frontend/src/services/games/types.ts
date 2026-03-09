@@ -11,6 +11,8 @@ export type GamePayload = {
     status: "active" | "inactive";
     isPopular?: boolean;
     regions: string[];
+    checkoutTemplate?: string;
+    checkoutTemplateOptions?: Record<string, any>;
     variants: Variant[];
     image?: File | null;
     variantImages?: Record<number, File>;

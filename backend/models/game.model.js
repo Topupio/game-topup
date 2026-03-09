@@ -110,17 +110,6 @@ const variantSchema = new mongoose.Schema({
         type: String,
         default: null,
     },
-    // Checkout template key (per-variant)
-    checkoutTemplate: {
-        type: String,
-        enum: [...CHECKOUT_TEMPLATE_KEYS, ""],
-        default: "",
-    },
-    // Template-specific options (e.g., zoneRequired, custom zone options)
-    checkoutTemplateOptions: {
-        type: mongoose.Schema.Types.Mixed,
-        default: {},
-    },
     // External API mapping for auto-fulfillment (Gamers Workshop)
     apiGameName: {
         type: String,
@@ -198,6 +187,17 @@ const gameSchema = new mongoose.Schema(
         regions: {
             type: [String],
             default: ["global"],
+        },
+
+        // Checkout template (game-level)
+        checkoutTemplate: {
+            type: String,
+            enum: [...CHECKOUT_TEMPLATE_KEYS, ""],
+            default: "",
+        },
+        checkoutTemplateOptions: {
+            type: mongoose.Schema.Types.Mixed,
+            default: {},
         },
 
         // Embedded variants (in-game items / packages)

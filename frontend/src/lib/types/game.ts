@@ -31,8 +31,6 @@ export interface Variant {
     deliveryTime: string;
     imageUrl?: string | null;
     imagePublicId?: string | null;
-    checkoutTemplate: string;
-    checkoutTemplateOptions: Record<string, any>;
     apiGameName?: string;
     apiPackId?: string;
 }
@@ -49,6 +47,8 @@ export type Game = {
     description: string;
     richDescription: string;
     regions: string[];
+    checkoutTemplate: string;
+    checkoutTemplateOptions: Record<string, any>;
     variants: Variant[];
     status: "active" | "inactive";
     isPopular: boolean;

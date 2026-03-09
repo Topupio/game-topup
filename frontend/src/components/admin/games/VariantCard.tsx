@@ -7,18 +7,17 @@ import Input from "@/components/form/Input";
 import StatusToggle from "@/components/form/StatusToggle";
 import ImageUploader from "@/components/form/ImageUploader";
 import RegionPricingTable from "./RegionPricingTable";
-import CheckoutTemplateSelector from "./CheckoutTemplateSelector";
-
 interface Props {
     variant: Variant;
     index: number;
     regions: string[];
+    checkoutTemplate: string;
     onChange: (updated: Variant) => void;
     onDelete: () => void;
     onImageChange: (file: File | null, preview: string | null) => void;
 }
 
-export default function VariantCard({ variant, index, regions, onChange, onDelete, onImageChange }: Props) {
+export default function VariantCard({ variant, index, regions, checkoutTemplate, onChange, onDelete, onImageChange }: Props) {
     const [collapsed, setCollapsed] = useState(false);
 
     const update = (partial: Partial<Variant>) => {
@@ -164,39 +163,22 @@ export default function VariantCard({ variant, index, regions, onChange, onDelet
                         />
                     </div>
 
-                    {/* ── Section: Checkout Template ── */}
-                    <div className="px-4 py-3 border-t border-gray-100">
-                        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
-                            Checkout Configuration
-                        </p>
-                        <CheckoutTemplateSelector
-                            selectedTemplate={variant.checkoutTemplate || ""}
-                            templateOptions={variant.checkoutTemplateOptions || {}}
-                            onTemplateChange={(checkoutTemplate) =>
-                                update({ checkoutTemplate })
-                            }
-                            onOptionsChange={(checkoutTemplateOptions) =>
-                                update({ checkoutTemplateOptions })
-                            }
-                        />
-                    </div>
-
                     {/* ── Section: Auto Fulfillment (API) ── */}
-                    {(variant.checkoutTemplate === "uid_topup" || variant.checkoutTemplate === "gift_cards") && (
+                    {(checkoutTemplate === "uid_topup" || checkoutTemplate === "gift_cards") && (
                         <div className="px-4 py-3 border-t border-purple-100 bg-purple-50/60">
                             <p className="text-xs font-semibold text-purple-600 uppercase tracking-wide mb-3">
                                 Auto Fulfillment (API)
                             </p>
                             <div className="grid grid-cols-2 gap-3">
                                 <Input
-                                    label={variant.checkoutTemplate === "gift_cards" ? "API Platform" : "API Game Name"}
-                                    placeholder={variant.checkoutTemplate === "gift_cards" ? "e.g. psn, steam, xbox" : "e.g. mobilelegend"}
+                                    label={checkoutTemplate === "gift_cards" ? "API Platform" : "API Game Name"}
+                                    placeholder={checkoutTemplate === "gift_cards" ? "e.g. psn, steam, xbox" : "e.g. mobilelegend"}
                                     value={variant.apiGameName || ""}
                                     onChange={(e) => update({ apiGameName: e.target.value })}
                                 />
                                 <Input
-                                    label={variant.checkoutTemplate === "gift_cards" ? "API Denomination" : "API Pack ID"}
-                                    placeholder={variant.checkoutTemplate === "gift_cards" ? "e.g. 50" : "e.g. 86"}
+                                    label={checkoutTemplate === "gift_cards" ? "API Denomination" : "API Pack ID"}
+                                    placeholder={checkoutTemplate === "gift_cards" ? "e.g. 50" : "e.g. 86"}
                                     value={variant.apiPackId || ""}
                                     onChange={(e) => update({ apiPackId: e.target.value })}
                                 />

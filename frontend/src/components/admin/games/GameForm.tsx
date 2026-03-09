@@ -19,6 +19,7 @@ import Textarea from "@/components/form/TextArea";
 import RegionMultiSelect from "./RegionMultiSelect";
 import RichTextEditor from "@/components/form/RichTextEditor";
 import VariantManager from "./VariantManager";
+import CheckoutTemplateSelector from "./CheckoutTemplateSelector";
 
 interface Props {
     gameId: string | "new";
@@ -51,6 +52,8 @@ export default function GameForm({ gameId }: Props) {
             status: "active",
             isPopular: false,
             regions: ["global"],
+            checkoutTemplate: "",
+            checkoutTemplateOptions: {},
             variants: [],
             metaTitle: "",
             metaDescription: "",
@@ -143,6 +146,8 @@ export default function GameForm({ gameId }: Props) {
                 status: formData.status,
                 isPopular: formData.isPopular,
                 regions: formData.regions,
+                checkoutTemplate: formData.checkoutTemplate,
+                checkoutTemplateOptions: formData.checkoutTemplateOptions,
                 variants: formData.variants,
                 variantImages: Object.keys(variantImages).length > 0 ? variantImages : undefined,
                 metaTitle: formData.metaTitle,
@@ -255,7 +260,17 @@ export default function GameForm({ gameId }: Props) {
                 </div>
             </FormSection>
 
-            {/* ── Section 2: Mini Description ── */}
+            {/* ── Section 2: Checkout Configuration ── */}
+            <FormSection title="Checkout Configuration" description="Template and options for the checkout form">
+                <CheckoutTemplateSelector
+                    selectedTemplate={form.checkoutTemplate || ""}
+                    templateOptions={form.checkoutTemplateOptions || {}}
+                    onTemplateChange={(checkoutTemplate) => updateForm({ checkoutTemplate })}
+                    onOptionsChange={(checkoutTemplateOptions) => updateForm({ checkoutTemplateOptions })}
+                />
+            </FormSection>
+
+            {/* ── Section 3: Mini Description ── */}
             <FormSection title="Mini Description" description="A short 1-2 line summary">
                 <Textarea
                     placeholder="Brief summary of the game and what it offers..."
@@ -274,6 +289,7 @@ export default function GameForm({ gameId }: Props) {
                 <VariantManager
                     variants={form.variants}
                     regions={form.regions}
+                    checkoutTemplate={form.checkoutTemplate || ""}
                     onChange={(variants) => updateForm({ variants })}
                     onVariantImageChange={(index, file) => {
                         setVariantImages((prev) => {

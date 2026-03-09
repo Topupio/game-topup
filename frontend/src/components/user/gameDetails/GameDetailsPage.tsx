@@ -61,13 +61,11 @@ export default function GameDetailsPage({
     const router = useRouter();
     const playerVerification = usePlayerVerification();
 
-    const templateKey = selectedVariant?.checkoutTemplate || "";
+    const templateKey = gameDetails.checkoutTemplate || "";
 
-    // Resolve checkout fields from the selected variant's template + options
+    // Resolve checkout fields from the game's template + options
     const checkoutFields = useMemo(() => {
-        if (!selectedVariant) return [];
-
-        const templateKey = selectedVariant.checkoutTemplate;
+        const templateKey = gameDetails.checkoutTemplate;
 
         // Try DB template first, fall back to hardcoded constants
         const dbTemplate = checkoutTemplates[templateKey];
@@ -88,7 +86,7 @@ export default function GameDetailsPage({
 
         if (!templateFields) return [];
 
-        const options = selectedVariant.checkoutTemplateOptions || {};
+        const options = gameDetails.checkoutTemplateOptions || {};
 
         return templateFields
             .filter((field) => field.enabled !== false)
@@ -138,7 +136,7 @@ export default function GameDetailsPage({
                 return field;
             })
             .filter(Boolean) as TemplateField[];
-    }, [selectedVariant, checkoutTemplates]);
+    }, [gameDetails, checkoutTemplates]);
 
     // Get pricing for selected variant in active region
     const selectedPricing = useMemo<RegionPricing | null>(() => {
