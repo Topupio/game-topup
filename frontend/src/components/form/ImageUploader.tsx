@@ -67,9 +67,10 @@ export default function ImageUploader({ imageUrl, onChange, error, aspectRatio =
             </label>
 
             <div
-                style={!compact && imageUrl ? { aspectRatio: `${aspectRatio}` } : undefined}
+                style={!compact ? { aspectRatio: `${aspectRatio}` } : undefined}
                 className={`relative border-2 border-dashed rounded-xl flex flex-col items-center justify-center cursor-pointer transition-all duration-200 overflow-hidden group
-                    ${compact ? "h-28" : !imageUrl ? "h-64" : "max-h-90  p-3"}
+                    ${compact ? "h-28" : "w-full"}
+                    ${!compact && imageUrl ? "p-3" : ""}
                     ${error ? "border-red-400 bg-red-50" : "border-gray-300 bg-gray-50 hover:border-blue-400 hover:bg-blue-50"}
                 `}
                 onClick={() => inputRef.current?.click()}

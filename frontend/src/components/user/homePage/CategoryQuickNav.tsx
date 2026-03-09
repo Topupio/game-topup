@@ -290,7 +290,7 @@ interface CategoryQuickNavProps {
 
 export default function CategoryQuickNav({ categories }: CategoryQuickNavProps) {
     return (
-        <section className="mt-8 lg:mt-12">
+        <section className="mt-4 sm:mt-12">
             {/* Section Header */}
             <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
                 <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-secondary/10 border border-secondary/20 flex items-center justify-center text-secondary shadow-[0_0_20px_rgba(var(--secondary),0.1)]">

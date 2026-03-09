@@ -1,6 +1,12 @@
 "use client";
 
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, {
+    useCallback,
+    useEffect,
+    useLayoutEffect,
+    useRef,
+    useState,
+} from "react";
 import { EmblaCarouselType } from "embla-carousel";
 import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
@@ -21,6 +27,8 @@ const MIN_SLIDE_OPACITY = 0.5;
 const numberWithinRange = (number: number, min: number, max: number): number =>
     Math.min(Math.max(number, min), max);
 type AutoplayApi = ReturnType<typeof Autoplay>;
+const useIsomorphicLayoutEffect =
+    typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
 // --- Hooks (1:1 from Embla v9 docs) ---
 
@@ -406,7 +414,7 @@ export default function HeroCarousel({ banners }: { banners: Banner[] }) {
         []
     );
 
-    useEffect(() => {
+    useIsomorphicLayoutEffect(() => {
         if (!emblaApi) return;
 
         setTweenNodes(emblaApi);
@@ -449,7 +457,7 @@ export default function HeroCarousel({ banners }: { banners: Banner[] }) {
                                         key={banner._id}
                                     >
                                         <div
-                                            className={`embla__slide__inner aspect-[30/8] ${
+                                            className={`embla__slide__inner aspect-[16/9] lg:aspect-[30/8] ${
                                                 banner.link
                                                     ? "cursor-pointer"
                                                     : ""

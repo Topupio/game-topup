@@ -36,6 +36,15 @@
   overflow: hidden;
   position: relative;
   width: 100%;
+  backface-visibility: hidden;
+  will-change: transform, opacity;
+  transform: perspective(1200px) scale(0.8) rotateY(-30deg);
+  transform-origin: right center;
+}
+
+.embla__slide:first-child .embla__slide__inner {
+  transform: perspective(1200px) scale(1) rotateY(0deg);
+  transform-origin: center center;
 }
 
 .embla__controls {
@@ -53,13 +62,16 @@
   height: 0.35rem;
   align-self: center;
   width: 8rem;
+  flex: 0 0 auto;
   max-width: 90%;
   overflow: hidden;
-  transition: opacity 0.3s ease-in-out !important;
+  transition: opacity 0.3s ease-in-out, width 0.3s ease-in-out !important;
 }
 
 .embla__progress--hidden {
   opacity: 0;
+  width: 0;
+  pointer-events: none;
 }
 
 .embla__progress__bar {
@@ -96,7 +108,7 @@
 
 @media (max-width: 640px) {
   .embla {
-    --slide-size: 80%;
+    --slide-size: 85%;
     --slide-spacing: 0.5rem;
   }
 }

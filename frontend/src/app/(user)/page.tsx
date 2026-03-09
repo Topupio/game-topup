@@ -33,7 +33,7 @@ export default async function Page() {
     ];
 
     return (
-        <div className="py-20 bg-background overflow-x-hidden">
+        <div className="sm:py-20 py-16  bg-background overflow-x-hidden">
             <div className="max-w-7xl mx-auto lg:px-0 px-3">
                 <HeroCarousel banners={bannerData} />
                 <CategoryQuickNav categories={allCategoryNames} />

@@ -86,11 +86,19 @@ export default function BannerForm({ bannerId }: Props) {
 
     /* Validation */
     const validate = (): boolean => {
+        let isValid = true;
+
         if (!isEdit && !form.imageFile && !form.imageUrl) {
             updateError("imageUrl", "Image is required");
-            return false;
+            isValid = false;
         }
-        return true;
+
+        if (!form.mobileImageFile && !form.mobileImageUrl) {
+            updateError("mobileImageUrl", "Mobile banner (16:9) is required");
+            isValid = false;
+        }
+
+        return isValid;
     };
 
     /* Submit */
@@ -146,7 +154,7 @@ export default function BannerForm({ bannerId }: Props) {
                 </div>
 
                 <div>
-                    <label className="font-medium block mb-2">Mobile Banner (16:9) — Optional</label>
+                    <label className="font-medium block mb-2">Mobile Banner (16:9) *</label>
                     <ImageUploader
                         imageUrl={(form.mobileImageUrl as string | null) || null}
                         onChange={(file, preview) => {
@@ -154,11 +162,13 @@ export default function BannerForm({ bannerId }: Props) {
                                 mobileImageFile: file,
                                 mobileImageUrl: preview ?? undefined,
                             });
+                            clearError("mobileImageUrl");
                         }}
                         aspectRatio={16 / 9}
+                        error={errors.mobileImageUrl}
                     />
                     <p className="text-xs text-muted-foreground mt-1">
-                        If not provided, the desktop banner will be used on mobile too.
+                        Required for mobile display.
                     </p>
                 </div>
 
