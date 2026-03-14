@@ -103,6 +103,16 @@ export default function GameForm({ gameId }: Props) {
             clearError("name");
         }
 
+        if (isEdit && !form.slug?.trim()) {
+            updateError("slug", "Slug is required");
+            isValid = false;
+        } else if (form.slug?.trim() && !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(form.slug)) {
+            updateError("slug", "Slug must be lowercase letters, numbers, and hyphens (e.g. brawl-stars)");
+            isValid = false;
+        } else {
+            clearError("slug");
+        }
+
         if (!form.category?.trim()) {
             updateError("category", "Category is required");
             isValid = false;
@@ -138,6 +148,7 @@ export default function GameForm({ gameId }: Props) {
         await handleSubmit(async (formData) => {
             const payload: GamePayload = {
                 name: formData.name,
+                slug: formData.slug || undefined,
                 category: formData.category,
                 paymentCategory: formData.paymentCategory || "",
                 topupType: formData.topupType || "",
@@ -190,17 +201,37 @@ export default function GameForm({ gameId }: Props) {
 
                     {/* Right: Fields */}
                     <div className="flex-1 space-y-4">
-                        <Input
-                            label="Game / App Name"
-                            placeholder="e.g. Brawl Stars"
-                            value={form.name}
-                            required
-                            error={errors.name}
-                            onChange={(e) => {
-                                updateForm({ name: e.target.value });
-                                clearError("name");
-                            }}
-                        />
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <Input
+                                label="Game / App Name"
+                                placeholder="e.g. Brawl Stars"
+                                value={form.name}
+                                required
+                                error={errors.name}
+                                onChange={(e) => {
+                                    updateForm({ name: e.target.value });
+                                    clearError("name");
+                                }}
+                            />
+
+                            <Input
+                                label="URL Slug"
+                                placeholder="e.g. brawl-stars"
+                                value={form.slug}
+                                required={isEdit}
+                                error={errors.slug}
+                                helperText={isEdit ? "Lowercase letters, numbers, and hyphens only. This determines the game's URL." : "Leave empty to auto-generate from name"}
+                                onChange={(e) => {
+                                    const sanitized = e.target.value
+                                        .toLowerCase()
+                                        .replace(/\s+/g, "-")
+                                        .replace(/[^a-z0-9-]/g, "")
+                                        .replace(/-{2,}/g, "-");
+                                    updateForm({ slug: sanitized });
+                                    clearError("slug");
+                                }}
+                            />
+                        </div>
 
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                             <Select

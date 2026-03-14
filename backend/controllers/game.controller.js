@@ -302,7 +302,7 @@ const getGameDetails = asyncHandler(async (req, res) => {
 // @route   POST /api/games
 // @access  Admin
 const createGame = asyncHandler(async (req, res) => {
-    const { name, description, richDescription, status, metaTitle, metaDescription, topupType, paymentCategory, isPopular, checkoutTemplate: rawCheckoutTemplate } = req.body;
+    const { name, slug: customSlug, description, richDescription, status, metaTitle, metaDescription, topupType, paymentCategory, isPopular, checkoutTemplate: rawCheckoutTemplate } = req.body;
     const checkoutTemplateOptions = parseJsonField(req.body.checkoutTemplateOptions) || {};
 
     // 1. Parse JSON fields from form-data
@@ -366,13 +366,17 @@ const createGame = asyncHandler(async (req, res) => {
     }
 
     // 7. Slug & duplicate check
-    const slug = slugify(name, { lower: true, strict: true });
+    const slug = customSlug
+        ? slugify(customSlug, { lower: true, strict: true })
+        : slugify(name, { lower: true, strict: true });
     const existing = await Game.findOne({ slug });
 
     if (existing) {
         return res.status(409).json({
             success: false,
-            message: "A game with this name already exists",
+            message: customSlug
+                ? "A game with this slug already exists"
+                : "A game with this name already exists",
         });
     }
 
@@ -458,7 +462,7 @@ const createGame = asyncHandler(async (req, res) => {
 });
 
 const updateGame = asyncHandler(async (req, res) => {
-    const { name, description, richDescription, status, metaTitle, metaDescription, topupType, paymentCategory, isPopular, checkoutTemplate: rawCheckoutTemplate } = req.body;
+    const { name, description, richDescription, status, metaTitle, metaDescription, topupType, paymentCategory, isPopular, checkoutTemplate: rawCheckoutTemplate, slug: customSlug } = req.body;
     const category = req.body.category?.trim().toLowerCase();
 
     // 1. Fetch existing game
@@ -503,10 +507,22 @@ const updateGame = asyncHandler(async (req, res) => {
         variants = result.data;
     }
 
-    // 7. If name changed, regenerate slug
+    // 7. Slug resolution: custom slug > name-based auto-generation > keep current
     let updatedSlug = game.slug;
 
-    if (name && name.trim() !== game.name) {
+    if (customSlug && customSlug.trim() !== game.slug) {
+        // Admin provided a custom slug — sanitize and use it
+        updatedSlug = slugify(customSlug.trim(), { lower: true, strict: true });
+
+        const slugExists = await Game.findOne({ slug: updatedSlug, _id: { $ne: game._id } });
+        if (slugExists) {
+            return res.status(409).json({
+                success: false,
+                message: "Another game already uses this slug",
+            });
+        }
+    } else if (!customSlug && name && name.trim() !== game.name) {
+        // No custom slug but name changed — auto-generate from new name
         updatedSlug = slugify(name, { lower: true, strict: true });
 
         const slugExists = await Game.findOne({ slug: updatedSlug, _id: { $ne: game._id } });
