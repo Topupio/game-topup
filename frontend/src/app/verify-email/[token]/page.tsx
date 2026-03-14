@@ -33,31 +33,31 @@ export default function VerifyEmailPage() {
     }, [token, router]);
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-            <div className="w-full max-w-md bg-white rounded-2xl p-8 shadow-xl text-center">
+        <div className="min-h-screen flex items-center justify-center px-4 bg-primary">
+            <div className="w-full max-w-md bg-primary/40 border border-white/10 backdrop-blur-xl shadow-2xl rounded-2xl p-8 text-center">
 
                 {status === "loading" && (
                     <>
-                        <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-                        <h2 className="text-xl font-semibold text-gray-800">Verifying your email…</h2>
+                        <div className="w-12 h-12 border-4 border-secondary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+                        <h2 className="text-xl font-semibold text-gray-200">Verifying your email…</h2>
                     </>
                 )}
 
                 {status === "success" && (
                     <>
-                        <h2 className="text-2xl font-bold text-green-600 mb-2">Email Verified 🎉</h2>
-                        <p className="text-gray-600">{message}</p>
-                        <p className="text-sm mt-4 text-gray-500">Redirecting to login…</p>
+                        <h2 className="text-2xl font-bold text-green-400 mb-2">Email Verified</h2>
+                        <p className="text-gray-300">{message}</p>
+                        <p className="text-sm mt-4 text-gray-400">Redirecting to login…</p>
                     </>
                 )}
 
                 {status === "error" && (
                     <>
-                        <h2 className="text-2xl font-bold text-red-600 mb-2">Verification Failed</h2>
-                        <p className="text-gray-600 mb-6">{message}</p>
+                        <h2 className="text-2xl font-bold text-red-400 mb-2">Verification Failed</h2>
+                        <p className="text-gray-300 mb-6">{message}</p>
                         <button
                             onClick={() => router.push("/resend-verification")}
-                            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors"
+                            className="bg-tertiary/80 hover:bg-tertiary text-primary px-6 py-2.5 rounded-lg font-semibold transition shadow-md"
                         >
                             Resend Verification Email
                         </button>
