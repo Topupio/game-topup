@@ -23,8 +23,11 @@ export const register = asyncHandler(async (req, res) => {
                 exists.lastVerificationSentAt &&
                 now - exists.lastVerificationSentAt < 2 * 60 * 1000
             ) {
-                res.status(429);
-                throw new Error("Please wait before requesting another verification email");
+                res.status(429).json({
+                    success: false,
+                    message: "Verification email already sent. Please wait before requesting another."
+                });
+                return;
             }
 
             const token = exists.generateVerificationToken();
