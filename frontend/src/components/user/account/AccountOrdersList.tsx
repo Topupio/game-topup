@@ -109,7 +109,7 @@ export default function AccountOrdersList() {
                                 : `No ${activeStatus} orders found.`}
                         </p>
                         <Link
-                            href="/games"
+                            href="/categories"
                             className="inline-block bg-secondary text-white font-bold px-8 py-3 rounded-xl hover:opacity-90 transition"
                         >
                             Browse Games
