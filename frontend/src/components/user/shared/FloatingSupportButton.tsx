@@ -6,7 +6,7 @@ const FloatingSupportButton = () => {
             href="https://wa.me/919497110191"
             target="_blank"
             rel="noopener noreferrer"
-            className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 flex items-center gap-0 sm:gap-2 rounded-full bg-yellow-400 sm:bg-white p-0 sm:pl-4 sm:pr-1.5 sm:py-1.5 shadow-lg transition-transform hover:scale-105"
+            className="fixed bottom-20 right-4 sm:bottom-6 sm:right-6 z-50 flex items-center gap-0 sm:gap-2 rounded-full bg-yellow-400 sm:bg-white p-0 sm:pl-4 sm:pr-1.5 sm:py-1.5 shadow-lg transition-transform hover:scale-105"
         >
             <span className="hidden sm:inline text-sm font-bold text-gray-900">24/7</span>
             <span className="flex h-10 w-10 sm:h-9 sm:w-9 items-center justify-center rounded-full bg-yellow-400">
