@@ -12,7 +12,6 @@ import dashboardRouter from './routes/dashboard.routes.js';
 import adminRouter from './routes/admin.routes.js';
 import gameRouter from './routes/game.routes.js';
 import productRouter from './routes/product.routes.js';
-import internalRouter from './routes/internal.routes.js';
 import bannerRouter from './routes/banner.routes.js';
 import blogRouter from './routes/blog.routes.js';
 import orderRouter from './routes/order.routes.js';
@@ -91,7 +90,6 @@ app.use((req, res, next) => {
     csrfProtection(req, res, next);
 });
 
-app.use('/api/internal', internalRouter);
 app.use('/api/auth', authRouter);
 app.use('/api/admin', adminRouter);
 app.use('/api/dashboard', dashboardRouter);

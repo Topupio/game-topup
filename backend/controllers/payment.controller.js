@@ -83,6 +83,14 @@ export const createPayPalOrder = asyncHandler(async (req, res) => {
         return res.status(403).json({ success: false, message: "Not authorized" });
     }
 
+    // Block payment for expired orders
+    if (order.orderStatus === "expired") {
+        return res.status(400).json({
+            success: false,
+            message: "Order has expired. Please create a new order.",
+        });
+    }
+
     // Only allow payment for pending orders
     if (order.paymentStatus !== "pending") {
         return res.status(400).json({
@@ -155,6 +163,14 @@ export const capturePayPalOrder = asyncHandler(async (req, res) => {
     // Verify ownership
     if (order.user.toString() !== req.user.id) {
         return res.status(403).json({ success: false, message: "Not authorized" });
+    }
+
+    // Block payment for expired orders
+    if (order.orderStatus === "expired") {
+        return res.status(400).json({
+            success: false,
+            message: "Order has expired. Please create a new order.",
+        });
     }
 
     // Idempotency: if already paid, return success

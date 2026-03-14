@@ -14,6 +14,7 @@ export default function OrdersTable({ items }: Props) {
         switch (status) {
             case "completed": return "text-green-600 bg-green-50";
             case "processing": return "text-blue-600 bg-blue-50";
+            case "expired": return "text-gray-600 bg-gray-50";
             case "cancelled":
             case "failed": return "text-red-600 bg-red-50";
             case "paid": return "text-purple-600 bg-purple-50";

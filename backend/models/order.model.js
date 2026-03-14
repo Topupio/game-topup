@@ -92,7 +92,7 @@ const orderSchema = new mongoose.Schema(
         // Admin workflow
         orderStatus: {
             type: String,
-            enum: ["pending", "paid", "processing", "completed", "cancelled", "failed"],
+            enum: ["pending", "paid", "processing", "completed", "cancelled", "failed", "expired"],
             default: "pending",
         },
 

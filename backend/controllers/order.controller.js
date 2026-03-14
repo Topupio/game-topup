@@ -273,7 +273,7 @@ export const adminGetOrders = async (req, res) => {
         const { status, search } = req.query;
         const query = {};
 
-        const allowedStatuses = ["pending", "paid", "processing", "completed", "cancelled", "failed"];
+        const allowedStatuses = ["pending", "paid", "processing", "completed", "cancelled", "failed", "expired"];
         if (status && allowedStatuses.includes(status)) {
             query.orderStatus = status;
         }
@@ -333,7 +333,7 @@ export const adminUpdateOrder = async (req, res) => {
 
         const { orderStatus, paymentStatus, adminNote, completionProof } = req.body;
 
-        const allowedOrderStatuses = ["pending", "paid", "processing", "completed", "cancelled", "failed"];
+        const allowedOrderStatuses = ["pending", "paid", "processing", "completed", "cancelled", "failed", "expired"];
         const allowedPaymentStatuses = ["pending", "paid", "failed", "refunded"];
 
         if (orderStatus && !allowedOrderStatuses.includes(orderStatus)) {

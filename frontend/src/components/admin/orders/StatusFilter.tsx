@@ -14,6 +14,7 @@ const OPTIONS = [
     { key: "inprogress", label: "In-Progress", icon: <TbReload /> },
     { key: "completed", label: "Completed", icon: <TbCheck /> },
     { key: "cancelled", label: "Cancelled", icon: <TbX /> },
+    { key: "expired", label: "Expired", icon: <TbClock /> },
 ];
 
 export default function StatusFilter({ value, onChange }: Props) {

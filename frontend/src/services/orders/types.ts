@@ -10,7 +10,8 @@ export type OrderStatus =
     | "processing"
     | "completed"
     | "cancelled"
-    | "failed";
+    | "failed"
+    | "expired";
 
 // ===== Lightweight Related Models =====
 

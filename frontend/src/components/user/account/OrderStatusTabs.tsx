@@ -5,6 +5,7 @@ const STATUS_TABS = [
     { key: "pending", label: "Pending" },
     { key: "completed", label: "Completed" },
     { key: "cancelled", label: "Cancelled" },
+    { key: "expired", label: "Expired" },
 ];
 
 interface OrderStatusTabsProps {
