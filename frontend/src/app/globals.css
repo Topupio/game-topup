@@ -68,9 +68,7 @@
 @layer base {
 
     /* Smooth UI */
-    * {
-        @apply transition-all duration-200;
-    }
+
 
     /* Default border color */
     .border {
