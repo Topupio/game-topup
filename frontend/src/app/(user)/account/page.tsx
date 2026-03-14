@@ -25,12 +25,12 @@ export default function AccountPage() {
 
     if (loading) {
         return (
-            <div className="max-w-7xl mx-auto pt-24 pb-16 px-4">
-                <div className="flex flex-col lg:flex-row gap-8">
+            <div className="max-w-7xl mx-auto pt-20 sm:pt-24 pb-10 sm:pb-16 px-3 sm:px-4">
+                <div className="flex flex-col lg:flex-row gap-5 sm:gap-8">
                     <div className="w-full lg:w-72 shrink-0">
-                        <div className="bg-white border border-gray-200 rounded-2xl p-6 animate-pulse">
-                            <div className="flex items-center gap-4">
-                                <div className="w-14 h-14 rounded-full bg-gray-200" />
+                        <div className="bg-white border border-gray-200 rounded-2xl p-4 sm:p-6 animate-pulse">
+                            <div className="flex items-center gap-3 sm:gap-4">
+                                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gray-200" />
                                 <div className="flex-1 space-y-2">
                                     <div className="h-4 bg-gray-200 rounded w-2/3" />
                                     <div className="h-3 bg-gray-200 rounded w-1/2" />
@@ -57,8 +57,8 @@ export default function AccountPage() {
     if (!user) return null;
 
     return (
-        <div className="max-w-7xl mx-auto pt-24 pb-16 px-4">
-            <div className="flex flex-col lg:flex-row gap-8">
+        <div className="max-w-7xl mx-auto pt-20 sm:pt-24 pb-10 sm:pb-16 px-3 sm:px-4">
+            <div className="flex flex-col lg:flex-row gap-5 sm:gap-8">
                 {/* Left Sidebar */}
                 <div className="w-full lg:w-72 shrink-0">
                     <AccountSidebar user={user} onLogout={handleLogout} />

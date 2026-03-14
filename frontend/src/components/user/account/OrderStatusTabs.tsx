@@ -15,8 +15,8 @@ interface OrderStatusTabsProps {
 
 export default function OrderStatusTabs({ activeTab, onTabChange }: OrderStatusTabsProps) {
     return (
-        <div className="overflow-x-auto">
-            <div className="flex gap-6 border-b border-border pb-2 min-w-max">
+        <div className="overflow-x-auto hide-scrollbar">
+            <div className="flex gap-4 sm:gap-6 border-b border-border pb-2">
                 {STATUS_TABS.map((tab) => (
                     <button
                         key={tab.key}

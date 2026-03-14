@@ -81,9 +81,9 @@ export default function AccountOrdersList() {
                 {loading ? (
                     <div className="space-y-4">
                         {[1, 2, 3].map((i) => (
-                            <div key={i} className="bg-white border border-gray-200 rounded-2xl p-5 animate-pulse">
-                                <div className="flex items-center gap-4">
-                                    <div className="w-16 h-16 bg-gray-200 rounded-xl" />
+                            <div key={i} className="bg-white border border-gray-200 rounded-2xl p-3 sm:p-5 animate-pulse">
+                                <div className="flex items-center gap-3 sm:gap-4">
+                                    <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gray-200 rounded-xl" />
                                     <div className="flex-1 space-y-2">
                                         <div className="h-4 bg-gray-200 rounded w-1/3" />
                                         <div className="h-5 bg-gray-200 rounded w-1/2" />
@@ -95,12 +95,12 @@ export default function AccountOrdersList() {
                         ))}
                     </div>
                 ) : error ? (
-                    <div className="bg-white border border-gray-200 rounded-2xl p-12 text-center">
+                    <div className="bg-white border border-gray-200 rounded-2xl p-6 sm:p-12 text-center">
                         <RiInformationLine className="text-gray-400 text-5xl mx-auto mb-4" />
                         <p className="text-gray-500">{error}</p>
                     </div>
                 ) : orders.length === 0 ? (
-                    <div className="bg-white border border-gray-200 rounded-2xl p-12 text-center">
+                    <div className="bg-white border border-gray-200 rounded-2xl p-6 sm:p-12 text-center">
                         <RiInformationLine className="text-gray-400 text-5xl mx-auto mb-4" />
                         <h2 className="text-lg font-semibold text-gray-900 mb-2">No orders found</h2>
                         <p className="text-gray-500 mb-6">
@@ -121,11 +121,11 @@ export default function AccountOrdersList() {
                             <Link
                                 key={order._id}
                                 href={`/orders/${order._id}`}
-                                className="block bg-white border border-gray-200 rounded-2xl p-5 hover:shadow-md hover:border-secondary/30 transition group"
+                                className="block bg-white border border-gray-200 rounded-2xl p-3 sm:p-5 hover:shadow-md hover:border-secondary/30 transition group"
                             >
                                 {/* Header: Date, Order ID, Game, Status */}
-                                <div className="flex items-center justify-between mb-4 text-xs text-gray-400">
-                                    <div className="flex items-center gap-3 flex-wrap">
+                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-0 mb-3 sm:mb-4 text-xs text-gray-400">
+                                    <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
                                         <span suppressHydrationWarning>
                                             {new Date(order.createdAt).toLocaleDateString()} {new Date(order.createdAt).toLocaleTimeString()}
                                         </span>
@@ -133,19 +133,19 @@ export default function AccountOrdersList() {
                                         <span className="text-secondary font-medium">{order.orderId}</span>
                                         {order.game?.name && (
                                             <>
-                                                <span className="text-gray-300">|</span>
-                                                <span>{order.game.name}</span>
+                                                <span className="hidden sm:inline text-gray-300">|</span>
+                                                <span className="hidden sm:inline">{order.game.name}</span>
                                             </>
                                         )}
                                     </div>
-                                    <span className={`text-[11px] px-2.5 py-0.5 rounded-full border font-medium ${getStatusStyles(order.orderStatus)}`}>
+                                    <span className={`text-[11px] px-2.5 py-0.5 rounded-full border font-medium w-fit ${getStatusStyles(order.orderStatus)}`}>
                                         {order.orderStatus.charAt(0).toUpperCase() + order.orderStatus.slice(1)}
                                     </span>
                                 </div>
 
                                 {/* Body: Image + Details + Price */}
-                                <div className="flex items-center gap-4">
-                                    <div className="w-16 h-16 rounded-xl overflow-hidden bg-gray-100 shrink-0">
+                                <div className="flex items-center gap-3 sm:gap-4">
+                                    <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-xl overflow-hidden bg-gray-100 shrink-0">
                                         {order.game?.imageUrl ? (
                                             <img
                                                 src={order.game.imageUrl}
@@ -159,16 +159,16 @@ export default function AccountOrdersList() {
                                         )}
                                     </div>
                                     <div className="flex-1 min-w-0">
-                                        <h3 className="text-base font-semibold text-gray-900 group-hover:text-secondary transition truncate">
+                                        <h3 className="text-sm sm:text-base font-semibold text-gray-900 group-hover:text-secondary transition truncate">
                                             {order.productSnapshot.name}
                                         </h3>
-                                        <p className="text-sm text-gray-500 mt-0.5">
+                                        <p className="text-xs sm:text-sm text-gray-500 mt-0.5">
                                             ${order.productSnapshot.discountedPrice ?? order.productSnapshot.price} x 1
                                         </p>
                                     </div>
                                     <div className="text-right shrink-0">
-                                        <p className="text-lg font-bold text-gray-900">${order.amount}</p>
-                                        <div className="flex items-center gap-1 text-xs text-gray-400 mt-1">
+                                        <p className="text-base sm:text-lg font-bold text-gray-900">${order.amount}</p>
+                                        <div className="hidden sm:flex items-center gap-1 text-xs text-gray-400 mt-1">
                                             <RiTimeLine />
                                             <span>{order.productSnapshot.deliveryTime}</span>
                                         </div>

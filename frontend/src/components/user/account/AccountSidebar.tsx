@@ -43,23 +43,23 @@ export default function AccountSidebar({ user, onLogout }: AccountSidebarProps) 
     return (
         <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
             {/* User Profile */}
-            <div className="p-6 border-b border-gray-100">
-                <div className="flex items-center gap-4">
-                    <div className="w-14 h-14 rounded-full bg-secondary/10 border-2 border-secondary/20 flex items-center justify-center shrink-0">
-                        <RiUserLine className="text-2xl text-secondary" />
+            <div className="p-4 sm:p-6 border-b border-gray-100">
+                <div className="flex items-center gap-3 sm:gap-4">
+                    <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-secondary/10 border-2 border-secondary/20 flex items-center justify-center shrink-0">
+                        <RiUserLine className="text-xl sm:text-2xl text-secondary" />
                     </div>
                     <div className="min-w-0">
-                        <h2 className="text-base font-semibold text-gray-900 truncate">{user.name}</h2>
-                        <p className="text-sm text-gray-500 truncate">{user.email}</p>
+                        <h2 className="text-sm sm:text-base font-semibold text-gray-900 truncate">{user.name}</h2>
+                        <p className="text-xs sm:text-sm text-gray-500 truncate">{user.email}</p>
                     </div>
                 </div>
 
                 {/* Balance & Points */}
-                <div className="flex items-center gap-6 mt-5">
+                <div className="flex items-center gap-4 sm:gap-6 mt-4 sm:mt-5">
                     <div className="flex items-center gap-2">
                         <RiWallet3Line className="text-lg text-gray-400" />
                         <div>
-                            <p className="text-lg font-bold text-gray-900">$0.00</p>
+                            <p className="text-base sm:text-lg font-bold text-gray-900">$0.00</p>
                             <p className="text-xs text-gray-400">Balance</p>
                         </div>
                     </div>
@@ -67,7 +67,7 @@ export default function AccountSidebar({ user, onLogout }: AccountSidebarProps) 
                     <div className="flex items-center gap-2">
                         <RiCoinLine className="text-lg text-yellow-500" />
                         <div>
-                            <p className="text-lg font-bold text-gray-900">0</p>
+                            <p className="text-base sm:text-lg font-bold text-gray-900">0</p>
                             <p className="text-xs text-gray-400">Points</p>
                         </div>
                     </div>
@@ -106,12 +106,12 @@ export default function AccountSidebar({ user, onLogout }: AccountSidebarProps) 
             </nav>
 
             {/* Navigation - Mobile horizontal scroll */}
-            <div className="lg:hidden overflow-x-auto py-3 px-4">
-                <div className="flex gap-2 min-w-max">
+            <div className="lg:hidden overflow-x-auto hide-scrollbar py-3 px-3 sm:px-4">
+                <div className="flex gap-2">
                     {navItems.map((item) => {
                         const Icon = item.icon;
                         const active = isActive(item.href);
-                        const className = `flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
+                        const className = `flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-full text-xs sm:text-sm font-medium whitespace-nowrap transition-colors ${
                             active
                                 ? "bg-secondary text-white"
                                 : "bg-gray-100 text-gray-600 hover:bg-gray-200"
