@@ -224,10 +224,18 @@ export default function BlogForm({ blogId }: Props) {
                         placeholder="Blog Title"
                     />
                     <Input
-                        label="Slug (URL Friendly)"
+                        label="URL Slug"
                         value={form.slug}
-                        onChange={(e) => updateForm({ slug: e.target.value })}
-                        required
+                        onChange={(e) => {
+                            const sanitized = e.target.value
+                                .toLowerCase()
+                                .replace(/\s+/g, "-")
+                                .replace(/[^a-z0-9-]/g, "")
+                                .replace(/-{2,}/g, "-");
+                            updateForm({ slug: sanitized });
+                        }}
+                        required={isEdit}
+                        helperText={isEdit ? "Lowercase letters, numbers, and hyphens only. This determines the blog's URL." : "Leave empty to auto-generate from title"}
                         placeholder="my-blog-post"
                     />
                 </div>

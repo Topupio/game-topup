@@ -10,7 +10,7 @@ import { logAdminActivity } from "../utils/adminLogger.js";
 // @route   POST /api/blogs
 // @access  Private/Admin
 export const createBlog = asyncHandler(async (req, res) => {
-    let { title, description, content, category, seo } = req.body;
+    let { title, slug: customSlug, description, content, category, seo } = req.body;
 
     if (!title) {
         res.status(400);
@@ -42,12 +42,17 @@ export const createBlog = asyncHandler(async (req, res) => {
         throw new Error("Cover image is required");
     }
 
-    // 🔹 Generate base slug from title
-    const slug = slugify(title, {
-        lower: true,
-        strict: true, // removes special characters
-        trim: true
-    });
+    // 🔹 Use custom slug if provided, otherwise generate from title
+    const slug = customSlug?.trim()
+        ? slugify(customSlug, { lower: true, strict: true, trim: true })
+        : slugify(title, { lower: true, strict: true, trim: true });
+
+    // Check slug uniqueness
+    const existingSlug = await Blog.findOne({ slug });
+    if (existingSlug) {
+        res.status(400);
+        throw new Error("A blog with this slug already exists");
+    }
 
     // Upload to Cloudinary
     const upload = await uploadBufferToCloudinary(req.file.buffer, "blogs");
@@ -150,7 +155,7 @@ export const updateBlog = asyncHandler(async (req, res) => {
         throw new Error("Blog not found");
     }
 
-    let { title, description, content, category, seo } = req.body;
+    let { title, slug: customSlug, description, content, category, seo } = req.body;
 
     // Parse JSON
     if (typeof content === "string") {
@@ -174,7 +179,8 @@ export const updateBlog = asyncHandler(async (req, res) => {
     }
 
     // 🔹 Title update + uniqueness check
-    if (title && title !== blog.title) {
+    const titleChanged = title && title !== blog.title;
+    if (titleChanged) {
         const titleExists = await Blog.findOne({
             title,
             _id: { $ne: blog._id }
@@ -186,13 +192,21 @@ export const updateBlog = asyncHandler(async (req, res) => {
         }
 
         blog.title = title;
+    }
 
-        // Regenerate slug
-        blog.slug = slugify(title, {
-            lower: true,
-            strict: true,
-            trim: true
-        });
+    // 🔹 Slug update: use custom slug if provided, otherwise regenerate from new title
+    if (customSlug?.trim()) {
+        const newSlug = slugify(customSlug, { lower: true, strict: true, trim: true });
+        if (newSlug !== blog.slug) {
+            const slugExists = await Blog.findOne({ slug: newSlug, _id: { $ne: blog._id } });
+            if (slugExists) {
+                res.status(400);
+                throw new Error("A blog with this slug already exists");
+            }
+            blog.slug = newSlug;
+        }
+    } else if (titleChanged) {
+        blog.slug = slugify(title, { lower: true, strict: true, trim: true });
     }
 
     // Other fields
