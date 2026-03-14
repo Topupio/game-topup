@@ -4,11 +4,12 @@
 import { AuthUser } from "@/context/AuthContext";
 import { toast } from "react-toastify";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
     RiUserLine,
     RiShoppingBag3Line,
     RiCouponLine,
-    RiSettings3Line,
+    RiLockPasswordLine,
     RiQuestionLine,
     RiLogoutBoxLine,
     RiWallet3Line,
@@ -21,15 +22,22 @@ interface AccountSidebarProps {
 }
 
 const navItems = [
-    { label: "Order History", icon: RiShoppingBag3Line, active: true },
+    { label: "Order History", icon: RiShoppingBag3Line, href: "/account" },
     { label: "Coupon", icon: RiCouponLine, comingSoon: true },
-    { label: "Settings", icon: RiSettings3Line, comingSoon: true },
+    { label: "Settings", icon: RiLockPasswordLine, href: "/account/settings" },
     { label: "Help Center", icon: RiQuestionLine, href: "/faq" },
 ];
 
 export default function AccountSidebar({ user, onLogout }: AccountSidebarProps) {
+    const pathname = usePathname();
     const handleComingSoon = () => {
         toast.info("Coming soon!");
+    };
+
+    const isActive = (href?: string) => {
+        if (!href) return false;
+        if (href === "/account") return pathname === "/account";
+        return pathname.startsWith(href);
     };
 
     return (
@@ -70,8 +78,9 @@ export default function AccountSidebar({ user, onLogout }: AccountSidebarProps) 
             <nav className="hidden lg:block py-2">
                 {navItems.map((item) => {
                     const Icon = item.icon;
+                    const active = isActive(item.href);
                     const className = `w-full flex items-center gap-3 px-6 py-3 text-sm font-medium transition-colors ${
-                        item.active
+                        active
                             ? "text-secondary bg-secondary/5 border-l-3 border-secondary"
                             : "text-gray-600 hover:bg-gray-50 hover:text-gray-900 border-l-3 border-transparent"
                     }`;
@@ -101,8 +110,9 @@ export default function AccountSidebar({ user, onLogout }: AccountSidebarProps) 
                 <div className="flex gap-2 min-w-max">
                     {navItems.map((item) => {
                         const Icon = item.icon;
+                        const active = isActive(item.href);
                         const className = `flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
-                            item.active
+                            active
                                 ? "bg-secondary text-white"
                                 : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                         }`;

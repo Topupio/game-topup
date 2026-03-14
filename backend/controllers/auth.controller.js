@@ -283,6 +283,41 @@ export const resetPassword = asyncHandler(async (req, res) => {
     });
 });
 
+export const changePassword = asyncHandler(async (req, res) => {
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+        res.status(400);
+        throw new Error("Current password and new password are required");
+    }
+
+    if (newPassword.length < 6) {
+        res.status(400);
+        throw new Error("New password must be at least 6 characters");
+    }
+
+    const user = await User.findById(req.user.id).select("+password");
+
+    if (user.authProvider === "google" && !user.password) {
+        res.status(400);
+        throw new Error("Password change is not available for Google accounts");
+    }
+
+    const isMatch = await user.comparePassword(currentPassword);
+    if (!isMatch) {
+        res.status(401);
+        throw new Error("Current password is incorrect");
+    }
+
+    user.password = newPassword;
+    await user.save();
+
+    res.status(200).json({
+        success: true,
+        message: "Password changed successfully",
+    });
+});
+
 export const googleLogin = asyncHandler(async (req, res) => {
     const { accessToken } = req.body;
 
