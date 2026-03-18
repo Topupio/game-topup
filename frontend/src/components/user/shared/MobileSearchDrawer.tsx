@@ -7,6 +7,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { RiSearchLine } from "react-icons/ri";
 import { IoChevronBack } from "react-icons/io5";
+import { getGameUrl } from "@/lib/utils/getGameUrl";
 
 export default function MobileSearchDrawer() {
     const router = useRouter();
@@ -100,7 +101,7 @@ export default function MobileSearchDrawer() {
                     <div
                         key={game._id}
                         className="flex gap-4 pb-4 border-b border-white/10 cursor-pointer"
-                        onClick={() => router.push(`/games/${game.slug}`)}
+                        onClick={() => router.push(getGameUrl(game))}
                     >
                         <div className="h-14 w-14 bg-white/10 rounded-xl flex items-center justify-center overflow-hidden">
                             {game.imageUrl ? (

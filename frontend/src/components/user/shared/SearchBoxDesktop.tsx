@@ -5,13 +5,14 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useDebouncedCallback } from "use-debounce";
 import { RiSearchLine } from "react-icons/ri";
 import { gamesApiClient } from "@/services/games";
+import { getGameUrl } from "@/lib/utils/getGameUrl";
 
 export default function SearchBoxDesktop() {
     const router = useRouter();
     const searchParams = useSearchParams();
 
     const [query, setQuery] = useState(searchParams.get("search") || "");
-    const [results, setResults] = useState<{ _id: string; slug: string; name: string; imageUrl: string | null; category: string }[]>([]);
+    const [results, setResults] = useState<{ _id: string; slug: string; name: string; imageUrl: string | null; category: string; paymentCategory?: string }[]>([]);
     const [loading, setLoading] = useState(false);
     const [drawerOpen, setDrawerOpen] = useState(false);
 
@@ -110,7 +111,7 @@ export default function SearchBoxDesktop() {
                         <button
                             key={item._id}
                             onClick={() => {
-                                router.push(`/games/${item.slug}`);
+                                router.push(getGameUrl(item));
                                 setDrawerOpen(false);
                             }}
                             className="w-full flex items-center gap-3 px-4 py-3 text-foreground transition-all hover:bg-muted/50 group"

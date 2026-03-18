@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { RiArrowRightSLine, RiStarFill, RiStarHalfFill } from "react-icons/ri";
 import { useMemo } from "react";
 import { useCurrency } from "@/context/CurrencyContext";
+import { getGameUrl } from "@/lib/utils/getGameUrl";
 
 export default function GameCard({ game }: { game: Game }) {
     const { formatPrice, convertPrice } = useCurrency();
@@ -73,7 +74,7 @@ export default function GameCard({ game }: { game: Game }) {
             viewport={{ once: true }}
             className="group relative h-full rounded-2xl p-2 sm:p-3 bg-card border border-border shadow-sm hover:border-secondary/30 hover:shadow-md transition-all duration-300"
         >
-            <Link href={`/games/${game.slug}`} className="block">
+            <Link href={getGameUrl(game)} className="block">
                 {/* Image */}
                 <div className="relative overflow-hidden rounded-xl aspect-square">
                     <img

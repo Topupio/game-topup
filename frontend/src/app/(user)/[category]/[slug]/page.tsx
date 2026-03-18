@@ -4,14 +4,12 @@ import { GameDetailResponse } from "@/lib/types/game";
 import { permanentRedirect } from "next/navigation";
 import { getGameUrl } from "@/lib/utils/getGameUrl";
 
-// Backward-compatible redirect: /games/<slug> → /<category>/<slug>
-// If game has no paymentCategory, render directly (avoids infinite loop)
-export default async function GameSlugRedirect({
+export default async function CategoryGamePage({
     params,
 }: {
-    params: Promise<{ slug: string }>;
+    params: Promise<{ category: string; slug: string }>;
 }) {
-    const { slug } = await params;
+    const { category, slug } = await params;
 
     const gameDetailResponse = (await gamesApiServer.get(
         slug
@@ -19,14 +17,12 @@ export default async function GameSlugRedirect({
     const gameDetails = gameDetailResponse.data;
     const checkoutTemplates = gameDetailResponse.checkoutTemplates || {};
 
-    const targetUrl = getGameUrl(gameDetails);
-
-    // If game has a paymentCategory, redirect to the new URL
-    if (gameDetails.paymentCategory) {
-        permanentRedirect(targetUrl);
+    // Validate category matches — redirect if wrong
+    const correctUrl = getGameUrl(gameDetails);
+    if (`/${category}/${slug}` !== correctUrl) {
+        permanentRedirect(correctUrl);
     }
 
-    // No paymentCategory — render directly to avoid redirect loop
     return (
         <GameDetailsPage
             gameDetails={gameDetails}

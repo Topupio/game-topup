@@ -4,6 +4,7 @@ import { Game } from "@/lib/types/game";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { RiArrowRightSLine } from "react-icons/ri";
+import { getGameUrl } from "@/lib/utils/getGameUrl";
 
 const SingleGameCard = ({ game }: { game: Game }) => {
     return (
@@ -16,7 +17,7 @@ const SingleGameCard = ({ game }: { game: Game }) => {
             className="group relative"
         >
             <Link
-                href={`/games/${game.slug}`}
+                href={getGameUrl(game)}
                 className="flex items-center gap-4 p-3 rounded-xl bg-muted/50 border border-border hover:bg-muted hover:border-secondary/30 transition-all duration-300 group"
             >
                 <div className="relative shrink-0">
