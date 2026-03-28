@@ -6,6 +6,7 @@ import { CurrencyProvider } from "@/context/CurrencyContext";
 import { GoogleOAuthWrapper } from "@/providers/GoogleOAuthWrapper";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { GoogleAnalytics } from "@next/third-parties/google";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -42,6 +43,7 @@ export default function RootLayout({
           </AuthProvider>
         </GoogleOAuthWrapper>
       </body>
+      <GoogleAnalytics gaId="G-R9LDDE3P0X" />
     </html>
   );
 }
