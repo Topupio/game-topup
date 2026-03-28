@@ -178,11 +178,10 @@ const getGames = asyncHandler(async (req, res) => {
 
 const getHomePageGames = asyncHandler(async (req, res) => {
     const result = await Game.aggregate([
-        { $match: { status: "active" } },
         {
             $setWindowFields: {
                 partitionBy: "$category",
-                sortBy: { createdAt: -1 },
+                sortBy: { status: 1, createdAt: -1 },
                 output: {
                     rank: { $rank: {} }
                 }
@@ -223,7 +222,7 @@ const getDistinctCategories = asyncHandler(async (req, res) => {
 
 const getGamesByPaymentCategory = asyncHandler(async (req, res) => {
     const result = await Game.aggregate([
-        { $match: { status: "active", paymentCategory: { $ne: "" } } },
+        { $match: { paymentCategory: { $ne: "" } } },
         {
             $setWindowFields: {
                 partitionBy: "$paymentCategory",
@@ -234,6 +233,7 @@ const getGamesByPaymentCategory = asyncHandler(async (req, res) => {
             }
         },
         { $match: { rank: { $lte: 6 } } },
+        { $sort: { paymentCategory: 1, status: 1, createdAt: -1 } },
         {
             $group: {
                 _id: "$paymentCategory",
@@ -258,8 +258,8 @@ const getGamesByPaymentCategory = asyncHandler(async (req, res) => {
 });
 
 const getPopularGames = asyncHandler(async (req, res) => {
-    const games = await Game.find({ isPopular: true, status: "active" })
-        .sort({ createdAt: -1 })
+    const games = await Game.find({ isPopular: true })
+        .sort({ status: 1, createdAt: -1 })
         .limit(20);
 
     res.status(200).json({

@@ -196,6 +196,11 @@ export default function GameDetailsPage({
     };
 
     const handleProceedToCheckout = async () => {
+        if (isGameUnavailable) {
+            toast.error("This game is currently unavailable for purchase");
+            return;
+        }
+
         if (!user) {
             toast.error("Please login to place an order");
             router.push("/login");
@@ -246,6 +251,7 @@ export default function GameDetailsPage({
         }
     };
 
+    const isGameUnavailable = gameDetails.status === "inactive";
     const hasMultipleRegions = gameDetails.regions.length > 1;
 
     return (
@@ -254,6 +260,16 @@ export default function GameDetailsPage({
             <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-8 px-4">
                 {/* LEFT: Hero + Packages */}
                 <div className="lg:w-2/3 w-full space-y-3">
+                    {/* Unavailable Banner */}
+                    {isGameUnavailable && (
+                        <div className="bg-muted/60 border border-border rounded-xl px-4 py-3 flex items-center gap-3">
+                            <span className="shrink-0 bg-red-500/90 text-white text-xs font-bold px-2.5 py-1 rounded-md shadow uppercase tracking-wide">
+                                Sold Out
+                            </span>
+                            <p className="text-sm text-muted-foreground">This game is currently unavailable for purchase.</p>
+                        </div>
+                    )}
+
                     {/* Hero Section */}
                     <HeroHeader
                         imageUrl={gameDetails.imageUrl || ""}

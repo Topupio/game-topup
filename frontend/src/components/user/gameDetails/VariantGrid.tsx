@@ -27,9 +27,7 @@ export default function VariantGrid({
     gameImageUrl,
 }: Props) {
     const { formatPrice } = useCurrency();
-    const activeVariants = variants.filter((v) => v.status === "active");
-
-    if (activeVariants.length === 0) {
+    if (variants.length === 0) {
         return (
             <div className="text-center py-16 text-muted-foreground">
                 <p className="text-lg">No packages available at the moment.</p>
@@ -38,9 +36,16 @@ export default function VariantGrid({
         );
     }
 
+    // Sort: active variants first
+    const sortedVariants = [...variants].sort((a, b) => {
+        if (a.status === b.status) return 0;
+        return a.status === "active" ? -1 : 1;
+    });
+
     return (
         <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-4 gap-2 sm:gap-3">
-            {activeVariants.map((variant) => {
+            {sortedVariants.map((variant) => {
+                const isStockOut = variant.status === "inactive";
                 const pricing = getPrice(variant, activeRegion);
                 const isSelected =
                     selectedVariant?._id === variant._id ||
@@ -59,29 +64,38 @@ export default function VariantGrid({
                 return (
                     <div
                         key={variant._id || variant.slug}
-                        onClick={() => onSelect(variant)}
-                        className={`group relative cursor-pointer rounded-2xl p-2 sm:p-3 border transition-all duration-300 ease-out ${
-                            isSelected
-                                ? "border-secondary bg-secondary/10 ring-2 ring-secondary/40 shadow-md"
-                                : "border-border bg-card hover:border-secondary/60 hover:bg-muted hover:shadow-md shadow-sm"
+                        onClick={() => !isStockOut && onSelect(variant)}
+                        className={`group relative rounded-2xl p-2 sm:p-3 border transition-all duration-300 ease-out ${
+                            isStockOut
+                                ? "cursor-not-allowed border-border/60 bg-muted/40"
+                                : isSelected
+                                ? "cursor-pointer border-secondary bg-secondary/10 ring-2 ring-secondary/40 shadow-md"
+                                : "cursor-pointer border-border bg-card hover:border-secondary/60 hover:bg-muted hover:shadow-md shadow-sm"
                         }`}
                     >
+                        {/* Sold Out badge */}
+                        {isStockOut && (
+                            <div className="absolute top-2 right-2 z-10 bg-red-500/90 text-white text-[10px] font-bold px-2 py-0.5 rounded-md shadow">
+                                Sold Out
+                            </div>
+                        )}
+
                         {/* Selected badge */}
-                        {isSelected && (
+                        {isSelected && !isStockOut && (
                             <div className="absolute top-2 right-2 z-10 bg-secondary text-white text-[10px] font-semibold px-2 py-0.5 rounded-full">
                                 Selected
                             </div>
                         )}
 
                         {/* Popular badge */}
-                        {variant.isPopular && !isSelected && (
+                        {variant.isPopular && !isSelected && !isStockOut && (
                             <div className="absolute top-2 right-2 z-10 bg-tertiary text-primary text-[10px] font-bold px-2 py-0.5 rounded-full shadow">
                                 Popular
                             </div>
                         )}
 
                         {/* Discount badge */}
-                        {discountPercent > 0 && (
+                        {discountPercent > 0 && !isStockOut && (
                             <div className="absolute top-2 left-2 bg-tertiary text-primary text-[10px] font-bold px-2 py-0.5 rounded-full shadow z-10">
                                 {discountPercent}% OFF
                             </div>
@@ -93,9 +107,13 @@ export default function VariantGrid({
                                 <img
                                     src={imageUrl}
                                     alt={variant.name}
-                                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                    className={`w-full h-full object-cover transition-transform duration-500 ${
+                                        isStockOut ? "saturate-[0.2] opacity-60" : "group-hover:scale-110"
+                                    }`}
                                 />
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                                {!isStockOut && (
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                                )}
                             </div>
                         )}
 
@@ -105,7 +123,9 @@ export default function VariantGrid({
                         >
                             <h3
                                 className={`text-sm sm:text-base text-left font-semibold tracking-wide ${
-                                    isSelected
+                                    isStockOut
+                                        ? "text-muted-foreground"
+                                        : isSelected
                                         ? "text-secondary"
                                         : "text-foreground group-hover:text-secondary"
                                 }`}
@@ -125,22 +145,30 @@ export default function VariantGrid({
                         {/* Price */}
                         {pricing && (
                             <div className="mt-2 sm:mt-3 space-y-0.5">
-                                <div className="flex items-center gap-1 sm:gap-2">
-                                    <span className="text-secondary font-bold text-sm sm:text-base">
+                                {isStockOut ? (
+                                    <span className="text-muted-foreground text-xs sm:text-sm font-medium line-through">
                                         {formatPrice(pricing.discountedPrice, pricing.currency)}
                                     </span>
+                                ) : (
+                                    <>
+                                        <div className="flex items-center gap-1 sm:gap-2">
+                                            <span className="text-secondary font-bold text-sm sm:text-base">
+                                                {formatPrice(pricing.discountedPrice, pricing.currency)}
+                                            </span>
 
-                                    {discountPercent > 0 && (
-                                        <span className="text-muted-foreground text-xs sm:text-sm line-through">
-                                            {formatPrice(pricing.price, pricing.currency)}
-                                        </span>
-                                    )}
-                                </div>
+                                            {discountPercent > 0 && (
+                                                <span className="text-muted-foreground text-xs sm:text-sm line-through">
+                                                    {formatPrice(pricing.price, pricing.currency)}
+                                                </span>
+                                            )}
+                                        </div>
 
-                                {discountPercent > 0 && (
-                                    <p className="text-tertiary text-xs sm:text-sm font-medium">
-                                        Save {formatPrice(pricing.price - pricing.discountedPrice, pricing.currency)}
-                                    </p>
+                                        {discountPercent > 0 && (
+                                            <p className="text-tertiary text-xs sm:text-sm font-medium">
+                                                Save {formatPrice(pricing.price - pricing.discountedPrice, pricing.currency)}
+                                            </p>
+                                        )}
+                                    </>
                                 )}
                             </div>
                         )}

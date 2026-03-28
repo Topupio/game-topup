@@ -10,6 +10,7 @@ import { getGameUrl } from "@/lib/utils/getGameUrl";
 
 export default function GameCard({ game }: { game: Game }) {
     const { formatPrice, convertPrice } = useCurrency();
+    const isStockOut = game.status === "inactive";
 
     // Get the cheapest active variant pricing (first region)
     const pricing = useMemo(() => {
@@ -72,7 +73,9 @@ export default function GameCard({ game }: { game: Game }) {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="group relative h-full rounded-2xl p-2 sm:p-3 bg-card border border-border shadow-sm hover:border-secondary/30 hover:shadow-md transition-all duration-300"
+            className={`group relative h-full rounded-2xl p-2 sm:p-3 bg-card border border-border shadow-sm transition-all duration-300 ${
+                isStockOut ? "" : "hover:border-secondary/30 hover:shadow-md"
+            }`}
         >
             <Link href={getGameUrl(game)} className="block">
                 {/* Image */}
@@ -80,9 +83,18 @@ export default function GameCard({ game }: { game: Game }) {
                     <img
                         src={game.imageUrl ?? "/placeholder.png"}
                         alt={game.name}
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        className={`w-full h-full object-cover transition-transform duration-500 ${
+                            isStockOut ? "saturate-[0.25]" : "group-hover:scale-105"
+                        }`}
                     />
-                    {hasDiscount && (
+                    {isStockOut && (
+                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                            <span className="bg-red-500/90 backdrop-blur-sm text-white text-xs font-bold px-3.5 py-1.5 rounded-lg shadow-lg tracking-wide uppercase">
+                                Sold Out
+                            </span>
+                        </div>
+                    )}
+                    {hasDiscount && !isStockOut && (
                         <div className="absolute top-2 left-2 z-10 bg-secondary text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow">
                             -{discountPercent}%
                         </div>
@@ -106,13 +118,15 @@ export default function GameCard({ game }: { game: Game }) {
 
                 {/* Price & CTA */}
                 <div className="mt-3 flex items-center justify-between px-1">
-                    {pricing ? (
-                        <div className="flex flex-wrap items-baseline gap-x-1 sm:gap-x-2">
-                            <span className="text-secondary font-bold text-sm sm:text-lg">
+                    {isStockOut ? (
+                        <span className="text-muted-foreground font-medium text-xs sm:text-sm">Currently Unavailable</span>
+                    ) : pricing ? (
+                        <div className="flex flex-col">
+                            <span className="text-secondary font-bold text-sm sm:text-lg leading-tight">
                                 {formatPrice(pricing.discountedPrice, pricing.currency)}
                             </span>
                             {hasDiscount && (
-                                <span className="text-muted-foreground text-[10px] sm:text-xs line-through">
+                                <span className="text-muted-foreground text-[10px] sm:text-xs line-through leading-tight">
                                     {formatPrice(pricing.price, pricing.currency)}
                                 </span>
                             )}
