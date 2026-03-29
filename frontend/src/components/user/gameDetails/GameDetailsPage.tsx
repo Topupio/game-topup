@@ -24,8 +24,7 @@ import { ordersApiClient } from "@/services/orders/ordersApi.client";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import DOMPurify from "isomorphic-dompurify";
-import PayPalCheckout from "./PayPalCheckout";
-import NowPaymentsCheckout from "./NowPaymentsCheckout";
+import PaymentModal from "./PaymentModal";
 import { usePlayerVerification } from "@/hooks/usePlayerVerification";
 import { RiErrorWarningLine } from "react-icons/ri";
 
@@ -55,12 +54,11 @@ export default function GameDetailsPage({
         orderId: string;
     } | null>(null);
     const [showPayment, setShowPayment] = useState(false);
-    const [paymentMethod, setPaymentMethod] = useState<"paypal" | "crypto">("paypal");
     const [activeRegion, setActiveRegion] = useState(() => {
         return gameDetails.regions?.[0] || "global";
     });
     const { user } = useAuth();
-    const { currency: displayCurrency, formatPrice, rates } = useCurrency();
+    const { currency: displayCurrency } = useCurrency();
     const router = useRouter();
     const playerVerification = usePlayerVerification();
 
@@ -420,150 +418,13 @@ export default function GameDetailsPage({
                 </>
             )}
 
-            {/* PayPal Payment Modal */}
             {showPayment && pendingOrder && selectedPricing && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
-                    <div className="bg-card border border-border rounded-2xl p-6 w-full max-w-md shadow-2xl">
-                        <div className="flex items-center justify-between mb-4">
-                            <h3 className="text-lg font-bold text-foreground">
-                                Complete Payment
-                            </h3>
-                            <button
-                                onClick={() => {
-                                    setShowPayment(false);
-                                    toast.info(
-                                        "Order saved. You can pay later from My Orders."
-                                    );
-                                }}
-                                className="text-muted-foreground hover:text-foreground transition text-xl leading-none"
-                            >
-                                &times;
-                            </button>
-                        </div>
-
-                        {(() => {
-                            const nativeTotal = selectedPricing.discountedPrice * qty;
-                            const nativeCurrency = selectedPricing.currency;
-                            const isNonUSD = displayCurrency !== "USD";
-                            const fromRate = rates[nativeCurrency] || 1;
-                            const usdAmount = isNonUSD ? (nativeTotal / fromRate).toFixed(2) : null;
-
-                            return (
-                                <>
-                                    <div className="mb-4 p-3 bg-muted rounded-xl text-sm">
-                                        <div className="flex justify-between text-muted-foreground">
-                                            <span>Order</span>
-                                            <span className="text-foreground font-mono text-xs">
-                                                {pendingOrder.orderId}
-                                            </span>
-                                        </div>
-                                        <div className="flex justify-between mt-1">
-                                            <span className="text-muted-foreground">
-                                                Total
-                                            </span>
-                                            <span className="text-foreground font-bold">
-                                                {formatPrice(nativeTotal, nativeCurrency)}
-                                            </span>
-                                        </div>
-                                        {isNonUSD && (
-                                            <>
-                                                <div className="border-t border-border my-2" />
-                                                <div className="flex justify-between">
-                                                    <span className="text-muted-foreground">
-                                                        You pay (USD)
-                                                    </span>
-                                                    <span className="text-foreground font-bold text-secondary">
-                                                        ~${usdAmount}
-                                                    </span>
-                                                </div>
-                                            </>
-                                        )}
-                                    </div>
-
-                                    {isNonUSD && paymentMethod === "paypal" && (
-                                        <p className="text-xs text-muted-foreground mb-4 text-center">
-                                            PayPal processes all payments in USD
-                                        </p>
-                                    )}
-                                </>
-                            );
-                        })()}
-
-                        {/* Payment Method Selector */}
-                        <div className="flex gap-2 mb-4">
-                            <button
-                                onClick={() => setPaymentMethod("paypal")}
-                                className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition border ${
-                                    paymentMethod === "paypal"
-                                        ? "bg-secondary text-white border-secondary"
-                                        : "bg-muted text-muted-foreground border-border hover:border-secondary/50"
-                                }`}
-                            >
-                                PayPal
-                            </button>
-                            <button
-                                onClick={() => setPaymentMethod("crypto")}
-                                className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition border ${
-                                    paymentMethod === "crypto"
-                                        ? "bg-secondary text-white border-secondary"
-                                        : "bg-muted text-muted-foreground border-border hover:border-secondary/50"
-                                }`}
-                            >
-                                Crypto
-                            </button>
-                        </div>
-
-                        {paymentMethod === "paypal" ? (
-                            <PayPalCheckout
-                                orderId={pendingOrder._id}
-                                amount=""
-                                symbol=""
-                                onSuccess={() => {
-                                    toast.success("Payment successful!");
-                                    router.push(
-                                        `/orders/${pendingOrder._id}`
-                                    );
-                                }}
-                                onCancel={() => {
-                                    setShowPayment(false);
-                                    toast.info(
-                                        "Payment cancelled. You can pay later from My Orders."
-                                    );
-                                }}
-                                onError={() => {
-                                    setShowPayment(false);
-                                    toast.error(
-                                        "Payment failed. Please try again from My Orders."
-                                    );
-                                }}
-                            />
-                        ) : (
-                            <NowPaymentsCheckout
-                                orderId={pendingOrder._id}
-                                amount=""
-                                symbol=""
-                                onSuccess={() => {
-                                    toast.success("Payment initiated!");
-                                    router.push(
-                                        `/orders/${pendingOrder._id}`
-                                    );
-                                }}
-                                onCancel={() => {
-                                    setShowPayment(false);
-                                    toast.info(
-                                        "Payment cancelled. You can pay later from My Orders."
-                                    );
-                                }}
-                                onError={() => {
-                                    setShowPayment(false);
-                                    toast.error(
-                                        "Failed to create crypto payment. Please try again."
-                                    );
-                                }}
-                            />
-                        )}
-                    </div>
-                </div>
+                <PaymentModal
+                    pendingOrder={pendingOrder}
+                    selectedPricing={selectedPricing}
+                    qty={qty}
+                    onClose={() => setShowPayment(false)}
+                />
             )}
         </div>
     );
