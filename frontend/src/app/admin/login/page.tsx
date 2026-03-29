@@ -29,7 +29,10 @@ function AdminLoginContent() {
         try {
             if (!emailValid || !passwordValid) {
                 setTouched({ email: true, password: true });
-                throw new Error("Please fix the validation errors");
+                const errors: string[] = [];
+                if (!emailValid) errors.push("Enter a valid email address");
+                if (!passwordValid) errors.push("Password must be at least 6 characters");
+                throw new Error(errors.join(". "));
             }
             const recaptchaToken = await getRecaptchaToken("admin_login");
             if (!recaptchaToken) {

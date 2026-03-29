@@ -30,7 +30,11 @@ function SignupContent() {
         try {
             if (!nameValid || !emailValid || !passwordValid) {
                 setTouched({ name: true, email: true, password: true });
-                throw new Error("Please fix the validation errors");
+                const errors: string[] = [];
+                if (!nameValid) errors.push("Name must be at least 2 characters");
+                if (!emailValid) errors.push("Enter a valid email address");
+                if (!passwordValid) errors.push("Password must be at least 6 characters");
+                throw new Error(errors.join(". "));
             }
             const recaptchaToken = await getRecaptchaToken("register");
             await register(name, email, password, recaptchaToken);
