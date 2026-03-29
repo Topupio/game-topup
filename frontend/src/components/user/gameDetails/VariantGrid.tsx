@@ -9,6 +9,7 @@ interface Props {
     onSelect: (v: Variant) => void;
     activeRegion: string;
     gameImageUrl?: string | null;
+    disabled?: boolean;
 }
 
 function getPrice(variant: Variant, region: string): RegionPricing | null {
@@ -25,6 +26,7 @@ export default function VariantGrid({
     onSelect,
     activeRegion,
     gameImageUrl,
+    disabled = false,
 }: Props) {
     const { formatPrice } = useCurrency();
     if (variants.length === 0) {
@@ -45,11 +47,12 @@ export default function VariantGrid({
     return (
         <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-4 gap-2 sm:gap-3">
             {sortedVariants.map((variant) => {
-                const isStockOut = variant.status === "inactive";
+                const isStockOut = disabled || variant.status === "inactive";
                 const pricing = getPrice(variant, activeRegion);
                 const isSelected =
-                    selectedVariant?._id === variant._id ||
-                    selectedVariant?.slug === variant.slug;
+                    !disabled &&
+                    (selectedVariant?._id === variant._id ||
+                    selectedVariant?.slug === variant.slug);
                 const discountPercent =
                     pricing && pricing.price > 0
                         ? Math.round(
@@ -66,36 +69,38 @@ export default function VariantGrid({
                         key={variant._id || variant.slug}
                         onClick={() => !isStockOut && onSelect(variant)}
                         className={`group relative rounded-2xl p-2 sm:p-3 border transition-all duration-300 ease-out ${
-                            isStockOut
+                            disabled
+                                ? "pointer-events-none opacity-50 cursor-not-allowed border-border/40 bg-muted/30"
+                                : isStockOut
                                 ? "cursor-not-allowed border-border/60 bg-muted/40"
                                 : isSelected
                                 ? "cursor-pointer border-secondary bg-secondary/10 ring-2 ring-secondary/40 shadow-md"
                                 : "cursor-pointer border-border bg-card hover:border-secondary/60 hover:bg-muted hover:shadow-md shadow-sm"
                         }`}
                     >
-                        {/* Sold Out badge */}
-                        {isStockOut && (
+                        {/* Sold Out badge — only for individual variant sold out, not game-level */}
+                        {!disabled && variant.status === "inactive" && (
                             <div className="absolute top-2 right-2 z-10 bg-red-500/90 text-white text-[10px] font-bold px-2 py-0.5 rounded-md shadow">
                                 Sold Out
                             </div>
                         )}
 
                         {/* Selected badge */}
-                        {isSelected && !isStockOut && (
+                        {isSelected && (
                             <div className="absolute top-2 right-2 z-10 bg-secondary text-white text-[10px] font-semibold px-2 py-0.5 rounded-full">
                                 Selected
                             </div>
                         )}
 
                         {/* Popular badge */}
-                        {variant.isPopular && !isSelected && !isStockOut && (
+                        {!disabled && variant.isPopular && !isSelected && !isStockOut && (
                             <div className="absolute top-2 right-2 z-10 bg-tertiary text-primary text-[10px] font-bold px-2 py-0.5 rounded-full shadow">
                                 Popular
                             </div>
                         )}
 
                         {/* Discount badge */}
-                        {discountPercent > 0 && !isStockOut && (
+                        {!disabled && discountPercent > 0 && !isStockOut && (
                             <div className="absolute top-2 left-2 bg-tertiary text-primary text-[10px] font-bold px-2 py-0.5 rounded-full shadow z-10">
                                 {discountPercent}% OFF
                             </div>
@@ -139,7 +144,7 @@ export default function VariantGrid({
                                 </p>
                             )}
 
-                           
+
                         </div>
 
                         {/* Price */}

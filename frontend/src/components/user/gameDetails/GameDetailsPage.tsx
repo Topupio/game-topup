@@ -26,6 +26,7 @@ import { useRouter } from "next/navigation";
 import DOMPurify from "isomorphic-dompurify";
 import PayPalCheckout from "./PayPalCheckout";
 import { usePlayerVerification } from "@/hooks/usePlayerVerification";
+import { RiErrorWarningLine } from "react-icons/ri";
 
 function hasRichContent(html: string | undefined): boolean {
     if (!html) return false;
@@ -196,11 +197,6 @@ export default function GameDetailsPage({
     };
 
     const handleProceedToCheckout = async () => {
-        if (isGameUnavailable) {
-            toast.error("This game is currently unavailable for purchase");
-            return;
-        }
-
         if (!user) {
             toast.error("Please login to place an order");
             router.push("/login");
@@ -289,7 +285,7 @@ export default function GameDetailsPage({
                         {/* Heading + Region selector */}
                         <div className="flex items-center justify-between">
                             <h2 className="text-xl font-bold text-foreground">
-                                Select a Package
+                                {isGameUnavailable ? "Packages" : "Select a Package"}
                             </h2>
 
                             {hasMultipleRegions && (
@@ -323,6 +319,7 @@ export default function GameDetailsPage({
                             }}
                             activeRegion={activeRegion}
                             gameImageUrl={gameDetails.imageUrl}
+                            disabled={isGameUnavailable}
                         />
 
                         {/* Rich Description */}
@@ -343,44 +340,58 @@ export default function GameDetailsPage({
 
                 {/* RIGHT: Sidebar */}
                 <aside className="w-full lg:w-1/3 flex flex-col gap-6 lg:sticky lg:top-24 lg:self-start">
-                    {checkoutFields.length > 0 && (
-                        <div className="hidden lg:block">
-                            <UserDetailsForm
-                                fields={checkoutFields}
-                                value={userDetails}
-                                errors={errors}
-                                onChange={updateUserDetails}
-                                templateKey={templateKey}
-                                verification={templateKey === "uid_topup" ? playerVerification : undefined}
-                            />
-                        </div>
-                    )}
-
-                    {selectedVariant && selectedPricing && (
-                        <div className="hidden lg:block">
-                            <CheckoutCard
-                                variant={selectedVariant}
-                                pricing={selectedPricing}
-                                qty={qty}
-                                updateQty={updateQty}
-                                onProceed={handleProceedToCheckout}
-                                isLoading={isSubmitting}
-                            />
-                        </div>
-                    )}
-
-                    {!selectedVariant && (
-                        <div className="hidden lg:block bg-card border border-dashed border-border rounded-2xl p-6 text-center">
-                            <p className="text-muted-foreground text-sm">
-                                Select a package to see pricing details
+                    {isGameUnavailable ? (
+                        <div className="hidden lg:block bg-card border border-border rounded-2xl p-6 text-center space-y-3">
+                            <div className="w-12 h-12 mx-auto rounded-full bg-red-500/10 flex items-center justify-center">
+                                <RiErrorWarningLine className="w-6 h-6 text-red-500" />
+                            </div>
+                            <h3 className="text-foreground font-semibold text-base">Currently Unavailable</h3>
+                            <p className="text-muted-foreground text-sm leading-relaxed">
+                                This game is temporarily out of stock. Check back soon for availability.
                             </p>
                         </div>
+                    ) : (
+                        <>
+                            {checkoutFields.length > 0 && (
+                                <div className="hidden lg:block">
+                                    <UserDetailsForm
+                                        fields={checkoutFields}
+                                        value={userDetails}
+                                        errors={errors}
+                                        onChange={updateUserDetails}
+                                        templateKey={templateKey}
+                                        verification={templateKey === "uid_topup" ? playerVerification : undefined}
+                                    />
+                                </div>
+                            )}
+
+                            {selectedVariant && selectedPricing && (
+                                <div className="hidden lg:block">
+                                    <CheckoutCard
+                                        variant={selectedVariant}
+                                        pricing={selectedPricing}
+                                        qty={qty}
+                                        updateQty={updateQty}
+                                        onProceed={handleProceedToCheckout}
+                                        isLoading={isSubmitting}
+                                    />
+                                </div>
+                            )}
+
+                            {!selectedVariant && (
+                                <div className="hidden lg:block bg-card border border-dashed border-border rounded-2xl p-6 text-center">
+                                    <p className="text-muted-foreground text-sm">
+                                        Select a package to see pricing details
+                                    </p>
+                                </div>
+                            )}
+                        </>
                     )}
                 </aside>
             </div>
 
             {/* Mobile fixed bottom checkout bar */}
-            {selectedVariant && selectedPricing && (
+            {!isGameUnavailable && selectedVariant && selectedPricing && (
                 <>
                     <MobileCheckoutBar
                         variant={selectedVariant}
