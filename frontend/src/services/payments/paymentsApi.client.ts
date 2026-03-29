@@ -22,4 +22,12 @@ export const paymentsApiClient = {
             code?: string;
         };
     },
+
+    async createNowPaymentsInvoice(orderId: string) {
+        const { data } = await clientApi.post(
+            endpoints.payments.nowpaymentsCreateInvoice,
+            { orderId }
+        );
+        return data as { success: boolean; invoiceUrl: string; invoiceId: string };
+    },
 };

@@ -7,6 +7,8 @@ import {
     handlePayPalWebhook,
     refundPayPalPayment,
     mockPaymentSuccess,
+    createNowPaymentsInvoice,
+    handleNowPaymentsWebhook,
 } from "../controllers/payment.controller.js";
 
 const router = express.Router();
@@ -17,6 +19,10 @@ router.post("/paypal/capture-order", protect, capturePayPalOrder);
 
 // Webhook (no auth - verified via PayPal signature)
 router.post("/paypal/webhook", handlePayPalWebhook);
+
+// NOWPayments (Crypto) routes
+router.post("/nowpayments/create-invoice", protect, createNowPaymentsInvoice);
+router.post("/nowpayments/webhook", handleNowPaymentsWebhook);
 
 // Admin routes
 router.post("/paypal/refund", protect, authorize("admin"), refundPayPalPayment);

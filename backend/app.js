@@ -50,8 +50,9 @@ const corsOptions = {
     credentials: true,
 };
 
-// Raw body parser for PayPal webhook (must be before express.json())
+// Raw body parser for webhooks (must be before express.json())
 app.use('/api/payments/paypal/webhook', express.raw({ type: 'application/json' }));
+app.use('/api/payments/nowpayments/webhook', express.raw({ type: 'application/json' }));
 
 // Middleware Setup
 app.use(express.json());                            // Parse incoming JSON requests
@@ -78,6 +79,11 @@ app.use((req, res, next) => {
 
     // Skip CSRF for PayPal webhook (verified via PayPal signature instead)
     if (req.method === 'POST' && req.path === '/api/payments/paypal/webhook') {
+        return next();
+    }
+
+    // Skip CSRF for NOWPayments webhook (verified via HMAC-SHA512 signature)
+    if (req.method === 'POST' && req.path === '/api/payments/nowpayments/webhook') {
         return next();
     }
 

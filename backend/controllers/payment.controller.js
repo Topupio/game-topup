@@ -4,6 +4,7 @@ import { asyncHandler } from "../middlewares/asyncHandler.js";
 import mongoose from "mongoose";
 import { logAdminActivity } from "../utils/adminLogger.js";
 import * as paypalService from "../services/paypal.service.js";
+import * as nowpaymentsService from "../services/nowpayments.service.js";
 import { getExchangeRates, convertAmount } from "../utils/currencyConverter.js";
 import { placeExternalOrderIfEligible } from "../utils/externalOrderPlacer.js";
 
@@ -278,6 +279,262 @@ export const capturePayPalOrder = asyncHandler(async (req, res) => {
         throw error;
     }
 });
+
+/**
+ * @desc    Create a NOWPayments invoice for an existing pending order
+ * @route   POST /api/payments/nowpayments/create-invoice
+ * @access  Private
+ */
+export const createNowPaymentsInvoice = asyncHandler(async (req, res) => {
+    const { orderId } = req.body;
+
+    if (!orderId || !mongoose.Types.ObjectId.isValid(orderId)) {
+        return res.status(400).json({ success: false, message: "Valid orderId is required" });
+    }
+
+    const order = await Order.findById(orderId);
+
+    if (!order) {
+        return res.status(404).json({ success: false, message: "Order not found" });
+    }
+
+    // Verify ownership
+    if (order.user.toString() !== req.user.id) {
+        return res.status(403).json({ success: false, message: "Not authorized" });
+    }
+
+    // Block payment for expired orders
+    if (order.orderStatus === "expired") {
+        return res.status(400).json({
+            success: false,
+            message: "Order has expired. Please create a new order.",
+        });
+    }
+
+    // Only allow payment for pending orders
+    if (order.paymentStatus !== "pending") {
+        return res.status(400).json({
+            success: false,
+            message: `Order payment is already ${order.paymentStatus}`,
+        });
+    }
+
+    // Always charge in USD — convert from order currency if needed
+    const orderCurrency = order.currency || "USD";
+    let usdAmount = order.amount;
+    if (orderCurrency !== "USD") {
+        const rates = await getExchangeRates();
+        usdAmount = convertAmount(order.amount, orderCurrency, "USD", rates);
+    }
+
+    const description = order.productSnapshot?.name
+        ? `${order.productSnapshot.name} (${order.orderId})`
+        : order.orderId;
+
+    console.log("Creating NOWPayments invoice:", {
+        originalAmount: order.amount,
+        originalCurrency: orderCurrency,
+        usdAmount,
+        orderId: order.orderId,
+    });
+
+    const invoice = await nowpaymentsService.createInvoice(
+        usdAmount,
+        "usd",
+        order.orderId,
+        description
+    );
+
+    console.log("NOWPayments invoice created:", invoice);
+
+    // Store invoice info on order
+    order.paymentInfo = {
+        ...order.paymentInfo,
+        transactionId: invoice.invoiceId,
+        paymentGatewayResponse: { invoiceUrl: invoice.invoiceUrl, invoiceId: invoice.invoiceId },
+    };
+    order.paymentMethod = "nowpayments";
+    order.tracking.push({
+        status: "pending",
+        message: "Crypto payment initiated via NOWPayments",
+    });
+    await order.save();
+
+    res.status(200).json({
+        success: true,
+        invoiceUrl: invoice.invoiceUrl,
+        invoiceId: invoice.invoiceId,
+    });
+});
+
+/**
+ * @desc    Handle NOWPayments IPN webhook
+ * @route   POST /api/payments/nowpayments/webhook
+ * @access  Public (verified via HMAC-SHA512 signature)
+ */
+export const handleNowPaymentsWebhook = async (req, res) => {
+    try {
+        // Verify webhook signature
+        const signature = req.headers["x-nowpayments-sig"];
+        const isValid = nowpaymentsService.verifyWebhookSignature(req.body, signature);
+
+        if (!isValid) {
+            console.error("NOWPayments webhook signature verification failed");
+            return res.status(401).json({ message: "Invalid signature" });
+        }
+
+        const payload = typeof req.body === "string"
+            ? JSON.parse(req.body)
+            : JSON.parse(req.body.toString("utf8"));
+
+        const {
+            order_id: orderId,
+            payment_status: paymentStatus,
+            payment_id: paymentId,
+            actually_paid: actuallyPaid,
+            pay_amount: payAmount,
+            pay_currency: payCurrency,
+            price_amount: priceAmount,
+            price_currency: priceCurrency,
+        } = payload;
+
+        console.log("NOWPayments webhook received:", {
+            orderId,
+            paymentStatus,
+            paymentId,
+            actuallyPaid,
+            payAmount,
+        });
+
+        const mappedStatus = nowpaymentsService.mapPaymentStatus(paymentStatus);
+
+        // Find order by our orderId field
+        const order = await Order.findOne({ orderId });
+
+        if (!order) {
+            console.error(`NOWPayments webhook: order not found for orderId=${orderId}`);
+            return res.status(200).json({ received: true });
+        }
+
+        switch (mappedStatus) {
+            case "paid": {
+                // Idempotency: skip if already paid
+                if (order.paymentStatus === "paid") {
+                    console.log(`Order ${orderId} already paid, skipping`);
+                    break;
+                }
+
+                order.paymentStatus = "paid";
+                order.orderStatus = "paid";
+                order.paymentInfo = {
+                    transactionId: String(paymentId),
+                    paymentGatewayResponse: payload,
+                };
+                order.tracking.push({
+                    status: "paid",
+                    message: `Crypto payment confirmed (${payCurrency?.toUpperCase() || "crypto"})`,
+                });
+                await order.save();
+
+                // Create Payment record if not exists
+                const existingPayment = await Payment.findOne({
+                    transactionId: String(paymentId),
+                });
+                if (!existingPayment) {
+                    await Payment.create({
+                        order: order._id,
+                        user: order.user,
+                        paymentGateway: "nowpayments",
+                        status: "success",
+                        amount: parseFloat(priceAmount) || order.amount,
+                        currency: priceCurrency?.toUpperCase() || "USD",
+                        transactionId: String(paymentId),
+                        gatewayResponse: payload,
+                    });
+                }
+
+                // Auto-place external order if eligible
+                try {
+                    await placeExternalOrderIfEligible(order);
+                } catch (extError) {
+                    console.error("External order placement from NOWPayments webhook failed:", extError);
+                }
+                break;
+            }
+
+            case "failed": {
+                if (order.paymentStatus === "paid") break; // Don't overwrite paid status
+
+                order.paymentStatus = "failed";
+                order.tracking.push({
+                    status: "failed",
+                    message: `Crypto payment ${paymentStatus} via NOWPayments`,
+                });
+                await order.save();
+                break;
+            }
+
+            case "refunded": {
+                const payment = await Payment.findOne({
+                    order: order._id,
+                    paymentGateway: "nowpayments",
+                });
+
+                if (payment && !payment.refund?.refunded) {
+                    payment.refund = {
+                        refunded: true,
+                        refundId: String(paymentId),
+                        amount: parseFloat(priceAmount) || payment.amount,
+                        reason: "Refunded via NOWPayments",
+                        refundedAt: new Date(),
+                    };
+                    payment.status = "refunded";
+                    await payment.save();
+                }
+
+                if (order.paymentStatus !== "refunded") {
+                    order.paymentStatus = "refunded";
+                    order.orderStatus = "cancelled";
+                    order.tracking.push({
+                        status: "refunded",
+                        message: "Payment refunded via NOWPayments",
+                    });
+                    await order.save();
+                }
+                break;
+            }
+
+            case "pending": {
+                // Update tracking for visibility (confirming, sending, etc.)
+                const trackingMessage = {
+                    waiting: "Waiting for crypto payment",
+                    confirming: "Payment confirming on blockchain",
+                    confirmed: "Payment confirmed, processing",
+                    sending: "Payment being processed",
+                    partially_paid: `Partial payment received (${actuallyPaid || 0} of ${payAmount || 0} ${payCurrency || ""})`,
+                }[paymentStatus] || `Payment status: ${paymentStatus}`;
+
+                // Avoid duplicate tracking entries for the same status
+                const lastTracking = order.tracking[order.tracking.length - 1];
+                if (!lastTracking || lastTracking.message !== trackingMessage) {
+                    order.tracking.push({
+                        status: "pending",
+                        message: trackingMessage,
+                    });
+                    await order.save();
+                }
+                break;
+            }
+        }
+
+        // Always return 200 to acknowledge receipt
+        res.status(200).json({ received: true });
+    } catch (error) {
+        console.error("NOWPayments webhook error:", error);
+        // Return 200 to prevent NOWPayments from retrying on processing errors
+        res.status(200).json({ received: true });
+    }
+};
 
 /**
  * @desc    Handle PayPal webhook events (safety net)

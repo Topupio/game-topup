@@ -25,6 +25,7 @@ import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import DOMPurify from "isomorphic-dompurify";
 import PayPalCheckout from "./PayPalCheckout";
+import NowPaymentsCheckout from "./NowPaymentsCheckout";
 import { usePlayerVerification } from "@/hooks/usePlayerVerification";
 import { RiErrorWarningLine } from "react-icons/ri";
 
@@ -54,6 +55,7 @@ export default function GameDetailsPage({
         orderId: string;
     } | null>(null);
     const [showPayment, setShowPayment] = useState(false);
+    const [paymentMethod, setPaymentMethod] = useState<"paypal" | "crypto">("paypal");
     const [activeRegion, setActiveRegion] = useState(() => {
         return gameDetails.regions?.[0] || "global";
     });
@@ -478,7 +480,7 @@ export default function GameDetailsPage({
                                         )}
                                     </div>
 
-                                    {isNonUSD && (
+                                    {isNonUSD && paymentMethod === "paypal" && (
                                         <p className="text-xs text-muted-foreground mb-4 text-center">
                                             PayPal processes all payments in USD
                                         </p>
@@ -487,29 +489,79 @@ export default function GameDetailsPage({
                             );
                         })()}
 
-                        <PayPalCheckout
-                            orderId={pendingOrder._id}
-                            amount=""
-                            symbol=""
-                            onSuccess={() => {
-                                toast.success("Payment successful!");
-                                router.push(
-                                    `/orders/${pendingOrder._id}`
-                                );
-                            }}
-                            onCancel={() => {
-                                setShowPayment(false);
-                                toast.info(
-                                    "Payment cancelled. You can pay later from My Orders."
-                                );
-                            }}
-                            onError={() => {
-                                setShowPayment(false);
-                                toast.error(
-                                    "Payment failed. Please try again from My Orders."
-                                );
-                            }}
-                        />
+                        {/* Payment Method Selector */}
+                        <div className="flex gap-2 mb-4">
+                            <button
+                                onClick={() => setPaymentMethod("paypal")}
+                                className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition border ${
+                                    paymentMethod === "paypal"
+                                        ? "bg-secondary text-white border-secondary"
+                                        : "bg-muted text-muted-foreground border-border hover:border-secondary/50"
+                                }`}
+                            >
+                                PayPal
+                            </button>
+                            <button
+                                onClick={() => setPaymentMethod("crypto")}
+                                className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition border ${
+                                    paymentMethod === "crypto"
+                                        ? "bg-secondary text-white border-secondary"
+                                        : "bg-muted text-muted-foreground border-border hover:border-secondary/50"
+                                }`}
+                            >
+                                Crypto
+                            </button>
+                        </div>
+
+                        {paymentMethod === "paypal" ? (
+                            <PayPalCheckout
+                                orderId={pendingOrder._id}
+                                amount=""
+                                symbol=""
+                                onSuccess={() => {
+                                    toast.success("Payment successful!");
+                                    router.push(
+                                        `/orders/${pendingOrder._id}`
+                                    );
+                                }}
+                                onCancel={() => {
+                                    setShowPayment(false);
+                                    toast.info(
+                                        "Payment cancelled. You can pay later from My Orders."
+                                    );
+                                }}
+                                onError={() => {
+                                    setShowPayment(false);
+                                    toast.error(
+                                        "Payment failed. Please try again from My Orders."
+                                    );
+                                }}
+                            />
+                        ) : (
+                            <NowPaymentsCheckout
+                                orderId={pendingOrder._id}
+                                amount=""
+                                symbol=""
+                                onSuccess={() => {
+                                    toast.success("Payment initiated!");
+                                    router.push(
+                                        `/orders/${pendingOrder._id}`
+                                    );
+                                }}
+                                onCancel={() => {
+                                    setShowPayment(false);
+                                    toast.info(
+                                        "Payment cancelled. You can pay later from My Orders."
+                                    );
+                                }}
+                                onError={() => {
+                                    setShowPayment(false);
+                                    toast.error(
+                                        "Failed to create crypto payment. Please try again."
+                                    );
+                                }}
+                            />
+                        )}
                     </div>
                 </div>
             )}

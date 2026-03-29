@@ -14,6 +14,7 @@ import {
     RiCustomerService2Line,
 } from "react-icons/ri";
 import PayPalCheckout from "@/components/user/gameDetails/PayPalCheckout";
+import NowPaymentsCheckout from "@/components/user/gameDetails/NowPaymentsCheckout";
 import { getCurrencySymbol } from "@/lib/constants/currencies";
 
 interface Props {
@@ -22,6 +23,9 @@ interface Props {
 
 export default function UserOrderDetailClient({ order: initialOrder }: Props) {
     const [order, setOrder] = useState(initialOrder);
+    const [paymentMethod, setPaymentMethod] = useState<"paypal" | "crypto">(
+        initialOrder.paymentMethod === "nowpayments" ? "crypto" : "paypal"
+    );
 
     const getStatusStyles = (status: string) => {
         switch (status) {
@@ -92,26 +96,71 @@ export default function UserOrderDetailClient({ order: initialOrder }: Props) {
                                 <p className="text-muted-foreground text-sm mb-4">
                                     Your order is awaiting payment. Complete it now to start processing.
                                 </p>
-                                {(order.currency || "USD") !== "USD" && (
-                                    <p className="text-xs text-muted-foreground mb-4 text-center">
-                                        PayPal processes all payments in USD
-                                    </p>
+
+                                {/* Payment Method Selector */}
+                                <div className="flex gap-2 mb-4">
+                                    <button
+                                        onClick={() => setPaymentMethod("paypal")}
+                                        className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition border ${
+                                            paymentMethod === "paypal"
+                                                ? "bg-secondary text-white border-secondary"
+                                                : "bg-muted text-muted-foreground border-border hover:border-secondary/50"
+                                        }`}
+                                    >
+                                        PayPal
+                                    </button>
+                                    <button
+                                        onClick={() => setPaymentMethod("crypto")}
+                                        className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition border ${
+                                            paymentMethod === "crypto"
+                                                ? "bg-secondary text-white border-secondary"
+                                                : "bg-muted text-muted-foreground border-border hover:border-secondary/50"
+                                        }`}
+                                    >
+                                        Crypto
+                                    </button>
+                                </div>
+
+                                {paymentMethod === "paypal" ? (
+                                    <>
+                                        {(order.currency || "USD") !== "USD" && (
+                                            <p className="text-xs text-muted-foreground mb-4 text-center">
+                                                PayPal processes all payments in USD
+                                            </p>
+                                        )}
+                                        <PayPalCheckout
+                                            orderId={order._id}
+                                            amount=""
+                                            symbol=""
+                                            onSuccess={() => {
+                                                toast.success("Payment successful!");
+                                                window.location.reload();
+                                            }}
+                                            onError={() => {
+                                                toast.error("Payment failed. Please try again.");
+                                            }}
+                                            onCancel={() => {
+                                                toast.info("Payment cancelled.");
+                                            }}
+                                        />
+                                    </>
+                                ) : (
+                                    <NowPaymentsCheckout
+                                        orderId={order._id}
+                                        amount=""
+                                        symbol=""
+                                        onSuccess={() => {
+                                            toast.success("Payment initiated!");
+                                            window.location.reload();
+                                        }}
+                                        onError={() => {
+                                            toast.error("Failed to create crypto payment. Please try again.");
+                                        }}
+                                        onCancel={() => {
+                                            toast.info("Payment cancelled.");
+                                        }}
+                                    />
                                 )}
-                                <PayPalCheckout
-                                    orderId={order._id}
-                                    amount=""
-                                    symbol=""
-                                    onSuccess={() => {
-                                        toast.success("Payment successful!");
-                                        window.location.reload();
-                                    }}
-                                    onError={() => {
-                                        toast.error("Payment failed. Please try again.");
-                                    }}
-                                    onCancel={() => {
-                                        toast.info("Payment cancelled.");
-                                    }}
-                                />
                             </div>
                         )}
 
