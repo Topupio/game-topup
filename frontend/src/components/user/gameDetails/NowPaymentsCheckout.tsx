@@ -55,7 +55,7 @@ export default function NowPaymentsCheckout({
             <button
                 onClick={handlePayWithCrypto}
                 disabled={isLoading}
-                className="w-full bg-secondary hover:opacity-90 text-white font-semibold py-3 px-4 rounded-xl transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="w-full bg-secondary hover:opacity-90 text-white font-semibold py-3 px-4 rounded-md transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
                 {isLoading ? (
                     <>

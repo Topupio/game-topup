@@ -7,6 +7,9 @@ import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import PayPalCheckout from "./PayPalCheckout";
 import NowPaymentsCheckout from "./NowPaymentsCheckout";
+import { FaPaypal, FaBitcoin, FaEthereum } from "react-icons/fa";
+import { SiTether } from "react-icons/si";
+import { IoQrCode } from "react-icons/io5";
 
 interface PendingOrder {
     _id: string;
@@ -26,7 +29,7 @@ export default function PaymentModal({
     qty,
     onClose,
 }: PaymentModalProps) {
-    const [paymentMethod, setPaymentMethod] = useState<"paypal" | "crypto">("paypal");
+    const [paymentMethod, setPaymentMethod] = useState<"upi" | "paypal" | "crypto">("upi");
     const { currency: displayCurrency, formatPrice, rates } = useCurrency();
     const router = useRouter();
 
@@ -69,7 +72,7 @@ export default function PaymentModal({
                             {formatPrice(nativeTotal, nativeCurrency)}
                         </span>
                     </div>
-                    {isNonUSD && (
+                    {isNonUSD && paymentMethod !== "upi" && (
                         <>
                             <div className="border-t border-border my-2" />
                             <div className="flex justify-between">
@@ -96,69 +99,80 @@ export default function PaymentModal({
                         Payment Method
                     </legend>
                     <div className="flex flex-col gap-2.5">
-                        <button
-                            type="button"
-                            onClick={() => setPaymentMethod("paypal")}
-                            className={`relative flex items-start gap-3 w-full p-3.5 rounded-xl text-left transition-all duration-200 border-2 ${
-                                paymentMethod === "paypal"
-                                    ? "border-secondary bg-secondary/5 shadow-sm"
-                                    : "border-border bg-card hover:border-muted-foreground/30 hover:bg-muted/50"
-                            }`}
-                        >
-                            <span
-                                className={`mt-0.5 shrink-0 w-[18px] h-[18px] rounded-full border-2 flex items-center justify-center transition-colors duration-200 ${
-                                    paymentMethod === "paypal"
-                                        ? "border-secondary"
-                                        : "border-muted-foreground/40"
+                        {([
+                            {
+                                id: "upi" as const,
+                                label: "UPI QR",
+                                description: "Scan & pay with any UPI app",
+                                icon: <IoQrCode className="text-2xl shrink-0" style={{ color: "#4CAF50" }} />,
+                            },
+                            {
+                                id: "paypal" as const,
+                                label: "PayPal",
+                                description: "Pay with PayPal account or card",
+                                icon: <FaPaypal className="text-2xl shrink-0" style={{ color: "#0070BA" }} />,
+                            },
+                            {
+                                id: "crypto" as const,
+                                label: "Cryptocurrency",
+                                description: "BTC, ETH, USDT & 100+ coins",
+                                icon: (
+                                    <span className="flex items-center gap-1 shrink-0 w-[60px] justify-center">
+                                        <FaBitcoin className="text-lg" style={{ color: "#F7931A" }} />
+                                        <FaEthereum className="text-lg" style={{ color: "#627EEA" }} />
+                                        <SiTether className="text-lg" style={{ color: "#26A17B" }} />
+                                    </span>
+                                ),
+                            },
+                        ]).map((opt) => (
+                            <button
+                                key={opt.id}
+                                type="button"
+                                onClick={() => setPaymentMethod(opt.id)}
+                                className={`relative flex items-center gap-3 w-full p-3.5 rounded-xl text-left transition-all duration-200 border-2 ${
+                                    paymentMethod === opt.id
+                                        ? "border-secondary bg-secondary/5 shadow-sm"
+                                        : "border-border bg-card hover:border-muted-foreground/30 hover:bg-muted/50"
                                 }`}
                             >
-                                {paymentMethod === "paypal" && (
-                                    <span className="w-2.5 h-2.5 rounded-full bg-secondary" />
-                                )}
-                            </span>
-                            <div className="flex flex-col min-w-0">
-                                <span className="text-sm font-semibold text-foreground">
-                                    PayPal
+                                <span
+                                    className={`shrink-0 w-[18px] h-[18px] rounded-full border-2 flex items-center justify-center transition-colors duration-200 ${
+                                        paymentMethod === opt.id
+                                            ? "border-secondary"
+                                            : "border-muted-foreground/40"
+                                    }`}
+                                >
+                                    {paymentMethod === opt.id && (
+                                        <span className="w-2.5 h-2.5 rounded-full bg-secondary" />
+                                    )}
                                 </span>
-                                <span className="text-xs text-muted-foreground mt-0.5">
-                                    Pay securely with your PayPal account or card
-                                </span>
-                            </div>
-                        </button>
-
-                        <button
-                            type="button"
-                            onClick={() => setPaymentMethod("crypto")}
-                            className={`relative flex items-start gap-3 w-full p-3.5 rounded-xl text-left transition-all duration-200 border-2 ${
-                                paymentMethod === "crypto"
-                                    ? "border-secondary bg-secondary/5 shadow-sm"
-                                    : "border-border bg-card hover:border-muted-foreground/30 hover:bg-muted/50"
-                            }`}
-                        >
-                            <span
-                                className={`mt-0.5 shrink-0 w-[18px] h-[18px] rounded-full border-2 flex items-center justify-center transition-colors duration-200 ${
-                                    paymentMethod === "crypto"
-                                        ? "border-secondary"
-                                        : "border-muted-foreground/40"
-                                }`}
-                            >
-                                {paymentMethod === "crypto" && (
-                                    <span className="w-2.5 h-2.5 rounded-full bg-secondary" />
-                                )}
-                            </span>
-                            <div className="flex flex-col min-w-0">
-                                <span className="text-sm font-semibold text-foreground">
-                                    Cryptocurrency
-                                </span>
-                                <span className="text-xs text-muted-foreground mt-0.5">
-                                    BTC, ETH, USDT and 100+ coins via NOWPayments
-                                </span>
-                            </div>
-                        </button>
+                                {opt.icon}
+                                <div className="flex flex-col min-w-0">
+                                    <span className="text-sm font-semibold text-foreground">
+                                        {opt.label}
+                                    </span>
+                                    <span className="text-xs text-muted-foreground mt-0.5">
+                                        {opt.description}
+                                    </span>
+                                </div>
+                            </button>
+                        ))}
                     </div>
                 </fieldset>
 
-                {paymentMethod === "paypal" ? (
+                {paymentMethod === "upi" ? (
+                    <div className="text-center py-6 space-y-2">
+                        <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center mx-auto">
+                            <IoQrCode className="text-2xl text-muted-foreground" />
+                        </div>
+                        <p className="text-sm font-medium text-foreground">
+                            UPI QR coming soon
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                            Please select PayPal or Crypto for now.
+                        </p>
+                    </div>
+                ) : paymentMethod === "paypal" ? (
                     <PayPalCheckout
                         orderId={pendingOrder._id}
                         amount=""
