@@ -40,6 +40,8 @@ export default function PaymentModal({
     const isNonUSD = displayCurrency !== "USD";
     const fromRate = rates[nativeCurrency] || 1;
     const usdAmount = isNonUSD ? (nativeTotal / fromRate).toFixed(2) : null;
+    const usdAmountNum = isNonUSD ? parseFloat(usdAmount!) : nativeTotal;
+    const isBelowCryptoMinimum = usdAmountNum < 5;
 
     const handleClose = () => {
         onClose();
@@ -118,7 +120,10 @@ export default function PaymentModal({
                                 {
                                     id: "crypto" as const,
                                     label: "Cryptocurrency",
-                                    description: "BTC, ETH, USDT & 100+ coins",
+                                    description: isBelowCryptoMinimum
+                                        ? "Minimum $5.00 USD required for crypto"
+                                        : "BTC, ETH, USDT & 100+ coins",
+                                    disabled: isBelowCryptoMinimum,
                                     icon: (
                                         <span className="flex items-center gap-1 shrink-0 w-[60px] justify-center">
                                             <FaBitcoin className="text-lg" style={{ color: "#F7931A" }} />
@@ -131,9 +136,12 @@ export default function PaymentModal({
                                 <button
                                     key={opt.id}
                                     type="button"
-                                    onClick={() => setPaymentMethod(opt.id)}
+                                    disabled={"disabled" in opt && opt.disabled}
+                                    onClick={() => !("disabled" in opt && opt.disabled) && setPaymentMethod(opt.id)}
                                     className={`relative flex items-center gap-3 w-full p-3.5 rounded-xl text-left transition-all duration-200 border-2 ${
-                                        paymentMethod === opt.id
+                                        "disabled" in opt && opt.disabled
+                                            ? "border-border bg-card opacity-50 cursor-not-allowed"
+                                            : paymentMethod === opt.id
                                             ? "border-secondary bg-secondary/5 shadow-sm"
                                             : "border-border bg-card hover:border-muted-foreground/30 hover:bg-muted/50"
                                     }`}
@@ -198,7 +206,7 @@ export default function PaymentModal({
                                 );
                             }}
                         />
-                    ) : (
+                    ) : !isBelowCryptoMinimum ? (
                         <NowPaymentsCheckout
                             orderId={pendingOrder._id}
                             amount=""
@@ -220,7 +228,7 @@ export default function PaymentModal({
                                 );
                             }}
                         />
-                    )}
+                    ) : null}
                 </div>
             </div>
 

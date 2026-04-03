@@ -327,6 +327,15 @@ export const createNowPaymentsInvoice = asyncHandler(async (req, res) => {
         usdAmount = convertAmount(order.amount, orderCurrency, "USD", rates);
     }
 
+    const MIN_CRYPTO_AMOUNT_USD = 5;
+    if (usdAmount < MIN_CRYPTO_AMOUNT_USD) {
+        return res.status(422).json({
+            success: false,
+            message: `Minimum amount for crypto payment is $${MIN_CRYPTO_AMOUNT_USD} USD. Your order total is $${usdAmount.toFixed(2)}.`,
+            code: "AMOUNT_TOO_LOW",
+        });
+    }
+
     const description = order.productSnapshot?.name
         ? `${order.productSnapshot.name} (${order.orderId})`
         : order.orderId;
