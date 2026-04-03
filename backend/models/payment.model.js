@@ -18,7 +18,7 @@ const paymentSchema = new mongoose.Schema(
         // Razorpay / Stripe / Wallet etc.
         paymentGateway: {
             type: String,
-            enum: ["razorpay", "stripe", "wallet", "binancePay", "paypal", "nowpayments"],
+            enum: ["razorpay", "stripe", "wallet", "binancePay", "paypal", "nowpayments", "upi"],
             required: true,
         },
 
@@ -43,6 +43,7 @@ const paymentSchema = new mongoose.Schema(
         // UPI / Card / Netbanking / Wallet etc.
         paymentMethod: {
             type: String,
+            enum: ["razorpay", "stripe", "wallet", "binancePay", "paypal", "nowpayments", "upi"],
         },
 
         // IDs returned from payment gateway

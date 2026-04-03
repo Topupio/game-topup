@@ -2,7 +2,7 @@
 
 export type PaymentStatus = "pending" | "paid" | "failed" | "refunded";
 
-export type PaymentMethod = "razorpay" | "stripe" | "wallet" | "binancePay" | "paypal" | "nowpayments";
+export type PaymentMethod = "razorpay" | "stripe" | "wallet" | "binancePay" | "paypal" | "nowpayments" | "upi";
 
 export type OrderStatus =
     | "pending"

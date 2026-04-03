@@ -63,6 +63,9 @@ export const endpoints = {
         paypalCreateOrder: "/api/payments/paypal/create-order",
         paypalCaptureOrder: "/api/payments/paypal/capture-order",
         nowpaymentsCreateInvoice: "/api/payments/nowpayments/create-invoice",
+        upiInitiate: "/api/payments/upi/initiate",
+        upiSubmitUtr: "/api/payments/upi/submit-utr",
+        settings: "/api/payments/settings",
     },
 
     exchangeRates: {

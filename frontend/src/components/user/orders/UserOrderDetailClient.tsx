@@ -15,6 +15,7 @@ import {
 } from "react-icons/ri";
 import PayPalCheckout from "@/components/user/gameDetails/PayPalCheckout";
 import NowPaymentsCheckout from "@/components/user/gameDetails/NowPaymentsCheckout";
+import UpiQrCheckout from "@/components/user/gameDetails/UpiQrCheckout";
 import { getCurrencySymbol } from "@/lib/constants/currencies";
 
 interface Props {
@@ -22,10 +23,12 @@ interface Props {
 }
 
 export default function UserOrderDetailClient({ order: initialOrder }: Props) {
-    const [order, setOrder] = useState(initialOrder);
-    const [paymentMethod, setPaymentMethod] = useState<"paypal" | "crypto">(
-        initialOrder.paymentMethod === "nowpayments" ? "crypto" : "paypal"
-    );
+    const [order] = useState(initialOrder);
+    const [paymentMethod, setPaymentMethod] = useState<"upi" | "paypal" | "crypto">(() => {
+        if (initialOrder.paymentMethod === "upi") return "upi";
+        if (initialOrder.paymentMethod === "nowpayments") return "crypto";
+        return "paypal";
+    });
 
     const getStatusStyles = (status: string) => {
         switch (status) {
@@ -100,6 +103,16 @@ export default function UserOrderDetailClient({ order: initialOrder }: Props) {
                                 {/* Payment Method Selector */}
                                 <div className="flex gap-2 mb-4">
                                     <button
+                                        onClick={() => setPaymentMethod("upi")}
+                                        className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition border ${
+                                            paymentMethod === "upi"
+                                                ? "bg-secondary text-white border-secondary"
+                                                : "bg-muted text-muted-foreground border-border hover:border-secondary/50"
+                                        }`}
+                                    >
+                                        UPI QR
+                                    </button>
+                                    <button
                                         onClick={() => setPaymentMethod("paypal")}
                                         className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition border ${
                                             paymentMethod === "paypal"
@@ -121,7 +134,9 @@ export default function UserOrderDetailClient({ order: initialOrder }: Props) {
                                     </button>
                                 </div>
 
-                                {paymentMethod === "paypal" ? (
+                                {paymentMethod === "upi" ? (
+                                    <UpiQrCheckout orderId={order._id} />
+                                ) : paymentMethod === "paypal" ? (
                                     <>
                                         {(order.currency || "USD") !== "USD" && (
                                             <p className="text-xs text-muted-foreground mb-4 text-center">

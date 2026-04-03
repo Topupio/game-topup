@@ -1,3 +1,4 @@
+import PaymentSettingsManager from "@/components/admin/payments/PaymentSettingsManager";
 import { MdPayment } from "react-icons/md";
 
 export const metadata = {
@@ -6,21 +7,32 @@ export const metadata = {
 
 export default function PaymentsPage() {
     return (
-        <div className="p-2 md:p-6 max-w-[1600px] mx-auto">
-            <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
-                <div className="bg-gray-800/50 border border-gray-700 rounded-2xl p-12 max-w-md w-full">
-                    <MdPayment className="text-6xl text-gray-500 mx-auto mb-4" />
-                    <h1 className="text-2xl font-bold text-white mb-2">
-                        Payments
-                    </h1>
-                    <p className="text-gray-400 mb-4">
-                        This feature is coming soon. You&apos;ll be able to
-                        manage and track all payment transactions here.
-                    </p>
-                    <span className="inline-block px-4 py-1.5 bg-yellow-500/10 text-yellow-400 text-sm font-medium rounded-full border border-yellow-500/20">
-                        Coming Soon
-                    </span>
+        <div className="p-2 md:p-6 max-w-[1600px] mx-auto space-y-6">
+            <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+                <div className="flex items-start gap-4">
+                    <div className="rounded-2xl bg-gray-100 p-4">
+                        <MdPayment className="text-3xl text-gray-700" />
+                    </div>
+                    <div>
+                        <h1 className="text-2xl font-bold text-gray-900">
+                            Payments
+                        </h1>
+                        <p className="mt-1 text-sm text-gray-500">
+                            Manage checkout configuration now, and expand transaction operations here later.
+                        </p>
+                    </div>
                 </div>
+            </div>
+
+            <PaymentSettingsManager />
+
+            <div className="rounded-2xl border border-dashed border-gray-300 bg-gray-50 p-6">
+                <h2 className="text-lg font-bold text-gray-900">
+                    Transactions Dashboard
+                </h2>
+                <p className="mt-1 text-sm text-gray-500">
+                    Payment transaction reporting and reconciliation tools can be added here next. The UPI QR setup above is already live for checkout.
+                </p>
             </div>
         </div>
     );

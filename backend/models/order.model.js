@@ -54,7 +54,7 @@ const orderSchema = new mongoose.Schema(
 
         paymentMethod: {
             type: String,
-            enum: ["razorpay", "stripe", "wallet", "binancePay", "paypal", "nowpayments"],
+            enum: ["razorpay", "stripe", "wallet", "binancePay", "paypal", "nowpayments", "upi"],
             default: "paypal",
         },
 
@@ -65,6 +65,8 @@ const orderSchema = new mongoose.Schema(
 
         paymentInfo: {
             transactionId: { type: String, index: true },
+            utrNumber: { type: String, trim: true, default: null },
+            utrSubmittedAt: { type: Date, default: null },
             paymentGatewayResponse: { type: mongoose.Schema.Types.Mixed }, // optional raw response
         },
 
