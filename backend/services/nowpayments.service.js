@@ -24,8 +24,10 @@ function getConfig() {
  * @param {string} description - Order description
  * @returns {Promise<{invoiceId: string, invoiceUrl: string}>}
  */
-export async function createInvoice(amount, currency, orderId, description) {
+export async function createInvoice(amount, currency, orderId, description, mongoId) {
     const { apiKey, apiUrl, frontendUrl, backendUrl } = getConfig();
+
+    const redirectId = mongoId || orderId;
 
     const response = await fetch(`${apiUrl}/v1/invoice`, {
         method: "POST",
@@ -39,8 +41,8 @@ export async function createInvoice(amount, currency, orderId, description) {
             order_id: orderId,
             order_description: description,
             ipn_callback_url: `${backendUrl}/api/payments/nowpayments/webhook`,
-            success_url: `${frontendUrl}/orders/${orderId}?payment=crypto`,
-            cancel_url: `${frontendUrl}/orders/${orderId}?payment=cancelled`,
+            success_url: `${frontendUrl}/orders/${redirectId}?payment=crypto`,
+            cancel_url: `${frontendUrl}/orders/${redirectId}?payment=cancelled`,
         }),
     });
 

@@ -342,7 +342,8 @@ export const createNowPaymentsInvoice = asyncHandler(async (req, res) => {
         usdAmount,
         "usd",
         order.orderId,
-        description
+        description,
+        order._id.toString()
     );
 
     console.log("NOWPayments invoice created:", invoice);
