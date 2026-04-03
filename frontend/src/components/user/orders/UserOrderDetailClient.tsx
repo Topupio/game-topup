@@ -135,7 +135,7 @@ export default function UserOrderDetailClient({ order: initialOrder }: Props) {
                                 </div>
 
                                 {paymentMethod === "upi" ? (
-                                    <UpiQrCheckout orderId={order._id} />
+                                    <UpiQrCheckout orderId={order._id} onUtrSubmitted={() => window.location.reload()} />
                                 ) : paymentMethod === "paypal" ? (
                                     <>
                                         {(order.currency || "USD") !== "USD" && (

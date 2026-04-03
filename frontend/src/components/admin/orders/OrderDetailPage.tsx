@@ -14,6 +14,8 @@ import {
     RiCloseLine,
     RiLoader4Line,
     RiTimeLine,
+    RiQrCodeLine,
+    RiFileCopyLine,
 } from "react-icons/ri";
 import AdminToolbar from "@/components/admin/shared/AdminToolbar";
 
@@ -127,6 +129,83 @@ export default function OrderDetailPage({ initialOrder }: Props) {
                             </div>
                         </div>
                     </div>
+
+                    {/* UPI Payment Info — only for UPI orders */}
+                    {order.paymentMethod === "upi" && (() => {
+                        const upi = order.paymentInfo?.paymentGatewayResponse?.upi;
+                        const utrNumber = order.paymentInfo?.utrNumber;
+                        const utrSubmittedAt = order.paymentInfo?.utrSubmittedAt;
+
+                        return (
+                            <div className="bg-white border border-gray-200 p-6 rounded-2xl">
+                                <h2 className="text-gray-900 font-bold flex items-center gap-2 mb-4">
+                                    <RiQrCodeLine className="text-blue-600" />
+                                    UPI Payment Details
+                                </h2>
+
+                                {/* UTR highlight */}
+                                <div className={`mb-4 rounded-xl p-4 border ${utrNumber ? "border-green-200 bg-green-50" : "border-amber-200 bg-amber-50"}`}>
+                                    <p className={`text-[10px] uppercase font-bold tracking-wider mb-1 ${utrNumber ? "text-green-600" : "text-amber-600"}`}>
+                                        {utrNumber ? "UTR / Transaction ID (customer submitted)" : "UTR not yet submitted"}
+                                    </p>
+                                    {utrNumber ? (
+                                        <div className="flex items-center justify-between gap-3">
+                                            <p className="text-gray-900 font-bold font-mono text-lg tracking-wider">
+                                                {utrNumber}
+                                            </p>
+                                            <button
+                                                onClick={() => {
+                                                    navigator.clipboard.writeText(utrNumber);
+                                                    toast.info("UTR copied");
+                                                }}
+                                                className="flex items-center gap-1 text-blue-600 hover:text-blue-800 transition text-xs font-bold"
+                                            >
+                                                <RiFileCopyLine /> Copy
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        <p className="text-amber-700 text-sm">
+                                            Customer has not submitted their UTR yet. Check the order timeline for updates.
+                                        </p>
+                                    )}
+                                    {utrSubmittedAt && (
+                                        <p className="mt-1 text-[10px] text-green-600" suppressHydrationWarning>
+                                            Submitted at {new Date(utrSubmittedAt).toLocaleString()}
+                                        </p>
+                                    )}
+                                </div>
+
+                                {/* UPI session details */}
+                                {upi && (
+                                    <div className="grid sm:grid-cols-2 gap-3">
+                                        {[
+                                            { label: "UPI ID", value: upi.upiId },
+                                            { label: "Payee", value: upi.payeeName },
+                                            { label: "Amount (INR)", value: `₹${upi.amount.toFixed(2)}` },
+                                            { label: "Original Amount", value: `${upi.originalCurrency} ${upi.originalAmount.toFixed(2)}` },
+                                            { label: "Reference", value: upi.reference },
+                                        ].map(({ label, value }) => (
+                                            <div key={label} className="bg-gray-50 px-3 py-2.5 rounded-xl border border-gray-100 group">
+                                                <p className="text-gray-500 text-[10px] uppercase font-bold tracking-wider mb-0.5">{label}</p>
+                                                <div className="flex items-center justify-between gap-2">
+                                                    <p className="text-gray-900 font-semibold text-sm break-all">{value}</p>
+                                                    <button
+                                                        onClick={() => {
+                                                            navigator.clipboard.writeText(value);
+                                                            toast.info("Copied");
+                                                        }}
+                                                        className="text-blue-600 opacity-0 group-hover:opacity-100 transition shrink-0"
+                                                    >
+                                                        <RiFileCopyLine className="text-sm" />
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        );
+                    })()}
 
                     {/* User Inputs Section */}
                     <div className="bg-white border border-gray-200 p-6 rounded-2xl">

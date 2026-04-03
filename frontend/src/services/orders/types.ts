@@ -50,6 +50,23 @@ export interface Order {
 
     orderStatus: OrderStatus;
 
+    paymentInfo?: {
+        transactionId?: string;
+        utrNumber?: string;
+        utrSubmittedAt?: string;
+        paymentGatewayResponse?: {
+            upi?: {
+                upiId: string;
+                payeeName: string;
+                amount: number;
+                currency: string;
+                originalAmount: number;
+                originalCurrency: string;
+                reference: string;
+            };
+        };
+    };
+
     adminNote?: string;
     completionProof?: string;
 

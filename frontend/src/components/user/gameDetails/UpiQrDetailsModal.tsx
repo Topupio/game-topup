@@ -8,12 +8,14 @@ interface Props {
     orderId: string;
     orderReference: string;
     onClose: () => void;
+    onUtrSubmitted?: () => void;
 }
 
 export default function UpiQrDetailsModal({
     orderId,
     orderReference,
     onClose,
+    onUtrSubmitted,
 }: Props) {
     const closeButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -86,7 +88,7 @@ export default function UpiQrDetailsModal({
 
                 {/* Scrollable content */}
                 <div className="max-h-[calc(90vh-68px)] overflow-y-auto px-6 py-5">
-                    <UpiQrCheckout orderId={orderId} />
+                    <UpiQrCheckout orderId={orderId} onUtrSubmitted={onUtrSubmitted} />
                 </div>
             </div>
         </div>

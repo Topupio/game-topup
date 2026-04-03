@@ -229,6 +229,7 @@ export default function PaymentModal({
                     orderId={pendingOrder._id}
                     orderReference={pendingOrder.orderId}
                     onClose={() => setIsUpiDetailsOpen(false)}
+                    onUtrSubmitted={() => router.push(`/orders/${pendingOrder._id}`)}
                 />
             )}
         </>
