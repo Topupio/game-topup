@@ -1,8 +1,8 @@
 import type { MetadataRoute } from "next";
 import { endpoints, getApiBase } from "@/config/api";
-import { CATEGORY_SLUG_MAP } from "@/lib/constants/checkoutTemplates";
-import { getAbsoluteUrl, getSiteUrl } from "@/lib/seo/site";
+import { getAbsoluteUrl } from "@/lib/seo/site";
 import { getGameUrl } from "@/lib/utils/getGameUrl";
+import { CATEGORY_PAGE_SLUG_MAP } from "@/lib/utils/categoryPageUrl";
 
 const SITEMAP_REVALIDATE_SECONDS = 60 * 60;
 const PAGINATION_LIMIT = 200;
@@ -87,16 +87,11 @@ function buildSitemapEntry(
 }
 
 function buildCategoryEntries(): MetadataRoute.Sitemap {
-  return Object.keys(CATEGORY_SLUG_MAP).map((categorySlug) => {
-    const url = new URL("/categories", getSiteUrl());
-    url.searchParams.set("category", categorySlug);
-
-    return {
-      url: url.toString(),
+  return Object.keys(CATEGORY_PAGE_SLUG_MAP).map((categorySlug) => ({
+      url: getAbsoluteUrl(`/${categorySlug}`),
       changeFrequency: "weekly",
       priority: 0.7,
-    };
-  });
+    }));
 }
 
 async function getGameEntries(): Promise<MetadataRoute.Sitemap> {

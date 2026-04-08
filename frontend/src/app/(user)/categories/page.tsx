@@ -1,7 +1,17 @@
+import type { Metadata } from "next";
 import { gamesApiServer } from "@/services/games/gamesApi.server";
 import { Game } from "@/services/games";
 import CategoryListingPage from "@/components/user/categories/CategoryListingPage";
-import { slugToCategory } from "@/lib/constants/checkoutTemplates";
+import { permanentRedirect } from "next/navigation";
+import {
+    getCategoryPageHref,
+    resolveCategoryFromRouteSlug,
+} from "@/lib/utils/categoryPageUrl";
+
+export const metadata: Metadata = {
+    title: "Game Categories | Topupio",
+    description: "Browse all Topupio game categories, gift cards, and digital subscriptions in one catalog.",
+};
 
 export default async function CategoryPage({
     searchParams,
@@ -10,11 +20,17 @@ export default async function CategoryPage({
 }) {
     const params = await searchParams;
     const categorySlug = typeof params.category === "string" ? params.category : undefined;
-    const category = categorySlug ? slugToCategory(categorySlug) : undefined;
     const page = Number(params.page) || 1;
     const limit = 12;
 
-    const res = await gamesApiServer.list({ page, limit, category });
+    if (categorySlug) {
+        const category = resolveCategoryFromRouteSlug(categorySlug);
+        if (category) {
+            permanentRedirect(getCategoryPageHref(category, page));
+        }
+    }
+
+    const res = await gamesApiServer.list({ page, limit });
 
     const games: Game[] = res.data;
     const totalPages: number = res.totalPages;

@@ -2,7 +2,7 @@ import { Game } from "@/lib/types/game";
 import SingleGameCard from "./SingleGameCard";
 import Link from "next/link";
 import { RiArrowRightSLine } from "react-icons/ri";
-import { categoryToSlug } from "@/lib/constants/checkoutTemplates";
+import { getCategoryPageHref } from "@/lib/utils/categoryPageUrl";
 
 interface GameCardsBoxProps {
     title: string;
@@ -21,7 +21,7 @@ const GameCardsBox = ({ title, games }: GameCardsBoxProps) => {
                 </div>
 
                 <Link
-                    href={`/categories?category=${categoryToSlug(title)}&page=1`}
+                    href={getCategoryPageHref(title)}
                     className="flex items-center sm:gap-2 gap-1 text-xs text-gray-500 hover:text-secondary transition-colors group"
                 >
                     View All <RiArrowRightSLine className="group-hover:translate-x-1 transition-transform" />

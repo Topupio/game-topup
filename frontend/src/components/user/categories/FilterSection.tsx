@@ -1,11 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { gamesApiClient } from "@/services/games";
 import FilterGroup from "./FilterGroup";
 import CategoryShimmer from "./CategoryShimmer";
-import { CATEGORIES, categoryToSlug, slugToCategory } from "@/lib/constants/checkoutTemplates";
+import { CATEGORIES } from "@/lib/constants/checkoutTemplates";
+import {
+    getCategoriesCatalogHref,
+    getCategoryPageHref,
+    getSelectedCategoryFromLocation,
+} from "@/lib/utils/categoryPageUrl";
 import {
     RiGamepadFill,
     RiLoginBoxFill,
@@ -25,21 +30,23 @@ const CATEGORY_STYLE: Record<string, { icon: React.ElementType; color: string; b
 };
 
 
-export default function FilterSection() {
+function FilterSectionInner() {
+    const pathname = usePathname();
     const router = useRouter();
     const searchParams = useSearchParams();
 
     const [apiCategories, setApiCategories] = useState<string[]>([]);
     const [loading, setLoading] = useState(true);
 
-    const selectedSlug = searchParams.get("category") || "";
-    const selectedCategory = selectedSlug ? slugToCategory(selectedSlug) : "";
+    const selectedCategory = getSelectedCategoryFromLocation(pathname, searchParams);
 
     useEffect(() => {
         const fetchCategories = async () => {
             try {
                 const res = await gamesApiClient.listCategories();
                 setApiCategories(res.categories || []);
+            } catch {
+                setApiCategories([]);
             } finally {
                 setLoading(false);
             }
@@ -56,16 +63,7 @@ export default function FilterSection() {
     ];
 
     const updateCategory = (label: string | null) => {
-        const params = new URLSearchParams(searchParams.toString());
-
-        if (label === null) {
-            params.delete("category");
-        } else {
-            params.set("category", categoryToSlug(label));
-        }
-
-        params.set("page", "1");
-        router.push(`/categories?${params.toString()}`);
+        router.push(label === null ? getCategoriesCatalogHref() : getCategoryPageHref(label));
     };
 
     return (
@@ -109,6 +107,14 @@ export default function FilterSection() {
     );
 }
 
+export default function FilterSection() {
+    return (
+        <Suspense fallback={<CategoryShimmer />}>
+            <FilterSectionInner />
+        </Suspense>
+    );
+}
+
 /* ── Sidebar category item ── */
 function CategoryItem({
     icon: Icon,
@@ -146,4 +152,3 @@ function CategoryItem({
         </button>
     );
 }
-

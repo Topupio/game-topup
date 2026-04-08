@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import {
     RiApps2Fill,
 } from "react-icons/ri";
-import { categoryToSlug } from "@/lib/constants/checkoutTemplates";
+import { getCategoryPageHref } from "@/lib/utils/categoryPageUrl";
 
 function GamepadIcon({ className }: { className?: string }) {
     return (
@@ -321,7 +321,7 @@ export default function CategoryQuickNav({ categories }: CategoryQuickNavProps) 
                     return (
                         <motion.div key={cat} variants={itemVariants}>
                             <Link
-                                href={`/categories?category=${categoryToSlug(cat)}&page=1`}
+                                href={getCategoryPageHref(cat)}
                                 className={`
                                     flex flex-col items-center gap-1.5 group
                                     py-2 cursor-pointer

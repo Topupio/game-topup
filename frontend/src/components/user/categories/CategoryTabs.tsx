@@ -1,6 +1,7 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
     RiGamepadFill,
     RiLoginBoxFill,
@@ -9,7 +10,12 @@ import {
     RiSparklingFill,
     RiApps2Fill,
 } from "react-icons/ri";
-import { CATEGORIES, categoryToSlug, slugToCategory } from "@/lib/constants/checkoutTemplates";
+import { CATEGORIES } from "@/lib/constants/checkoutTemplates";
+import {
+    getCategoriesCatalogHref,
+    getCategoryPageHref,
+    getSelectedCategoryFromLocation,
+} from "@/lib/utils/categoryPageUrl";
 
 /* ── short labels + icons ── */
 const TAB_META: Record<string, { icon: React.ElementType; label: string }> = {
@@ -20,21 +26,14 @@ const TAB_META: Record<string, { icon: React.ElementType; label: string }> = {
     "ai & subscriptions": { icon: RiSparklingFill, label: "Subscriptions" },
 };
 
-export default function CategoryTabs() {
+function CategoryTabsInner() {
+    const pathname = usePathname();
     const router = useRouter();
     const searchParams = useSearchParams();
-    const selectedSlug = searchParams.get("category") || "";
-    const selectedCategory = selectedSlug ? slugToCategory(selectedSlug) : "";
+    const selectedCategory = getSelectedCategoryFromLocation(pathname, searchParams);
 
     const navigate = (cat: string | null) => {
-        const params = new URLSearchParams(searchParams.toString());
-        if (cat === null) {
-            params.delete("category");
-        } else {
-            params.set("category", categoryToSlug(cat));
-        }
-        params.set("page", "1");
-        router.push(`/categories?${params.toString()}`);
+        router.push(cat === null ? getCategoriesCatalogHref() : getCategoryPageHref(cat));
     };
 
     const isAll = selectedCategory === "";
@@ -83,5 +82,13 @@ export default function CategoryTabs() {
                 );
             })}
         </div>
+    );
+}
+
+export default function CategoryTabs() {
+    return (
+        <Suspense fallback={null}>
+            <CategoryTabsInner />
+        </Suspense>
     );
 }

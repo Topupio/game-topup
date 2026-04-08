@@ -8,7 +8,7 @@ import { FreeMode } from "swiper/modules";
 import Link from "next/link";
 import { RiLayoutGridFill, RiArrowRightSLine } from "react-icons/ri";
 import GameCard from "../components/GameCard";
-import { categoryToSlug } from "@/lib/constants/checkoutTemplates";
+import { getCategoryPageHref } from "@/lib/utils/categoryPageUrl";
 
 interface Props {
     categories: CategoryGameSection[];
@@ -60,7 +60,7 @@ export default function CategorySwiperSection({ categories }: Props) {
                                     <div className="h-1 w-10 bg-secondary rounded-full mt-1" />
                                 </div>
                                 <Link
-                                    href={`/categories?category=${categoryToSlug(category.category)}&page=1`}
+                                    href={getCategoryPageHref(category.category)}
                                     className="flex items-center gap-1 text-sm text-gray-500 hover:text-secondary transition-colors group"
                                 >
                                     View All{" "}
