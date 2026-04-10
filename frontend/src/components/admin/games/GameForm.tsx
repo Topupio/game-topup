@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import { Game, Variant } from "@/lib/types/game";
+import { Game, Variant, FaqItem } from "@/lib/types/game";
 import { GamePayload } from "@/services/games/types";
+import { RiAddLine, RiDeleteBin6Line } from "react-icons/ri";
 import { useAdminForm } from "@/hooks/useAdminForm";
 import { gamesApiClient } from "@/services/games";
 import { GAME_CATEGORY_OPTIONS } from "@/lib/constants/gameCategories";
@@ -55,6 +56,7 @@ export default function GameForm({ gameId }: Props) {
             checkoutTemplate: "",
             checkoutTemplateOptions: {},
             variants: [],
+            faqs: [],
             metaTitle: "",
             metaDescription: "",
             imageFile: null,
@@ -84,6 +86,7 @@ export default function GameForm({ gameId }: Props) {
                     ...response.data,
                     regions: response.data.regions || ["global"],
                     variants: response.data.variants || [],
+                    faqs: response.data.faqs || [],
                     imageFile: null,
                 }));
             } catch (error) {
@@ -161,6 +164,7 @@ export default function GameForm({ gameId }: Props) {
                 checkoutTemplateOptions: formData.checkoutTemplateOptions,
                 variants: formData.variants,
                 variantImages: Object.keys(variantImages).length > 0 ? variantImages : undefined,
+                faqs: (formData.faqs || []).filter(f => f.question.trim() && f.answer.trim()),
                 metaTitle: formData.metaTitle,
                 metaDescription: formData.metaDescription,
                 image: (formData.imageFile as File) ?? null,
@@ -364,6 +368,66 @@ export default function GameForm({ gameId }: Props) {
                         onChange={(e) => updateForm({ metaDescription: e.target.value })}
                         className="min-h-[80px]"
                     />
+                </div>
+            </FormSection>
+
+            {/* ── Section 6: FAQs ── */}
+            <FormSection title="FAQs" description="Frequently asked questions displayed on the game page">
+                <div className="space-y-4">
+                    {(form.faqs || []).map((faq, index) => (
+                        <div
+                            key={index}
+                            className="relative border border-gray-200 rounded-xl p-4 space-y-3 bg-gray-50/50"
+                        >
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    const updated = [...(form.faqs || [])];
+                                    updated.splice(index, 1);
+                                    updateForm({ faqs: updated });
+                                }}
+                                className="absolute top-3 right-3 p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                title="Remove FAQ"
+                            >
+                                <RiDeleteBin6Line className="w-4 h-4" />
+                            </button>
+
+                            <Input
+                                label={`Question ${index + 1}`}
+                                placeholder="e.g. How do I top up?"
+                                value={faq.question}
+                                onChange={(e) => {
+                                    const updated = [...(form.faqs || [])];
+                                    updated[index] = { ...updated[index], question: e.target.value };
+                                    updateForm({ faqs: updated });
+                                }}
+                            />
+                            <Textarea
+                                label="Answer"
+                                placeholder="Write the answer..."
+                                value={faq.answer}
+                                onChange={(e) => {
+                                    const updated = [...(form.faqs || [])];
+                                    updated[index] = { ...updated[index], answer: e.target.value };
+                                    updateForm({ faqs: updated });
+                                }}
+                                className="min-h-[80px]"
+                            />
+                        </div>
+                    ))}
+
+                    <button
+                        type="button"
+                        onClick={() => {
+                            updateForm({
+                                faqs: [...(form.faqs || []), { question: "", answer: "" }],
+                            });
+                        }}
+                        className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-amber-600 bg-amber-50 border border-amber-200 rounded-xl hover:bg-amber-100 transition-colors"
+                    >
+                        <RiAddLine className="w-4 h-4" />
+                        Add FAQ
+                    </button>
                 </div>
             </FormSection>
         </FormWrapper>

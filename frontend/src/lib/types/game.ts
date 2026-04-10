@@ -35,6 +35,11 @@ export interface Variant {
     apiPackId?: string;
 }
 
+export interface FaqItem {
+    question: string;
+    answer: string;
+}
+
 export type Game = {
     _id: string;
     name: string;
@@ -50,6 +55,7 @@ export type Game = {
     checkoutTemplate: string;
     checkoutTemplateOptions: Record<string, any>;
     variants: Variant[];
+    faqs?: FaqItem[];
     status: "active" | "inactive";
     isPopular: boolean;
     metaTitle?: string;

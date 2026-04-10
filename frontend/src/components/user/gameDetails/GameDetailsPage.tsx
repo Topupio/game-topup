@@ -26,7 +26,7 @@ import { useRouter } from "next/navigation";
 import DOMPurify from "isomorphic-dompurify";
 import PaymentModal from "./PaymentModal";
 import { usePlayerVerification } from "@/hooks/usePlayerVerification";
-import { RiErrorWarningLine } from "react-icons/ri";
+import { RiErrorWarningLine, RiArrowDownSLine, RiQuestionLine } from "react-icons/ri";
 
 function hasRichContent(html: string | undefined): boolean {
     if (!html) return false;
@@ -61,6 +61,7 @@ export default function GameDetailsPage({
     const { currency: displayCurrency } = useCurrency();
     const router = useRouter();
     const playerVerification = usePlayerVerification();
+    const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
 
     const templateKey = gameDetails.checkoutTemplate || "";
 
@@ -389,6 +390,61 @@ export default function GameDetailsPage({
                     )}
                 </aside>
             </div>
+
+            {/* FAQ Section — half width on desktop, above mobile bar */}
+            {gameDetails.faqs && gameDetails.faqs.length > 0 && (
+                <div className="max-w-7xl mx-auto px-4 mt-10">
+                    <div className="rounded-2xl border border-border bg-card p-4 sm:p-6">
+                        {/* Section Heading */}
+                        <div className="flex items-center gap-2 sm:gap-3 mb-6">
+                            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-secondary/10 border border-secondary/20 flex items-center justify-center text-secondary">
+                                <RiQuestionLine className="w-4 h-4 sm:w-5 sm:h-5" />
+                            </div>
+                            <h2 className="text-lg sm:text-xl font-bold text-foreground">
+                                Frequently Asked Questions
+                            </h2>
+                        </div>
+
+                        {/* Accordion Items – 2-col grid on desktop */}
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                            {gameDetails.faqs.map((faq, index) => (
+                                <div key={index} className="border border-border rounded-xl">
+                                    <button
+                                        onClick={() =>
+                                            setOpenFaqIndex(
+                                                openFaqIndex === index ? null : index
+                                            )
+                                        }
+                                        className="w-full flex justify-between items-center gap-4 p-4 rounded-xl hover:bg-muted text-left transition-colors"
+                                    >
+                                        <span className="text-sm font-medium text-foreground">
+                                            {faq.question}
+                                        </span>
+                                        <RiArrowDownSLine
+                                            className={`w-5 h-5 text-muted-foreground shrink-0 transition-transform duration-200 ${
+                                                openFaqIndex === index
+                                                    ? "rotate-180"
+                                                    : ""
+                                            }`}
+                                        />
+                                    </button>
+                                    <div
+                                        className={`overflow-hidden transition-all duration-200 ${
+                                            openFaqIndex === index
+                                                ? "max-h-96 opacity-100"
+                                                : "max-h-0 opacity-0"
+                                        }`}
+                                    >
+                                        <div className="px-4 pb-4 text-sm text-muted-foreground leading-relaxed">
+                                            <p>{faq.answer}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Mobile fixed bottom checkout bar */}
             {!isGameUnavailable && selectedVariant && selectedPricing && (

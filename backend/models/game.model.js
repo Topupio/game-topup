@@ -206,6 +206,17 @@ const gameSchema = new mongoose.Schema(
             default: [],
         },
 
+        // FAQs for this game
+        faqs: {
+            type: [
+                {
+                    question: { type: String, required: true, trim: true },
+                    answer: { type: String, required: true, trim: true },
+                },
+            ],
+            default: [],
+        },
+
         isPopular: {
             type: Boolean,
             default: false,

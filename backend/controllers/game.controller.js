@@ -308,6 +308,7 @@ const createGame = asyncHandler(async (req, res) => {
     // 1. Parse JSON fields from form-data
     let variants = parseJsonField(req.body.variants);
     let regions = parseJsonField(req.body.regions);
+    const faqs = parseJsonField(req.body.faqs) || [];
 
     // Validate checkout template at game level
     const checkoutTemplate = rawCheckoutTemplate || "";
@@ -434,6 +435,7 @@ const createGame = asyncHandler(async (req, res) => {
             checkoutTemplateOptions,
             regions,
             variants,
+            faqs,
             status: status === "inactive" ? "inactive" : "active",
             isPopular: isPopular === "true" || isPopular === true,
             metaTitle: metaTitle || "",
@@ -478,6 +480,7 @@ const updateGame = asyncHandler(async (req, res) => {
     let variants = parseJsonField(req.body.variants);
     let regions = parseJsonField(req.body.regions);
     const checkoutTemplateOptions = parseJsonField(req.body.checkoutTemplateOptions);
+    const faqs = parseJsonField(req.body.faqs);
 
     // Validate checkout template at game level
     const checkoutTemplate = rawCheckoutTemplate || "";
@@ -606,6 +609,9 @@ const updateGame = asyncHandler(async (req, res) => {
     game.checkoutTemplate = checkoutTemplate ?? game.checkoutTemplate;
     if (checkoutTemplateOptions !== undefined) {
         game.checkoutTemplateOptions = checkoutTemplateOptions;
+    }
+    if (faqs !== undefined) {
+        game.faqs = faqs;
     }
 
     // 10. Save

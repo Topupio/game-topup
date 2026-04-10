@@ -16,6 +16,7 @@ export type GamePayload = {
     variants: Variant[];
     image?: File | null;
     variantImages?: Record<number, File>;
+    faqs?: { question: string; answer: string }[];
     metaTitle?: string;
     metaDescription?: string;
 };
