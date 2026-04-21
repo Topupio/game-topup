@@ -1,7 +1,7 @@
 import { gamesApiServer } from "@/services/games/gamesApi.server";
 import GameDetailsPage from "@/components/user/gameDetails/GameDetailsPage";
 import { GameDetailResponse } from "@/lib/types/game";
-import { permanentRedirect } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { getGameUrl } from "@/lib/utils/getGameUrl";
 
 export default async function CategoryGamePage({
@@ -10,10 +10,19 @@ export default async function CategoryGamePage({
     params: Promise<{ category: string; slug: string }>;
 }) {
     const { category, slug } = await params;
+    console.log("slug", slug);
 
-    const gameDetailResponse = (await gamesApiServer.get(
-        slug
-    )) as unknown as GameDetailResponse;
+    let gameDetailResponse: GameDetailResponse;
+    try {
+        gameDetailResponse = (await gamesApiServer.get(
+            slug
+        )) as unknown as GameDetailResponse;
+    } catch (e: any) {
+        if (e?.message?.includes("404")) {
+            notFound();
+        }
+        throw e;
+    }
     const gameDetails = gameDetailResponse.data;
     const checkoutTemplates = gameDetailResponse.checkoutTemplates || {};
 
