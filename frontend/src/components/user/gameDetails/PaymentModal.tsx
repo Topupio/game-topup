@@ -5,10 +5,14 @@ import { RegionPricing } from "@/lib/types/game";
 import { useCurrency } from "@/context/CurrencyContext";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
-import PayPalCheckout from "./PayPalCheckout";
+// import PayPalCheckout from "./PayPalCheckout";
 import NowPaymentsCheckout from "./NowPaymentsCheckout";
 import UpiQrDetailsModal from "./UpiQrDetailsModal";
-import { FaPaypal, FaBitcoin, FaEthereum } from "react-icons/fa";
+import {
+    // FaPaypal,
+    FaBitcoin,
+    FaEthereum,
+} from "react-icons/fa";
 import { SiTether } from "react-icons/si";
 import { IoQrCode } from "react-icons/io5";
 
@@ -30,7 +34,7 @@ export default function PaymentModal({
     qty,
     onClose,
 }: PaymentModalProps) {
-    const [paymentMethod, setPaymentMethod] = useState<"upi" | "paypal" | "crypto">("upi");
+    const [paymentMethod, setPaymentMethod] = useState<"upi" | "crypto">("upi");
     const [isUpiDetailsOpen, setIsUpiDetailsOpen] = useState(false);
     const { currency: displayCurrency, formatPrice, rates } = useCurrency();
     const router = useRouter();
@@ -92,11 +96,13 @@ export default function PaymentModal({
                         )}
                     </div>
 
+                    {/*
                     {isNonUSD && paymentMethod === "paypal" && (
                         <p className="text-xs text-muted-foreground mb-4 text-center">
                             PayPal processes all payments in USD
                         </p>
                     )}
+                    */}
 
                     {/* Payment Method Selector */}
                     <fieldset className="mb-5">
@@ -111,12 +117,14 @@ export default function PaymentModal({
                                     description: "Scan & pay with any UPI app",
                                     icon: <IoQrCode className="text-2xl shrink-0" style={{ color: "#4CAF50" }} />,
                                 },
+                                /*
                                 {
                                     id: "paypal" as const,
                                     label: "PayPal",
                                     description: "Pay with PayPal account or card",
                                     icon: <FaPaypal className="text-2xl shrink-0" style={{ color: "#0070BA" }} />,
                                 },
+                                */
                                 {
                                     id: "crypto" as const,
                                     label: "Cryptocurrency",
@@ -184,7 +192,8 @@ export default function PaymentModal({
                                 Proceed to Buy
                             </button>
                         </div>
-                    ) : paymentMethod === "paypal" ? (
+                    ) : /*
+                    paymentMethod === "paypal" ? (
                         <PayPalCheckout
                             orderId={pendingOrder._id}
                             amount=""
@@ -206,7 +215,7 @@ export default function PaymentModal({
                                 );
                             }}
                         />
-                    ) : !isBelowCryptoMinimum ? (
+                    ) : */ !isBelowCryptoMinimum ? (
                         <NowPaymentsCheckout
                             orderId={pendingOrder._id}
                             amount=""
