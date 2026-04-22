@@ -8,6 +8,10 @@ import Link from "@tiptap/extension-link";
 import Image from "@tiptap/extension-image";
 import Placeholder from "@tiptap/extension-placeholder";
 import TextAlign from "@tiptap/extension-text-align";
+import { Table } from "@tiptap/extension-table";
+import TableRow from "@tiptap/extension-table-row";
+import TableCell from "@tiptap/extension-table-cell";
+import TableHeader from "@tiptap/extension-table-header";
 import { clientApi } from "@/lib/http/index";
 import { endpoints } from "@/config/api";
 import { toast } from "react-toastify";
@@ -32,6 +36,12 @@ import {
     FaAlignJustify,
     FaExpand,
     FaCompress,
+    FaTable,
+    FaPlus,
+    FaMinus,
+    FaTrash,
+    FaColumns,
+    FaChevronDown,
 } from "react-icons/fa";
 
 interface RichTextEditorProps {
@@ -48,6 +58,8 @@ export default function RichTextEditor({
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [uploading, setUploading] = useState(false);
     const [expanded, setExpanded] = useState(false);
+    const [showTableMenu, setShowTableMenu] = useState(false);
+    const tableMenuRef = useRef<HTMLDivElement>(null);
     // Force re-render on editor transactions so toolbar active states stay in sync
     const [, setTick] = useState(0);
 
@@ -68,6 +80,13 @@ export default function RichTextEditor({
             TextAlign.configure({
                 types: ["heading", "paragraph"],
             }),
+            Table.configure({
+                resizable: true,
+                HTMLAttributes: { class: "editor-table" },
+            }),
+            TableRow,
+            TableHeader,
+            TableCell,
             Placeholder.configure({ placeholder }),
         ],
         content: value || "",
@@ -124,6 +143,17 @@ export default function RichTextEditor({
     const [showLinkInput, setShowLinkInput] = useState(false);
     const [linkUrl, setLinkUrl] = useState("");
     const linkInputRef = useRef<HTMLInputElement>(null);
+
+    // Close table menu on outside click
+    useEffect(() => {
+        const handleClickOutside = (e: MouseEvent) => {
+            if (tableMenuRef.current && !tableMenuRef.current.contains(e.target as Node)) {
+                setShowTableMenu(false);
+            }
+        };
+        if (showTableMenu) document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, [showTableMenu]);
 
     const openLinkInput = useCallback(() => {
         if (!editor) return;
@@ -344,6 +374,87 @@ export default function RichTextEditor({
                     )}
                 </ToolbarButton>
 
+                {/* Table dropdown */}
+                <div className="relative" ref={tableMenuRef}>
+                    <ToolbarButton
+                        onClick={() => setShowTableMenu((v) => !v)}
+                        active={editor.isActive("table") || showTableMenu}
+                        title="Table"
+                    >
+                        <span className="flex items-center gap-0.5">
+                            <FaTable size={13} />
+                            <FaChevronDown size={8} />
+                        </span>
+                    </ToolbarButton>
+
+                    {showTableMenu && (
+                        <div className="absolute top-full left-0 mt-1 z-50 bg-white border border-gray-300 rounded-lg shadow-lg py-1 min-w-[180px]">
+                            {!editor.isActive("table") ? (
+                                <TableMenuItem
+                                    onClick={() => {
+                                        editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run();
+                                        setShowTableMenu(false);
+                                    }}
+                                    icon={<FaTable size={12} />}
+                                    label="Insert Table (3×3)"
+                                />
+                            ) : (
+                                <>
+                                    <TableMenuItem
+                                        onClick={() => { editor.chain().focus().addColumnAfter().run(); setShowTableMenu(false); }}
+                                        icon={<FaPlus size={10} />}
+                                        label="Add Column After"
+                                    />
+                                    <TableMenuItem
+                                        onClick={() => { editor.chain().focus().addColumnBefore().run(); setShowTableMenu(false); }}
+                                        icon={<FaPlus size={10} />}
+                                        label="Add Column Before"
+                                    />
+                                    <TableMenuItem
+                                        onClick={() => { editor.chain().focus().deleteColumn().run(); setShowTableMenu(false); }}
+                                        icon={<FaMinus size={10} />}
+                                        label="Delete Column"
+                                    />
+                                    <div className="h-px bg-gray-200 my-1" />
+                                    <TableMenuItem
+                                        onClick={() => { editor.chain().focus().addRowAfter().run(); setShowTableMenu(false); }}
+                                        icon={<FaPlus size={10} />}
+                                        label="Add Row After"
+                                    />
+                                    <TableMenuItem
+                                        onClick={() => { editor.chain().focus().addRowBefore().run(); setShowTableMenu(false); }}
+                                        icon={<FaPlus size={10} />}
+                                        label="Add Row Before"
+                                    />
+                                    <TableMenuItem
+                                        onClick={() => { editor.chain().focus().deleteRow().run(); setShowTableMenu(false); }}
+                                        icon={<FaMinus size={10} />}
+                                        label="Delete Row"
+                                    />
+                                    <div className="h-px bg-gray-200 my-1" />
+                                    <TableMenuItem
+                                        onClick={() => { editor.chain().focus().mergeCells().run(); setShowTableMenu(false); }}
+                                        icon={<FaColumns size={10} />}
+                                        label="Merge Cells"
+                                    />
+                                    <TableMenuItem
+                                        onClick={() => { editor.chain().focus().splitCell().run(); setShowTableMenu(false); }}
+                                        icon={<FaColumns size={10} />}
+                                        label="Split Cell"
+                                    />
+                                    <div className="h-px bg-gray-200 my-1" />
+                                    <TableMenuItem
+                                        onClick={() => { editor.chain().focus().deleteTable().run(); setShowTableMenu(false); }}
+                                        icon={<FaTrash size={10} />}
+                                        label="Delete Table"
+                                        danger
+                                    />
+                                </>
+                            )}
+                        </div>
+                    )}
+                </div>
+
                 <Divider />
 
                 <ToolbarButton
@@ -460,6 +571,44 @@ export default function RichTextEditor({
                 .rich-text-editor-content .tiptap p {
                     margin: 0.25rem 0;
                 }
+                /* Table styles */
+                .rich-text-editor-content .tiptap table {
+                    border-collapse: collapse;
+                    width: 100%;
+                    margin: 0.75rem 0;
+                    overflow: hidden;
+                }
+                .rich-text-editor-content .tiptap table td,
+                .rich-text-editor-content .tiptap table th {
+                    border: 1px solid #d1d5db;
+                    padding: 0.5rem 0.75rem;
+                    vertical-align: top;
+                    position: relative;
+                    min-width: 80px;
+                }
+                .rich-text-editor-content .tiptap table th {
+                    background-color: #f3f4f6;
+                    font-weight: 600;
+                    text-align: left;
+                }
+                .rich-text-editor-content .tiptap table td.selectedCell,
+                .rich-text-editor-content .tiptap table th.selectedCell {
+                    background-color: #dbeafe;
+                    border-color: #93c5fd;
+                }
+                .rich-text-editor-content .tiptap .column-resize-handle {
+                    position: absolute;
+                    right: -2px;
+                    top: 0;
+                    bottom: 0;
+                    width: 4px;
+                    background-color: #3b82f6;
+                    cursor: col-resize;
+                }
+                .rich-text-editor-content .tiptap .tableWrapper {
+                    overflow-x: auto;
+                    margin: 0.5rem 0;
+                }
             `}</style>
         </div>
     );
@@ -497,4 +646,30 @@ function ToolbarButton({
 
 function Divider() {
     return <div className="w-px h-5 bg-gray-300 mx-1" />;
+}
+
+function TableMenuItem({
+    onClick,
+    icon,
+    label,
+    danger = false,
+}: {
+    onClick: () => void;
+    icon: React.ReactNode;
+    label: string;
+    danger?: boolean;
+}) {
+    return (
+        <button
+            type="button"
+            onClick={onClick}
+            className={`
+                flex items-center gap-2 w-full px-3 py-1.5 text-xs text-left transition-colors
+                ${danger ? "text-red-600 hover:bg-red-50" : "text-gray-700 hover:bg-gray-100"}
+            `}
+        >
+            {icon}
+            {label}
+        </button>
+    );
 }

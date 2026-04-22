@@ -276,3 +276,29 @@
 .rich-description p:empty {
     display: none;
 }
+
+.rich-description table {
+    @apply w-full border-collapse my-4 text-sm sm:text-base;
+}
+
+.rich-description table th,
+.rich-description table td {
+    @apply border border-border px-3 py-1.5 text-left align-top;
+}
+
+.rich-description table th {
+    @apply bg-muted font-semibold text-foreground;
+}
+
+.rich-description table td {
+    @apply text-muted-foreground;
+}
+
+.rich-description table tr:hover td {
+    @apply bg-muted/40;
+}
+
+.rich-description table td p,
+.rich-description table th p {
+    @apply !mb-0;
+}
