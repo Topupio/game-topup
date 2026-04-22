@@ -279,6 +279,9 @@
 
 .rich-description table {
     @apply w-full border-collapse my-4 text-sm sm:text-base;
+    display: block;
+    overflow-x: auto;
+    min-width: 0;
 }
 
 .rich-description table th,
