@@ -43,7 +43,7 @@ function detectDefaultCurrency(): string {
 }
 
 export function CurrencyProvider({ children }: { children: React.ReactNode }) {
-    const [currency, setCurrencyState] = useState("USD");
+    const [currency, setCurrencyState] = useState("INR");
     const [rates, setRates] = useState<Record<string, number>>(FALLBACK_RATES);
     const [loading, setLoading] = useState(true);
     const [hydrated, setHydrated] = useState(false);
@@ -111,8 +111,8 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
 
     const value = useMemo(
         () => ({
-            currency: hydrated ? currency : "USD",
-            symbol: hydrated ? symbol : "$",
+            currency: hydrated ? currency : "INR",
+            symbol: hydrated ? symbol : "₹",
             setCurrency,
             convertPrice,
             formatPrice,

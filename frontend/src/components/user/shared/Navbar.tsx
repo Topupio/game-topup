@@ -373,7 +373,7 @@ function LangCurrencySelector({ hideLabelOnMobile = false }) {
             >
                 <RiGlobalLine size={16} className="text-secondary" />
                 <span className={hideLabelOnMobile ? "hidden sm:inline" : "inline"} suppressHydrationWarning>
-                    {selectedLang} · {currency}
+                    {mounted ? `${selectedLang} · ${currency}` : "English · INR"}
                 </span>
             </button>
 
