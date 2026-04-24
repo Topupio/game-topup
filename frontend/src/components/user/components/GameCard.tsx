@@ -83,6 +83,7 @@ export default function GameCard({ game }: { game: Game }) {
                     <img
                         src={game.imageUrl ?? "/placeholder.png"}
                         alt={game.name}
+                        loading="lazy"
                         className={`w-full h-full object-cover transition-transform duration-500 ${
                             isStockOut ? "saturate-[0.25]" : "group-hover:scale-105"
                         }`}

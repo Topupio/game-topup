@@ -451,7 +451,7 @@ export default function HeroCarousel({ banners }: { banners: Banner[] }) {
                     <div className="embla">
                         <div className="embla__viewport" ref={emblaRef}>
                             <div className="embla__container">
-                                {banners.map((banner) => (
+                                {banners.map((banner, index) => (
                                     <div
                                         className="embla__slide"
                                         key={banner._id}
@@ -474,6 +474,9 @@ export default function HeroCarousel({ banners }: { banners: Banner[] }) {
                                                     "/placeholder.png"
                                                 }
                                                 alt={banner.title}
+                                                loading={index === 0 ? "eager" : "lazy"}
+                                                fetchPriority={index === 0 ? "high" : "auto"}
+                                                decoding={index === 0 ? "sync" : "async"}
                                                 className={`absolute inset-0 w-full h-full object-cover ${
                                                     banner.mobileImageUrl
                                                         ? "hidden lg:block"
@@ -487,6 +490,9 @@ export default function HeroCarousel({ banners }: { banners: Banner[] }) {
                                                         banner.mobileImageUrl
                                                     }
                                                     alt={banner.title}
+                                                    loading={index === 0 ? "eager" : "lazy"}
+                                                    fetchPriority={index === 0 ? "high" : "auto"}
+                                                    decoding={index === 0 ? "sync" : "async"}
                                                     className="absolute inset-0 w-full h-full object-cover lg:hidden"
                                                 />
                                             )}

@@ -9,7 +9,9 @@ import {
 } from "@/lib/utils/categoryPageUrl";
 
 export const metadata: Metadata = {
-    title: "Game Categories | Topupio",
+    title: {
+        absolute: "Buy Game Top-Ups, Gift Cards & AI Subscriptions in India | Topupio",
+    },
     description: "Browse all Topupio game categories, gift cards, and digital subscriptions in one catalog.",
 };
 

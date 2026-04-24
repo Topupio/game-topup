@@ -34,7 +34,7 @@ export async function generateMetadata({
   const label = titleCaseCategory(category);
 
   return {
-    title: `${label} | Topupio`,
+    title: label,
     description: `Browse Topupio's ${label} catalog with fast delivery and secure checkout.`,
   };
 }

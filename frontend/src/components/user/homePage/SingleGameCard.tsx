@@ -24,6 +24,7 @@ const SingleGameCard = ({ game }: { game: Game }) => {
                     <img
                         src={game.imageUrl ?? "/placeholder.png"}
                         alt={game.name}
+                        loading="lazy"
                         className="w-16 h-16 lg:w-20 lg:h-20 object-cover rounded-lg shadow-lg group-hover:scale-105 transition-transform duration-500"
                     />
                     <div className="absolute inset-0 bg-secondary/10 blur-xl opacity-0 group-hover:opacity-40 transition-opacity rounded-full" />

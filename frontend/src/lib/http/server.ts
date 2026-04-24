@@ -3,7 +3,7 @@
 import { cookies } from "next/headers";
 
 export const serverApi = {
-    async get<T>(url: string, options?: RequestInit & { params?: Record<string, unknown> }): Promise<T> {
+    async get<T>(url: string, options?: RequestInit & { params?: Record<string, unknown>; revalidate?: number }): Promise<T> {
         let finalUrl = process.env.NEXT_PUBLIC_API_BASE + url;
 
         // Build query string from params if provided
@@ -23,7 +23,7 @@ export const serverApi = {
         const cookieStore = await cookies();
         const cookieHeader = cookieStore.toString();
 
-        const { params, ...fetchOptions } = options || {};
+        const { params, revalidate = 60, ...fetchOptions } = options || {};
         const res = await fetch(finalUrl, {
             ...fetchOptions,
             headers: {
@@ -31,7 +31,7 @@ export const serverApi = {
                 Cookie: cookieHeader,
             },
             credentials: "include",
-            cache: "no-store",
+            next: { revalidate },
         });
 
         if (!res.ok) throw new Error(`Server GET failed: ${res.status}`);

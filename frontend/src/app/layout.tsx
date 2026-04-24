@@ -21,8 +21,11 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL(getSiteUrl()),
-  title: "Game Topup",
-  description: "Fast, reliable game top-ups, gift cards, and digital products from Game Topup.",
+  title: {
+    default: "Topupio | Fast Game Top-Ups, Gift Cards, and Digital Products",
+    template: "%s | Topupio",
+  },
+  description: "Secure top-ups, gift cards, and digital subscriptions with fast delivery and 24/7 support from Topupio.",
 };
 
 export default function RootLayout({

@@ -12,7 +12,9 @@ import WhyChooseUs from "@/components/user/homePage/WhyChooseUs";
 import { getOrganizationSchema } from "@/lib/seo/organization";
 
 export const metadata: Metadata = {
-    title: "Topupio | Fast Game Top-Ups, Gift Cards, and Digital Products",
+    title: {
+        absolute: "Topupio | Fast Game Top-Ups, Gift Cards, and Digital Products",
+    },
     description:
         "Secure top-ups, gift cards, and digital subscriptions with fast delivery and 24/7 support from Topupio.",
 };
