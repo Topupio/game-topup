@@ -1,6 +1,6 @@
 /**
  * Gamers Workshop API Service
- * External API for game topup fulfillment and player verification.
+ * External API for topupio fulfillment and player verification.
  * Base URL: https://api.sonofutred.uk/api/v1
  */
 
@@ -95,7 +95,7 @@ export async function checkMlRegion(userId, zoneId) {
 }
 
 /**
- * Place a game topup order.
+ * Place a game topupio order.
  * POST /orders/game
  */
 export async function placeGameOrder({ game, pack, uid, zoneId, server, webhookUrl }) {

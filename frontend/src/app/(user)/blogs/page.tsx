@@ -30,7 +30,7 @@ export default async function BlogsPage() {
                         Latest News
                     </h1>
                     <p className="text-sm text-gray-400 mt-1">
-                        Updates, guides, and announcements from GameTopup
+                        Updates, guides, and announcements from topupio
                     </p>
                 </div>
 
