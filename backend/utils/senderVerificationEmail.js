@@ -11,7 +11,7 @@ export const sendVerificationEmail = async (email, token) => {
     const url = `${process.env.CLIENT_URL}/verify-email/${token}`;
 
     const htmlContent = `
-        <h2>Welcome to Game Topup!</h2>
+        <h2>Welcome to topupio!</h2>
         <p>Please verify your email to activate your account.</p>
         <p>
             <a href="${url}" style="background-color: #28a745; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">
@@ -30,9 +30,9 @@ export const sendVerificationEmail = async (email, token) => {
         const resend = new Resend(process.env.RESEND_API_KEY);
 
         const { data, error } = await resend.emails.send({
-            from: process.env.EMAIL_FROM || 'Game Topup <onboarding@resend.dev>',
+            from: process.env.EMAIL_FROM || 'topupio <onboarding@resend.dev>',
             to: email,
-            subject: "Verify Your Account - Game Topup",
+            subject: "Verify Your Account - topupio",
             html: htmlContent,
         });
 
@@ -57,9 +57,9 @@ export const sendVerificationEmail = async (email, token) => {
         });
 
         const info = await transporter.sendMail({
-            from: '"Game Topup" <noreply@gametopup.com>',
+            from: '"topupio" <noreply@topupio.com>',
             to: email,
-            subject: "Verify Your Account - Game Topup",
+            subject: "Verify Your Account - topupio",
             html: htmlContent,
         });
 

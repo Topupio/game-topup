@@ -3,8 +3,8 @@ import { blogApiServer } from "@/services/blog/blogApi.server";
 import BlogCard from "@/components/user/blog/BlogCard";
 
 export const metadata = {
-    title: "News & Updates | GameTopup",
-    description: "Latest news, guides, and updates from GameTopup.",
+    title: "News & Updates | topupio",
+    description: "Latest news, guides, and updates from topupio.",
 };
 
 export default async function BlogsPage() {

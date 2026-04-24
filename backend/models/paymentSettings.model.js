@@ -15,7 +15,7 @@ const paymentSettingsSchema = new mongoose.Schema(
             payeeName: {
                 type: String,
                 trim: true,
-                default: "Game Topup",
+                default: "topupio",
             },
             instructions: {
                 type: String,

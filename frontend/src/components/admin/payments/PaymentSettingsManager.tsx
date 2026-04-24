@@ -10,7 +10,7 @@ const EMPTY_SETTINGS: PaymentSettings = {
     upi: {
         enabled: false,
         upiId: "",
-        payeeName: "Game Topup",
+        payeeName: "topupio",
         instructions: "",
     },
 };
@@ -154,7 +154,7 @@ export default function PaymentSettingsManager() {
                             type="text"
                             value={settings.upi.payeeName}
                             onChange={(e) => updateUpiField("payeeName", e.target.value)}
-                            placeholder="Game Topup"
+                            placeholder="topupio"
                             className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-black focus:ring-1 focus:ring-black/10"
                         />
                     </div>

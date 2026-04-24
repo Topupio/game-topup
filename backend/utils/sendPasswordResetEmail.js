@@ -10,7 +10,7 @@ export const sendPasswordResetEmail = async (email, token) => {
 
     const htmlContent = `
         <h2>Password Reset Request</h2>
-        <p>You requested a password reset for your Game Topup account.</p>
+        <p>You requested a password reset for your topupio account.</p>
         <p>
             <a href="${url}" style="background-color: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">
                 Reset Password
@@ -28,9 +28,9 @@ export const sendPasswordResetEmail = async (email, token) => {
         const resend = new Resend(process.env.RESEND_API_KEY);
 
         const { data, error } = await resend.emails.send({
-            from: process.env.EMAIL_FROM || 'Game Topup <onboarding@resend.dev>',
+            from: process.env.EMAIL_FROM || 'topupio <onboarding@resend.dev>',
             to: email,
-            subject: "Password Reset Request - Game Topup",
+            subject: "Password Reset Request - topupio",
             html: htmlContent,
         });
 
@@ -55,7 +55,7 @@ export const sendPasswordResetEmail = async (email, token) => {
         });
 
         const info = await transporter.sendMail({
-            from: '"Game Topup" <noreply@gametopup.com>',
+            from: '"topupio" <noreply@topupio.com>',
             to: email,
             subject: "Password Reset Request",
             html: htmlContent,

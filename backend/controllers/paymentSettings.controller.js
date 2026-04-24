@@ -6,7 +6,7 @@ import { convertAmount, getExchangeRates } from "../utils/currencyConverter.js";
 
 const UTR_REGEX = /^\d{12}$/;
 
-const DEFAULT_PAYEE_NAME = "Game Topup";
+const DEFAULT_PAYEE_NAME = "topupio";
 const UPI_ID_REGEX = /^[a-zA-Z0-9._-]{2,256}@[a-zA-Z]{2,64}$/;
 
 async function getOrCreatePaymentSettings() {
