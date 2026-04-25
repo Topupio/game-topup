@@ -10,6 +10,7 @@ import CategoryQuickNav from "@/components/user/homePage/CategoryQuickNav";
 import { CATEGORIES } from "@/lib/constants/checkoutTemplates";
 import WhyChooseUs from "@/components/user/homePage/WhyChooseUs";
 import { getOrganizationSchema } from "@/lib/seo/organization";
+import { getCanonicalMetadata } from "@/lib/seo/canonical";
 
 export const metadata: Metadata = {
     title: {
@@ -17,6 +18,7 @@ export const metadata: Metadata = {
     },
     description:
         "Secure top-ups, gift cards, and digital subscriptions with fast delivery and 24/7 support from Topupio.",
+    ...getCanonicalMetadata("/"),
 };
 
 export default async function Page() {

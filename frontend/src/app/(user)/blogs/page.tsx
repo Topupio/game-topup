@@ -1,10 +1,13 @@
 import Link from "next/link";
 import { blogApiServer } from "@/services/blog/blogApi.server";
 import BlogCard from "@/components/user/blog/BlogCard";
+import { getCanonicalMetadata } from "@/lib/seo/canonical";
+import type { Blog } from "@/services/blog/types";
 
 export const metadata = {
     title: "News & Updates | topupio",
     description: "Latest news, guides, and updates from topupio.",
+    ...getCanonicalMetadata("/blogs"),
 };
 
 export default async function BlogsPage() {
@@ -37,7 +40,7 @@ export default async function BlogsPage() {
                 {/* LISTING */}
                 {blogs.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        {blogs.map((blog: any) => (
+                        {blogs.map((blog: Blog) => (
                             <BlogCard key={blog._id} blog={blog} />
                         ))}
                     </div>

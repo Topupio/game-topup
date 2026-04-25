@@ -6,6 +6,7 @@ import {
   getCategoryPageHref,
   resolveCategoryFromRouteSlug,
 } from "@/lib/utils/categoryPageUrl";
+import { getCanonicalMetadata } from "@/lib/seo/canonical";
 
 interface CategoryPageProps {
   params: Promise<{ category: string }>;
@@ -21,8 +22,10 @@ function titleCaseCategory(category: string): string {
 
 export async function generateMetadata({
   params,
+  searchParams,
 }: CategoryPageProps): Promise<Metadata> {
   const { category: routeSlug } = await params;
+  const query = await searchParams;
   const category = resolveCategoryFromRouteSlug(routeSlug);
 
   if (!category) {
@@ -32,10 +35,12 @@ export async function generateMetadata({
   }
 
   const label = titleCaseCategory(category);
+  const page = Number(query.page) || 1;
 
   return {
     title: label,
     description: `Browse Topupio's ${label} catalog with fast delivery and secure checkout.`,
+    ...getCanonicalMetadata(getCategoryPageHref(category, page)),
   };
 }
 

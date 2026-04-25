@@ -3,12 +3,24 @@ import GameDetailsPage from "@/components/user/gameDetails/GameDetailsPage";
 import { GameDetailResponse } from "@/lib/types/game";
 import { notFound, permanentRedirect } from "next/navigation";
 import { getGameUrl } from "@/lib/utils/getGameUrl";
+import type { Metadata } from "next";
+import { getCanonicalMetadata } from "@/lib/seo/canonical";
+
+type CategoryGamePageProps = {
+    params: Promise<{ category: string; slug: string }>;
+};
+
+export async function generateMetadata({
+    params,
+}: CategoryGamePageProps): Promise<Metadata> {
+    const { category, slug } = await params;
+
+    return getCanonicalMetadata(`/${category}/${slug}`);
+}
 
 export default async function CategoryGamePage({
     params,
-}: {
-    params: Promise<{ category: string; slug: string }>;
-}) {
+}: CategoryGamePageProps) {
     const { category, slug } = await params;
     console.log("slug", slug);
 
@@ -17,11 +29,11 @@ export default async function CategoryGamePage({
         gameDetailResponse = (await gamesApiServer.get(
             slug
         )) as unknown as GameDetailResponse;
-    } catch (e: any) {
-        if (e?.message?.includes("404")) {
+    } catch (error: unknown) {
+        if (error instanceof Error && error.message.includes("404")) {
             notFound();
         }
-        throw e;
+        throw error;
     }
     const gameDetails = gameDetailResponse.data;
     const checkoutTemplates = gameDetailResponse.checkoutTemplates || {};

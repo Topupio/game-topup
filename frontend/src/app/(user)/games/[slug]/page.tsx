@@ -3,14 +3,26 @@ import GameDetailsPage from "@/components/user/gameDetails/GameDetailsPage";
 import { GameDetailResponse } from "@/lib/types/game";
 import { permanentRedirect } from "next/navigation";
 import { getGameUrl } from "@/lib/utils/getGameUrl";
+import type { Metadata } from "next";
+import { getCanonicalMetadata } from "@/lib/seo/canonical";
+
+type GameSlugPageProps = {
+    params: Promise<{ slug: string }>;
+};
+
+export async function generateMetadata({
+    params,
+}: GameSlugPageProps): Promise<Metadata> {
+    const { slug } = await params;
+
+    return getCanonicalMetadata(`/games/${slug}`);
+}
 
 // Backward-compatible redirect: /games/<slug> → /<category>/<slug>
 // If game has no paymentCategory, render directly (avoids infinite loop)
 export default async function GameSlugRedirect({
     params,
-}: {
-    params: Promise<{ slug: string }>;
-}) {
+}: GameSlugPageProps) {
     const { slug } = await params;
 
     const gameDetailResponse = (await gamesApiServer.get(

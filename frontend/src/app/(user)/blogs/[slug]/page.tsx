@@ -3,6 +3,7 @@ import { blogApiServer } from "@/services/blog/blogApi.server";
 import { Blog } from "@/services/blog/types";
 import { Metadata } from "next";
 import BlogDetailsClient from "@/components/user/blog/BlogDetailsClient";
+import { getCanonicalMetadata } from "@/lib/seo/canonical";
 
 interface Props {
     params: Promise<{ slug: string }>;
@@ -17,11 +18,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
             title: blog.seo?.metaTitle || blog.title,
             description: blog.seo?.metaDescription || blog.description,
             keywords: blog.seo?.keywords,
+            ...getCanonicalMetadata(`/blogs/${blog.slug}`),
             openGraph: {
                 images: [blog.coverImage],
             },
         };
-    } catch (e) {
+    } catch {
         return {
             title: "Blog Not Found",
         };
@@ -35,7 +37,7 @@ export default async function BlogDetailsPage({ params }: Props) {
     try {
         const res = await blogApiServer.get(slug);
         blog = res.data;
-    } catch (e) {
+    } catch {
         // console.error("Found error", e)
     }
 
