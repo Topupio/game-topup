@@ -132,7 +132,7 @@ CLOUDINARY_CLOUD_NAME=your_cloud_name
 CLOUDINARY_API_KEY=your_api_key
 CLOUDINARY_API_SECRET=your_api_secret
 RESEND_API_KEY=your_resend_key
-ALLOWED_ORIGINS=https://yourdomain.com
+ALLOWED_ORIGINS=https://topupio.com
 ```
 
 Start with PM2:
@@ -155,7 +155,8 @@ nano .env.local
 ```
 
 ```env
-NEXT_PUBLIC_API_BASE=https://yourdomain.com
+NEXT_PUBLIC_API_BASE=https://topupio.com
+ALLOWED_HOSTS=topupio.com,www.topupio.com
 ```
 
 Build and start:
@@ -181,9 +182,27 @@ nano /etc/nginx/sites-available/game-topup
 ```
 
 ```nginx
+# Drop all unknown HTTP domains that point to this server IP.
+# This prevents parked, malicious, or accidental domains from showing your app.
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+    server_name _;
+    return 444;
+}
+
+# Drop all unknown HTTPS domains that point to this server IP.
+# Requires nginx 1.19.4+; Ubuntu nginx 1.24 supports this.
+server {
+    listen 443 ssl default_server;
+    listen [::]:443 ssl default_server;
+    server_name _;
+    ssl_reject_handshake on;
+}
+
 server {
     listen 80;
-    server_name yourdomain.com www.yourdomain.com;
+    server_name topupio.com www.topupio.com;
 
     # Frontend (Next.js on port 3000)
     location / {
@@ -225,7 +244,7 @@ systemctl restart nginx
 ### 9. Setup SSL (HTTPS)
 
 ```bash
-certbot --nginx -d yourdomain.com -d www.yourdomain.com
+certbot --nginx -d topupio.com -d www.topupio.com
 ```
 
 Certbot auto-renews. Verify with:
@@ -242,6 +261,10 @@ In your domain registrar (or Hostinger DNS):
 |---|---|---|
 | A | @ | YOUR_SERVER_IP |
 | A | www | YOUR_SERVER_IP |
+
+Only your own domains should point to the VPS. Other people can still point
+their DNS to your public IP, but the `default_server` blocks above stop nginx
+from serving your app for those unknown hostnames.
 
 ---
 
@@ -348,4 +371,3 @@ On every `git push origin main`, GitHub Actions will:
 5. Restart backend & frontend via PM2
 
 Monitor deployments at: `https://github.com/ajmal1722/game-topup/actions`
-
