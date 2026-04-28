@@ -36,6 +36,23 @@ function detectDefaultCurrency(): string {
             return "BRL";
         if (tz.includes("Jakarta") || tz.includes("Makassar") || tz.includes("Jayapura"))
             return "IDR";
+        if (tz.includes("Dhaka")) return "BDT";
+        if (tz.includes("Dubai") || tz.includes("Riyadh") || tz.includes("Qatar")) return "AED";
+        if (
+            [
+                "Moscow",
+                "Vladivostok",
+                "Yekaterinburg",
+                "Novosibirsk",
+                "Kaliningrad",
+                "Kamchatka",
+                "Krasnoyarsk",
+                "Omsk",
+                "Volgograd",
+                "Samara"
+            ].some((c) => tz.includes(c))
+        )
+            return "RUB";
     } catch {
         // ignore
     }
