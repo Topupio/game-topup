@@ -270,12 +270,19 @@ export const adminGetOrders = async (req, res) => {
         const limit = Math.min(50, Math.max(1, parseInt(req.query.limit) || 10));
         const skip = (page - 1) * limit;
 
-        const { status, search } = req.query;
+        const { status, queue, search } = req.query;
         const query = {};
 
         const allowedStatuses = ["pending", "paid", "processing", "completed", "cancelled", "failed", "expired"];
-        if (status && allowedStatuses.includes(status)) {
+        if (queue === "upi_review") {
+            query.orderStatus = "pending";
+            query.paymentStatus = "pending";
+            query.paymentMethod = "upi";
+        } else if (status && allowedStatuses.includes(status)) {
             query.orderStatus = status;
+            if (status === "pending") {
+                query.paymentMethod = { $ne: "upi" };
+            }
         }
 
         if (search && search.length <= 50) {

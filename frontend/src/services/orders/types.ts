@@ -13,6 +13,8 @@ export type OrderStatus =
     | "failed"
     | "expired";
 
+export type AdminOrderQueue = OrderStatus | "upi_review" | "";
+
 // ===== Lightweight Related Models =====
 
 export interface UserSummary {
@@ -114,6 +116,7 @@ export interface OrderParams extends Record<string, unknown> {
     page?: number;
     limit?: number;
     status?: OrderStatus;
+    queue?: "upi_review";
     search?: string;
 }
 

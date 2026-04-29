@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect, useRef } from "react";
-import { Order, ListOrderResponse, OrderStatus } from "@/services/orders/types";
+import { AdminOrderQueue, Order, ListOrderResponse, OrderParams } from "@/services/orders/types";
 import { ordersApiClient } from "@/services/orders/ordersApi.client";
 import { toast } from "react-toastify";
 import OrdersToolbar from "./OrdersToolbar";
@@ -9,15 +9,20 @@ import OrdersTable from "./OrdersTable";
 import Pagination from "@/components/admin/shared/Pagination";
 import { useDebounce } from "use-debounce";
 import SearchBox from "@/components/admin/shared/SearchBox";
-import { RiRefreshLine, RiFilter3Line } from "react-icons/ri";
+import { RiRefreshLine } from "react-icons/ri";
 
-export default function AdminOrderPage({ initialData }: { initialData: ListOrderResponse }) {
+type Props = {
+    initialData: ListOrderResponse;
+    initialQueue?: AdminOrderQueue;
+};
+
+export default function AdminOrderPage({ initialData, initialQueue = "completed" }: Props) {
     const [orders, setOrders] = useState<Order[]>(initialData.data.orders);
     const [loading, setLoading] = useState(false);
 
     // Filter State
     const [search, setSearch] = useState("");
-    const [status, setStatus] = useState<OrderStatus | "">("");
+    const [queue, setQueue] = useState<AdminOrderQueue>(initialQueue);
 
     // Debounce search
     const [debouncedSearch] = useDebounce(search, 500);
@@ -30,30 +35,34 @@ export default function AdminOrderPage({ initialData }: { initialData: ListOrder
 
     const fetchData = useCallback(async (signal?: AbortSignal) => {
         setLoading(true);
+        const params: OrderParams = {
+            page,
+            limit,
+            search: debouncedSearch || undefined,
+            ...(queue === "upi_review" ? { queue: "upi_review" } : { status: queue || undefined }),
+        };
+
         try {
-            const res = await ordersApiClient.adminGetOrders({
-                page,
-                limit,
-                search: debouncedSearch || undefined,
-                status: status || undefined,
-            }, signal);
+            const res = await ordersApiClient.adminGetOrders(params, signal);
 
             if (res.success) {
                 setOrders(res.data.orders);
                 setTotalPages(res.data.pagination.totalPages);
                 setTotalItems(res.data.pagination.total);
             }
-        } catch (error: any) {
-            if (error.name !== 'CanceledError' && error.code !== "ERR_CANCELED") {
+        } catch (error: unknown) {
+            const requestError = error as { name?: string; code?: string };
+
+            if (requestError.name !== "CanceledError" && requestError.code !== "ERR_CANCELED") {
                 console.error(error);
                 toast.error("Failed to fetch orders");
             }
-        } finally {
-            if (!signal?.aborted) {
-                setLoading(false);
-            }
         }
-    }, [page, limit, debouncedSearch, status]);
+
+        if (!signal?.aborted) {
+            setLoading(false);
+        }
+    }, [page, limit, debouncedSearch, queue]);
 
     const isInitialMount = useRef(true);
 
@@ -64,14 +73,18 @@ export default function AdminOrderPage({ initialData }: { initialData: ListOrder
         }
 
         const controller = new AbortController();
-        fetchData(controller.signal);
+        void Promise.resolve().then(() => {
+            if (!controller.signal.aborted) {
+                fetchData(controller.signal);
+            }
+        });
 
         return () => controller.abort();
     }, [fetchData]);
 
     const handleClearFilters = () => {
         setSearch("");
-        setStatus("");
+        setQueue("completed");
         setPage(1);
     };
 
@@ -97,28 +110,7 @@ export default function AdminOrderPage({ initialData }: { initialData: ListOrder
                     className="w-full md:w-96"
                 />
 
-                <div className="flex items-center gap-2 bg-white border border-gray-300 rounded-xl px-3 py-2 shadow-sm">
-                    <RiFilter3Line className="text-gray-500" />
-                    <select
-                        className="bg-transparent text-sm focus:outline-none cursor-pointer pr-4 text-gray-700"
-                        value={status}
-                        onChange={(e) => {
-                            const value = e.target.value as '' | OrderStatus;
-                            setStatus(value);
-                            setPage(1);
-                        }}
-                    >
-                        <option value="">All Status</option>
-                        <option value="pending">Pending</option>
-                        <option value="paid">Paid</option>
-                        <option value="processing">Processing</option>
-                        <option value="completed">Completed</option>
-                        <option value="cancelled">Cancelled</option>
-                        <option value="failed">Failed</option>
-                    </select>
-                </div>
-
-                {(search || status) && (
+                {(search || queue !== "completed") && (
                     <button
                         onClick={handleClearFilters}
                         className="text-sm text-gray-500 hover:text-red-500 transition"
@@ -129,7 +121,14 @@ export default function AdminOrderPage({ initialData }: { initialData: ListOrder
             </div>
 
             <div className={`transition-opacity ${loading ? "opacity-50 pointer-events-none" : "opacity-100"}`}>
-                <OrdersTable items={orders} />
+                <OrdersTable
+                    items={orders}
+                    activeQueue={queue}
+                    onQueueChange={(nextQueue) => {
+                        setQueue(nextQueue);
+                        setPage(1);
+                    }}
+                />
 
                 {orders.length > 0 && (
                     <div className="mt-6">
