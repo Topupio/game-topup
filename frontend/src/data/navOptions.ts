@@ -48,6 +48,11 @@ export const adminNavOptions = [
         end: true,
     },
     {
+        label: "Orders",
+        to: "/admin/orders",
+        icon: TbMailSearch,
+    },
+    {
         label: "Users",
         to: "/admin/users",
         icon: FaUsers,
@@ -71,11 +76,6 @@ export const adminNavOptions = [
         label: "Blogs",
         to: "/admin/blogs",
         icon: FaNewspaper, // 📰 blog icon
-    },
-    {
-        label: "Orders",
-        to: "/admin/orders",
-        icon: TbMailSearch,
     },
     {
         label: "Payments",
