@@ -5,6 +5,8 @@ import { notFound, permanentRedirect } from "next/navigation";
 import { getGameUrl } from "@/lib/utils/getGameUrl";
 import type { Metadata } from "next";
 import { getCanonicalMetadata } from "@/lib/seo/canonical";
+import Script from "next/script";
+import { getGameJsonLd } from "@/lib/seo/gameJsonLd";
 
 type CategoryGamePageProps = {
     params: Promise<{ category: string; slug: string }>;
@@ -43,11 +45,21 @@ export default async function CategoryGamePage({
     if (`/${category}/${slug}` !== correctUrl) {
         permanentRedirect(correctUrl);
     }
+    const gameJsonLd = getGameJsonLd(gameDetails, correctUrl);
 
     return (
-        <GameDetailsPage
-            gameDetails={gameDetails}
-            checkoutTemplates={checkoutTemplates}
-        />
+        <>
+            <Script
+                id={`game-jsonld-${gameDetails.slug}`}
+                type="application/ld+json"
+                strategy="beforeInteractive"
+            >
+                {JSON.stringify(gameJsonLd)}
+            </Script>
+            <GameDetailsPage
+                gameDetails={gameDetails}
+                checkoutTemplates={checkoutTemplates}
+            />
+        </>
     );
 }
