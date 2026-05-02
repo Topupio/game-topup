@@ -6,6 +6,7 @@ import { TemplateField } from "@/lib/constants/checkoutTemplates";
 import { RiCloseLine, RiAddLine, RiSubtractLine, RiArrowDownSLine } from "react-icons/ri";
 import { useCurrency } from "@/context/CurrencyContext";
 import PhoneInput from "./PhoneInput";
+import { getPayPalFeeBreakdown } from "@/lib/utils/paypalFees";
 
 function capitalize(str: string) {
     if (!str) return "";
@@ -49,11 +50,12 @@ export default function MobileCheckoutSheet({
     templateKey,
     verification,
 }: Props) {
-    const { formatPrice } = useCurrency();
+    const { formatPrice, rates } = useCurrency();
     const { price, discountedPrice, currency } = pricing;
     const hasDiscount = price > discountedPrice;
     const totalAmount = discountedPrice * qty;
     const totalSavings = (price - discountedPrice) * qty;
+    const paypalBreakdown = getPayPalFeeBreakdown(totalAmount, currency, rates);
 
     // Lock body scroll when sheet is open
     useEffect(() => {
@@ -70,7 +72,9 @@ export default function MobileCheckoutSheet({
     return (
         <div className="lg:hidden">
             {/* Backdrop */}
-            <div
+            <button
+                type="button"
+                aria-label="Close checkout"
                 className={`fixed inset-0 z-[60] bg-black/50 transition-opacity duration-300 ${
                     isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
                 }`}
@@ -280,6 +284,22 @@ export default function MobileCheckoutSheet({
                             <span>Total</span>
                             <span>{formatPrice(totalAmount, currency)}</span>
                         </div>
+                        {paypalBreakdown.isEligible && (
+                            <>
+                                <div className="border-t border-border pt-2 flex justify-between text-xs text-muted-foreground">
+                                    <span>PayPal processing &amp; handling (9%)</span>
+                                    <span>
+                                        {formatPrice(paypalBreakdown.processingFee, currency)}
+                                    </span>
+                                </div>
+                                <div className="flex justify-between text-foreground font-semibold text-sm">
+                                    <span>PayPal total</span>
+                                    <span>
+                                        {formatPrice(paypalBreakdown.total, currency)}
+                                    </span>
+                                </div>
+                            </>
+                        )}
                     </div>
                 </div>
 

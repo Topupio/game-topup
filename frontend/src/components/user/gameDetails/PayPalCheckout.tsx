@@ -8,7 +8,7 @@ interface Props {
     amount: string;
     symbol: string;
     onSuccess: () => void;
-    onError: (error: any) => void;
+    onError: (error: unknown) => void;
     onCancel: () => void;
 }
 

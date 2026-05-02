@@ -70,6 +70,18 @@ const orderSchema = new mongoose.Schema(
             paymentGatewayResponse: { type: mongoose.Schema.Types.Mixed }, // optional raw response
         },
 
+        paymentBreakdown: {
+            paypal: {
+                subtotalAmount: Number,
+                subtotalCurrency: String,
+                subtotalUsd: Number,
+                processingFeeUsd: Number,
+                totalUsd: Number,
+                processingRate: Number,
+                minOrderUsd: Number,
+            },
+        },
+
         // External fulfillment tracking (e.g., Gamers Workshop API)
         externalOrder: {
             provider: { type: String },

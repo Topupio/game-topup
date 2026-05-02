@@ -5,16 +5,17 @@ import { RegionPricing } from "@/lib/types/game";
 import { useCurrency } from "@/context/CurrencyContext";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
-// import PayPalCheckout from "./PayPalCheckout";
+import PayPalCheckout from "./PayPalCheckout";
 import NowPaymentsCheckout from "./NowPaymentsCheckout";
 import UpiQrDetailsModal from "./UpiQrDetailsModal";
 import {
-    // FaPaypal,
+    FaPaypal,
     FaBitcoin,
     FaEthereum,
 } from "react-icons/fa";
 import { SiTether } from "react-icons/si";
 import { IoQrCode } from "react-icons/io5";
+import { getPayPalFeeBreakdown } from "@/lib/utils/paypalFees";
 
 interface PendingOrder {
     _id: string;
@@ -34,18 +35,20 @@ export default function PaymentModal({
     qty,
     onClose,
 }: PaymentModalProps) {
-    const [paymentMethod, setPaymentMethod] = useState<"upi" | "crypto">("upi");
+    const [paymentMethod, setPaymentMethod] = useState<"upi" | "paypal" | "crypto">("upi");
     const [isUpiDetailsOpen, setIsUpiDetailsOpen] = useState(false);
     const { currency: displayCurrency, formatPrice, rates } = useCurrency();
-    const router = useRouter();
+    const { push } = useRouter();
 
     const nativeTotal = selectedPricing.discountedPrice * qty;
     const nativeCurrency = selectedPricing.currency;
     const isNonUSD = displayCurrency !== "USD";
     const fromRate = rates[nativeCurrency] || 1;
     const usdAmount = isNonUSD ? (nativeTotal / fromRate).toFixed(2) : null;
-    const usdAmountNum = isNonUSD ? parseFloat(usdAmount!) : nativeTotal;
+    const paypalBreakdown = getPayPalFeeBreakdown(nativeTotal, nativeCurrency, rates);
+    const usdAmountNum = paypalBreakdown.subtotalUsd;
     const isBelowCryptoMinimum = usdAmountNum < 5;
+    const isPayPalAvailable = paypalBreakdown.isEligible;
 
     const handleClose = () => {
         onClose();
@@ -86,23 +89,42 @@ export default function PaymentModal({
                                 <div className="border-t border-border my-2" />
                                 <div className="flex justify-between">
                                     <span className="text-muted-foreground">
-                                        You pay (USD)
+                                        {paymentMethod === "paypal" ? "Subtotal (USD)" : "You pay (USD)"}
                                     </span>
                                     <span className="font-bold text-secondary">
-                                        ~${usdAmount}
+                                        ~${paymentMethod === "paypal" ? paypalBreakdown.subtotalUsd.toFixed(2) : usdAmount}
+                                    </span>
+                                </div>
+                            </>
+                        )}
+                        {paymentMethod === "paypal" && isPayPalAvailable && (
+                            <>
+                                <div className="border-t border-border my-2" />
+                                <div className="flex justify-between">
+                                    <span className="text-muted-foreground">
+                                        Processing &amp; handling (9%)
+                                    </span>
+                                    <span className="text-foreground font-semibold">
+                                        ${paypalBreakdown.processingFeeUsd.toFixed(2)}
+                                    </span>
+                                </div>
+                                <div className="flex justify-between mt-1">
+                                    <span className="text-muted-foreground">
+                                        PayPal total
+                                    </span>
+                                    <span className="text-secondary font-bold">
+                                        ${paypalBreakdown.totalUsd.toFixed(2)}
                                     </span>
                                 </div>
                             </>
                         )}
                     </div>
 
-                    {/*
                     {isNonUSD && paymentMethod === "paypal" && (
                         <p className="text-xs text-muted-foreground mb-4 text-center">
                             PayPal processes all payments in USD
                         </p>
                     )}
-                    */}
 
                     {/* Payment Method Selector */}
                     <fieldset className="mb-5">
@@ -117,14 +139,15 @@ export default function PaymentModal({
                                     description: "Scan & pay with any UPI app",
                                     icon: <IoQrCode className="text-2xl shrink-0" style={{ color: "#4CAF50" }} />,
                                 },
-                                /*
                                 {
                                     id: "paypal" as const,
                                     label: "PayPal",
-                                    description: "Pay with PayPal account or card",
+                                    description: isPayPalAvailable
+                                        ? "Includes 9% processing & handling"
+                                        : "Order must be over $5.00 USD",
+                                    disabled: !isPayPalAvailable,
                                     icon: <FaPaypal className="text-2xl shrink-0" style={{ color: "#0070BA" }} />,
                                 },
-                                */
                                 {
                                     id: "crypto" as const,
                                     label: "Cryptocurrency",
@@ -192,15 +215,15 @@ export default function PaymentModal({
                                 Proceed to Buy
                             </button>
                         </div>
-                    ) : /*
+                    ) :
                     paymentMethod === "paypal" ? (
                         <PayPalCheckout
                             orderId={pendingOrder._id}
-                            amount=""
-                            symbol=""
+                            amount={paypalBreakdown.totalUsd.toFixed(2)}
+                            symbol="$"
                             onSuccess={() => {
                                 toast.success("Payment successful!");
-                                router.push(`/orders/${pendingOrder._id}`);
+                                push(`/orders/${pendingOrder._id}`);
                             }}
                             onCancel={() => {
                                 onClose();
@@ -215,14 +238,14 @@ export default function PaymentModal({
                                 );
                             }}
                         />
-                    ) : */ !isBelowCryptoMinimum ? (
+                    ) : !isBelowCryptoMinimum ? (
                         <NowPaymentsCheckout
                             orderId={pendingOrder._id}
                             amount=""
                             symbol=""
                             onSuccess={() => {
                                 toast.success("Payment initiated!");
-                                router.push(`/orders/${pendingOrder._id}`);
+                                push(`/orders/${pendingOrder._id}`);
                             }}
                             onCancel={() => {
                                 onClose();
@@ -246,7 +269,7 @@ export default function PaymentModal({
                     orderId={pendingOrder._id}
                     orderReference={pendingOrder.orderId}
                     onClose={() => setIsUpiDetailsOpen(false)}
-                    onUtrSubmitted={() => router.push(`/orders/${pendingOrder._id}`)}
+                    onUtrSubmitted={() => push(`/orders/${pendingOrder._id}`)}
                 />
             )}
         </>

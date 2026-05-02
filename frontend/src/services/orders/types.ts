@@ -69,6 +69,18 @@ export interface Order {
         };
     };
 
+    paymentBreakdown?: {
+        paypal?: {
+            subtotalAmount: number;
+            subtotalCurrency: string;
+            subtotalUsd: number;
+            processingFeeUsd: number;
+            totalUsd: number;
+            processingRate: number;
+            minOrderUsd: number;
+        };
+    };
+
     adminNote?: string;
     completionProof?: string;
 

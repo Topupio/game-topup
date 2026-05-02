@@ -12,7 +12,13 @@ export const paymentsApiClient = {
             endpoints.payments.paypalCreateOrder,
             { orderId }
         );
-        return data as { success: boolean; paypalOrderId: string };
+        return data as {
+            success: boolean;
+            paypalOrderId: string;
+            amount?: number;
+            currency?: "USD";
+            breakdown?: Record<string, unknown>;
+        };
     },
 
     async capturePayPalOrder(paypalOrderId: string, orderId: string) {

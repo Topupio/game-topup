@@ -7,6 +7,7 @@ import * as paypalService from "../services/paypal.service.js";
 import * as nowpaymentsService from "../services/nowpayments.service.js";
 import { getExchangeRates, convertAmount } from "../utils/currencyConverter.js";
 import { placeExternalOrderIfEligible } from "../utils/externalOrderPlacer.js";
+import { calculatePayPalBreakdown } from "../utils/paypalFees.js";
 
 /**
  * @desc    [DEV ONLY] Simulate payment success for testing external order placement
@@ -102,21 +103,30 @@ export const createPayPalOrder = asyncHandler(async (req, res) => {
 
     // Always charge PayPal in USD — convert from order currency if needed
     const orderCurrency = order.currency || "USD";
-    let paypalAmount = order.amount;
+    let subtotalUsd = order.amount;
     if (orderCurrency !== "USD") {
         const rates = await getExchangeRates();
-        paypalAmount = convertAmount(order.amount, orderCurrency, "USD", rates);
+        subtotalUsd = convertAmount(order.amount, orderCurrency, "USD", rates);
+    }
+    const paypalBreakdown = calculatePayPalBreakdown(subtotalUsd);
+
+    if (!paypalBreakdown.isEligible) {
+        return res.status(400).json({
+            success: false,
+            message: `PayPal is available only for orders greater than $${paypalBreakdown.minOrderUsd.toFixed(2)} USD.`,
+        });
     }
 
     console.log("Creating PayPal order:", {
         originalAmount: order.amount,
         originalCurrency: orderCurrency,
-        paypalAmount,
+        paypalAmount: paypalBreakdown.totalUsd,
         paypalCurrency: "USD",
+        paypalProcessingFee: paypalBreakdown.processingFeeUsd,
         orderId: order.orderId,
     });
     const paypalOrder = await paypalService.createOrder(
-        paypalAmount,
+        paypalBreakdown.totalUsd,
         "USD",
         order.orderId
     );
@@ -127,12 +137,27 @@ export const createPayPalOrder = asyncHandler(async (req, res) => {
         ...order.paymentInfo,
         transactionId: paypalOrder.id,
     };
+    order.paymentBreakdown = {
+        ...order.paymentBreakdown,
+        paypal: {
+            subtotalAmount: order.amount,
+            subtotalCurrency: orderCurrency,
+            subtotalUsd: paypalBreakdown.subtotalUsd,
+            processingFeeUsd: paypalBreakdown.processingFeeUsd,
+            totalUsd: paypalBreakdown.totalUsd,
+            processingRate: paypalBreakdown.rate,
+            minOrderUsd: paypalBreakdown.minOrderUsd,
+        },
+    };
     order.paymentMethod = "paypal";
     await order.save();
 
     res.status(200).json({
         success: true,
         paypalOrderId: paypalOrder.id,
+        amount: paypalBreakdown.totalUsd,
+        currency: "USD",
+        breakdown: order.paymentBreakdown.paypal,
     });
 });
 
@@ -194,6 +219,8 @@ export const capturePayPalOrder = asyncHandler(async (req, res) => {
         const captureResult = await paypalService.captureOrder(paypalOrderId);
 
         if (captureResult.status === "COMPLETED") {
+            const paypalPaymentAmount = order.paymentBreakdown?.paypal?.totalUsd || order.amount;
+
             // Update order
             order.paymentStatus = "paid";
             order.orderStatus = "paid";
@@ -214,8 +241,8 @@ export const capturePayPalOrder = asyncHandler(async (req, res) => {
                 user: order.user,
                 paymentGateway: "paypal",
                 status: "success",
-                amount: order.amount,
-                currency: order.currency || "USD",
+                amount: paypalPaymentAmount,
+                currency: "USD",
                 transactionId: captureResult.captureId,
                 orderId: paypalOrderId,
                 gatewayResponse: captureResult.fullResponse,
@@ -248,8 +275,8 @@ export const capturePayPalOrder = asyncHandler(async (req, res) => {
             user: order.user,
             paymentGateway: "paypal",
             status: "failed",
-            amount: order.amount,
-            currency: order.currency || "USD",
+            amount: order.paymentBreakdown?.paypal?.totalUsd || order.amount,
+            currency: order.paymentBreakdown?.paypal ? "USD" : order.currency || "USD",
             orderId: paypalOrderId,
             gatewayResponse: captureResult.fullResponse,
         });

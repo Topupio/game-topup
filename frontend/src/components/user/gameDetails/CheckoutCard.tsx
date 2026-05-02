@@ -3,6 +3,7 @@
 import { Variant, RegionPricing } from "@/lib/types/game";
 import { RiAddLine, RiSubtractLine } from "react-icons/ri";
 import { useCurrency } from "@/context/CurrencyContext";
+import { getPayPalFeeBreakdown } from "@/lib/utils/paypalFees";
 
 interface Props {
     variant: Variant;
@@ -21,12 +22,13 @@ export default function CheckoutCard({
     onProceed,
     isLoading,
 }: Props) {
-    const { formatPrice } = useCurrency();
+    const { formatPrice, rates } = useCurrency();
     const { price, discountedPrice, currency } = pricing;
 
     const discountPerUnit = price - discountedPrice;
     const totalDiscount = discountPerUnit * qty;
     const totalAmount = discountedPrice * qty;
+    const paypalBreakdown = getPayPalFeeBreakdown(totalAmount, currency, rates);
 
     const isDisabled = isLoading;
 
@@ -102,6 +104,24 @@ export default function CheckoutCard({
                         {formatPrice(totalAmount, currency)}
                     </span>
                 </div>
+
+                {paypalBreakdown.isEligible && (
+                    <>
+                        <div className="border-t border-border my-3" />
+                        <div className="flex justify-between text-muted-foreground">
+                            <span>PayPal processing &amp; handling (9%)</span>
+                            <span>
+                                {formatPrice(paypalBreakdown.processingFee, currency)}
+                            </span>
+                        </div>
+                        <div className="flex justify-between text-foreground font-semibold">
+                            <span>PayPal total</span>
+                            <span>
+                                {formatPrice(paypalBreakdown.total, currency)}
+                            </span>
+                        </div>
+                    </>
+                )}
 
                 <button
                     onClick={onProceed}
