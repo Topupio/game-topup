@@ -18,9 +18,29 @@ import {
     RiFileCopyLine,
 } from "react-icons/ri";
 import AdminToolbar from "@/components/admin/shared/AdminToolbar";
+import { formatCurrencyAmount } from "@/lib/utils/formatCurrencyAmount";
 
 interface Props {
     initialOrder: Order;
+}
+
+function getErrorMessage(error: unknown) {
+    if (
+        typeof error === "object" &&
+        error !== null &&
+        "response" in error &&
+        typeof error.response === "object" &&
+        error.response !== null &&
+        "data" in error.response &&
+        typeof error.response.data === "object" &&
+        error.response.data !== null &&
+        "message" in error.response.data &&
+        typeof error.response.data.message === "string"
+    ) {
+        return error.response.data.message;
+    }
+
+    return "Failed to update order";
 }
 
 export default function OrderDetailPage({ initialOrder }: Props) {
@@ -44,8 +64,8 @@ export default function OrderDetailPage({ initialOrder }: Props) {
                 setOrder(res.data);
                 toast.success("Order updated successfully");
             }
-        } catch (error: any) {
-            toast.error(error.response?.data?.message || "Failed to update order");
+        } catch (error: unknown) {
+            toast.error(getErrorMessage(error));
         } finally {
             setUpdating(false);
         }
@@ -61,6 +81,15 @@ export default function OrderDetailPage({ initialOrder }: Props) {
             default: return "text-yellow-600 bg-yellow-50 border-yellow-200";
         }
     };
+
+    const orderCurrency = order.currency || "USD";
+    const orderAmount = formatCurrencyAmount(order.amount, orderCurrency);
+    const upiPayment = order.paymentInfo?.paymentGatewayResponse?.upi;
+    const upiAmount = upiPayment ? formatCurrencyAmount(upiPayment.amount, upiPayment.currency) : null;
+    const hasDifferentUpiAmount = Boolean(
+        upiPayment &&
+        (upiPayment.currency !== orderCurrency || upiPayment.amount !== order.amount)
+    );
 
     return (
         <div className="space-y-6 pb-20">
@@ -118,8 +147,11 @@ export default function OrderDetailPage({ initialOrder }: Props) {
                                 </div>
                                 <div className="flex justify-between items-center bg-gray-50 p-3 rounded-xl border border-gray-100">
                                     <div>
-                                        <p className="text-gray-500 text-[10px] uppercase font-bold tracking-wider">Amount</p>
-                                        <p className="text-blue-600 font-bold text-lg">₹{order.amount}</p>
+                                        <p className="text-gray-500 text-[10px] uppercase font-bold tracking-wider">Order Amount</p>
+                                        <p className="text-blue-600 font-bold text-lg">{orderAmount}</p>
+                                        {hasDifferentUpiAmount && (
+                                            <p className="text-gray-500 text-xs">UPI payable: {upiAmount}</p>
+                                        )}
                                     </div>
                                     <div className="text-right">
                                         <p className="text-gray-500 text-[10px] uppercase font-bold tracking-wider">Method</p>
@@ -181,8 +213,8 @@ export default function OrderDetailPage({ initialOrder }: Props) {
                                         {[
                                             { label: "UPI ID", value: upi.upiId },
                                             { label: "Payee", value: upi.payeeName },
-                                            { label: "Amount (INR)", value: `₹${upi.amount.toFixed(2)}` },
-                                            { label: "Original Amount", value: `${upi.originalCurrency} ${upi.originalAmount.toFixed(2)}` },
+                                            { label: `Amount (${upi.currency})`, value: formatCurrencyAmount(upi.amount, upi.currency) },
+                                            { label: "Original Amount", value: formatCurrencyAmount(upi.originalAmount, upi.originalCurrency) },
                                             { label: "Reference", value: upi.reference },
                                         ].map(({ label, value }) => (
                                             <div key={label} className="bg-gray-50 px-3 py-2.5 rounded-xl border border-gray-100 group">
@@ -269,11 +301,12 @@ export default function OrderDetailPage({ initialOrder }: Props) {
                         <div className="space-y-5">
                             {/* Order Status */}
                             <div>
-                                <label className="text-gray-500 text-[10px] uppercase font-bold tracking-wider block mb-2 px-1">Order Status</label>
+                                <label htmlFor="orderStatus" className="text-gray-500 text-[10px] uppercase font-bold tracking-wider block mb-2 px-1">Order Status</label>
                                 <select
+                                    id="orderStatus"
                                     className="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 text-gray-900 font-medium focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition"
                                     value={status}
-                                    onChange={(e) => setStatus(e.target.value as any)}
+                                    onChange={(e) => setStatus(e.target.value as Order["orderStatus"])}
                                 >
                                     <option value="pending">Pending</option>
                                     <option value="paid">Paid</option>
@@ -286,11 +319,12 @@ export default function OrderDetailPage({ initialOrder }: Props) {
 
                             {/* Payment Status */}
                             <div>
-                                <label className="text-gray-500 text-[10px] uppercase font-bold tracking-wider block mb-2 px-1">Payment Status</label>
+                                <label htmlFor="paymentStatus" className="text-gray-500 text-[10px] uppercase font-bold tracking-wider block mb-2 px-1">Payment Status</label>
                                 <select
+                                    id="paymentStatus"
                                     className="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 text-gray-900 font-medium focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition"
                                     value={paymentStatus}
-                                    onChange={(e) => setPaymentStatus(e.target.value as any)}
+                                    onChange={(e) => setPaymentStatus(e.target.value as Order["paymentStatus"])}
                                 >
                                     <option value="pending">Pending</option>
                                     <option value="paid">Paid</option>
@@ -301,8 +335,9 @@ export default function OrderDetailPage({ initialOrder }: Props) {
 
                             {/* Admin Note */}
                             <div>
-                                <label className="text-gray-500 text-[10px] uppercase font-bold tracking-wider block mb-2 px-1">Internal Note / Tracking Info</label>
+                                <label htmlFor="adminNote" className="text-gray-500 text-[10px] uppercase font-bold tracking-wider block mb-2 px-1">Internal Note / Tracking Info</label>
                                 <textarea
+                                    id="adminNote"
                                     className="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 text-gray-900 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition h-32 resize-none"
                                     placeholder="Add notes for the user or tracking ID..."
                                     value={adminNote}

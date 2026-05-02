@@ -16,6 +16,7 @@ import {
 import { IconType } from "react-icons";
 import { AdminOrderQueue, Order, PaymentStatus } from "@/services/orders/types";
 import DataTable, { Column } from "@/components/admin/shared/DataTable";
+import { formatCurrencyAmount } from "@/lib/utils/formatCurrencyAmount";
 
 interface Props {
     items: Order[];
@@ -76,6 +77,36 @@ export default function OrdersTable({ items, activeQueue, onQueueChange }: Props
         return new Date(submittedAt).toLocaleString();
     };
 
+    const formatOrderAmount = (row: Order) => {
+        const orderCurrency = row.currency || "USD";
+        const upi = row.paymentInfo?.paymentGatewayResponse?.upi;
+        const shouldShowUpiAmount = isUpiReview && upi;
+        const primaryAmount = shouldShowUpiAmount
+            ? formatCurrencyAmount(upi.amount, upi.currency)
+            : formatCurrencyAmount(row.amount, orderCurrency);
+        const secondaryAmount = shouldShowUpiAmount
+            ? formatCurrencyAmount(row.amount, orderCurrency)
+            : upi
+                ? formatCurrencyAmount(upi.amount, upi.currency)
+                : null;
+        const secondaryLabel = shouldShowUpiAmount ? "Order total" : "UPI payable";
+        const isDifferentAmount = Boolean(
+            secondaryAmount &&
+            (!upi || upi.currency !== orderCurrency || upi.amount !== row.amount)
+        );
+
+        return (
+            <div>
+                <div className="font-bold text-gray-900">{primaryAmount}</div>
+                {isDifferentAmount && (
+                    <div className="text-[11px] text-gray-500">
+                        {secondaryLabel}: {secondaryAmount}
+                    </div>
+                )}
+            </div>
+        );
+    };
+
     const columns: Column<Order>[] = [
         {
             id: "orderId",
@@ -109,9 +140,7 @@ export default function OrdersTable({ items, activeQueue, onQueueChange }: Props
         {
             id: "amount",
             header: "Amount",
-            cell: (row) => (
-                <span className="font-bold text-gray-900">₹{row.amount}</span>
-            ),
+            cell: formatOrderAmount,
         },
         ...(isUpiReview ? [
             {
