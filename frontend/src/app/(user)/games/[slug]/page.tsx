@@ -5,7 +5,6 @@ import { permanentRedirect } from "next/navigation";
 import { getGameUrl } from "@/lib/utils/getGameUrl";
 import type { Metadata } from "next";
 import { getCanonicalMetadata } from "@/lib/seo/canonical";
-import Script from "next/script";
 import { getGameJsonLd } from "@/lib/seo/gameJsonLd";
 
 type GameSlugPageProps = {
@@ -39,18 +38,19 @@ export default async function GameSlugRedirect({
     if (gameDetails.paymentCategory) {
         permanentRedirect(targetUrl);
     }
-    const gameJsonLd = getGameJsonLd(gameDetails, targetUrl);
-    
+    const gameJsonLd = JSON.stringify(getGameJsonLd(gameDetails, targetUrl)).replace(
+        /</g,
+        "\\u003c"
+    );
+
     // No paymentCategory — render directly to avoid redirect loop
     return (
         <>
-            <Script
+            <script
                 id={`game-jsonld-${gameDetails.slug}`}
                 type="application/ld+json"
-                strategy="beforeInteractive"
-            >
-                {JSON.stringify(gameJsonLd)}
-            </Script>
+                dangerouslySetInnerHTML={{ __html: gameJsonLd }}
+            />
             <GameDetailsPage
                 gameDetails={gameDetails}
                 checkoutTemplates={checkoutTemplates}
