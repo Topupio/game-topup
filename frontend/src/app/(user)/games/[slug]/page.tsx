@@ -6,6 +6,7 @@ import { getGameUrl } from "@/lib/utils/getGameUrl";
 import type { Metadata } from "next";
 import { getCanonicalMetadata } from "@/lib/seo/canonical";
 import { getGameJsonLd } from "@/lib/seo/gameJsonLd";
+import { getGameMetadata } from "@/lib/seo/gameMetadata";
 
 type GameSlugPageProps = {
     params: Promise<{ slug: string }>;
@@ -16,7 +17,17 @@ export async function generateMetadata({
 }: GameSlugPageProps): Promise<Metadata> {
     const { slug } = await params;
 
-    return getCanonicalMetadata(`/games/${slug}`);
+    try {
+        const gameDetailResponse = (await gamesApiServer.get(
+            slug
+        )) as unknown as GameDetailResponse;
+        const gameDetails = gameDetailResponse.data;
+        const pathname = gameDetails.paymentCategory ? getGameUrl(gameDetails) : `/games/${slug}`;
+
+        return getGameMetadata(gameDetails, pathname);
+    } catch {
+        return getCanonicalMetadata(`/games/${slug}`);
+    }
 }
 
 // Backward-compatible redirect: /games/<slug> → /<category>/<slug>

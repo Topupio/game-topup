@@ -6,6 +6,7 @@ import { getGameUrl } from "@/lib/utils/getGameUrl";
 import type { Metadata } from "next";
 import { getCanonicalMetadata } from "@/lib/seo/canonical";
 import { getGameJsonLd } from "@/lib/seo/gameJsonLd";
+import { getGameMetadata } from "@/lib/seo/gameMetadata";
 
 type CategoryGamePageProps = {
     params: Promise<{ category: string; slug: string }>;
@@ -16,7 +17,17 @@ export async function generateMetadata({
 }: CategoryGamePageProps): Promise<Metadata> {
     const { category, slug } = await params;
 
-    return getCanonicalMetadata(`/${category}/${slug}`);
+    try {
+        const gameDetailResponse = (await gamesApiServer.get(
+            slug
+        )) as unknown as GameDetailResponse;
+        const gameDetails = gameDetailResponse.data;
+        const correctUrl = getGameUrl(gameDetails);
+
+        return getGameMetadata(gameDetails, correctUrl);
+    } catch {
+        return getCanonicalMetadata(`/${category}/${slug}`);
+    }
 }
 
 export default async function CategoryGamePage({
