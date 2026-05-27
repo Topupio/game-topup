@@ -11,6 +11,26 @@ import { useGoogleLogin } from "@react-oauth/google";
 import { FcGoogle } from "react-icons/fc";
 import axios from "axios";
 
+function getSafeRedirectPath() {
+    const fallback = "/";
+
+    if (typeof window === "undefined") return fallback;
+
+    const redirect = new URLSearchParams(window.location.search).get("redirect");
+
+    if (
+        !redirect ||
+        !redirect.startsWith("/") ||
+        redirect.startsWith("//") ||
+        redirect.startsWith("/login") ||
+        redirect.startsWith("/admin")
+    ) {
+        return fallback;
+    }
+
+    return redirect;
+}
+
 function LoginContent() {
     const router = useRouter();
     const { login, googleLogin } = useAuth();
@@ -40,7 +60,7 @@ function LoginContent() {
             await login(email, password, recaptchaToken);
 
             toast.success("Logged in successfully");
-            router.push("/");
+            router.replace(getSafeRedirectPath());
         } catch (err: unknown) {
             let message = "Login failed";
             if (axios.isAxiosError(err)) {
@@ -63,7 +83,7 @@ function LoginContent() {
                 setGoogleLoading(true);
                 await googleLogin(tokenResponse.access_token);
                 toast.success("Logged in with Google");
-                router.push("/");
+                router.replace(getSafeRedirectPath());
             } catch (err: unknown) {
                 let message = "Google login failed";
                 if (axios.isAxiosError(err)) {

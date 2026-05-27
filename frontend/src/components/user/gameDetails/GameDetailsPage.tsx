@@ -200,7 +200,10 @@ export default function GameDetailsPage({
     const handleProceedToCheckout = async () => {
         if (!user) {
             toast.error("Please login to place an order");
-            router.push("/login");
+            const redirectPath = `${window.location.pathname}${window.location.search}`;
+            console.log(redirectPath, "Redirecting to login with path:");
+            
+            router.push(`/login?redirect=${encodeURIComponent(redirectPath)}`);
             return;
         }
 
@@ -238,9 +241,12 @@ export default function GameDetailsPage({
                 setIsSheetOpen(false);
                 setShowPayment(true);
             }
-        } catch (error: any) {
+        } catch (error: unknown) {
+            const apiError = error as {
+                response?: { data?: { message?: string } };
+            };
             toast.error(
-                error.response?.data?.message || "Failed to create order"
+                apiError.response?.data?.message || "Failed to create order"
             );
             console.error(error);
         } finally {
