@@ -7,6 +7,7 @@ import { RiCloseLine, RiAddLine, RiSubtractLine, RiArrowDownSLine } from "react-
 import { useCurrency } from "@/context/CurrencyContext";
 import PhoneInput from "./PhoneInput";
 import { getPayPalFeeBreakdown } from "@/lib/utils/paypalFees";
+import CheckoutTrustStrip from "./CheckoutTrustStrip";
 
 function capitalize(str: string) {
     if (!str) return "";
@@ -319,6 +320,7 @@ export default function MobileCheckoutSheet({
                             <>Confirm &amp; Pay &middot; {formatPrice(totalAmount, currency)}</>
                         )}
                     </button>
+                    <CheckoutTrustStrip />
                 </div>
             </div>
         </div>

@@ -1,6 +1,13 @@
 import { clientApi } from "@/lib/http/index";
 import { endpoints } from "@/config/api";
-import { CreateOrderPayload, OrderResponse, ListOrderResponse, OrderParams } from "./types";
+import {
+    AdminOrderUpdatePayload,
+    CreateOrderPayload,
+    OrderResponse,
+    ListOrderResponse,
+    OrderParams,
+    PublicRecentOrdersResponse,
+} from "./types";
 
 export const ordersApiClient = {
     async create(data: CreateOrderPayload): Promise<OrderResponse> {
@@ -18,12 +25,20 @@ export const ordersApiClient = {
         return data;
     },
 
+    async getRecentPublicOrders(limit = 5, signal?: AbortSignal): Promise<PublicRecentOrdersResponse> {
+        const { data } = await clientApi.get(endpoints.orders.recentPublic, {
+            params: { limit },
+            signal,
+        });
+        return data;
+    },
+
     async adminGetOrders(params?: OrderParams, signal?: AbortSignal): Promise<ListOrderResponse> {
         const { data } = await clientApi.get(endpoints.orders.adminAll, { params, signal });
         return data;
     },
 
-    async adminUpdateOrder(id: string, updateData: any): Promise<OrderResponse> {
+    async adminUpdateOrder(id: string, updateData: AdminOrderUpdatePayload): Promise<OrderResponse> {
         const { data } = await clientApi.patch(endpoints.orders.adminUpdate(id), updateData);
         return data;
     },

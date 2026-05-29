@@ -122,6 +122,18 @@ export interface ListOrderResponse {
     };
 }
 
+export interface PublicRecentOrder {
+    productName: string;
+    gameName: string | null;
+    orderStatus: Extract<OrderStatus, "paid" | "processing" | "completed">;
+    createdAt: string;
+}
+
+export interface PublicRecentOrdersResponse {
+    success: boolean;
+    data: PublicRecentOrder[];
+}
+
 // ===== Request & Query Types =====
 
 export interface OrderParams extends Record<string, unknown> {

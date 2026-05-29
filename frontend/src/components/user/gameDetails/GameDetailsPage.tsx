@@ -27,6 +27,7 @@ import DOMPurify from "isomorphic-dompurify";
 import PaymentModal from "./PaymentModal";
 import { usePlayerVerification } from "@/hooks/usePlayerVerification";
 import { RiErrorWarningLine, RiArrowDownSLine, RiQuestionLine } from "react-icons/ri";
+import RecentOrderToast from "./RecentOrderToast";
 
 function hasRichContent(html: string | undefined): boolean {
     if (!html) return false;
@@ -488,6 +489,8 @@ export default function GameDetailsPage({
                     onClose={() => setShowPayment(false)}
                 />
             )}
+
+            {!isGameUnavailable && <RecentOrderToast />}
         </div>
     );
 }

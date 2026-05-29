@@ -5,6 +5,7 @@ import {
     createOrder,
     getMyOrders,
     getOrderDetails,
+    getRecentPublicOrders,
     adminGetOrders,
     adminUpdateOrder
 } from "../controllers/order.controller.js";
@@ -14,10 +15,12 @@ const router = express.Router();
 // User routes
 router.post("/", protect, createOrder);
 router.get("/my-orders", protect, getMyOrders);
-router.get("/:id", protect, getOrderDetails);
+router.get("/recent-public", getRecentPublicOrders);
 
 // Admin routes
 router.get("/admin/all", protect, authorize("admin"), adminGetOrders);
 router.patch("/admin/:id", protect, authorize("admin"), adminUpdateOrder);
+
+router.get("/:id", protect, getOrderDetails);
 
 export default router;

@@ -256,6 +256,36 @@ export const getOrderDetails = async (req, res) => {
 };
 
 /**
+ * @desc    Get anonymized recent paid/completed orders for social proof
+ * @route   GET /api/orders/recent-public
+ * @access  Public
+ */
+export const getRecentPublicOrders = asyncHandler(async (req, res) => {
+    const limit = Math.min(8, Math.max(1, parseInt(req.query.limit) || 5));
+
+    const orders = await Order.find({
+        paymentStatus: "paid",
+        orderStatus: { $in: ["paid", "processing", "completed"] },
+        "productSnapshot.name": { $exists: true, $ne: "" },
+    })
+        .select("productSnapshot.name orderStatus createdAt")
+        .populate("game", "name")
+        .sort({ createdAt: -1 })
+        .limit(limit)
+        .lean();
+
+    res.status(200).json({
+        success: true,
+        data: orders.map((order) => ({
+            productName: order.productSnapshot?.name || "a digital product",
+            gameName: order.game?.name || null,
+            orderStatus: order.orderStatus,
+            createdAt: order.createdAt,
+        })),
+    });
+});
+
+/**
  * @desc    Get all orders (Admin only)
  * @route   GET /api/orders/admin/all
  * @access  Private/Admin

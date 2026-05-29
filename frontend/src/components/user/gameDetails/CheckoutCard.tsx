@@ -4,6 +4,7 @@ import { Variant, RegionPricing } from "@/lib/types/game";
 import { RiAddLine, RiSubtractLine } from "react-icons/ri";
 import { useCurrency } from "@/context/CurrencyContext";
 import { getPayPalFeeBreakdown } from "@/lib/utils/paypalFees";
+import CheckoutTrustStrip from "./CheckoutTrustStrip";
 
 interface Props {
     variant: Variant;
@@ -137,6 +138,8 @@ export default function CheckoutCard({
                         "Proceed to Checkout"
                     )}
                 </button>
+
+                <CheckoutTrustStrip />
             </div>
         </div>
     );

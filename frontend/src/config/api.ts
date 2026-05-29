@@ -81,6 +81,7 @@ export const endpoints = {
     orders: {
         base: "/api/orders",
         myOrders: "/api/orders/my-orders",
+        recentPublic: "/api/orders/recent-public",
         details: (id: Id) => `/api/orders/${id}`,
         adminAll: "/api/orders/admin/all",
         adminUpdate: (id: Id) => `/api/orders/admin/${id}`,
