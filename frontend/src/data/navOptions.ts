@@ -8,7 +8,7 @@ import {
     FaImage,
     FaNewspaper,
 } from "react-icons/fa";
-import { MdPayment, MdHistory } from "react-icons/md";
+import { MdPayment, MdHistory, MdRateReview } from "react-icons/md";
 import { TbMailSearch, TbTemplate } from "react-icons/tb";
 
 export type NavOption = {
@@ -76,6 +76,11 @@ export const adminNavOptions = [
         label: "Blogs",
         to: "/admin/blogs",
         icon: FaNewspaper, // 📰 blog icon
+    },
+    {
+        label: "Reviews",
+        to: "/admin/reviews",
+        icon: MdRateReview,
     },
     {
         label: "Payments",

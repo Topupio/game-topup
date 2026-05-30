@@ -78,10 +78,18 @@ export const endpoints = {
         byKey: (key: string) => `/api/checkout-templates/${key}`,
     },
 
+    reviews: {
+        game: (gameId: Id) => `/api/reviews/games/${gameId}`,
+        adminAll: "/api/reviews/admin/all",
+        adminDelete: (id: Id) => `/api/reviews/admin/${id}`,
+    },
+
     orders: {
         base: "/api/orders",
         myOrders: "/api/orders/my-orders",
+        recentReviewEligible: "/api/orders/review-eligible/recent",
         details: (id: Id) => `/api/orders/${id}`,
+        review: (id: Id) => `/api/orders/${id}/review`,
         adminAll: "/api/orders/admin/all",
         adminUpdate: (id: Id) => `/api/orders/admin/${id}`,
     },

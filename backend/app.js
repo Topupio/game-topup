@@ -20,6 +20,7 @@ import paymentRouter from './routes/payment.routes.js';
 import exchangeRateRouter from './routes/exchangeRate.routes.js';
 import checkoutTemplateRouter from './routes/checkoutTemplate.routes.js';
 import webhookRouter from './routes/webhook.routes.js';
+import reviewRouter from './routes/review.routes.js';
 
 // Create and configure the Express app
 const app = express();
@@ -109,6 +110,7 @@ app.use('/api/payments', paymentRouter);
 app.use('/api/exchange-rates', exchangeRateRouter);
 app.use('/api/checkout-templates', checkoutTemplateRouter);
 app.use('/api/webhooks', webhookRouter);
+app.use('/api/reviews', reviewRouter);
 
 // Root route
 app.get('/', (req, res) => {
