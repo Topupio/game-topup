@@ -263,90 +263,92 @@ export default function GameDetailsPage({
             <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-8 px-4">
                 {/* LEFT: Hero + Packages */}
                 <div className="lg:w-2/3 w-full space-y-3">
-                    {/* Unavailable Banner */}
-                    {isGameUnavailable && (
-                        <div className="bg-muted/60 border border-border rounded-xl px-4 py-3 flex items-center gap-3">
-                            <span className="shrink-0 bg-red-500/90 text-white text-xs font-bold px-2.5 py-1 rounded-md shadow uppercase tracking-wide">
-                                Sold Out
-                            </span>
-                            <p className="text-sm text-muted-foreground">This game is currently unavailable for purchase.</p>
-                        </div>
-                    )}
-
-                    {/* Hero Section */}
-                    <HeroHeader
-                        imageUrl={gameDetails.imageUrl || ""}
-                        title={gameDetails.name}
-                        subtitle={gameDetails.category}
-                    />
-
-                    {/* Mini Description */}
-                    {gameDetails.description && (
-                        <p className="text-sm text-muted-foreground mb-4 bg-muted/50 border border-border rounded-xl sm:px-4 sm:py-2.5 p-2 leading-relaxed">
-                            {gameDetails.description}
-                        </p>
-                    )}
-
-                    {/* Package Selection */}
-                    <div className="space-y-6">
-                        {/* Heading + Region selector */}
-                        <div className="flex items-center justify-between">
-                            <h2 className="text-xl font-bold text-foreground">
-                                {isGameUnavailable ? "Packages" : "Select a Package"}
-                            </h2>
-
-                            {hasMultipleRegions && (
-                                <select
-                                    value={activeRegion}
-                                    onChange={(e) =>
-                                        setActiveRegion(e.target.value)
-                                    }
-                                    className="px-3 py-1.5 bg-input border border-border rounded-lg text-sm text-foreground focus:outline-none focus:border-secondary"
-                                >
-                                    {gameDetails.regions.map((r) => {
-                                        const region = getRegionByKey(r);
-                                        return (
-                                            <option key={r} value={r}>
-                                                {region?.label || r} (
-                                                {region?.symbol || "$"})
-                                            </option>
-                                        );
-                                    })}
-                                </select>
-                            )}
-                        </div>
-
-                        {/* Variant grid */}
-                        <VariantGrid
-                            variants={gameDetails.variants}
-                            selectedVariant={selectedVariant}
-                            onSelect={(v) => {
-                                setSelectedVariant(v);
-                                setQty(1);
-                            }}
-                            activeRegion={activeRegion}
-                            gameImageUrl={gameDetails.imageUrl}
-                            disabled={isGameUnavailable}
-                        />
-
-                        {/* Rich Description */}
-                        {hasRichContent(gameDetails.richDescription) && (
-                            <div className="mt-8 rounded-2xl border border-border bg-card p-4 sm:p-6">
-                                <div
-                                    className="rich-description"
-                                    dangerouslySetInnerHTML={{
-                                        __html: DOMPurify.sanitize(
-                                            gameDetails.richDescription!
-                                        ),
-                                    }}
-                                />
+                    <div className="space-y-3">
+                        {/* Unavailable Banner */}
+                        {isGameUnavailable && (
+                            <div className="bg-muted/60 border border-border rounded-xl px-4 py-3 flex items-center gap-3">
+                                <span className="shrink-0 bg-red-500/90 text-white text-xs font-bold px-2.5 py-1 rounded-md shadow uppercase tracking-wide">
+                                    Sold Out
+                                </span>
+                                <p className="text-sm text-muted-foreground">This game is currently unavailable for purchase.</p>
                             </div>
                         )}
+
+                        {/* Hero Section */}
+                        <HeroHeader
+                            imageUrl={gameDetails.imageUrl || ""}
+                            title={gameDetails.name}
+                            subtitle={gameDetails.category}
+                        />
+
+                        {/* Mini Description */}
+                        {gameDetails.description && (
+                            <p className="text-sm text-muted-foreground mb-4 bg-muted/50 border border-border rounded-xl sm:px-4 sm:py-2.5 p-2 leading-relaxed">
+                                {gameDetails.description}
+                            </p>
+                        )}
+
+                        {/* Package Selection */}
+                        <div className="space-y-6">
+                            {/* Heading + Region selector */}
+                            <div className="flex items-center justify-between">
+                                <h2 className="text-xl font-bold text-foreground">
+                                    {isGameUnavailable ? "Packages" : "Select a Package"}
+                                </h2>
+
+                                {hasMultipleRegions && (
+                                    <select
+                                        value={activeRegion}
+                                        onChange={(e) =>
+                                            setActiveRegion(e.target.value)
+                                        }
+                                        className="px-3 py-1.5 bg-input border border-border rounded-lg text-sm text-foreground focus:outline-none focus:border-secondary"
+                                    >
+                                        {gameDetails.regions.map((r) => {
+                                            const region = getRegionByKey(r);
+                                            return (
+                                                <option key={r} value={r}>
+                                                    {region?.label || r} (
+                                                    {region?.symbol || "$"})
+                                                </option>
+                                            );
+                                        })}
+                                    </select>
+                                )}
+                            </div>
+
+                            {/* Variant grid */}
+                            <VariantGrid
+                                variants={gameDetails.variants}
+                                selectedVariant={selectedVariant}
+                                onSelect={(v) => {
+                                    setSelectedVariant(v);
+                                    setQty(1);
+                                }}
+                                activeRegion={activeRegion}
+                                gameImageUrl={gameDetails.imageUrl}
+                                disabled={isGameUnavailable}
+                            />
+                        </div>
                     </div>
+
+                    {/* Rich Description */}
+                    {hasRichContent(gameDetails.richDescription) && (
+                        <div className="mt-8 rounded-2xl border border-border bg-card p-4 sm:p-6">
+                            <div
+                                className="rich-description"
+                                dangerouslySetInnerHTML={{
+                                    __html: DOMPurify.sanitize(
+                                        gameDetails.richDescription!
+                                    ),
+                                }}
+                            />
+                        </div>
+                    )}
                 </div>
 
                 {/* RIGHT: Sidebar */}
-                <aside className="w-full lg:w-1/3 flex flex-col gap-6 lg:sticky lg:top-24 lg:self-start">
+                <aside className="w-full lg:w-1/3 flex flex-col gap-6">
                     {isGameUnavailable ? (
                         <div className="hidden lg:block bg-card border border-border rounded-2xl p-6 text-center space-y-3">
                             <div className="w-12 h-12 mx-auto rounded-full bg-red-500/10 flex items-center justify-center">
@@ -373,7 +375,7 @@ export default function GameDetailsPage({
                             )}
 
                             {selectedVariant && selectedPricing && (
-                                <div className="hidden lg:block">
+                                <div className="hidden lg:block lg:sticky lg:top-[calc(50vh-13rem)]">
                                     <CheckoutCard
                                         variant={selectedVariant}
                                         pricing={selectedPricing}
