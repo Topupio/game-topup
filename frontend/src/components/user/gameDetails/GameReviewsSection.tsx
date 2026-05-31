@@ -2,9 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { RiStarFill, RiStarLine, RiStarHalfFill } from "react-icons/ri";
-import { RiUserLine } from "react-icons/ri";
+import { RiUserLine, RiEditLine, RiLockLine } from "react-icons/ri";
+import { useAuth } from "@/context/AuthContext";
 import { reviewsApiClient } from "@/services/reviews/reviewsApi.client";
+import { ordersApiClient } from "@/services/orders/ordersApi.client";
 import { GameReviewItem, RatingDistribution } from "@/services/reviews/types";
+import { Order } from "@/services/orders/types";
+import ReviewModal from "../reviews/ReviewModal";
 
 const VISIBLE_REVIEW_COUNT = 5;
 
@@ -188,7 +192,76 @@ function SkeletonLoader() {
     );
 }
 
+/* ── Write Review Button + Inline Form ── */
+
+function WriteReviewBlock({
+    eligibleOrder,
+    isLoggedIn,
+    onSubmitted,
+}: {
+    eligibleOrder: Order | null;
+    isLoggedIn: boolean;
+    onSubmitted: () => void;
+}) {
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    const canReview = isLoggedIn && eligibleOrder !== null;
+
+    const disabledReason = !isLoggedIn
+        ? "Sign in to write a review"
+        : "Purchase this product to leave a review";
+
+    return (
+        <>
+            <div className="relative group inline-block">
+                <button
+                    onClick={() => canReview && setIsModalOpen(true)}
+                    disabled={!canReview}
+                    className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all cursor-pointer ${
+                        canReview
+                            ? "text-white hover:opacity-90 shadow-md hover:shadow-lg"
+                            : "bg-muted text-muted-foreground cursor-not-allowed opacity-70"
+                    }`}
+                    style={
+                        canReview
+                            ? {
+                                  background:
+                                      "linear-gradient(135deg, #6366F1, #8B5CF6)",
+                              }
+                            : undefined
+                    }
+                >
+                    {canReview ? (
+                        <RiEditLine className="w-4 h-4" />
+                    ) : (
+                        <RiLockLine className="w-4 h-4" />
+                    )}
+                    Write a review
+                </button>
+                {/* Tooltip for disabled state */}
+                {!canReview && (
+                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 rounded-lg bg-foreground text-background text-xs font-medium whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                        {disabledReason}
+                        <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-px border-4 border-transparent border-t-foreground" />
+                    </div>
+                )}
+            </div>
+
+            {canReview && eligibleOrder && (
+                <ReviewModal
+                    isOpen={isModalOpen}
+                    onClose={() => setIsModalOpen(false)}
+                    order={eligibleOrder}
+                    onSuccess={onSubmitted}
+                    autoSkipPrompt={true}
+                />
+            )}
+        </>
+    );
+}
+
 export default function GameReviewsSection({ gameId }: Props) {
+    const { user, loading: authLoading } = useAuth();
     const [reviews, setReviews] = useState<GameReviewItem[]>([]);
     const [averageRating, setAverageRating] = useState(0);
     const [totalReviews, setTotalReviews] = useState(0);
@@ -197,6 +270,11 @@ export default function GameReviewsSection({ gameId }: Props) {
     const [loading, setLoading] = useState(true);
     const [showAll, setShowAll] = useState(false);
 
+    // Review eligibility state
+    const [eligibleOrder, setEligibleOrder] = useState<Order | null>(null);
+    const [eligibilityChecked, setEligibilityChecked] = useState(false);
+
+    // Fetch reviews
     useEffect(() => {
         const controller = new AbortController();
 
@@ -224,17 +302,72 @@ export default function GameReviewsSection({ gameId }: Props) {
         return () => controller.abort();
     }, [gameId]);
 
+    // Check review eligibility (only when user is logged in)
+    useEffect(() => {
+        if (authLoading) return;
+        if (!user) {
+            setEligibilityChecked(true);
+            return;
+        }
+
+        const controller = new AbortController();
+
+        ordersApiClient
+            .getGameReviewEligibleOrder(gameId, controller.signal)
+            .then((res) => {
+                if (res.data?.order) {
+                    setEligibleOrder(res.data.order);
+                }
+            })
+            .catch(() => {
+                // Silently fail — the review button will just be disabled
+            })
+            .finally(() => {
+                if (!controller.signal.aborted) {
+                    setEligibilityChecked(true);
+                }
+            });
+
+        return () => controller.abort();
+    }, [gameId, authLoading, user]);
+
     const visibleReviews = showAll
         ? reviews
         : reviews.slice(0, VISIBLE_REVIEW_COUNT);
     const hasMore = reviews.length > VISIBLE_REVIEW_COUNT && !showAll;
 
+    // Re-fetch reviews after a new review is submitted
+    const handleReviewSubmitted = () => {
+        setEligibleOrder(null);
+        reviewsApiClient
+            .getGameReviews(gameId)
+            .then((res) => {
+                setReviews(res.data.reviews);
+                setAverageRating(res.data.summary.averageRating);
+                setTotalReviews(res.data.summary.totalReviews);
+                if (res.data.summary.ratingDistribution) {
+                    setRatingDistribution(res.data.summary.ratingDistribution);
+                }
+            })
+            .catch(() => {});
+    };
+
     return (
         <div className="mt-8 rounded-2xl border border-border bg-card p-5 sm:p-8">
-                {/* Section Title */}
-                <h2 className="text-lg sm:text-xl font-bold text-foreground mb-6">
-                    User Reviews
-                </h2>
+                {/* Section Header */}
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+                    <h2 className="text-lg sm:text-xl font-bold text-foreground">
+                        User Reviews
+                    </h2>
+                    {/* Write Review button (shown after eligibility is resolved) */}
+                    {eligibilityChecked && (
+                        <WriteReviewBlock
+                            eligibleOrder={eligibleOrder}
+                            isLoggedIn={!!user}
+                            onSubmitted={handleReviewSubmitted}
+                        />
+                    )}
+                </div>
 
                 {loading ? (
                     <SkeletonLoader />

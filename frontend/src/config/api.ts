@@ -88,6 +88,7 @@ export const endpoints = {
         base: "/api/orders",
         myOrders: "/api/orders/my-orders",
         recentReviewEligible: "/api/orders/review-eligible/recent",
+        gameReviewEligible: (gameId: Id) => `/api/orders/review-eligible/game/${gameId}`,
         details: (id: Id) => `/api/orders/${id}`,
         review: (id: Id) => `/api/orders/${id}/review`,
         adminAll: "/api/orders/admin/all",

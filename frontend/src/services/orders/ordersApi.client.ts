@@ -32,6 +32,11 @@ export const ordersApiClient = {
         return data;
     },
 
+    async getGameReviewEligibleOrder(gameId: string, signal?: AbortSignal): Promise<ReviewEligibleOrderResponse> {
+        const { data } = await clientApi.get(endpoints.orders.gameReviewEligible(gameId), { signal });
+        return data;
+    },
+
     async submitOrderReview(id: string, payload: SubmitOrderReviewPayload): Promise<GameReviewResponse> {
         const { data } = await clientApi.post(endpoints.orders.review(id), payload);
         return data;
