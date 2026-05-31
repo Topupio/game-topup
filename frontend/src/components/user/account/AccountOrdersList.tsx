@@ -7,6 +7,7 @@ import { Order, OrderParams, OrderStatus } from "@/services/orders/types";
 import { RiTimeLine, RiInformationLine } from "react-icons/ri";
 import OrderStatusTabs from "./OrderStatusTabs";
 import AccountPagination from "./AccountPagination";
+import { useCurrency } from "@/context/CurrencyContext";
 
 interface PaginationState {
     total: number;
@@ -16,6 +17,7 @@ interface PaginationState {
 }
 
 export default function AccountOrdersList() {
+    const { formatPrice } = useCurrency();
     const [activeStatus, setActiveStatus] = useState("all");
     const [page, setPage] = useState(1);
     const [orders, setOrders] = useState<Order[]>([]);
@@ -163,11 +165,11 @@ export default function AccountOrdersList() {
                                             {order.productSnapshot.name}
                                         </h3>
                                         <p className="text-xs sm:text-sm text-gray-500 mt-0.5">
-                                            ${order.productSnapshot.discountedPrice ?? order.productSnapshot.price} x 1
+                                            {formatPrice(order.productSnapshot.discountedPrice ?? order.productSnapshot.price, order.currency || "USD")} x 1
                                         </p>
                                     </div>
                                     <div className="text-right shrink-0">
-                                        <p className="text-base sm:text-lg font-bold text-gray-900">${order.amount}</p>
+                                        <p className="text-base sm:text-lg font-bold text-gray-900">{formatPrice(order.amount, order.currency || "USD")}</p>
                                         <div className="hidden sm:flex items-center gap-1 text-xs text-gray-400 mt-1">
                                             <RiTimeLine />
                                             <span>{order.productSnapshot.deliveryTime}</span>

@@ -17,12 +17,14 @@ import {
 import NowPaymentsCheckout from "@/components/user/gameDetails/NowPaymentsCheckout";
 import UpiQrCheckout from "@/components/user/gameDetails/UpiQrCheckout";
 import { getCurrencySymbol } from "@/lib/constants/currencies";
+import { useCurrency } from "@/context/CurrencyContext";
 
 interface Props {
     order: Order;
 }
 
 export default function UserOrderDetailClient({ order: initialOrder }: Props) {
+    const { formatPrice } = useCurrency();
     const [order] = useState(initialOrder);
     const [paymentMethod, setPaymentMethod] = useState<"upi" | "crypto">(() => {
         if (initialOrder.paymentMethod === "upi") return "upi";
@@ -72,7 +74,7 @@ export default function UserOrderDetailClient({ order: initialOrder }: Props) {
                                             {order.productSnapshot?.name ?? "Product"}
                                         </h2>
                                         <span className="text-xl sm:text-2xl font-bold text-foreground">
-                                            {getCurrencySymbol(order.currency || "USD")}{order.amount.toFixed(2)}
+                                            {formatPrice(order.amount, order.currency || "USD")}
                                         </span>
                                     </div>
                                 </div>
