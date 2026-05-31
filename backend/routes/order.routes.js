@@ -5,6 +5,9 @@ import {
     createOrder,
     getMyOrders,
     getOrderDetails,
+    getRecentReviewEligibleOrder,
+    getGameReviewEligibleOrder,
+    submitOrderReview,
     getRecentPublicOrders,
     adminGetOrders,
     adminUpdateOrder
@@ -15,6 +18,9 @@ const router = express.Router();
 // User routes
 router.post("/", protect, createOrder);
 router.get("/my-orders", protect, getMyOrders);
+router.get("/review-eligible/recent", protect, getRecentReviewEligibleOrder);
+router.get("/review-eligible/game/:gameId", protect, getGameReviewEligibleOrder);
+router.post("/:id/review", protect, submitOrderReview);
 router.get("/recent-public", getRecentPublicOrders);
 
 // Admin routes

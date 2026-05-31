@@ -1,5 +1,6 @@
 import { gamesApiServer } from "@/services/games/gamesApi.server";
 import GameDetailsPage from "@/components/user/gameDetails/GameDetailsPage";
+
 import { GameDetailResponse } from "@/lib/types/game";
 import { permanentRedirect } from "next/navigation";
 import { getGameUrl } from "@/lib/utils/getGameUrl";

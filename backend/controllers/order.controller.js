@@ -1,6 +1,7 @@
 import Order from "../models/order.model.js";
 import Product from "../models/product.model.js";
 import Game from "../models/game.model.js";
+import GameReview from "../models/gameReview.model.js";
 import { asyncHandler } from "../middlewares/asyncHandler.js";
 import mongoose from "mongoose";
 import { logAdminActivity } from "../utils/adminLogger.js";
@@ -254,6 +255,163 @@ export const getOrderDetails = async (req, res) => {
         res.status(500).json({ success: false, message: "Internal server error" });
     }
 };
+
+/**
+ * @desc    Get latest paid + completed order that current user can review
+ * @route   GET /api/orders/review-eligible/recent
+ * @access  Private
+ */
+export const getRecentReviewEligibleOrder = asyncHandler(async (req, res) => {
+    if (!req.user || !req.user.id) {
+        return res.status(401).json({ success: false, message: "Unauthorized" });
+    }
+
+    const candidateOrders = await Order.find({
+        user: req.user.id,
+        paymentStatus: "paid",
+        orderStatus: "completed",
+    })
+        .populate("game", "name imageUrl")
+        .sort({ updatedAt: -1, createdAt: -1 })
+        .limit(10)
+        .lean();
+
+    if (candidateOrders.length === 0) {
+        return res.status(200).json({ success: true, data: null });
+    }
+
+    const reviewedOrders = await GameReview.find({
+        order: { $in: candidateOrders.map((order) => order._id) },
+    }).distinct("order");
+
+    const reviewedOrderIds = new Set(reviewedOrders.map((id) => id.toString()));
+    const order = candidateOrders.find((candidate) => !reviewedOrderIds.has(candidate._id.toString()));
+
+    if (!order) {
+        return res.status(200).json({ success: true, data: null });
+    }
+
+    res.status(200).json({
+        success: true,
+        data: { order },
+    });
+});
+
+/**
+ * @desc    Check if the current user has a review-eligible order for a specific game
+ * @route   GET /api/orders/review-eligible/game/:gameId
+ * @access  Private
+ */
+export const getGameReviewEligibleOrder = asyncHandler(async (req, res) => {
+    if (!req.user || !req.user.id) {
+        return res.status(401).json({ success: false, message: "Unauthorized" });
+    }
+
+    const { gameId } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(gameId)) {
+        return res.status(400).json({ success: false, message: "Invalid game id" });
+    }
+
+    const candidateOrders = await Order.find({
+        user: req.user.id,
+        game: gameId,
+        paymentStatus: "paid",
+        orderStatus: "completed",
+    })
+        .populate("game", "name imageUrl")
+        .sort({ updatedAt: -1, createdAt: -1 })
+        .limit(5)
+        .lean();
+
+    if (candidateOrders.length === 0) {
+        return res.status(200).json({ success: true, data: null });
+    }
+
+    const reviewedOrders = await GameReview.find({
+        order: { $in: candidateOrders.map((o) => o._id) },
+    }).distinct("order");
+
+    const reviewedOrderIds = new Set(reviewedOrders.map((id) => id.toString()));
+    const order = candidateOrders.find((c) => !reviewedOrderIds.has(c._id.toString()));
+
+    if (!order) {
+        return res.status(200).json({ success: true, data: null });
+    }
+
+    res.status(200).json({
+        success: true,
+        data: { order },
+    });
+});
+
+/**
+ * @desc    Submit a game review for a paid + completed order
+ * @route   POST /api/orders/:id/review
+ * @access  Private
+ */
+export const submitOrderReview = asyncHandler(async (req, res) => {
+    if (!req.user || !req.user.id) {
+        return res.status(401).json({ success: false, message: "Unauthorized" });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+        return res.status(400).json({ success: false, message: "Invalid order id" });
+    }
+
+    const rating = Number(req.body.rating);
+    const comment = typeof req.body.comment === "string" ? req.body.comment.trim() : "";
+
+    if (!Number.isFinite(rating) || rating < 1 || rating > 5) {
+        return res.status(400).json({ success: false, message: "Rating must be between 1 and 5" });
+    }
+
+    if (comment.length > 1000) {
+        return res.status(400).json({ success: false, message: "Review comment cannot exceed 1000 characters" });
+    }
+
+    const order = await Order.findOne({
+        _id: req.params.id,
+        user: req.user.id,
+    });
+
+    if (!order) {
+        return res.status(404).json({ success: false, message: "Order not found" });
+    }
+
+    if (order.paymentStatus !== "paid" || order.orderStatus !== "completed") {
+        return res.status(403).json({
+            success: false,
+            message: "This order is not ready for review yet",
+        });
+    }
+
+    const existingReview = await GameReview.findOne({ order: order._id });
+    if (existingReview) {
+        return res.status(409).json({ success: false, message: "This order has already been reviewed" });
+    }
+
+    try {
+        const review = await GameReview.create({
+            user: req.user.id,
+            game: order.game,
+            order: order._id,
+            rating,
+            comment,
+        });
+
+        res.status(201).json({
+            success: true,
+            data: review,
+            message: "Review submitted successfully",
+        });
+    } catch (error) {
+        if (error.code === 11000) {
+            return res.status(409).json({ success: false, message: "This order has already been reviewed" });
+        }
+        throw error;
+    }
+});
 
 /**
  * @desc    Get anonymized recent paid/completed orders for social proof

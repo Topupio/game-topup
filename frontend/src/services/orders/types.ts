@@ -109,6 +109,31 @@ export interface OrderResponse {
     message?: string;
 }
 
+export interface GameReview {
+    _id: string;
+    user: string;
+    game: string;
+    order: string;
+    rating: number;
+    comment: string;
+    createdAt: string;
+    updatedAt: string;
+}
+
+export interface ReviewEligibleOrderResponse {
+    success: boolean;
+    data: {
+        order: Order;
+    } | null;
+    message?: string;
+}
+
+export interface GameReviewResponse {
+    success: boolean;
+    data: GameReview;
+    message?: string;
+}
+
 export interface ListOrderResponse {
     success: boolean;
     data: {
@@ -162,4 +187,9 @@ export interface CreateOrderPayload {
     userInputs: { label: string; value: string | number }[];
     currency?: string;
     displayCurrency?: string;
+}
+
+export interface SubmitOrderReviewPayload {
+    rating: number;
+    comment?: string;
 }

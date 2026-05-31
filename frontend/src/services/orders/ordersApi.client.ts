@@ -3,11 +3,14 @@ import { endpoints } from "@/config/api";
 import {
     AdminOrderUpdatePayload,
     CreateOrderPayload,
-    OrderResponse,
+    GameReviewResponse,
     ListOrderResponse,
     OrderParams,
-    PublicRecentOrdersResponse,
+    OrderResponse,
+    ReviewEligibleOrderResponse,
+    SubmitOrderReviewPayload,
 } from "./types";
+
 
 export const ordersApiClient = {
     async create(data: CreateOrderPayload): Promise<OrderResponse> {
@@ -22,6 +25,21 @@ export const ordersApiClient = {
 
     async getOrderDetails(id: string, signal?: AbortSignal): Promise<OrderResponse> {
         const { data } = await clientApi.get(endpoints.orders.details(id), { signal });
+        return data;
+    },
+
+    async getRecentReviewEligibleOrder(signal?: AbortSignal): Promise<ReviewEligibleOrderResponse> {
+        const { data } = await clientApi.get(endpoints.orders.recentReviewEligible, { signal });
+        return data;
+    },
+
+    async getGameReviewEligibleOrder(gameId: string, signal?: AbortSignal): Promise<ReviewEligibleOrderResponse> {
+        const { data } = await clientApi.get(endpoints.orders.gameReviewEligible(gameId), { signal });
+        return data;
+    },
+
+    async submitOrderReview(id: string, payload: SubmitOrderReviewPayload): Promise<GameReviewResponse> {
+        const { data } = await clientApi.post(endpoints.orders.review(id), payload);
         return data;
     },
 
