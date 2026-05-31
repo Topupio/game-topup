@@ -9,6 +9,7 @@ import {
     OrderResponse,
     ReviewEligibleOrderResponse,
     SubmitOrderReviewPayload,
+    PublicRecentOrdersResponse,
 } from "./types";
 
 
