@@ -51,6 +51,7 @@ export interface AdminReviewsResponse {
     success: boolean;
     data: {
         reviews: GameReviewItem[];
+        reviewedGames?: { _id: string; name: string }[];
         pagination: {
             total: number;
             page: number;
@@ -64,4 +65,7 @@ export interface ReviewParams extends Record<string, unknown> {
     page?: number;
     limit?: number;
     search?: string;
+    game?: string;
+    rating?: number | string;
+    sort?: string;
 }

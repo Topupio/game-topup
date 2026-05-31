@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import GameReview from "../models/gameReview.model.js";
+import Game from "../models/game.model.js";
 import { asyncHandler } from "../middlewares/asyncHandler.js";
 import { logAdminActivity } from "../utils/adminLogger.js";
 
@@ -77,29 +78,59 @@ export const getGameReviews = asyncHandler(async (req, res) => {
 
 export const adminGetReviews = asyncHandler(async (req, res) => {
     const { page, limit, skip } = getPagination(req.query);
-    const { search = "" } = req.query;
+    const { search = "", game = "", rating = "", sort = "newest" } = req.query;
 
     const query = {};
+    
+    // Search filter
     if (search && search.length <= 80) {
         query.comment = { $regex: search, $options: "i" };
     }
 
-    const [reviews, total] = await Promise.all([
+    // Game filter
+    if (game && mongoose.Types.ObjectId.isValid(game)) {
+        query.game = new mongoose.Types.ObjectId(game);
+    }
+
+    // Rating filter
+    if (rating) {
+        const ratingNum = Number(rating);
+        if (ratingNum >= 1 && ratingNum <= 5) {
+            query.rating = ratingNum;
+        }
+    }
+
+    // Sort definition
+    let sortObj = { createdAt: -1 };
+    if (sort === "oldest") {
+        sortObj = { createdAt: 1 };
+    } else if (sort === "highest_rating") {
+        sortObj = { rating: -1, createdAt: -1 };
+    } else if (sort === "lowest_rating") {
+        sortObj = { rating: 1, createdAt: -1 };
+    }
+
+    // Get reviewed games and standard reviews
+    const [reviews, total, reviewedGameIds] = await Promise.all([
         GameReview.find(query)
             .populate("user", "name email")
             .populate("game", "name imageUrl")
             .populate("order", "orderId productSnapshot paymentStatus orderStatus")
-            .sort({ createdAt: -1 })
+            .sort(sortObj)
             .skip(skip)
             .limit(limit)
             .lean(),
         GameReview.countDocuments(query),
+        GameReview.distinct("game")
     ]);
+
+    const reviewedGames = await Game.find({ _id: { $in: reviewedGameIds } }, "name").sort({ name: 1 }).lean();
 
     res.status(200).json({
         success: true,
         data: {
             reviews,
+            reviewedGames,
             pagination: {
                 total,
                 page,
