@@ -20,14 +20,16 @@ export const getGameReviews = asyncHandler(async (req, res) => {
 
     const limit = Math.min(20, Math.max(1, parseInt(req.query.limit) || 6));
 
-    const [reviews, summary] = await Promise.all([
+    const gameObjectId = new mongoose.Types.ObjectId(gameId);
+
+    const [reviews, summary, distribution] = await Promise.all([
         GameReview.find({ game: gameId })
             .populate("user", "name")
             .sort({ createdAt: -1 })
             .limit(limit)
             .lean(),
         GameReview.aggregate([
-            { $match: { game: new mongoose.Types.ObjectId(gameId) } },
+            { $match: { game: gameObjectId } },
             {
                 $group: {
                     _id: "$game",
@@ -36,7 +38,23 @@ export const getGameReviews = asyncHandler(async (req, res) => {
                 },
             },
         ]),
+        GameReview.aggregate([
+            { $match: { game: gameObjectId } },
+            {
+                $group: {
+                    _id: "$rating",
+                    count: { $sum: 1 },
+                },
+            },
+            { $sort: { _id: -1 } },
+        ]),
     ]);
+
+    // Build a { 5: N, 4: N, 3: N, 2: N, 1: N } map
+    const ratingDistribution = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
+    for (const d of distribution) {
+        ratingDistribution[d._id] = d.count;
+    }
 
     res.status(200).json({
         success: true,
@@ -46,10 +64,12 @@ export const getGameReviews = asyncHandler(async (req, res) => {
                 ? {
                     averageRating: Number(summary[0].averageRating.toFixed(1)),
                     totalReviews: summary[0].totalReviews,
+                    ratingDistribution,
                 }
                 : {
                     averageRating: 0,
                     totalReviews: 0,
+                    ratingDistribution,
                 },
         },
     });

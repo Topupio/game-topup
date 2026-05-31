@@ -1,6 +1,6 @@
 import { gamesApiServer } from "@/services/games/gamesApi.server";
 import GameDetailsPage from "@/components/user/gameDetails/GameDetailsPage";
-import GameReviewsSection from "@/components/user/gameDetails/GameReviewsSection";
+
 import { GameDetailResponse } from "@/lib/types/game";
 import { notFound, permanentRedirect } from "next/navigation";
 import { getGameUrl } from "@/lib/utils/getGameUrl";
@@ -72,7 +72,6 @@ export default async function CategoryGamePage({
                 gameDetails={gameDetails}
                 checkoutTemplates={checkoutTemplates}
             />
-            <GameReviewsSection gameId={gameDetails._id} />
         </>
     );
 }

@@ -27,6 +27,7 @@ import DOMPurify from "isomorphic-dompurify";
 import PaymentModal from "./PaymentModal";
 import { usePlayerVerification } from "@/hooks/usePlayerVerification";
 import { RiErrorWarningLine, RiArrowDownSLine, RiQuestionLine } from "react-icons/ri";
+import GameReviewsSection from "./GameReviewsSection";
 
 function hasRichContent(html: string | undefined): boolean {
     if (!html) return false;
@@ -331,6 +332,9 @@ export default function GameDetailsPage({
                             />
                         </div>
                     </div>
+
+                    {/* Reviews Section */}
+                    <GameReviewsSection gameId={gameDetails._id} />
 
                     {/* Rich Description */}
                     {hasRichContent(gameDetails.richDescription) && (

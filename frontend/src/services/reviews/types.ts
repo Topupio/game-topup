@@ -27,6 +27,14 @@ export interface GameReviewItem {
     updatedAt: string;
 }
 
+export interface RatingDistribution {
+    5: number;
+    4: number;
+    3: number;
+    2: number;
+    1: number;
+}
+
 export interface GameReviewsResponse {
     success: boolean;
     data: {
@@ -34,6 +42,7 @@ export interface GameReviewsResponse {
         summary: {
             averageRating: number;
             totalReviews: number;
+            ratingDistribution: RatingDistribution;
         };
     };
 }
