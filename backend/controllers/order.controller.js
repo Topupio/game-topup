@@ -257,7 +257,7 @@ export const getMyAdminMessages = async (req, res) => {
             .populate("game", "name")
             .sort({ adminNoteUpdatedAt: -1, updatedAt: -1 })
             .limit(limit)
-            .select("orderId adminNote adminNoteUpdatedAt adminNoteReadAt productSnapshot game updatedAt")
+            .select("orderId adminNote adminNoteUpdatedAt adminNoteReadAt adminNoteClearedAt productSnapshot game updatedAt")
             .lean();
 
         const messages = orders
