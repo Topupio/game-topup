@@ -1,13 +1,15 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { useCurrency } from "@/context/CurrencyContext";
 import { CURRENCIES } from "@/lib/constants/currencies";
+import { ordersApiClient } from "@/services/orders/ordersApi.client";
+import { AdminOrderMessage } from "@/services/orders/types";
 import logo from "@/assets/logo/logo.png";
 import SearchBoxDesktop from "./SearchBoxDesktop";
 
@@ -24,21 +26,95 @@ import {
     RiTwitterXFill,
     RiInstagramLine,
     RiFacebookFill,
-    RiArrowRightSLine
+    RiArrowRightSLine,
+    RiNotification3Line,
+    RiCheckboxCircleLine
 } from "react-icons/ri";
 import { motion, AnimatePresence } from "framer-motion";
 import Drawer from "./Drawer";
 
 export default function Navbar() {
+    const router = useRouter();
     const [open, setOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
+    const [adminMessageState, setAdminMessageState] = useState<{
+        userId: string;
+        messages: AdminOrderMessage[];
+    }>({ userId: "", messages: [] });
     const { user } = useAuth();
+    const adminMessages = adminMessageState.userId === user?.id ? adminMessageState.messages : [];
 
     useEffect(() => {
         const handleScroll = () => setScrolled(window.scrollY > 10);
         window.addEventListener("scroll", handleScroll, { passive: true });
         return () => window.removeEventListener("scroll", handleScroll);
     }, []);
+
+    useEffect(() => {
+        if (!user) return;
+
+        const controller = new AbortController();
+
+        const loadMessages = () => {
+            ordersApiClient
+                .getMyAdminMessages(5, controller.signal)
+                .then((res) => {
+                    setAdminMessageState({ userId: user.id, messages: res.data });
+                })
+                .catch(() => {
+                    // Admin messages are helpful, but the navbar should not fail if polling fails.
+                });
+        };
+
+        loadMessages();
+        const intervalId = window.setInterval(loadMessages, ADMIN_MESSAGE_POLL_INTERVAL);
+
+        return () => {
+            controller.abort();
+            window.clearInterval(intervalId);
+        };
+    }, [user]);
+
+    const handleAdminMessageClick = async (message: AdminOrderMessage) => {
+        if (!user) return;
+
+        const readAt = new Date().toISOString();
+        setAdminMessageState((current) => ({
+            userId: user.id,
+            messages: current.messages.map((item) =>
+                item._id === message._id
+                    ? { ...item, isRead: true, adminNoteReadAt: readAt }
+                    : item
+            ),
+        }));
+
+        try {
+            const res = await ordersApiClient.markAdminMessageRead(message._id);
+            setAdminMessageState((current) => ({
+                userId: user.id,
+                messages: current.messages.map((item) =>
+                    item._id === message._id ? res.data : item
+                ),
+            }));
+        } catch {
+            // Navigation still helps the user see the message; the next poll can retry state.
+        } finally {
+            router.push(`/orders/${message._id}#admin-message`);
+        }
+    };
+
+    const handleClearAdminMessages = async () => {
+        if (!user) return;
+
+        const previousMessages = adminMessages;
+        setAdminMessageState({ userId: user.id, messages: [] });
+
+        try {
+            await ordersApiClient.clearAdminMessages();
+        } catch {
+            setAdminMessageState({ userId: user.id, messages: previousMessages });
+        }
+    };
 
     return (
         <nav
@@ -68,6 +144,13 @@ export default function Navbar() {
                 <div className="flex items-center gap-3">
                     <SearchBoxDesktop />
                     <LangCurrencySelector />
+                    {user && (
+                        <AdminMessageBell
+                            messages={adminMessages}
+                            onNotificationClick={handleAdminMessageClick}
+                            onClearNotifications={handleClearAdminMessages}
+                        />
+                    )}
 
                     {user ? (
                         <Link
@@ -89,7 +172,7 @@ export default function Navbar() {
             </div>
 
             {/* MOBILE TOP BAR */}
-            <div className="lg:hidden h-14 px-4 flex items-center justify-between">
+            <div className="lg:hidden h-14 px-.5 flex items-center justify-between">
 
                 {/* LEFT: Menu + Search */}
                 <div className="flex items-center gap-3 text-white">
@@ -112,6 +195,14 @@ export default function Navbar() {
 
                 {/* RIGHT: Language & Account */}
                 <div className="flex items-center gap-2 text-white">
+                    {user && (
+                        <AdminMessageBell
+                            messages={adminMessages}
+                            onNotificationClick={handleAdminMessageClick}
+                            onClearNotifications={handleClearAdminMessages}
+                            compact
+                        />
+                    )}
                     <LangCurrencySelector hideLabelOnMobile />
 
                     <Link
@@ -202,6 +293,172 @@ export default function Navbar() {
     );
 }
 
+const ADMIN_MESSAGE_POLL_INTERVAL = 1 * 60 * 1000;
+
+function AdminMessageBell({
+    messages,
+    compact = false,
+    onNotificationClick,
+    onClearNotifications,
+}: {
+    messages: AdminOrderMessage[];
+    compact?: boolean;
+    onNotificationClick: (message: AdminOrderMessage) => void;
+    onClearNotifications: () => void;
+}) {
+    const [open, setOpen] = useState(false);
+    const wrapperRef = useRef<HTMLDivElement | null>(null);
+
+    useEffect(() => {
+        if (!open) return;
+
+        const handlePointerDown = (event: PointerEvent) => {
+            if (!wrapperRef.current?.contains(event.target as Node)) {
+                setOpen(false);
+            }
+        };
+
+        window.addEventListener("pointerdown", handlePointerDown);
+        return () => window.removeEventListener("pointerdown", handlePointerDown);
+    }, [open]);
+
+    const unreadCount = messages.filter((message) => !message.isRead).length;
+    const countLabel = unreadCount > 9 ? "9+" : String(unreadCount);
+
+    const handleItemClick = (message: AdminOrderMessage) => {
+        setOpen(false);
+        onNotificationClick(message);
+    };
+
+    return (
+        <div ref={wrapperRef} className="relative">
+            <button
+                type="button"
+                onClick={() => setOpen((current) => !current)}
+                aria-label="View admin message notifications"
+                aria-expanded={open}
+                className={`relative inline-flex items-center justify-center rounded-lg border border-slate-700 text-slate-300 transition hover:border-secondary/50 hover:bg-slate-800/50 hover:text-white ${
+                    compact ? "h-9 w-9" : "h-10 w-10"
+                }`}
+            >
+                <RiNotification3Line size={compact ? 20 : 18} className="text-secondary" />
+                {unreadCount > 0 && (
+                    <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-danger px-1 text-[10px] font-bold leading-none text-white ring-2 ring-slate-900">
+                        {countLabel}
+                    </span>
+                )}
+            </button>
+
+            <AnimatePresence>
+                {open && (
+                    <motion.div
+                        initial={{ opacity: 0, y: -6, scale: 0.98 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: -6, scale: 0.98 }}
+                        transition={{ duration: 0.16 }}
+                        className={`z-[70] overflow-hidden rounded-2xl border border-border bg-white shadow-[0_18px_50px_rgba(15,23,42,0.16)] ${
+                            compact
+                                ? "fixed right-2 top-16 w-[calc(100vw-1rem)] max-w-sm"
+                                : "absolute right-0 top-full mt-3 w-96 max-w-[calc(100vw-2rem)]"
+                        }`}
+                    >
+                        <div className="flex items-center justify-between border-b border-border bg-muted/70 px-4 py-3">
+                            <div>
+                                <p className="text-sm font-bold text-foreground">Notifications</p>
+                                <p className="text-xs text-muted-foreground">
+                                    {messages.length === 0
+                                        ? "No admin messages"
+                                        : unreadCount > 0
+                                            ? `${unreadCount} unread admin message${unreadCount === 1 ? "" : "s"}`
+                                            : "All admin messages read"}
+                                </p>
+                            </div>
+                            <RiNotification3Line className="text-secondary" size={20} />
+                        </div>
+
+                        <div className="max-h-[22rem] overflow-y-auto p-2">
+                            {messages.length === 0 ? (
+                                <div className="flex flex-col items-center justify-center px-4 py-8 text-center">
+                                    <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-full bg-muted text-muted-foreground">
+                                        <RiCheckboxCircleLine size={22} />
+                                    </div>
+                                    <p className="text-sm font-semibold text-foreground">
+                                        No notifications
+                                    </p>
+                                    <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                                        Admin messages you receive will appear here.
+                                    </p>
+                                </div>
+                            ) : (
+                                messages.map((message) => {
+                                const label = message.gameName
+                                    ? `${message.productName} · ${message.gameName}`
+                                    : message.productName;
+
+                                return (
+                                    <button
+                                        key={message._id}
+                                        type="button"
+                                        onClick={() => handleItemClick(message)}
+                                        className={`w-full rounded-xl border p-3 text-left transition ${
+                                            message.isRead
+                                                ? "border-transparent bg-white hover:border-border hover:bg-muted/60"
+                                                : "border-secondary/25 bg-secondary/5 shadow-[0_0_22px_rgba(99,102,241,0.12)] hover:bg-secondary/10"
+                                        }`}
+                                    >
+                                        <div className="flex gap-3">
+                                            <div className={`mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${
+                                                message.isRead ? "bg-muted text-muted-foreground" : "bg-secondary text-white"
+                                            }`}>
+                                                {message.isRead ? (
+                                                    <RiCheckboxCircleLine size={18} />
+                                                ) : (
+                                                    <RiNotification3Line size={18} />
+                                                )}
+                                            </div>
+                                            <div className="min-w-0 flex-1">
+                                                <div className="mb-1 flex items-start justify-between gap-2">
+                                                    <p className="text-sm font-semibold leading-snug text-foreground">
+                                                        You have received a message from the admin
+                                                    </p>
+                                                    {!message.isRead && (
+                                                        <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-danger" />
+                                                    )}
+                                                </div>
+                                                <p className="truncate text-xs font-medium text-secondary">
+                                                    {message.orderId} · {label}
+                                                </p>
+                                                <p className="mt-1 line-clamp-2 text-xs leading-5 text-muted-foreground">
+                                                    {message.adminNote}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </button>
+                                );
+                                })
+                            )}
+                        </div>
+
+                        {messages.length > 0 && (
+                            <div className="border-t border-border bg-white px-4 py-3">
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    onClearNotifications();
+                                }}
+                                className="w-full rounded-lg px-3 py-2 text-center text-sm font-semibold text-secondary transition hover:bg-secondary/10 focus:outline-none focus:ring-2 focus:ring-secondary/30"
+                            >
+                                Clear notifications
+                            </button>
+                        </div>
+                        )}
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </div>
+    );
+}
+
 /* ----------------------------------- */
 /* DESKTOP NAV LINK                    */
 /* ----------------------------------- */
@@ -264,7 +521,8 @@ function LangCurrencySelector({ hideLabelOnMobile = false }) {
 
     const [mounted, setMounted] = useState(false);
     useEffect(() => {
-        setMounted(true);
+        const timeoutId = window.setTimeout(() => setMounted(true), 0);
+        return () => window.clearTimeout(timeoutId);
     }, []);
 
     const languages = ["English", "Russian", "Arabic", "Bengali"];
@@ -369,7 +627,9 @@ function LangCurrencySelector({ hideLabelOnMobile = false }) {
         <>
             <button
                 onClick={() => { setTempCurrency(currency); setIsShowing(true); }}
-                className="flex items-center gap-2 px-3 py-2 rounded-lg border border-slate-700 text-sm text-slate-300 hover:text-white hover:border-secondary/50 hover:bg-slate-800/50 transition"
+                className={`flex items-center gap-2 rounded-lg border border-slate-700 text-sm text-slate-300 transition hover:border-secondary/50 hover:bg-slate-800/50 hover:text-white ${
+                    hideLabelOnMobile ? "h-9 w-9 justify-center p-0 sm:w-auto sm:px-3 sm:py-2" : "px-3 py-2"
+                }`}
             >
                 <RiGlobalLine size={16} className="text-secondary" />
                 <span className={hideLabelOnMobile ? "hidden sm:inline" : "inline"} suppressHydrationWarning>

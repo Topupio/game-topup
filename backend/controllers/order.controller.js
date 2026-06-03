@@ -7,6 +7,25 @@ import mongoose from "mongoose";
 import { logAdminActivity } from "../utils/adminLogger.js";
 import { getExchangeRates, convertAmount } from "../utils/currencyConverter.js";
 
+function buildAdminMessageNotification(order) {
+    const noteUpdatedAt = order.adminNoteUpdatedAt || order.updatedAt;
+    const noteReadAt = order.adminNoteReadAt || null;
+    const isRead = Boolean(noteReadAt && noteUpdatedAt && new Date(noteReadAt) >= new Date(noteUpdatedAt));
+
+    return {
+        _id: order._id,
+        orderId: order.orderId,
+        adminNote: order.adminNote.trim(),
+        productName: order.productSnapshot?.name || "Order",
+        gameName: order.game?.name || null,
+        updatedAt: order.updatedAt,
+        adminNoteUpdatedAt: noteUpdatedAt,
+        adminNoteReadAt: noteReadAt,
+        adminNoteClearedAt: order.adminNoteClearedAt || null,
+        isRead
+    };
+}
+
 /**
  * @desc    Create a new order
  * @route   POST /api/orders
@@ -214,6 +233,123 @@ export const getMyOrders = async (req, res) => {
 
     } catch (error) {
         console.error("Get My Orders Error:", error);
+        res.status(500).json({ success: false, message: "Internal server error" });
+    }
+};
+
+/**
+ * @desc    Get user orders that contain admin messages
+ * @route   GET /api/orders/admin-messages
+ * @access  Private
+ */
+export const getMyAdminMessages = async (req, res) => {
+    try {
+        if (!req.user || !req.user.id) {
+            return res.status(401).json({ success: false, message: "Unauthorized" });
+        }
+
+        const limit = Math.min(20, Math.max(1, parseInt(req.query.limit) || 5));
+
+        const orders = await Order.find({
+            user: req.user.id,
+            adminNote: { $exists: true, $nin: [null, ""] }
+        })
+            .populate("game", "name")
+            .sort({ adminNoteUpdatedAt: -1, updatedAt: -1 })
+            .limit(limit)
+            .select("orderId adminNote adminNoteUpdatedAt adminNoteReadAt productSnapshot game updatedAt")
+            .lean();
+
+        const messages = orders
+            .filter((order) => order.adminNote?.trim())
+            .filter((order) => {
+                const noteUpdatedAt = order.adminNoteUpdatedAt || order.updatedAt;
+                return !order.adminNoteClearedAt || new Date(order.adminNoteClearedAt) < new Date(noteUpdatedAt);
+            })
+            .map(buildAdminMessageNotification);
+
+        res.status(200).json({ success: true, data: messages });
+    } catch (error) {
+        console.error("Get My Admin Messages Error:", error);
+        res.status(500).json({ success: false, message: "Internal server error" });
+    }
+};
+
+/**
+ * @desc    Clear user admin message notifications
+ * @route   PATCH /api/orders/admin-messages/clear
+ * @access  Private
+ */
+export const clearMyAdminMessages = async (req, res) => {
+    try {
+        if (!req.user || !req.user.id) {
+            return res.status(401).json({ success: false, message: "Unauthorized" });
+        }
+
+        const now = new Date();
+
+        await Order.updateMany(
+            {
+                user: req.user.id,
+                adminNote: { $exists: true, $nin: [null, ""] }
+            },
+            [
+                {
+                    $set: {
+                        adminNoteUpdatedAt: { $ifNull: ["$adminNoteUpdatedAt", "$updatedAt"] },
+                        adminNoteReadAt: now,
+                        adminNoteClearedAt: now
+                    }
+                }
+            ]
+        );
+
+        res.status(200).json({
+            success: true,
+            data: [],
+            message: "Admin message notifications cleared"
+        });
+    } catch (error) {
+        console.error("Clear Admin Messages Error:", error);
+        res.status(500).json({ success: false, message: "Internal server error" });
+    }
+};
+
+/**
+ * @desc    Mark an admin message as read
+ * @route   PATCH /api/orders/:id/admin-message/read
+ * @access  Private
+ */
+export const markAdminMessageRead = async (req, res) => {
+    try {
+        if (!req.user || !req.user.id) {
+            return res.status(401).json({ success: false, message: "Unauthorized" });
+        }
+
+        if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+            return res.status(400).json({ success: false, message: "Invalid order id" });
+        }
+
+        const order = await Order.findOne({ _id: req.params.id, user: req.user.id })
+            .populate("game", "name");
+
+        if (!order || !order.adminNote?.trim()) {
+            return res.status(404).json({ success: false, message: "Admin message not found" });
+        }
+
+        if (!order.adminNoteUpdatedAt) {
+            order.adminNoteUpdatedAt = order.updatedAt;
+        }
+        order.adminNoteReadAt = new Date();
+        await order.save();
+
+        res.status(200).json({
+            success: true,
+            data: buildAdminMessageNotification(order),
+            message: "Admin message marked as read"
+        });
+    } catch (error) {
+        console.error("Mark Admin Message Read Error:", error);
         res.status(500).json({ success: false, message: "Internal server error" });
     }
 };
@@ -559,6 +695,7 @@ export const adminUpdateOrder = async (req, res) => {
 
         if (adminNote && adminNote !== order.adminNote) {
             order.adminNote = adminNote;
+            order.adminNoteUpdatedAt = new Date();
             isModified = true;
         }
 

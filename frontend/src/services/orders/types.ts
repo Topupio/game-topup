@@ -82,6 +82,8 @@ export interface Order {
     };
 
     adminNote?: string;
+    adminNoteUpdatedAt?: string;
+    adminNoteReadAt?: string;
     completionProof?: string;
 
     productSnapshot: {
@@ -157,6 +159,36 @@ export interface PublicRecentOrder {
 export interface PublicRecentOrdersResponse {
     success: boolean;
     data: PublicRecentOrder[];
+}
+
+export interface AdminOrderMessage {
+    _id: string;
+    orderId: string;
+    adminNote: string;
+    productName: string;
+    gameName: string | null;
+    updatedAt: string;
+    adminNoteUpdatedAt: string;
+    adminNoteReadAt: string | null;
+    adminNoteClearedAt: string | null;
+    isRead: boolean;
+}
+
+export interface AdminOrderMessagesResponse {
+    success: boolean;
+    data: AdminOrderMessage[];
+}
+
+export interface MarkAdminMessageReadResponse {
+    success: boolean;
+    data: AdminOrderMessage;
+    message?: string;
+}
+
+export interface ClearAdminMessagesResponse {
+    success: boolean;
+    data: [];
+    message?: string;
 }
 
 // ===== Request & Query Types =====

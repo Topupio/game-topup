@@ -114,6 +114,18 @@ const orderSchema = new mongoose.Schema(
             type: String,
         },
 
+        adminNoteUpdatedAt: {
+            type: Date,
+        },
+
+        adminNoteReadAt: {
+            type: Date,
+        },
+
+        adminNoteClearedAt: {
+            type: Date,
+        },
+
         completionProof: {
             type: String, // screenshot URL or attachment
         },

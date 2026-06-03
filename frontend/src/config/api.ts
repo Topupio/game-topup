@@ -87,10 +87,13 @@ export const endpoints = {
     orders: {
         base: "/api/orders",
         myOrders: "/api/orders/my-orders",
+        adminMessages: "/api/orders/admin-messages",
+        clearAdminMessages: "/api/orders/admin-messages/clear",
         recentPublic: "/api/orders/recent-public",
         recentReviewEligible: "/api/orders/review-eligible/recent",
         gameReviewEligible: (gameId: Id) => `/api/orders/review-eligible/game/${gameId}`,
         details: (id: Id) => `/api/orders/${id}`,
+        markAdminMessageRead: (id: Id) => `/api/orders/${id}/admin-message/read`,
         review: (id: Id) => `/api/orders/${id}/review`,
         adminAll: "/api/orders/admin/all",
         adminUpdate: (id: Id) => `/api/orders/admin/${id}`,

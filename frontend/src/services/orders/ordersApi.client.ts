@@ -10,6 +10,9 @@ import {
     ReviewEligibleOrderResponse,
     SubmitOrderReviewPayload,
     PublicRecentOrdersResponse,
+    AdminOrderMessagesResponse,
+    MarkAdminMessageReadResponse,
+    ClearAdminMessagesResponse,
 } from "./types";
 
 
@@ -49,6 +52,24 @@ export const ordersApiClient = {
             params: { limit },
             signal,
         });
+        return data;
+    },
+
+    async getMyAdminMessages(limit = 5, signal?: AbortSignal): Promise<AdminOrderMessagesResponse> {
+        const { data } = await clientApi.get(endpoints.orders.adminMessages, {
+            params: { limit },
+            signal,
+        });
+        return data;
+    },
+
+    async markAdminMessageRead(id: string): Promise<MarkAdminMessageReadResponse> {
+        const { data } = await clientApi.patch(endpoints.orders.markAdminMessageRead(id));
+        return data;
+    },
+
+    async clearAdminMessages(): Promise<ClearAdminMessagesResponse> {
+        const { data } = await clientApi.patch(endpoints.orders.clearAdminMessages);
         return data;
     },
 

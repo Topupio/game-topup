@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { motion } from "framer-motion";
 import { Order } from "@/services/orders/types";
 import Link from "next/link";
 import { toast } from "react-toastify";
@@ -12,11 +13,11 @@ import {
     RiWallet3Line,
     RiFileListLine,
     RiCustomerService2Line,
+    RiNotification3Line,
 } from "react-icons/ri";
 // import PayPalCheckout from "@/components/user/gameDetails/PayPalCheckout";
 import NowPaymentsCheckout from "@/components/user/gameDetails/NowPaymentsCheckout";
 import UpiQrCheckout from "@/components/user/gameDetails/UpiQrCheckout";
-import { getCurrencySymbol } from "@/lib/constants/currencies";
 import { useCurrency } from "@/context/CurrencyContext";
 
 interface Props {
@@ -26,6 +27,7 @@ interface Props {
 export default function UserOrderDetailClient({ order: initialOrder }: Props) {
     const { formatPrice } = useCurrency();
     const [order] = useState(initialOrder);
+    const adminMessage = order.adminNote?.trim();
     const [paymentMethod, setPaymentMethod] = useState<"upi" | "crypto">(() => {
         if (initialOrder.paymentMethod === "upi") return "upi";
         if (initialOrder.paymentMethod === "nowpayments") return "crypto";
@@ -64,9 +66,22 @@ export default function UserOrderDetailClient({ order: initialOrder }: Props) {
                                         <span className="text-secondary font-bold tracking-wider uppercase text-sm">
                                             Order {order.orderId}
                                         </span>
-                                        <span className={`text-xs px-2 py-0.5 rounded-full border ${getStatusStyles(order.orderStatus)}`}>
-                                            {order.orderStatus.toUpperCase()}
-                                        </span>
+                                        <div className="flex items-center gap-2">
+                                            {adminMessage && (
+                                                <Link
+                                                    href="#admin-message"
+                                                    aria-label="View admin message"
+                                                    title="View admin message"
+                                                    className="relative inline-flex h-8 w-8 items-center justify-center rounded-full border border-secondary/30 bg-secondary/10 text-secondary transition hover:bg-secondary hover:text-white focus:outline-none focus:ring-2 focus:ring-secondary/30"
+                                                >
+                                                    <RiNotification3Line size={17} />
+                                                    <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-danger ring-2 ring-card" />
+                                                </Link>
+                                            )}
+                                            <span className={`text-xs px-2 py-0.5 rounded-full border ${getStatusStyles(order.orderStatus)}`}>
+                                                {order.orderStatus.toUpperCase()}
+                                            </span>
+                                        </div>
                                     </div>
 
                                     <div className="flex justify-between mt-4">
@@ -92,6 +107,75 @@ export default function UserOrderDetailClient({ order: initialOrder }: Props) {
                                 </div>
                             </div>
                         </div>
+
+                        {adminMessage && (
+                            <motion.div
+                                id="admin-message"
+                                initial={{ opacity: 0, y: 14, scale: 0.98 }}
+                                animate={{
+                                    opacity: 1,
+                                    y: 0,
+                                    scale: 1,
+                                    boxShadow: [
+                                        "0 0 20px rgba(99,102,241,0.14)",
+                                        "0 0 34px rgba(99,102,241,0.24)",
+                                        "0 0 20px rgba(99,102,241,0.14)",
+                                    ],
+                                }}
+                                transition={{
+                                    opacity: { duration: 0.28, ease: "easeOut" },
+                                    y: { duration: 0.28, ease: "easeOut" },
+                                    scale: { duration: 0.28, ease: "easeOut" },
+                                    boxShadow: { duration: 2.8, repeat: Infinity, ease: "easeInOut" },
+                                }}
+                                className="relative scroll-mt-28 overflow-hidden rounded-2xl border border-secondary/30 bg-card shadow-[0_0_28px_rgba(99,102,241,0.18)]"
+                            >
+                                <motion.div
+                                    aria-hidden="true"
+                                    animate={{ opacity: [0.35, 0.85, 0.35] }}
+                                    transition={{ duration: 2.8, repeat: Infinity, ease: "easeInOut" }}
+                                    className="pointer-events-none absolute inset-0 rounded-2xl border border-secondary/50 shadow-[0_0_22px_rgba(99,102,241,0.28)]"
+                                />
+                                <div
+                                    aria-hidden="true"
+                                    className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-secondary/70 to-transparent"
+                                />
+
+                                <div className="border-b border-secondary/10 bg-secondary/5 px-5 py-3 sm:px-6">
+                                    <div className="flex items-center gap-2">
+                                        <motion.span
+                                            animate={{ scale: [1, 1.35, 1], opacity: [1, 0.7, 1] }}
+                                            transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
+                                            className="flex h-2.5 w-2.5 rounded-full bg-danger shadow-[0_0_12px_rgba(239,68,68,0.5)]"
+                                        />
+                                        <p className="text-secondary text-xs font-bold uppercase tracking-wider">
+                                            Admin message
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-start gap-4 p-5 sm:p-6">
+                                    <motion.div
+                                        animate={{ y: [0, -2, 0] }}
+                                        transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
+                                        className="w-11 h-11 rounded-xl bg-secondary text-white flex items-center justify-center shrink-0 shadow-[0_0_18px_rgba(99,102,241,0.28)]"
+                                    >
+                                        <RiNotification3Line size={20} />
+                                    </motion.div>
+                                    <div className="min-w-0">
+                                        <h2 className="text-foreground font-bold text-lg mb-1">
+                                            You have received a message from the admin
+                                        </h2>
+                                        <p className="text-muted-foreground text-xs mb-3">
+                                            Please review this update for your order.
+                                        </p>
+                                        <p className="text-muted-foreground text-sm leading-6 whitespace-pre-line break-words">
+                                            {adminMessage}
+                                        </p>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        )}
 
                         {/* Complete Payment (for pending orders) */}
                         {order.paymentStatus === "pending" && order.orderStatus !== "expired" && (
