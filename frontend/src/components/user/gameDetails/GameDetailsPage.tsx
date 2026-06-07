@@ -11,9 +11,7 @@ import {
     CHECKOUT_TEMPLATES,
     TemplateField,
 } from "@/lib/constants/checkoutTemplates";
-import { getRegionByKey } from "@/lib/constants/regions";
 import { useAuth } from "@/context/AuthContext";
-import { useCurrency } from "@/context/CurrencyContext";
 import HeroHeader from "./HeroHeader";
 import VariantGrid from "./VariantGrid";
 import CheckoutCard from "./CheckoutCard";
@@ -56,11 +54,7 @@ export default function GameDetailsPage({
         orderId: string;
     } | null>(null);
     const [showPayment, setShowPayment] = useState(false);
-    const [activeRegion, setActiveRegion] = useState(() => {
-        return gameDetails.regions?.[0] || "global";
-    });
     const { user } = useAuth();
-    const { currency: displayCurrency } = useCurrency();
     const router = useRouter();
     const playerVerification = usePlayerVerification();
     const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
@@ -142,17 +136,11 @@ export default function GameDetailsPage({
             .filter(Boolean) as TemplateField[];
     }, [gameDetails, checkoutTemplates]);
 
-    // Get pricing for selected variant in active region
+    // Get the canonical global pricing for the selected variant.
     const selectedPricing = useMemo<RegionPricing | null>(() => {
         if (!selectedVariant) return null;
-        return (
-            selectedVariant.regionPricing.find(
-                (rp) => rp.region === activeRegion
-            ) ||
-            selectedVariant.regionPricing[0] ||
-            null
-        );
-    }, [selectedVariant, activeRegion]);
+        return selectedVariant.regionPricing[0] || null;
+    }, [selectedVariant]);
 
     const updateQty = (change: number) => {
         setQty((prev) => Math.max(1, Math.min(99, prev + change)));
@@ -231,8 +219,6 @@ export default function GameDetailsPage({
                 productId: selectedVariant._id || "",
                 qty,
                 userInputs: inputs,
-                currency: selectedPricing.currency || "USD",
-                displayCurrency,
             });
 
             if (res.success) {
@@ -251,13 +237,11 @@ export default function GameDetailsPage({
                 apiError.response?.data?.message || "Failed to create order"
             );
             console.error(error);
-        } finally {
-            setIsSubmitting(false);
         }
+        setIsSubmitting(false);
     };
 
     const isGameUnavailable = gameDetails.status === "inactive";
-    const hasMultipleRegions = gameDetails.regions.length > 1;
 
     return (
         <div className="text-foreground max-w-7xl mx-auto sm:py-22 py-20 pb-28 lg:pb-16">
@@ -292,31 +276,11 @@ export default function GameDetailsPage({
 
                         {/* Package Selection */}
                         <div className="space-y-6">
-                            {/* Heading + Region selector */}
+                            {/* Heading */}
                             <div className="flex items-center justify-between">
                                 <h2 className="text-xl font-bold text-foreground">
                                     {isGameUnavailable ? "Packages" : "Select a Package"}
                                 </h2>
-
-                                {hasMultipleRegions && (
-                                    <select
-                                        value={activeRegion}
-                                        onChange={(e) =>
-                                            setActiveRegion(e.target.value)
-                                        }
-                                        className="px-3 py-1.5 bg-input border border-border rounded-lg text-sm text-foreground focus:outline-none focus:border-secondary"
-                                    >
-                                        {gameDetails.regions.map((r) => {
-                                            const region = getRegionByKey(r);
-                                            return (
-                                                <option key={r} value={r}>
-                                                    {region?.label || r} (
-                                                    {region?.symbol || "$"})
-                                                </option>
-                                            );
-                                        })}
-                                    </select>
-                                )}
                             </div>
 
                             {/* Variant grid */}
@@ -327,7 +291,6 @@ export default function GameDetailsPage({
                                     setSelectedVariant(v);
                                     setQty(1);
                                 }}
-                                activeRegion={activeRegion}
                                 gameImageUrl={gameDetails.imageUrl}
                                 disabled={isGameUnavailable}
                             />
@@ -423,6 +386,7 @@ export default function GameDetailsPage({
                             {gameDetails.faqs.map((faq, index) => (
                                 <div key={index} className="border border-border rounded-xl">
                                     <button
+                                        type="button"
                                         onClick={() =>
                                             setOpenFaqIndex(
                                                 openFaqIndex === index ? null : index

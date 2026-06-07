@@ -7,24 +7,18 @@ interface Props {
     variants: Variant[];
     selectedVariant: Variant | null;
     onSelect: (v: Variant) => void;
-    activeRegion: string;
     gameImageUrl?: string | null;
     disabled?: boolean;
 }
 
-function getPrice(variant: Variant, region: string): RegionPricing | null {
-    return (
-        variant.regionPricing.find((rp) => rp.region === region) ||
-        variant.regionPricing[0] ||
-        null
-    );
+function getPrice(variant: Variant): RegionPricing | null {
+    return variant.regionPricing[0] || null;
 }
 
 export default function VariantGrid({
     variants,
     selectedVariant,
     onSelect,
-    activeRegion,
     gameImageUrl,
     disabled = false,
 }: Props) {
@@ -48,7 +42,7 @@ export default function VariantGrid({
         <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-4 gap-2 sm:gap-3">
             {sortedVariants.map((variant) => {
                 const isStockOut = disabled || variant.status === "inactive";
-                const pricing = getPrice(variant, activeRegion);
+                const pricing = getPrice(variant);
                 const isSelected =
                     !disabled &&
                     (selectedVariant?._id === variant._id ||

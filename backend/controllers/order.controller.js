@@ -5,7 +5,6 @@ import GameReview from "../models/gameReview.model.js";
 import { asyncHandler } from "../middlewares/asyncHandler.js";
 import mongoose from "mongoose";
 import { logAdminActivity } from "../utils/adminLogger.js";
-import { getExchangeRates, convertAmount } from "../utils/currencyConverter.js";
 
 function buildAdminMessageNotification(order) {
     const noteUpdatedAt = order.adminNoteUpdatedAt || order.updatedAt;
@@ -36,7 +35,7 @@ export const createOrder = asyncHandler(async (req, res) => {
         return res.status(401).json({ success: false, message: "Unauthorized" });
     }
 
-    const { gameId, productId, qty, userInputs, currency, displayCurrency } = req.body;
+    const { gameId, productId, qty, userInputs } = req.body;
 
     // Basic validations
     if (!gameId || !productId || !qty || !Array.isArray(userInputs)) {
@@ -76,19 +75,23 @@ export const createOrder = asyncHandler(async (req, res) => {
         );
     }
 
+    let unitPrice;
+    let amount;
+    let orderCurrency = "USD";
+    let productSnapshot;
+
     if (variantData) {
-        // Use variant's region pricing — pick the requested currency or first available
-        const pricing = variantData.regionPricing?.find(
-            (rp) => rp.currency === (currency || "USD")
-        ) || variantData.regionPricing?.[0];
+        // Use the canonical DB pricing row. Display currency is UI-only.
+        const pricing = variantData.regionPricing?.[0];
 
         if (!pricing) {
             return res.status(400).json({ success: false, message: "No pricing found for this variant" });
         }
 
-        var unitPrice = pricing.discountedPrice ?? pricing.price;
-        var amount = unitPrice * qty;
-        var productSnapshot = {
+        unitPrice = pricing.discountedPrice ?? pricing.price;
+        amount = unitPrice * qty;
+        orderCurrency = pricing.currency || "USD";
+        productSnapshot = {
             name: variantData.name,
             price: pricing.price,
             discountedPrice: pricing.discountedPrice,
@@ -103,9 +106,10 @@ export const createOrder = asyncHandler(async (req, res) => {
             return res.status(404).json({ success: false, message: "Product not found for this game" });
         }
 
-        var unitPrice = product.discountedPrice ?? product.price;
-        var amount = unitPrice * qty;
-        var productSnapshot = {
+        unitPrice = product.discountedPrice ?? product.price;
+        amount = unitPrice * qty;
+        orderCurrency = "USD";
+        productSnapshot = {
             name: product.name,
             price: product.price,
             discountedPrice: product.discountedPrice,
@@ -113,38 +117,6 @@ export const createOrder = asyncHandler(async (req, res) => {
             qty,
             totalAmount: amount,
         };
-    }
-
-    // Currency conversion: if user wants to pay in a different currency
-    const nativeCurrency = currency || "USD";
-    let finalCurrency = nativeCurrency;
-    let finalUnitPrice = unitPrice;
-    let finalAmount = amount;
-    let exchangeRateUsed = null;
-
-    if (displayCurrency && displayCurrency !== nativeCurrency) {
-        const rates = await getExchangeRates();
-        finalUnitPrice = convertAmount(unitPrice, nativeCurrency, displayCurrency, rates);
-        finalAmount = convertAmount(amount, nativeCurrency, displayCurrency, rates);
-        finalCurrency = displayCurrency;
-        exchangeRateUsed = {
-            from: nativeCurrency,
-            to: displayCurrency,
-            fromRate: rates[nativeCurrency] || 1,
-            toRate: rates[displayCurrency] || 1,
-        };
-
-        // Store original pricing in snapshot for audit
-        productSnapshot.originalCurrency = nativeCurrency;
-        productSnapshot.originalPrice = productSnapshot.price;
-        productSnapshot.originalDiscountedPrice = productSnapshot.discountedPrice;
-        productSnapshot.originalTotalAmount = productSnapshot.totalAmount;
-        productSnapshot.exchangeRateUsed = exchangeRateUsed;
-
-        // Update snapshot with converted values
-        productSnapshot.price = convertAmount(productSnapshot.price, nativeCurrency, displayCurrency, rates);
-        productSnapshot.discountedPrice = convertAmount(productSnapshot.discountedPrice, nativeCurrency, displayCurrency, rates);
-        productSnapshot.totalAmount = finalAmount;
     }
 
     let order;
@@ -159,10 +131,10 @@ export const createOrder = asyncHandler(async (req, res) => {
                 user: req.user.id,
                 game: gameId,
                 product: productId,
-                amount: finalAmount,
+                amount,
                 quantity: qty,
-                unitPrice: finalUnitPrice,
-                currency: finalCurrency,
+                unitPrice,
+                currency: orderCurrency,
                 paymentMethod: "paypal",
                 userInputs: sanitizedInputs,
                 productSnapshot,

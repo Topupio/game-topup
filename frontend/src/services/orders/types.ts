@@ -217,8 +217,6 @@ export interface CreateOrderPayload {
     productId: string;
     qty: number;
     userInputs: { label: string; value: string | number }[];
-    currency?: string;
-    displayCurrency?: string;
 }
 
 export interface SubmitOrderReviewPayload {

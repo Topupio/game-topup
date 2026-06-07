@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import { Game, Variant, FaqItem } from "@/lib/types/game";
+import { Game, Variant } from "@/lib/types/game";
 import { GamePayload } from "@/services/games/types";
 import { RiAddLine, RiDeleteBin6Line } from "react-icons/ri";
 import { useAdminForm } from "@/hooks/useAdminForm";
@@ -17,7 +17,6 @@ import StatusToggle from "@/components/form/StatusToggle";
 import Input from "@/components/form/Input";
 import Select from "@/components/form/Select";
 import Textarea from "@/components/form/TextArea";
-import RegionMultiSelect from "./RegionMultiSelect";
 import RichTextEditor from "@/components/form/RichTextEditor";
 import VariantManager from "./VariantManager";
 import CheckoutTemplateSelector from "./CheckoutTemplateSelector";
@@ -27,6 +26,25 @@ interface Props {
 }
 
 type FormState = Game & { imageFile?: File | null };
+
+function getCanonicalPricing(variant: Variant) {
+    return variant.regionPricing?.find((p) => p.region === "global") || variant.regionPricing?.[0];
+}
+
+function normalizeVariantPricing(variant: Variant): Variant {
+    const pricing = getCanonicalPricing(variant);
+
+    return {
+        ...variant,
+        regionPricing: [{
+            region: "global",
+            currency: "USD",
+            symbol: "$",
+            price: pricing?.price ?? 0,
+            discountedPrice: pricing?.discountedPrice ?? 0,
+        }],
+    };
+}
 
 export default function GameForm({ gameId }: Props) {
     const isEdit = gameId !== "new";
@@ -65,8 +83,9 @@ export default function GameForm({ gameId }: Props) {
             onSuccess: () => {
                 toast.success(isEdit ? "Game updated successfully" : "Game created successfully");
             },
-            onError: (error: any) => {
-                toast.error(error.response?.data?.message || "Failed to save game");
+            onError: (error: unknown) => {
+                const apiError = error as { response?: { data?: { message?: string } } };
+                toast.error(apiError.response?.data?.message || "Failed to save game");
             },
             redirectPath: "/admin/games",
         }
@@ -84,8 +103,8 @@ export default function GameForm({ gameId }: Props) {
                 updateForm((prev) => ({
                     ...prev,
                     ...response.data,
-                    regions: response.data.regions || ["global"],
-                    variants: response.data.variants || [],
+                    regions: ["global"],
+                    variants: (response.data.variants || []).map(normalizeVariantPricing),
                     faqs: response.data.faqs || [],
                     imageFile: null,
                 }));
@@ -123,15 +142,17 @@ export default function GameForm({ gameId }: Props) {
             clearError("category");
         }
 
-        if (!form.regions || form.regions.length === 0) {
-            updateError("regions" as any, "At least one region is required");
-            isValid = false;
-        }
-
         for (let i = 0; i < form.variants.length; i++) {
             const v = form.variants[i];
             if (!v.name?.trim()) {
                 toast.error(`Variant #${i + 1}: Name is required`);
+                isValid = false;
+                break;
+            }
+
+            const pricing = getCanonicalPricing(v);
+            if (pricing && pricing.discountedPrice > pricing.price) {
+                toast.error(`Variant #${i + 1}: Selling price cannot exceed original price`);
                 isValid = false;
                 break;
             }
@@ -159,10 +180,10 @@ export default function GameForm({ gameId }: Props) {
                 richDescription: formData.richDescription,
                 status: formData.status,
                 isPopular: formData.isPopular,
-                regions: formData.regions,
+                regions: ["global"],
                 checkoutTemplate: formData.checkoutTemplate,
                 checkoutTemplateOptions: formData.checkoutTemplateOptions,
-                variants: formData.variants,
+                variants: formData.variants.map(normalizeVariantPricing),
                 variantImages: Object.keys(variantImages).length > 0 ? variantImages : undefined,
                 faqs: (formData.faqs || []).filter(f => f.question.trim() && f.answer.trim()),
                 metaTitle: formData.metaTitle,
@@ -264,9 +285,9 @@ export default function GameForm({ gameId }: Props) {
                             />
 
                             <div>
-                                <label className="text-sm font-medium text-gray-700 block mb-1">
+                                <span className="text-sm font-medium text-gray-700 block mb-1">
                                     Status
-                                </label>
+                                </span>
                                 <div className="pt-1">
                                     <StatusToggle
                                         value={form.status}
@@ -286,11 +307,6 @@ export default function GameForm({ gameId }: Props) {
                             <span className="text-xs text-gray-500">Mark as popular</span>
                         </label>
 
-                        <RegionMultiSelect
-                            selectedRegions={form.regions}
-                            onChange={(regions) => updateForm({ regions })}
-                            error={(errors as any).regions}
-                        />
                     </div>
                 </div>
             </FormSection>
@@ -323,7 +339,6 @@ export default function GameForm({ gameId }: Props) {
             >
                 <VariantManager
                     variants={form.variants}
-                    regions={form.regions}
                     checkoutTemplate={form.checkoutTemplate || ""}
                     onChange={(variants) => updateForm({ variants })}
                     onVariantImageChange={(index, file) => {

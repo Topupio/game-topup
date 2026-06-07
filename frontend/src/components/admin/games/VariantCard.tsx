@@ -10,14 +10,13 @@ import RegionPricingTable from "./RegionPricingTable";
 interface Props {
     variant: Variant;
     index: number;
-    regions: string[];
     checkoutTemplate: string;
     onChange: (updated: Variant) => void;
     onDelete: () => void;
     onImageChange: (file: File | null, preview: string | null) => void;
 }
 
-export default function VariantCard({ variant, index, regions, checkoutTemplate, onChange, onDelete, onImageChange }: Props) {
+export default function VariantCard({ variant, index, checkoutTemplate, onChange, onDelete, onImageChange }: Props) {
     const [collapsed, setCollapsed] = useState(false);
 
     const update = (partial: Partial<Variant>) => {
@@ -154,10 +153,9 @@ export default function VariantCard({ variant, index, regions, checkoutTemplate,
                     {/* ── Section: Pricing ── */}
                     <div className="px-4 py-3 border-t border-gray-100 bg-gray-50/40">
                         <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
-                            Region Pricing
+                            Global Pricing
                         </p>
                         <RegionPricingTable
-                            regions={regions}
                             pricing={variant.regionPricing}
                             onChange={(regionPricing) => update({ regionPricing })}
                         />

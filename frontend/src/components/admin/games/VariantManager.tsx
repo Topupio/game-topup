@@ -6,20 +6,25 @@ import VariantCard from "./VariantCard";
 
 interface Props {
     variants: Variant[];
-    regions: string[];
     checkoutTemplate: string;
     onChange: (variants: Variant[]) => void;
     onVariantImageChange?: (index: number, file: File | null, preview: string | null) => void;
 }
 
-export default function VariantManager({ variants, regions, checkoutTemplate, onChange, onVariantImageChange }: Props) {
+export default function VariantManager({ variants, checkoutTemplate, onChange, onVariantImageChange }: Props) {
     const addVariant = () => {
         const newVariant: Variant = {
             name: "",
             slug: "",
             quantity: null,
             unit: "",
-            regionPricing: [],
+            regionPricing: [{
+                region: "global",
+                currency: "USD",
+                symbol: "$",
+                price: 0,
+                discountedPrice: 0,
+            }],
             status: "active",
             isPopular: false,
             deliveryTime: "Instant Delivery",
@@ -57,7 +62,7 @@ export default function VariantManager({ variants, regions, checkoutTemplate, on
             {variants.length === 0 ? (
                 <div className="text-center py-8 bg-gray-50 rounded-lg border border-dashed border-gray-300">
                     <p className="text-gray-500 text-sm">
-                        No variants yet. Click "Add Variant" to add items/packages.
+                        No variants yet. Click Add Variant to add items/packages.
                     </p>
                     <p className="text-gray-400 text-xs mt-1">
                         e.g., Gems 80, Gems 170, Brawl Pass
@@ -70,7 +75,6 @@ export default function VariantManager({ variants, regions, checkoutTemplate, on
                             key={variant._id || `new-${i}`}
                             variant={variant}
                             index={i}
-                            regions={regions}
                             checkoutTemplate={checkoutTemplate}
                             onChange={(updated) => updateVariant(i, updated)}
                             onDelete={() => deleteVariant(i)}

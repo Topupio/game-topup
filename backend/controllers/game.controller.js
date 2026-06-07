@@ -5,8 +5,13 @@ import { uploadBufferToCloudinary } from "../utils/uploadToCloudinary.js";
 import { deleteImageFromCloudinary } from "../utils/deleteFromCloudinary.js";
 import { logAdminActivity } from "../utils/adminLogger.js";
 import { CHECKOUT_TEMPLATE_KEYS, slugToCategory } from "../constants/checkoutTemplates.js";
-import { REGION_KEYS } from "../constants/regions.js";
 import CheckoutTemplate from "../models/checkoutTemplate.model.js";
+
+const GLOBAL_REGION_PRICING = {
+    region: "global",
+    currency: "USD",
+    symbol: "$",
+};
 
 /**
  * Parse a JSON field from form-data (may arrive as a string).
@@ -55,7 +60,7 @@ function validateRequiredFields(requiredFields) {
 /**
  * Validate variants array and auto-generate slugs.
  */
-function validateAndPrepareVariants(variants, regions) {
+function validateAndPrepareVariants(variants) {
     if (!Array.isArray(variants)) {
         return { error: "variants must be an array" };
     }
@@ -79,23 +84,29 @@ function validateAndPrepareVariants(variants, regions) {
         }
         slugSet.add(v.slug);
 
-        // Validate region pricing
-        if (v.regionPricing && Array.isArray(v.regionPricing)) {
-            for (const rp of v.regionPricing) {
-                if (!rp.region || !REGION_KEYS.includes(rp.region)) {
-                    return { error: `Variant '${v.name}': invalid region '${rp.region}'` };
-                }
-                if (typeof rp.price !== "number" || rp.price < 0) {
-                    return { error: `Variant '${v.name}': price must be a non-negative number for region '${rp.region}'` };
-                }
-                if (typeof rp.discountedPrice !== "number" || rp.discountedPrice < 0) {
-                    return { error: `Variant '${v.name}': discountedPrice must be a non-negative number for region '${rp.region}'` };
-                }
-                if (rp.discountedPrice > rp.price) {
-                    return { error: `Variant '${v.name}': discountedPrice cannot exceed price for region '${rp.region}'` };
-                }
-            }
+        // Normalize old regional pricing into one canonical global USD row.
+        const pricing = Array.isArray(v.regionPricing)
+            ? v.regionPricing.find((rp) => rp.region === "global") || v.regionPricing[0]
+            : null;
+
+        const price = pricing?.price ?? 0;
+        const discountedPrice = pricing?.discountedPrice ?? 0;
+
+        if (typeof price !== "number" || !Number.isFinite(price) || price < 0) {
+            return { error: `Variant '${v.name}': price must be a non-negative number` };
         }
+        if (typeof discountedPrice !== "number" || !Number.isFinite(discountedPrice) || discountedPrice < 0) {
+            return { error: `Variant '${v.name}': discountedPrice must be a non-negative number` };
+        }
+        if (discountedPrice > price) {
+            return { error: `Variant '${v.name}': discountedPrice cannot exceed price` };
+        }
+
+        v.regionPricing = [{
+            ...GLOBAL_REGION_PRICING,
+            price,
+            discountedPrice,
+        }];
 
         v.apiGameName = v.apiGameName || "";
         v.apiPackId = v.apiPackId || "";
@@ -307,7 +318,7 @@ const createGame = asyncHandler(async (req, res) => {
 
     // 1. Parse JSON fields from form-data
     let variants = parseJsonField(req.body.variants);
-    let regions = parseJsonField(req.body.regions);
+    const regions = ["global"];
     const faqs = parseJsonField(req.body.faqs) || [];
 
     // Validate checkout template at game level
@@ -341,23 +352,9 @@ const createGame = asyncHandler(async (req, res) => {
         });
     }
 
-    // 4. Validate regions
-    if (regions && Array.isArray(regions)) {
-        for (const r of regions) {
-            if (!REGION_KEYS.includes(r)) {
-                return res.status(400).json({
-                    success: false,
-                    message: `Invalid region '${r}'. Allowed: ${REGION_KEYS.join(", ")}`,
-                });
-            }
-        }
-    } else {
-        regions = ["global"];
-    }
-
     // 5. Validate variants
     if (variants && Array.isArray(variants) && variants.length > 0) {
-        const result = validateAndPrepareVariants(variants, regions);
+        const result = validateAndPrepareVariants(variants);
         if (result.error) {
             return res.status(400).json({ success: false, message: result.error });
         }
@@ -478,7 +475,7 @@ const updateGame = asyncHandler(async (req, res) => {
 
     // 2. Parse JSON fields from form-data
     let variants = parseJsonField(req.body.variants);
-    let regions = parseJsonField(req.body.regions);
+    const regions = ["global"];
     const checkoutTemplateOptions = parseJsonField(req.body.checkoutTemplateOptions);
     const faqs = parseJsonField(req.body.faqs);
 
@@ -488,22 +485,9 @@ const updateGame = asyncHandler(async (req, res) => {
         return res.status(400).json({ success: false, message: `Invalid checkoutTemplate '${checkoutTemplate}'` });
     }
 
-    // 3. Validate regions if provided
-    if (regions && Array.isArray(regions)) {
-        for (const r of regions) {
-            if (!REGION_KEYS.includes(r)) {
-                return res.status(400).json({
-                    success: false,
-                    message: `Invalid region '${r}'. Allowed: ${REGION_KEYS.join(", ")}`,
-                });
-            }
-        }
-    }
-
     // 4. Validate variants if provided
     if (variants && Array.isArray(variants) && variants.length > 0) {
-        const selectedRegions = regions || game.regions;
-        const result = validateAndPrepareVariants(variants, selectedRegions);
+        const result = validateAndPrepareVariants(variants);
         if (result.error) {
             return res.status(400).json({ success: false, message: result.error });
         }
@@ -600,9 +584,7 @@ const updateGame = asyncHandler(async (req, res) => {
     game.imagePublicId = updatedImagePublicId;
 
     // New fields
-    if (regions !== undefined) {
-        game.regions = regions;
-    }
+    game.regions = regions;
     if (variants !== undefined) {
         game.variants = variants;
     }
