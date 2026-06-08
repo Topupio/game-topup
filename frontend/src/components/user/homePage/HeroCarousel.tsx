@@ -30,6 +30,40 @@ type AutoplayApi = ReturnType<typeof Autoplay>;
 const useIsomorphicLayoutEffect =
     typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
+interface BannerTarget {
+    href: string;
+    external: boolean;
+}
+
+const MALFORMED_HTTP_URL_PATTERN = /^(https?:)\/([^/])/i;
+const ABSOLUTE_HTTP_URL_PATTERN = /^https?:\/\//i;
+const DOMAIN_LIKE_URL_PATTERN =
+    /^[a-z0-9.-]+\.[a-z]{2,}(?::\d+)?(?:[/?#]|$)/i;
+
+function getBannerTarget(rawLink: string): BannerTarget | null {
+    const link = rawLink.trim();
+
+    if (!link) return null;
+
+    const normalizedLink = link.replace(MALFORMED_HTTP_URL_PATTERN, "$1//$2");
+
+    if (ABSOLUTE_HTTP_URL_PATTERN.test(normalizedLink)) {
+        return { href: normalizedLink, external: true };
+    }
+
+    if (normalizedLink.startsWith("/")) {
+        return { href: normalizedLink, external: false };
+    }
+
+    if (DOMAIN_LIKE_URL_PATTERN.test(normalizedLink)) {
+        return { href: `https://${normalizedLink}`, external: true };
+    }
+
+    const slug = normalizedLink.replace(/^games\//, "");
+
+    return { href: `/games/${slug}`, external: false };
+}
+
 // --- Hooks (1:1 from Embla v9 docs) ---
 
 function usePrevNextButtons(emblaApi: EmblaCarouselType | undefined) {
@@ -438,8 +472,17 @@ export default function HeroCarousel({ banners }: { banners: Banner[] }) {
         };
     }, [emblaApi, tweenScale, setTweenNodes, setTweenFactor]);
 
-    const handleRedirect = (slug: string) => {
-        router.push(`/games/${slug}`);
+    const handleRedirect = (rawLink: string) => {
+        const target = getBannerTarget(rawLink);
+
+        if (!target) return;
+
+        if (target.external) {
+            window.location.assign(target.href);
+            return;
+        }
+
+        router.push(target.href);
     };
 
     if (!banners.length) return null;
