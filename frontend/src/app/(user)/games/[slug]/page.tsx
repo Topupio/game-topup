@@ -8,6 +8,8 @@ import type { Metadata } from "next";
 import { getCanonicalMetadata } from "@/lib/seo/canonical";
 import { getGameJsonLd } from "@/lib/seo/gameJsonLd";
 import { getGameMetadata } from "@/lib/seo/gameMetadata";
+import { getRelatedGamePageLinks } from "@/lib/relatedGamePageLinks.server";
+import RelatedProductLinks from "@/components/user/gameDetails/RelatedProductLinks";
 
 type GameSlugPageProps = {
     params: Promise<{ slug: string }>;
@@ -50,6 +52,7 @@ export default async function GameSlugRedirect({
     if (gameDetails.paymentCategory) {
         permanentRedirect(targetUrl);
     }
+    const relatedLinks = await getRelatedGamePageLinks(gameDetails);
     const gameJsonLd = JSON.stringify(getGameJsonLd(gameDetails, targetUrl)).replace(
         /</g,
         "\\u003c"
@@ -66,7 +69,9 @@ export default async function GameSlugRedirect({
             <GameDetailsPage
                 gameDetails={gameDetails}
                 checkoutTemplates={checkoutTemplates}
-            />
+            >
+                <RelatedProductLinks {...relatedLinks} />
+            </GameDetailsPage>
         </>
     );
 }

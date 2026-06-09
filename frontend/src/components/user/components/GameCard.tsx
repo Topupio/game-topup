@@ -1,6 +1,7 @@
 "use client";
 
 import { Game } from "@/lib/types/game";
+import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { RiArrowRightSLine, RiStarFill, RiStarHalfFill } from "react-icons/ri";
@@ -9,7 +10,7 @@ import { useCurrency } from "@/context/CurrencyContext";
 import { getGameUrl } from "@/lib/utils/getGameUrl";
 
 export default function GameCard({ game }: { game: Game }) {
-    const { formatPrice, convertPrice } = useCurrency();
+    const { formatPrice } = useCurrency();
     const isStockOut = game.status === "inactive";
 
     // Get the cheapest active variant pricing (first region)
@@ -80,10 +81,11 @@ export default function GameCard({ game }: { game: Game }) {
             <Link href={getGameUrl(game)} className="block">
                 {/* Image */}
                 <div className="relative overflow-hidden rounded-xl aspect-square">
-                    <img
+                    <Image
                         src={game.imageUrl ?? "/placeholder.png"}
                         alt={game.name}
-                        loading="lazy"
+                        fill
+                        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                         className={`w-full h-full object-cover transition-transform duration-500 ${
                             isStockOut ? "saturate-[0.25]" : "group-hover:scale-105"
                         }`}

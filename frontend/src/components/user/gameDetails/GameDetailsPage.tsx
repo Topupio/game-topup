@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, type ReactNode } from "react";
 import {
     Game,
     Variant,
@@ -37,9 +37,11 @@ function hasRichContent(html: string | undefined): boolean {
 export default function GameDetailsPage({
     gameDetails,
     checkoutTemplates = {},
+    children,
 }: {
     gameDetails: Game;
     checkoutTemplates?: Record<string, CheckoutTemplateDoc>;
+    children?: ReactNode;
 }) {
     const [selectedVariant, setSelectedVariant] = useState<Variant | null>(
         null
@@ -422,6 +424,8 @@ export default function GameDetailsPage({
                     </div>
                 </div>
             )}
+
+            {children}
 
             {/* Mobile fixed bottom checkout bar */}
             {!isGameUnavailable && selectedVariant && selectedPricing && (

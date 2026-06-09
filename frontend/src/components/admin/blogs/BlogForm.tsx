@@ -11,8 +11,10 @@ import FormWrapper from "@/components/admin/form/FormWrapper";
 import FormSection from "@/components/admin/form/FormSection";
 import ImageUploader from "@/components/form/ImageUploader";
 import Input from "@/components/form/Input";
+import Select from "@/components/form/Select";
 import Textarea from "@/components/form/TextArea";
 import RichTextEditor from "@/components/form/RichTextEditor";
+import { CATEGORY_OPTIONS } from "@/lib/constants/checkoutTemplates";
 
 interface Props {
     blogId: string | "new";
@@ -57,7 +59,7 @@ export default function BlogForm({ blogId }: Props) {
                     isEdit ? "Blog updated successfully" : "Blog created successfully"
                 );
             },
-            onError: (error: any) => {
+            onError: (error: { response?: { data?: { message?: string } } }) => {
                 toast.error(
                     error.response?.data?.message || "Failed to save blog"
                 );
@@ -65,6 +67,18 @@ export default function BlogForm({ blogId }: Props) {
             redirectPath: "/admin/blogs",
         }
     );
+
+    const hasLegacyCategory =
+        form.category &&
+        !CATEGORY_OPTIONS.some((option) => option.value === form.category);
+
+    const categoryOptions = [
+        { label: "Select payment category", value: "" },
+        ...(hasLegacyCategory
+            ? [{ label: `${form.category} (current legacy category)`, value: form.category }]
+            : []),
+        ...CATEGORY_OPTIONS,
+    ];
 
     // Load blog data
     useEffect(() => {
@@ -241,8 +255,8 @@ export default function BlogForm({ blogId }: Props) {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <Input
-                        label="Category"
+                    <Select
+                        label="Related Product Category"
                         value={form.category}
                         onChange={(e) => {
                             updateForm({ category: e.target.value });
@@ -250,7 +264,12 @@ export default function BlogForm({ blogId }: Props) {
                         }}
                         required
                         error={errors.category}
-                        placeholder="News, Updates, Guide"
+                        helperText={
+                            hasLegacyCategory
+                                ? "This blog has an old category. Choose a payment category to show it in related product pages."
+                                : "Used to show this blog on related product pages."
+                        }
+                        options={categoryOptions}
                     />
                     <Textarea
                         label="Short Description"
@@ -321,9 +340,9 @@ export default function BlogForm({ blogId }: Props) {
                                     placeholder="Section Header"
                                 />
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    <div className="block text-sm font-medium text-gray-700 mb-1">
                                         Content Body
-                                    </label>
+                                    </div>
                                     <RichTextEditor
                                         value={section.contentDescription}
                                         onChange={(html) =>
@@ -342,7 +361,7 @@ export default function BlogForm({ blogId }: Props) {
 
                     {form.content.length === 0 && (
                         <div className="text-center py-6 bg-gray-50 rounded-lg border border-dashed border-gray-300 text-gray-500 text-sm">
-                            No content sections yet. Click "Add Section" to add
+                            No content sections yet. Click Add Section to add
                             one.
                         </div>
                     )}
