@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { FiArrowLeft, FiMail } from "react-icons/fi";
+import { toast } from "react-toastify";
 import { clientApi } from "@/lib/http";
 import { isValidEmail } from "@/utils/validation";
 
@@ -44,7 +45,9 @@ export default function ForgotPasswordPage() {
             const response = await clientApi.post("/api/auth/forgot-password", {
                 email: email.trim(),
             });
-            setMessage(response.data?.message || "Password reset email sent.");
+            const successMessage = response.data?.message || "Password reset email sent.";
+            setMessage(successMessage);
+            toast.success(successMessage);
         } catch (err: unknown) {
             setError(getErrorMessage(err, "Failed to send password reset email"));
         } finally {
