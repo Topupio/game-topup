@@ -1,6 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { usePathname } from "next/navigation";
 import { authApi } from "@/services/authApi";
 import { clearCachedCsrf } from "@/lib/http";
 
@@ -24,11 +25,33 @@ type AuthContextType = {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+function isPublicAuthPath(pathname: string | null) {
+    if (!pathname) return false;
+
+    return (
+        pathname === "/login" ||
+        pathname === "/signup" ||
+        pathname === "/forgot-password" ||
+        pathname === "/check-email" ||
+        pathname === "/resend-verification" ||
+        pathname === "/admin/login" ||
+        pathname.startsWith("/reset-password/") ||
+        pathname.startsWith("/verify-email/")
+    );
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
+    const pathname = usePathname();
     const [user, setUser] = useState<AuthUser | null>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        if (isPublicAuthPath(pathname)) {
+            setUser(null);
+            setLoading(false);
+            return;
+        }
+
         let mounted = true;
         (async () => {
             try {
@@ -43,7 +66,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return () => {
             mounted = false;
         };
-    }, []);
+    }, [pathname]);
 
     const login = async (email: string, password: string, recaptchaToken?: string | null) => {
         await authApi.loginUser({ email, password, recaptchaToken });
