@@ -224,7 +224,18 @@ export const getMyAdminMessages = async (req, res) => {
 
         const orders = await Order.find({
             user: req.user.id,
-            adminNote: { $exists: true, $nin: [null, ""] }
+            adminNote: { $exists: true, $type: "string", $regex: /\S/ },
+            $expr: {
+                $or: [
+                    { $eq: [{ $ifNull: ["$adminNoteClearedAt", null] }, null] },
+                    {
+                        $lt: [
+                            "$adminNoteClearedAt",
+                            { $ifNull: ["$adminNoteUpdatedAt", "$updatedAt"] }
+                        ]
+                    }
+                ]
+            }
         })
             .populate("game", "name")
             .sort({ adminNoteUpdatedAt: -1, updatedAt: -1 })
