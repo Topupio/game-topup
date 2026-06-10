@@ -51,7 +51,8 @@ jobs:
 
             echo "=== Pulling latest code ==="
             cd /var/www/game-topup
-            git pull origin master
+            git fetch origin master
+            git reset --hard origin/master
 
             echo "=== Deploying Backend ==="
             cd /var/www/game-topup/backend
