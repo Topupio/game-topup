@@ -676,7 +676,7 @@ export const adminUpdateOrder = async (req, res) => {
             isModified = true;
         }
 
-        if (adminNote && adminNote !== order.adminNote) {
+        if (typeof adminNote === "string" && adminNote !== (order.adminNote || "")) {
             order.adminNote = adminNote;
             order.adminNoteUpdatedAt = new Date();
             isModified = true;
@@ -694,7 +694,7 @@ export const adminUpdateOrder = async (req, res) => {
         if (orderStatus && orderStatus !== oldStatus) {
             order.tracking.push({
                 status: orderStatus,
-                message: `Order status updated to ${orderStatus}` + (adminNote ? `: ${adminNote}` : "")
+                message: `Order status updated to ${orderStatus}`
             });
         }
 

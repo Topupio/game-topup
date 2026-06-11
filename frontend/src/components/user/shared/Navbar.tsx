@@ -33,6 +33,17 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import Drawer from "./Drawer";
 
+function richTextToPlainText(html: string): string {
+    if (!html) return "";
+
+    if (typeof window !== "undefined") {
+        const doc = new DOMParser().parseFromString(html, "text/html");
+        return doc.body.textContent?.replace(/\s+/g, " ").trim() || "";
+    }
+
+    return html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+}
+
 export default function Navbar() {
     const router = useRouter();
     const [open, setOpen] = useState(false);
@@ -391,50 +402,51 @@ function AdminMessageBell({
                                 </div>
                             ) : (
                                 messages.map((message) => {
-                                const label = message.gameName
-                                    ? `${message.productName} · ${message.gameName}`
-                                    : message.productName;
+                                    const label = message.gameName
+                                        ? `${message.productName} · ${message.gameName}`
+                                        : message.productName;
+                                    const adminNotePreview = richTextToPlainText(message.adminNote);
 
-                                return (
-                                    <button
-                                        key={message._id}
-                                        type="button"
-                                        onClick={() => handleItemClick(message)}
-                                        className={`w-full rounded-xl border p-3 text-left transition ${
-                                            message.isRead
-                                                ? "border-transparent bg-white hover:border-border hover:bg-muted/60"
-                                                : "border-secondary/25 bg-secondary/5 shadow-[0_0_22px_rgba(99,102,241,0.12)] hover:bg-secondary/10"
-                                        }`}
-                                    >
-                                        <div className="flex gap-3">
-                                            <div className={`mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${
-                                                message.isRead ? "bg-muted text-muted-foreground" : "bg-secondary text-white"
-                                            }`}>
-                                                {message.isRead ? (
-                                                    <RiCheckboxCircleLine size={18} />
-                                                ) : (
-                                                    <RiNotification3Line size={18} />
-                                                )}
-                                            </div>
-                                            <div className="min-w-0 flex-1">
-                                                <div className="mb-1 flex items-start justify-between gap-2">
-                                                    <p className="text-sm font-semibold leading-snug text-foreground">
-                                                        You have received a message from the admin
-                                                    </p>
-                                                    {!message.isRead && (
-                                                        <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-danger" />
+                                    return (
+                                        <button
+                                            key={message._id}
+                                            type="button"
+                                            onClick={() => handleItemClick(message)}
+                                            className={`w-full rounded-xl border p-3 text-left transition ${
+                                                message.isRead
+                                                    ? "border-transparent bg-white hover:border-border hover:bg-muted/60"
+                                                    : "border-secondary/25 bg-secondary/5 shadow-[0_0_22px_rgba(99,102,241,0.12)] hover:bg-secondary/10"
+                                            }`}
+                                        >
+                                            <div className="flex gap-3">
+                                                <div className={`mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${
+                                                    message.isRead ? "bg-muted text-muted-foreground" : "bg-secondary text-white"
+                                                }`}>
+                                                    {message.isRead ? (
+                                                        <RiCheckboxCircleLine size={18} />
+                                                    ) : (
+                                                        <RiNotification3Line size={18} />
                                                     )}
                                                 </div>
-                                                <p className="truncate text-xs font-medium text-secondary">
-                                                    {message.orderId} · {label}
-                                                </p>
-                                                <p className="mt-1 line-clamp-2 text-xs leading-5 text-muted-foreground">
-                                                    {message.adminNote}
-                                                </p>
+                                                <div className="min-w-0 flex-1">
+                                                    <div className="mb-1 flex items-start justify-between gap-2">
+                                                        <p className="text-sm font-semibold leading-snug text-foreground">
+                                                            You have received a message from the admin
+                                                        </p>
+                                                        {!message.isRead && (
+                                                            <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-danger" />
+                                                        )}
+                                                    </div>
+                                                    <p className="truncate text-xs font-medium text-secondary">
+                                                        {message.orderId} · {label}
+                                                    </p>
+                                                    <p className="mt-1 line-clamp-2 text-xs leading-5 text-muted-foreground">
+                                                        {adminNotePreview}
+                                                    </p>
+                                                </div>
                                             </div>
-                                        </div>
-                                    </button>
-                                );
+                                        </button>
+                                    );
                                 })
                             )}
                         </div>

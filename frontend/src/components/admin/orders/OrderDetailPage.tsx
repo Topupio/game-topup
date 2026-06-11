@@ -19,6 +19,7 @@ import {
 } from "react-icons/ri";
 import AdminToolbar from "@/components/admin/shared/AdminToolbar";
 import { formatCurrencyAmount } from "@/lib/utils/formatCurrencyAmount";
+import RichTextEditor from "@/components/form/RichTextEditor";
 
 interface Props {
     initialOrder: Order;
@@ -43,6 +44,14 @@ function getErrorMessage(error: unknown) {
     return "Failed to update order";
 }
 
+function normalizeRichTextNote(html: string): string {
+    const trimmed = html.trim();
+    const stripped = trimmed.replace(/<[^>]*>/g, "").trim();
+    const hasEmbeddedContent = /<(img|table)\b/i.test(trimmed);
+
+    return stripped.length > 0 || hasEmbeddedContent ? trimmed : "";
+}
+
 export default function OrderDetailPage({ initialOrder }: Props) {
     const [order, setOrder] = useState<Order>(initialOrder);
     const [updating, setUpdating] = useState(false);
@@ -52,16 +61,39 @@ export default function OrderDetailPage({ initialOrder }: Props) {
     const [paymentStatus, setPaymentStatus] = useState(order.paymentStatus);
     const [adminNote, setAdminNote] = useState(order.adminNote || "");
 
+    const savedAdminNote = normalizeRichTextNote(order.adminNote || "");
+    const currentAdminNote = normalizeRichTextNote(adminNote);
+    const hasChanges =
+        status !== order.orderStatus ||
+        paymentStatus !== order.paymentStatus ||
+        currentAdminNote !== savedAdminNote;
+    const saveButtonLabel = updating
+        ? "Saving..."
+        : hasChanges
+          ? "Save changes"
+          : "No changes";
+
+    const resetFormToSavedOrder = () => {
+        setStatus(order.orderStatus);
+        setPaymentStatus(order.paymentStatus);
+        setAdminNote(order.adminNote || "");
+    };
+
     const handleUpdate = async () => {
+        if (!hasChanges || updating) return;
+
         setUpdating(true);
         try {
             const res = await ordersApiClient.adminUpdateOrder(order._id, {
                 orderStatus: status,
                 paymentStatus,
-                adminNote
+                adminNote: currentAdminNote
             });
             if (res.success) {
                 setOrder(res.data);
+                setStatus(res.data.orderStatus);
+                setPaymentStatus(res.data.paymentStatus);
+                setAdminNote(res.data.adminNote || "");
                 toast.success("Order updated successfully");
             }
         } catch (error: unknown) {
@@ -90,6 +122,98 @@ export default function OrderDetailPage({ initialOrder }: Props) {
         upiPayment &&
         (upiPayment.currency !== orderCurrency || upiPayment.amount !== order.amount)
     );
+    const updateOrderPanel = (
+        <section className="bg-white border border-gray-200 p-5 sm:p-6 rounded-2xl">
+            <div className="flex flex-col gap-4 border-b border-gray-100 pb-5 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                    <h2 className="text-gray-900 font-bold text-lg">
+                        Update Order
+                    </h2>
+                    <p className="text-gray-500 text-sm mt-1">
+                        Manage status and customer-facing delivery notes from one place.
+                    </p>
+                </div>
+                <div className="flex flex-col-reverse gap-2 sm:flex-row sm:items-center">
+                    {hasChanges && (
+                        <button
+                            type="button"
+                            onClick={resetFormToSavedOrder}
+                            disabled={updating}
+                            className="px-4 py-3 border border-gray-200 text-gray-600 hover:bg-gray-50 rounded-xl text-xs font-bold transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1"
+                        >
+                            <RiCloseLine /> Discard changes
+                        </button>
+                    )}
+                    <button
+                        type="button"
+                        onClick={handleUpdate}
+                        disabled={!hasChanges || updating}
+                        className={`px-5 py-3 font-bold rounded-xl transition flex items-center justify-center gap-2 ${
+                            hasChanges && !updating
+                                ? "bg-blue-600 text-white hover:bg-blue-700 active:scale-[0.98] shadow-lg shadow-blue-500/20"
+                                : "bg-gray-100 text-gray-400 cursor-not-allowed"
+                        }`}
+                    >
+                        {updating ? <RiLoader4Line className="w-5 h-5 animate-spin" /> : <RiCheckLine className="w-5 h-5" />}
+                        {saveButtonLabel}
+                    </button>
+                </div>
+            </div>
+
+            <div className="grid grid-cols-1 gap-5 pt-5 xl:grid-cols-[minmax(260px,360px)_minmax(0,1fr)]">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-1 xl:content-start">
+                    <div>
+                        <label htmlFor="orderStatus" className="text-gray-500 text-[10px] uppercase font-bold tracking-wider block mb-2 px-1">Order Status</label>
+                        <select
+                            id="orderStatus"
+                            className="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 text-gray-900 font-medium focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition"
+                            value={status}
+                            disabled={updating}
+                            onChange={(e) => setStatus(e.target.value as Order["orderStatus"])}
+                        >
+                            <option value="pending">Pending</option>
+                            <option value="paid">Paid</option>
+                            <option value="processing">Processing</option>
+                            <option value="completed">Completed</option>
+                            <option value="cancelled">Cancelled</option>
+                            <option value="failed">Failed</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label htmlFor="paymentStatus" className="text-gray-500 text-[10px] uppercase font-bold tracking-wider block mb-2 px-1">Payment Status</label>
+                        <select
+                            id="paymentStatus"
+                            className="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 text-gray-900 font-medium focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition"
+                            value={paymentStatus}
+                            disabled={updating}
+                            onChange={(e) => setPaymentStatus(e.target.value as Order["paymentStatus"])}
+                        >
+                            <option value="pending">Pending</option>
+                            <option value="paid">Paid</option>
+                            <option value="failed">Failed</option>
+                            <option value="refunded">Refunded</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div className="min-w-0">
+                    <div className="mb-2 flex flex-col gap-1 px-1 sm:flex-row sm:items-end sm:justify-between">
+                        <p className="text-gray-500 text-[10px] uppercase font-bold tracking-wider">Internal Note / Tracking Info</p>
+                        <p className="text-gray-400 text-xs">
+                            Visible to the customer on their order page.
+                        </p>
+                    </div>
+                    <RichTextEditor
+                        value={adminNote}
+                        onChange={setAdminNote}
+                        placeholder="Add notes, delivery info, or tracking details for the customer..."
+                        disabled={updating}
+                    />
+                </div>
+            </div>
+        </section>
+    );
 
     return (
         <div className="space-y-6 pb-20">
@@ -108,62 +232,60 @@ export default function OrderDetailPage({ initialOrder }: Props) {
                 }
             />
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-                {/* Left Column: Order Information */}
-                <div className="lg:col-span-2 space-y-6">
-
-                    {/* Customer & Product Info Grid */}
-                    <div className="grid md:grid-cols-2 gap-6">
-                        {/* Customer Info */}
-                        <div className="bg-white border border-gray-200 p-6 rounded-2xl">
-                            <h2 className="text-gray-900 font-bold flex items-center gap-2 mb-4">
-                                <RiUser3Line className="text-blue-600" />
-                                Customer Info
-                            </h2>
-                            <div className="space-y-4">
-                                <div>
-                                    <p className="text-gray-500 text-[10px] uppercase font-bold tracking-wider">Name</p>
-                                    <p className="text-gray-900 font-medium">{order.user?.name || "N/A"}</p>
-                                </div>
-                                <div>
-                                    <p className="text-gray-500 text-[10px] uppercase font-bold tracking-wider">Email</p>
-                                    <p className="text-gray-900 font-medium">{order.user?.email || "N/A"}</p>
-                                </div>
+            <div className="space-y-6">
+                {/* Product & Customer Summary */}
+                <div className="grid md:grid-cols-2 gap-6">
+                    {/* Product Info */}
+                    <div className="bg-white border border-blue-200 p-6 rounded-2xl shadow-[0_10px_30px_rgba(37,99,235,0.08)]">
+                        <h2 className="text-gray-900 font-bold flex items-center gap-2 mb-4">
+                            <RiShoppingBag3Line className="text-blue-600" />
+                            Product Info
+                        </h2>
+                        <div className="space-y-4">
+                            <div className="rounded-xl border border-blue-100 bg-blue-50/70 p-4">
+                                <p className="text-blue-600 text-[10px] uppercase font-bold tracking-wider">Game / Product</p>
+                                <p className="text-gray-950 font-extrabold text-xl leading-tight mt-1">{order.game?.name || "N/A"}</p>
+                                <p className="text-gray-700 text-sm font-semibold mt-1">{order.productSnapshot.name}</p>
                             </div>
-                        </div>
-
-                        {/* Product Info */}
-                        <div className="bg-white border border-gray-200 p-6 rounded-2xl">
-                            <h2 className="text-gray-900 font-bold flex items-center gap-2 mb-4">
-                                <RiShoppingBag3Line className="text-blue-600" />
-                                Product Info
-                            </h2>
-                            <div className="space-y-4">
+                            <div className="flex justify-between items-center bg-gray-50 p-3 rounded-xl border border-gray-100">
                                 <div>
-                                    <p className="text-gray-500 text-[10px] uppercase font-bold tracking-wider">Game / Product</p>
-                                    <p className="text-gray-900 font-medium">{order.game?.name}</p>
-                                    <p className="text-gray-500 text-xs">{order.productSnapshot.name}</p>
+                                    <p className="text-gray-500 text-[10px] uppercase font-bold tracking-wider">Order Amount</p>
+                                    <p className="text-blue-600 font-bold text-lg">{orderAmount}</p>
+                                    {hasDifferentUpiAmount && (
+                                        <p className="text-gray-500 text-xs">UPI payable: {upiAmount}</p>
+                                    )}
                                 </div>
-                                <div className="flex justify-between items-center bg-gray-50 p-3 rounded-xl border border-gray-100">
-                                    <div>
-                                        <p className="text-gray-500 text-[10px] uppercase font-bold tracking-wider">Order Amount</p>
-                                        <p className="text-blue-600 font-bold text-lg">{orderAmount}</p>
-                                        {hasDifferentUpiAmount && (
-                                            <p className="text-gray-500 text-xs">UPI payable: {upiAmount}</p>
-                                        )}
-                                    </div>
-                                    <div className="text-right">
-                                        <p className="text-gray-500 text-[10px] uppercase font-bold tracking-wider">Method</p>
-                                        <p className="text-gray-900 font-medium text-xs">{order.paymentMethod?.toUpperCase()}</p>
-                                    </div>
+                                <div className="text-right">
+                                    <p className="text-gray-500 text-[10px] uppercase font-bold tracking-wider">Method</p>
+                                    <p className="text-gray-900 font-medium text-xs">{order.paymentMethod?.toUpperCase()}</p>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    {/* UPI Payment Info — only for UPI orders */}
-                    {order.paymentMethod === "upi" && (() => {
+                    {/* Customer Info */}
+                    <div className="bg-white border border-gray-200 p-6 rounded-2xl">
+                        <h2 className="text-gray-900 font-bold flex items-center gap-2 mb-4">
+                            <RiUser3Line className="text-blue-600" />
+                            Customer Info
+                        </h2>
+                        <div className="space-y-4">
+                            <div>
+                                <p className="text-gray-500 text-[10px] uppercase font-bold tracking-wider">Name</p>
+                                <p className="text-gray-900 font-medium">{order.user?.name || "N/A"}</p>
+                            </div>
+                            <div>
+                                <p className="text-gray-500 text-[10px] uppercase font-bold tracking-wider">Email</p>
+                                <p className="text-gray-900 font-medium">{order.user?.email || "N/A"}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {updateOrderPanel}
+
+                {/* UPI Payment Info — only for UPI orders */}
+                {order.paymentMethod === "upi" && (() => {
                         const upi = order.paymentInfo?.paymentGatewayResponse?.upi;
                         const utrNumber = order.paymentInfo?.utrNumber;
                         const utrSubmittedAt = order.paymentInfo?.utrSubmittedAt;
@@ -289,83 +411,6 @@ export default function OrderDetailPage({ initialOrder }: Props) {
                             ))}
                         </div>
                     </div>
-                </div>
-
-                {/* Right Column: Actions */}
-                <div className="space-y-6">
-                    <div className="bg-white border border-gray-200 p-6 rounded-2xl sticky top-24">
-                        <h2 className="text-gray-900 font-bold mb-6 flex items-center gap-2 pb-4 border-b border-gray-100">
-                            Update Order
-                        </h2>
-
-                        <div className="space-y-5">
-                            {/* Order Status */}
-                            <div>
-                                <label htmlFor="orderStatus" className="text-gray-500 text-[10px] uppercase font-bold tracking-wider block mb-2 px-1">Order Status</label>
-                                <select
-                                    id="orderStatus"
-                                    className="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 text-gray-900 font-medium focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition"
-                                    value={status}
-                                    onChange={(e) => setStatus(e.target.value as Order["orderStatus"])}
-                                >
-                                    <option value="pending">Pending</option>
-                                    <option value="paid">Paid</option>
-                                    <option value="processing">Processing</option>
-                                    <option value="completed">Completed</option>
-                                    <option value="cancelled">Cancelled</option>
-                                    <option value="failed">Failed</option>
-                                </select>
-                            </div>
-
-                            {/* Payment Status */}
-                            <div>
-                                <label htmlFor="paymentStatus" className="text-gray-500 text-[10px] uppercase font-bold tracking-wider block mb-2 px-1">Payment Status</label>
-                                <select
-                                    id="paymentStatus"
-                                    className="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 text-gray-900 font-medium focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition"
-                                    value={paymentStatus}
-                                    onChange={(e) => setPaymentStatus(e.target.value as Order["paymentStatus"])}
-                                >
-                                    <option value="pending">Pending</option>
-                                    <option value="paid">Paid</option>
-                                    <option value="failed">Failed</option>
-                                    <option value="refunded">Refunded</option>
-                                </select>
-                            </div>
-
-                            {/* Admin Note */}
-                            <div>
-                                <label htmlFor="adminNote" className="text-gray-500 text-[10px] uppercase font-bold tracking-wider block mb-2 px-1">Internal Note / Tracking Info</label>
-                                <textarea
-                                    id="adminNote"
-                                    className="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 text-gray-900 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition h-32 resize-none"
-                                    placeholder="Add notes for the user or tracking ID..."
-                                    value={adminNote}
-                                    onChange={(e) => setAdminNote(e.target.value)}
-                                />
-                            </div>
-
-                            <button
-                                onClick={handleUpdate}
-                                disabled={updating}
-                                className="w-full py-3.5 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 active:scale-[0.98] transition disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg shadow-blue-500/20"
-                            >
-                                {updating ? <RiLoader4Line className="w-5 h-5 animate-spin" /> : <RiCheckLine className="w-5 h-5" />}
-                                Update Order
-                            </button>
-
-                            <div className="pt-2 flex gap-2">
-                                <Link
-                                    href="/admin/orders"
-                                    className="flex-1 py-3 border border-gray-200 text-gray-600 hover:bg-gray-50 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1"
-                                >
-                                    <RiCloseLine /> Cancel
-                                </Link>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
             </div>
         </div>
     );

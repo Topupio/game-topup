@@ -48,18 +48,21 @@ interface RichTextEditorProps {
     value: string;
     onChange: (html: string) => void;
     placeholder?: string;
+    disabled?: boolean;
 }
 
 export default function RichTextEditor({
     value,
     onChange,
     placeholder = "Start writing...",
+    disabled = false,
 }: RichTextEditorProps) {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [uploading, setUploading] = useState(false);
     const [expanded, setExpanded] = useState(false);
     const [showTableMenu, setShowTableMenu] = useState(false);
     const tableMenuRef = useRef<HTMLDivElement>(null);
+    const disabledRef = useRef(disabled);
     // Force re-render on editor transactions so toolbar active states stay in sync
     const [, setTick] = useState(0);
 
@@ -90,8 +93,10 @@ export default function RichTextEditor({
             Placeholder.configure({ placeholder }),
         ],
         content: value || "",
+        editable: !disabled,
         immediatelyRender: false,
         onUpdate: ({ editor }) => {
+            if (disabledRef.current) return;
             onChange(editor.getHTML());
         },
         onTransaction: () => {
@@ -101,20 +106,32 @@ export default function RichTextEditor({
 
     // Sync external value into editor (e.g. when loading existing data)
     useEffect(() => {
-        if (!editor || !value) return;
-        const isSame = editor.getHTML() === value;
+        if (!editor) return;
+        const nextValue = value || "";
+        const isSame = editor.getHTML() === nextValue;
         if (isSame) return;
-        editor.commands.setContent(value, { emitUpdate: false });
+        editor.commands.setContent(nextValue, { emitUpdate: false });
     }, [editor, value]);
 
+    useEffect(() => {
+        disabledRef.current = disabled;
+        if (!editor) return;
+        editor.setEditable(!disabled);
+        if (disabled) {
+            setShowLinkInput(false);
+            setShowTableMenu(false);
+        }
+    }, [editor, disabled]);
+
     const handleImageUpload = useCallback(async () => {
+        if (disabled) return;
         fileInputRef.current?.click();
-    }, []);
+    }, [disabled]);
 
     const onFileSelected = useCallback(
         async (e: React.ChangeEvent<HTMLInputElement>) => {
             const file = e.target.files?.[0];
-            if (!file || !editor) return;
+            if (!file || !editor || disabled) return;
 
             const fd = new FormData();
             fd.append("image", file);
@@ -137,7 +154,7 @@ export default function RichTextEditor({
             // Reset so same file can be re-selected
             e.target.value = "";
         },
-        [editor]
+        [editor, disabled]
     );
 
     const [showLinkInput, setShowLinkInput] = useState(false);
@@ -156,31 +173,31 @@ export default function RichTextEditor({
     }, [showTableMenu]);
 
     const openLinkInput = useCallback(() => {
-        if (!editor) return;
+        if (!editor || disabled) return;
         // Pre-fill with existing link URL if cursor is on a link
         const existingHref = editor.getAttributes("link").href || "";
         setLinkUrl(existingHref);
         setShowLinkInput(true);
         // Focus the input after it renders
         setTimeout(() => linkInputRef.current?.focus(), 0);
-    }, [editor]);
+    }, [editor, disabled]);
 
     const applyLink = useCallback(() => {
-        if (!editor) return;
+        if (!editor || disabled) return;
         if (linkUrl.trim()) {
             const href = linkUrl.trim().startsWith("http") ? linkUrl.trim() : `https://${linkUrl.trim()}`;
             editor.chain().focus().extendMarkRange("link").setLink({ href }).run();
         }
         setShowLinkInput(false);
         setLinkUrl("");
-    }, [editor, linkUrl]);
+    }, [editor, linkUrl, disabled]);
 
     const removeLink = useCallback(() => {
-        if (!editor) return;
+        if (!editor || disabled) return;
         editor.chain().focus().unsetLink().run();
         setShowLinkInput(false);
         setLinkUrl("");
-    }, [editor]);
+    }, [editor, disabled]);
 
     if (!editor) return null;
 
@@ -189,11 +206,12 @@ export default function RichTextEditor({
             className={`
                 flex flex-col border border-gray-300 rounded-lg overflow-hidden
                 focus-within:ring-2 focus-within:ring-blue-200 focus-within:border-blue-500 transition
+                ${disabled ? "bg-gray-50 opacity-80" : "bg-white"}
                 ${expanded ? "fixed inset-0 z-[100] rounded-none bg-white" : "w-full"}
             `}
         >
             {/* Toolbar */}
-            <div className="flex flex-wrap items-center gap-0.5 px-2 py-1.5 bg-gray-50 border-b border-gray-200">
+            <div className={`flex flex-wrap items-center gap-0.5 px-2 py-1.5 bg-gray-50 border-b border-gray-200 ${disabled ? "pointer-events-none opacity-50" : ""}`}>
                 <ToolbarButton
                     onClick={() => editor.chain().focus().toggleBold().run()}
                     active={editor.isActive("bold")}
@@ -366,7 +384,7 @@ export default function RichTextEditor({
                         </div>
                     )}
                 </div>
-                <ToolbarButton onClick={handleImageUpload} disabled={uploading} title="Upload Image">
+                <ToolbarButton onClick={handleImageUpload} disabled={disabled || uploading} title="Upload Image">
                     {uploading ? (
                         <FaSpinner size={13} className="animate-spin" />
                     ) : (
@@ -459,14 +477,14 @@ export default function RichTextEditor({
 
                 <ToolbarButton
                     onClick={() => editor.chain().focus().undo().run()}
-                    disabled={!editor.can().undo()}
+                    disabled={disabled || !editor.can().undo()}
                     title="Undo"
                 >
                     <FaUndo size={12} />
                 </ToolbarButton>
                 <ToolbarButton
                     onClick={() => editor.chain().focus().redo().run()}
-                    disabled={!editor.can().redo()}
+                    disabled={disabled || !editor.can().redo()}
                     title="Redo"
                 >
                     <FaRedo size={12} />
@@ -477,6 +495,7 @@ export default function RichTextEditor({
 
                 <ToolbarButton
                     onClick={() => setExpanded((prev) => !prev)}
+                    disabled={disabled}
                     title={expanded ? "Exit full width" : "Full width"}
                 >
                     {expanded ? <FaCompress size={13} /> : <FaExpand size={13} />}
@@ -496,7 +515,7 @@ export default function RichTextEditor({
                 editor={editor}
                 className={`rich-text-editor-content px-3 py-2 text-sm focus:outline-none overflow-y-auto ${
                     expanded ? "flex-1" : "min-h-[200px]"
-                }`}
+                } ${disabled ? "cursor-not-allowed bg-gray-50" : ""}`}
             />
 
             {/* Hidden file input */}
@@ -505,6 +524,7 @@ export default function RichTextEditor({
                 type="file"
                 accept="image/*"
                 className="hidden"
+                disabled={disabled}
                 onChange={onFileSelected}
             />
 
