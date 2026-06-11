@@ -17,7 +17,6 @@ function getErrorMessage(error: unknown, fallback: string) {
     return fallback;
 }
 
-
 export default function ResetPasswordPage() {
     const router = useRouter();
     const { token } = useParams<{ token?: string | string[] }>();

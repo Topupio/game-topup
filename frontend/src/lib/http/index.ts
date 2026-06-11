@@ -46,6 +46,13 @@ apiClient.interceptors.request.use(async (config: InternalAxiosRequestConfig) =>
 let isRefreshing = false;
 let pendingQueue: Array<() => void> = [];
 
+function isInvalidCsrfError(error: AxiosError) {
+    return (
+        error.response?.status === 403 &&
+        (error.response.data as { message?: string } | undefined)?.message === "Invalid CSRF token"
+    );
+}
+
 function onRefreshed() {
     pendingQueue.forEach((cb) => cb());
     pendingQueue = [];
@@ -55,7 +62,17 @@ function onRefreshed() {
 apiClient.interceptors.response.use(
     (res: AxiosResponse) => res,
     async (error: AxiosError) => {
-        const original = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
+        const original = error.config as InternalAxiosRequestConfig & {
+            _retry?: boolean;
+            _csrfRetry?: boolean;
+        };
+
+        if (isInvalidCsrfError(error) && original && !original._csrfRetry) {
+            clearCachedCsrf();
+            original._csrfRetry = true;
+            return apiClient(original);
+        }
+
         if (error.response?.status === 401 && !original?._retry) {
             if (isRefreshing) {
                 await new Promise<void>((resolve) => pendingQueue.push(resolve));
@@ -74,6 +91,7 @@ apiClient.interceptors.response.use(
                 original._retry = true;
                 return apiClient(original);
             } catch {
+                clearCachedCsrf();
                 throw error;
             } finally {
                 isRefreshing = false;
@@ -94,4 +112,3 @@ const httpExports = {
 };
 
 export default httpExports;
-
