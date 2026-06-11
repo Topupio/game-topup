@@ -29,6 +29,13 @@ const blogSchema = new mongoose.Schema(
             required: true,
             trim: true,
         },
+        relatedGames: [
+            {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "Game",
+                index: true,
+            }
+        ],
         coverImage: {
             type: String,
             required: true,

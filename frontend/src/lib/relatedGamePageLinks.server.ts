@@ -38,7 +38,22 @@ async function getRelatedGames(game: Game, category: string): Promise<Game[]> {
     }
 }
 
-async function getRelatedBlogs(category: string): Promise<Blog[]> {
+async function getRelatedBlogs(game: Game, category: string): Promise<Blog[]> {
+    try {
+        const explicitResponse = await blogApiServer.list({
+            page: 1,
+            limit: RELATED_BLOGS_LIMIT,
+            gameId: game._id,
+        });
+
+        const explicitBlogs = explicitResponse.data || [];
+        if (explicitBlogs.length > 0) {
+            return explicitBlogs.slice(0, RELATED_BLOGS_LIMIT);
+        }
+    } catch (error) {
+        console.error("Failed to load game-specific related blogs", error);
+    }
+
     if (!category) return [];
 
     try {
@@ -61,7 +76,7 @@ export async function getRelatedGamePageLinks(
     const category = getRelatedCategory(game);
     const [relatedGames, relatedBlogs] = await Promise.all([
         getRelatedGames(game, category),
-        getRelatedBlogs(category),
+        getRelatedBlogs(game, category),
     ]);
 
     return { relatedGames, relatedBlogs };

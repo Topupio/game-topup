@@ -3,7 +3,7 @@ import { endpoints } from "@/config/api";
 import { BlogListResponse, BlogResponse } from "./types";
 
 export const blogApiServer = {
-    async list(params?: { page?: number; limit?: number; category?: string }): Promise<BlogListResponse> {
+    async list(params?: { page?: number; limit?: number; category?: string; gameId?: string }): Promise<BlogListResponse> {
         return serverApi.get<BlogListResponse>(endpoints.blogs.root, { params });
     },
 

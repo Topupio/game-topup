@@ -6,11 +6,28 @@ import mongoose from "mongoose";
 import slugify from "slugify";
 import { logAdminActivity } from "../utils/adminLogger.js";
 
+function parseRelatedGames(value) {
+    if (value === undefined) return undefined;
+
+    let relatedGames = value;
+    if (typeof relatedGames === "string") {
+        try {
+            relatedGames = JSON.parse(relatedGames);
+        } catch {
+            relatedGames = relatedGames ? [relatedGames] : [];
+        }
+    }
+
+    if (!Array.isArray(relatedGames)) return [];
+
+    return relatedGames.filter((id) => mongoose.Types.ObjectId.isValid(id));
+}
+
 // @desc    Create a new blog
 // @route   POST /api/blogs
 // @access  Private/Admin
 export const createBlog = asyncHandler(async (req, res) => {
-    let { title, slug: customSlug, description, content, category, seo } = req.body;
+    let { title, slug: customSlug, description, content, category, seo, relatedGames } = req.body;
 
     if (!title) {
         res.status(400);
@@ -36,6 +53,8 @@ export const createBlog = asyncHandler(async (req, res) => {
             seo = JSON.parse(seo);
         } catch (e) { }
     }
+
+    relatedGames = parseRelatedGames(relatedGames) || [];
 
     if (!req.file) {
         res.status(400);
@@ -63,6 +82,7 @@ export const createBlog = asyncHandler(async (req, res) => {
         description,
         content,
         category,
+        relatedGames,
         coverImage: upload.secure_url,
         coverImageId: upload.public_id,
         seo
@@ -86,10 +106,12 @@ export const createBlog = asyncHandler(async (req, res) => {
 // @route   GET /api/blogs
 // @access  Public
 export const getAllBlogs = asyncHandler(async (req, res) => {
-    const { category, search = "", page = 1, limit = 10 } = req.query;
+    const { category, gameId, search = "", page = 1, limit = 10 } = req.query;
 
     const query = {};
-    if (category) {
+    if (gameId && mongoose.Types.ObjectId.isValid(gameId)) {
+        query.relatedGames = gameId;
+    } else if (category) {
         query.category = category;
     }
 
@@ -102,6 +124,7 @@ export const getAllBlogs = asyncHandler(async (req, res) => {
 
     const count = await Blog.countDocuments(query);
     const blogs = await Blog.find(query)
+        .populate("relatedGames", "name slug category paymentCategory imageUrl")
         .sort({ createdAt: -1 })
         .limit(limit * 1)
         .skip((page - 1) * limit);
@@ -126,11 +149,15 @@ export const getSingleBlog = asyncHandler(async (req, res) => {
     let blog = null;
 
     if (mongoose.Types.ObjectId.isValid(idOrSlug)) {
-        blog = await Blog.findById(idOrSlug).lean();
+        blog = await Blog.findById(idOrSlug)
+            .populate("relatedGames", "name slug category paymentCategory imageUrl")
+            .lean();
     }
 
     if (!blog) {
-        blog = await Blog.findOne({ slug: idOrSlug }).lean();
+        blog = await Blog.findOne({ slug: idOrSlug })
+            .populate("relatedGames", "name slug category paymentCategory imageUrl")
+            .lean();
     }
 
     if (!blog) {
@@ -155,7 +182,7 @@ export const updateBlog = asyncHandler(async (req, res) => {
         throw new Error("Blog not found");
     }
 
-    let { title, slug: customSlug, description, content, category, seo } = req.body;
+    let { title, slug: customSlug, description, content, category, seo, relatedGames } = req.body;
 
     // Parse JSON
     if (typeof content === "string") {
@@ -165,6 +192,8 @@ export const updateBlog = asyncHandler(async (req, res) => {
     if (typeof seo === "string") {
         try { seo = JSON.parse(seo); } catch (e) { }
     }
+
+    relatedGames = parseRelatedGames(relatedGames);
 
     // 🔹 Image update
     if (req.file) {
@@ -213,6 +242,7 @@ export const updateBlog = asyncHandler(async (req, res) => {
     if (description !== undefined) blog.description = description;
     if (content !== undefined) blog.content = content;
     if (category !== undefined) blog.category = category;
+    if (relatedGames !== undefined) blog.relatedGames = relatedGames;
     if (seo !== undefined) blog.seo = seo;
 
     const updatedBlog = await blog.save();

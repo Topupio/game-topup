@@ -11,6 +11,15 @@ export interface BlogSeo {
     keywords?: string[];
 }
 
+export interface RelatedBlogGame {
+    _id: string;
+    name: string;
+    slug: string;
+    category: string;
+    paymentCategory?: string;
+    imageUrl?: string | null;
+}
+
 export interface Blog {
     _id: string;
     title: string;
@@ -18,6 +27,7 @@ export interface Blog {
     description?: string;
     content: BlogContentSection[];
     category: string;
+    relatedGames?: Array<string | RelatedBlogGame>;
     coverImage: string;
     coverImageId?: string;
     seo?: BlogSeo;
@@ -31,6 +41,7 @@ export interface BlogPayload {
     description?: string;
     content: BlogContentSection[];
     category: string;
+    relatedGames?: string[];
     coverImage?: File; // For upload
     seo?: BlogSeo;
 }

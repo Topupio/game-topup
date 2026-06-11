@@ -1,7 +1,6 @@
 import { clientApi } from "@/lib/http";
 import { endpoints } from "@/config/api";
 import { BlogPayload, BlogResponse, BlogListResponse } from "./types";
-import { toFormData } from "@/utils/formData"; // Assuming we have this, or I'll inline a simple one like in games/banners
 
 // Helper to convert complex blog payload to FormData
 const createBlogFormData = (payload: BlogPayload): FormData => {
@@ -9,6 +8,7 @@ const createBlogFormData = (payload: BlogPayload): FormData => {
     fd.append("title", payload.title);
     fd.append("slug", payload.slug);
     fd.append("category", payload.category);
+    fd.append("relatedGames", JSON.stringify(payload.relatedGames || []));
 
     if (payload.description) fd.append("description", payload.description);
 
@@ -28,7 +28,7 @@ const createBlogFormData = (payload: BlogPayload): FormData => {
 };
 
 export const blogApiClient = {
-    async list(params?: { page?: number; limit?: number; category?: string }): Promise<BlogListResponse> {
+    async list(params?: { page?: number; limit?: number; category?: string; gameId?: string }): Promise<BlogListResponse> {
         const { data } = await clientApi.get(endpoints.blogs.root, { params });
         return data;
     },
@@ -56,6 +56,7 @@ export const blogApiClient = {
         if (payload.title) fd.append("title", payload.title);
         if (payload.slug) fd.append("slug", payload.slug);
         if (payload.category) fd.append("category", payload.category);
+        if (payload.relatedGames) fd.append("relatedGames", JSON.stringify(payload.relatedGames));
         if (payload.description) fd.append("description", payload.description);
 
         if (payload.content) fd.append("content", JSON.stringify(payload.content));
