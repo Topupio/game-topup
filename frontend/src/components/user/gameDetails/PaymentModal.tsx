@@ -9,7 +9,7 @@ import PayPalCheckout from "./PayPalCheckout";
 import NowPaymentsCheckout from "./NowPaymentsCheckout";
 import UpiQrDetailsModal from "./UpiQrDetailsModal";
 import {
-    FaPaypal,
+    // FaPaypal, // PayPal payment temporarily disabled (account suspended)
     FaBitcoin,
     FaEthereum,
 } from "react-icons/fa";
@@ -139,15 +139,16 @@ export default function PaymentModal({
                                     description: "Scan & pay with any UPI app",
                                     icon: <IoQrCode className="text-2xl shrink-0" style={{ color: "#4CAF50" }} />,
                                 },
-                                {
-                                    id: "paypal" as const,
-                                    label: "PayPal",
-                                    description: isPayPalAvailable
-                                        ? "Includes 9% processing & handling"
-                                        : "Order must be over $5.00 USD",
-                                    disabled: !isPayPalAvailable,
-                                    icon: <FaPaypal className="text-2xl shrink-0" style={{ color: "#0070BA" }} />,
-                                },
+                                // PayPal payment temporarily disabled (account suspended) — hidden from UI
+                                // {
+                                //     id: "paypal" as const,
+                                //     label: "PayPal",
+                                //     description: isPayPalAvailable
+                                //         ? "Includes 9% processing & handling"
+                                //         : "Order must be over $5.00 USD",
+                                //     disabled: !isPayPalAvailable,
+                                //     icon: <FaPaypal className="text-2xl shrink-0" style={{ color: "#0070BA" }} />,
+                                // },
                                 {
                                     id: "crypto" as const,
                                     label: "Cryptocurrency",
