@@ -357,7 +357,7 @@ export const getOrderDetails = async (req, res) => {
             : { _id: req.params.id, user: req.user.id };
 
         const order = await Order.findOne(query)
-            .populate("game", "name imageUrl")
+            .populate("game", "name imageUrl checkoutTemplate category")
             .populate("user", "name email");
 
         if (!order) {
@@ -645,10 +645,11 @@ export const adminUpdateOrder = async (req, res) => {
             return res.status(400).json({ success: false, message: "Invalid order id" });
         }
 
-        const { orderStatus, paymentStatus, adminNote, completionProof } = req.body;
+        const { orderStatus, paymentStatus, adminNote, completionProof, delivery } = req.body;
 
         const allowedOrderStatuses = ["pending", "paid", "processing", "completed", "cancelled", "failed", "expired"];
         const allowedPaymentStatuses = ["pending", "paid", "failed", "refunded"];
+        const allowedDeliveryKinds = ["credentials", "code"];
 
         if (orderStatus && !allowedOrderStatuses.includes(orderStatus)) {
             return res.status(400).json({ success: false, message: "Invalid order status" });
@@ -656,6 +657,14 @@ export const adminUpdateOrder = async (req, res) => {
 
         if (paymentStatus && !allowedPaymentStatuses.includes(paymentStatus)) {
             return res.status(400).json({ success: false, message: "Invalid payment status" });
+        }
+
+        if (delivery !== undefined && delivery !== null && typeof delivery !== "object") {
+            return res.status(400).json({ success: false, message: "Invalid delivery payload" });
+        }
+
+        if (delivery && delivery.kind && !allowedDeliveryKinds.includes(delivery.kind)) {
+            return res.status(400).json({ success: false, message: "Invalid delivery kind" });
         }
 
         const order = await Order.findById(req.params.id);
@@ -685,6 +694,65 @@ export const adminUpdateOrder = async (req, res) => {
         if (completionProof && completionProof !== order.completionProof) {
             order.completionProof = completionProof;
             isModified = true;
+        }
+
+        // Structured delivery (credentials / redeem code)
+        if (delivery !== undefined) {
+            const str = (v) => (typeof v === "string" ? v.trim() : "");
+            const existing = order.delivery && order.delivery.kind ? order.delivery : null;
+
+            let normalized = null;
+            if (delivery && delivery.kind) {
+                const items = Array.isArray(delivery.items)
+                    ? delivery.items
+                          .map((it) => ({
+                              label: str(it && it.label),
+                              value: typeof (it && it.value) === "string" ? it.value : String((it && it.value) ?? ""),
+                              secret: Boolean(it && it.secret),
+                          }))
+                          .filter((it) => it.label && it.value)
+                    : [];
+                const steps = Array.isArray(delivery.steps)
+                    ? delivery.steps.map((s) => str(s)).filter(Boolean)
+                    : [];
+                const validUntil = delivery.validUntil ? new Date(delivery.validUntil) : undefined;
+
+                normalized = {
+                    kind: delivery.kind,
+                    intro: str(delivery.intro),
+                    items,
+                    code: str(delivery.code),
+                    steps,
+                    notice: str(delivery.notice),
+                    validUntil: validUntil && !isNaN(validUntil.getTime()) ? validUntil : undefined,
+                    // preserve original delivery timestamp; set on first delivery
+                    deliveredAt: existing?.deliveredAt || new Date(),
+                };
+            }
+
+            const snapshot = (d) =>
+                d
+                    ? JSON.stringify({
+                          kind: d.kind,
+                          intro: d.intro || "",
+                          items: (d.items || []).map((it) => ({ label: it.label, value: it.value, secret: !!it.secret })),
+                          code: d.code || "",
+                          steps: d.steps || [],
+                          notice: d.notice || "",
+                          validUntil: d.validUntil ? new Date(d.validUntil).getTime() : null,
+                      })
+                    : "";
+
+            if (snapshot(normalized) !== snapshot(existing)) {
+                order.delivery = normalized || undefined;
+                if (normalized) {
+                    order.tracking.push({
+                        status: order.orderStatus,
+                        message: "Delivery details added",
+                    });
+                }
+                isModified = true;
+            }
         }
 
         if (!isModified) {

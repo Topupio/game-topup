@@ -20,6 +20,7 @@ import {
 // import PayPalCheckout from "@/components/user/gameDetails/PayPalCheckout";
 import NowPaymentsCheckout from "@/components/user/gameDetails/NowPaymentsCheckout";
 import UpiQrCheckout from "@/components/user/gameDetails/UpiQrCheckout";
+import DeliveryCard from "@/components/user/orders/DeliveryCard";
 import { useCurrency } from "@/context/CurrencyContext";
 
 interface Props {
@@ -93,12 +94,12 @@ export default function UserOrderDetailClient({ order: initialOrder }: Props) {
                                             {hasAdminMessage && (
                                                 <Link
                                                     href="#admin-message"
-                                                    aria-label="View admin message"
-                                                    title="View admin message"
+                                                    aria-label="View order update"
+                                                    title="View order update"
                                                     className="relative inline-flex h-7 w-7 items-center justify-center rounded-full border border-secondary/30 bg-secondary/10 text-secondary transition hover:bg-secondary hover:text-white focus:outline-none focus:ring-2 focus:ring-secondary/30 sm:h-8 sm:w-8"
                                                 >
                                                     <RiNotification3Line className="h-4 w-4 sm:h-[17px] sm:w-[17px]" />
-                                                    <span className="absolute right-1 top-1 h-1.5 w-1.5 rounded-full bg-danger ring-2 ring-card sm:right-1.5 sm:top-1.5 sm:h-2 sm:w-2" />
+                                                    <span className="absolute right-1 top-1 h-1.5 w-1.5 rounded-full bg-green-500 ring-2 ring-card sm:right-1.5 sm:top-1.5 sm:h-2 sm:w-2" />
                                                 </Link>
                                             )}
                                         </div>
@@ -182,6 +183,10 @@ export default function UserOrderDetailClient({ order: initialOrder }: Props) {
                             </div>
                         </section>
 
+                        {order.delivery?.kind && (
+                            <DeliveryCard delivery={order.delivery} />
+                        )}
+
                         {hasAdminMessage && (
                             <motion.div
                                 id="admin-message"
@@ -204,10 +209,10 @@ export default function UserOrderDetailClient({ order: initialOrder }: Props) {
                                         <motion.span
                                             animate={{ scale: [1, 1.35, 1], opacity: [1, 0.7, 1] }}
                                             transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
-                                            className="flex h-2.5 w-2.5 rounded-full bg-danger shadow-[0_0_12px_rgba(239,68,68,0.5)]"
+                                            className="flex h-2.5 w-2.5 rounded-full bg-green-500 shadow-[0_0_12px_rgba(34,197,94,0.5)]"
                                         />
                                         <p className="text-secondary text-xs font-bold uppercase tracking-wider">
-                                            Admin message
+                                            Order Update
                                         </p>
                                     </div>
                                 </div>
@@ -218,7 +223,7 @@ export default function UserOrderDetailClient({ order: initialOrder }: Props) {
                                     </div>
                                     <div className="min-w-0">
                                         <h2 className="text-base font-bold text-foreground sm:text-lg">
-                                            Message from support
+                                            Update on your order
                                         </h2>
                                        
                                         <div

@@ -27,6 +27,29 @@ export interface GameSummary {
     _id: string;
     name: string;
     imageUrl?: string;
+    checkoutTemplate?: string;
+    category?: string;
+}
+
+// ===== Structured Delivery =====
+
+export type DeliveryKind = "credentials" | "code";
+
+export interface DeliveryItem {
+    label: string;
+    value: string;
+    secret?: boolean;
+}
+
+export interface Delivery {
+    kind: DeliveryKind;
+    intro?: string;
+    items?: DeliveryItem[];
+    code?: string;
+    steps?: string[];
+    notice?: string;
+    validUntil?: string;
+    deliveredAt?: string;
 }
 
 // ===== Core Order Model =====
@@ -85,6 +108,8 @@ export interface Order {
     adminNoteUpdatedAt?: string;
     adminNoteReadAt?: string;
     completionProof?: string;
+
+    delivery?: Delivery;
 
     productSnapshot: {
         name: string;
@@ -208,6 +233,7 @@ export type AdminOrderUpdatePayload = Partial<{
     paymentStatus: PaymentStatus;
     adminNote: string;
     completionProof: string;
+    delivery: Delivery | null;
 }>;
 
 // ===== Create Order Payload =====

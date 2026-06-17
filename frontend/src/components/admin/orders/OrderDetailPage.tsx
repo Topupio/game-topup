@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Order } from "@/services/orders/types";
+import { Delivery, Order } from "@/services/orders/types";
+import DeliveryEditor from "@/components/admin/orders/DeliveryEditor";
 import { ordersApiClient } from "@/services/orders/ordersApi.client";
 import { toast } from "react-toastify";
 import Link from "next/link";
@@ -60,13 +61,18 @@ export default function OrderDetailPage({ initialOrder }: Props) {
     const [status, setStatus] = useState(order.orderStatus);
     const [paymentStatus, setPaymentStatus] = useState(order.paymentStatus);
     const [adminNote, setAdminNote] = useState(order.adminNote || "");
+    const savedDelivery: Delivery | null = order.delivery?.kind ? order.delivery : null;
+    const [delivery, setDelivery] = useState<Delivery | null>(savedDelivery);
 
     const savedAdminNote = normalizeRichTextNote(order.adminNote || "");
     const currentAdminNote = normalizeRichTextNote(adminNote);
+    const deliveryChanged =
+        JSON.stringify(delivery) !== JSON.stringify(savedDelivery);
     const hasChanges =
         status !== order.orderStatus ||
         paymentStatus !== order.paymentStatus ||
-        currentAdminNote !== savedAdminNote;
+        currentAdminNote !== savedAdminNote ||
+        deliveryChanged;
     const saveButtonLabel = updating
         ? "Saving..."
         : hasChanges
@@ -77,6 +83,7 @@ export default function OrderDetailPage({ initialOrder }: Props) {
         setStatus(order.orderStatus);
         setPaymentStatus(order.paymentStatus);
         setAdminNote(order.adminNote || "");
+        setDelivery(savedDelivery);
     };
 
     const handleUpdate = async () => {
@@ -87,13 +94,15 @@ export default function OrderDetailPage({ initialOrder }: Props) {
             const res = await ordersApiClient.adminUpdateOrder(order._id, {
                 orderStatus: status,
                 paymentStatus,
-                adminNote: currentAdminNote
+                adminNote: currentAdminNote,
+                ...(deliveryChanged ? { delivery } : {}),
             });
             if (res.success) {
                 setOrder(res.data);
                 setStatus(res.data.orderStatus);
                 setPaymentStatus(res.data.paymentStatus);
                 setAdminNote(res.data.adminNote || "");
+                setDelivery(res.data.delivery?.kind ? res.data.delivery : null);
                 toast.success("Order updated successfully");
             }
         } catch (error: unknown) {
@@ -197,19 +206,28 @@ export default function OrderDetailPage({ initialOrder }: Props) {
                     </div>
                 </div>
 
-                <div className="min-w-0">
-                    <div className="mb-2 flex flex-col gap-1 px-1 sm:flex-row sm:items-end sm:justify-between">
-                        <p className="text-gray-500 text-[10px] uppercase font-bold tracking-wider">Internal Note / Tracking Info</p>
-                        <p className="text-gray-400 text-xs">
-                            Visible to the customer on their order page.
-                        </p>
-                    </div>
-                    <RichTextEditor
-                        value={adminNote}
-                        onChange={setAdminNote}
-                        placeholder="Add notes, delivery info, or tracking details for the customer..."
+                <div className="min-w-0 space-y-5">
+                    <DeliveryEditor
+                        value={delivery}
+                        templateKey={order.game?.checkoutTemplate}
                         disabled={updating}
+                        onChange={setDelivery}
                     />
+
+                    <div>
+                        <div className="mb-2 flex flex-col gap-1 px-1 sm:flex-row sm:items-end sm:justify-between">
+                            <p className="text-gray-500 text-[10px] uppercase font-bold tracking-wider">Internal Note / Tracking Info</p>
+                            <p className="text-gray-400 text-xs">
+                                Visible to the customer on their order page.
+                            </p>
+                        </div>
+                        <RichTextEditor
+                            value={adminNote}
+                            onChange={setAdminNote}
+                            placeholder="Add notes, delivery info, or tracking details for the customer..."
+                            disabled={updating}
+                        />
+                    </div>
                 </div>
             </div>
         </section>

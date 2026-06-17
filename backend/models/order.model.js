@@ -130,6 +130,27 @@ const orderSchema = new mongoose.Schema(
             type: String, // screenshot URL or attachment
         },
 
+        // Structured customer-facing delivery (credentials / redeem code)
+        delivery: {
+            kind: { type: String, enum: ["credentials", "code"] }, // undefined = none
+            intro: { type: String, trim: true },
+            items: {
+                type: [
+                    {
+                        label: { type: String, required: true, trim: true },
+                        value: { type: String, required: true },
+                        secret: { type: Boolean, default: false }, // mask + reveal in UI
+                    }
+                ],
+                default: []
+            },
+            code: { type: String, trim: true },
+            steps: { type: [String], default: [] },
+            notice: { type: String, trim: true },
+            validUntil: { type: Date },
+            deliveredAt: { type: Date },
+        },
+
         productSnapshot: {
             name: String,
             price: Number,
