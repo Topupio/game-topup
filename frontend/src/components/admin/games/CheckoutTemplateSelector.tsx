@@ -31,7 +31,9 @@ export default function CheckoutTemplateSelector({
 
     const selectOptions = [
         { value: "", label: "Select a template" },
-        ...templates.map((t) => ({ value: t.key, label: t.label })),
+        ...templates
+            .filter((t) => t.enabled !== false || t.key === selectedTemplate)
+            .map((t) => ({ value: t.key, label: t.label })),
     ];
 
     const template = templates.find((t) => t.key === selectedTemplate);

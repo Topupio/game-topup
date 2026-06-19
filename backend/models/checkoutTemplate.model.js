@@ -55,6 +55,14 @@ const checkoutTemplateSchema = new mongoose.Schema(
             type: [fieldSchema],
             default: [],
         },
+        enabled: {
+            type: Boolean,
+            default: true,
+        },
+        isBuiltIn: {
+            type: Boolean,
+            default: false,
+        },
     },
     { timestamps: true }
 );

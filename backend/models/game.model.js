@@ -1,6 +1,5 @@
 import mongoose from "mongoose";
 import { REGION_KEYS } from "../constants/regions.js";
-import { CHECKOUT_TEMPLATE_KEYS } from "../constants/checkoutTemplates.js";
 
 const requiredFieldSchema = new mongoose.Schema({
     fieldName: {
@@ -189,10 +188,10 @@ const gameSchema = new mongoose.Schema(
             default: ["global"],
         },
 
-        // Checkout template (game-level)
+        // Checkout template (game-level). Validated against the CheckoutTemplate
+        // collection at the controller layer (built-in or custom keys allowed).
         checkoutTemplate: {
             type: String,
-            enum: [...CHECKOUT_TEMPLATE_KEYS, ""],
             default: "",
         },
         checkoutTemplateOptions: {

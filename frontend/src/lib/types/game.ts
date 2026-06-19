@@ -105,6 +105,8 @@ export interface CheckoutTemplateDoc {
     key: string;
     label: string;
     fields: CheckoutTemplateField[];
+    enabled: boolean;
+    isBuiltIn?: boolean;
     createdAt?: string;
     updatedAt?: string;
 }

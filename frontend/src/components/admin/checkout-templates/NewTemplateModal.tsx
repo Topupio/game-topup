@@ -4,36 +4,35 @@ import { useState } from "react";
 import { CheckoutTemplateDoc } from "@/lib/types/game";
 import { checkoutTemplatesApiClient } from "@/services/checkoutTemplates/checkoutTemplatesApi.client";
 import { toast } from "react-toastify";
+import { isAxiosError } from "axios";
 import TemplateForm, { TemplatePayload } from "./TemplateForm";
 
 interface Props {
     open: boolean;
     onClose: () => void;
-    template: CheckoutTemplateDoc;
-    onSaved: (updated: CheckoutTemplateDoc) => void;
+    onCreated: (created: CheckoutTemplateDoc) => void;
 }
 
-export default function EditTemplateModal({
-    open,
-    onClose,
-    template,
-    onSaved,
-}: Props) {
+export default function NewTemplateModal({ open, onClose, onCreated }: Props) {
     const [saving, setSaving] = useState(false);
 
     const handleSubmit = async (payload: TemplatePayload) => {
         setSaving(true);
         try {
-            const res = await checkoutTemplatesApiClient.update(template.key, {
+            const res = await checkoutTemplatesApiClient.create({
+                key: payload.key,
                 label: payload.label,
                 fields: payload.fields,
                 enabled: payload.enabled,
             });
-            toast.success("Template updated");
-            onSaved(res.data);
+            toast.success("Template created");
+            onCreated(res.data);
             onClose();
-        } catch {
-            toast.error("Failed to update template");
+        } catch (err) {
+            const msg = isAxiosError(err)
+                ? err.response?.data?.message
+                : undefined;
+            toast.error(msg || "Failed to create template");
         } finally {
             setSaving(false);
         }
@@ -41,10 +40,9 @@ export default function EditTemplateModal({
 
     return (
         <TemplateForm
-            key={template.key}
+            key={open ? "open" : "closed"}
             open={open}
-            mode="edit"
-            template={template}
+            mode="create"
             saving={saving}
             onClose={onClose}
             onSubmit={handleSubmit}

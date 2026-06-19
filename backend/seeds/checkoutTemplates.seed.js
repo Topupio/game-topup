@@ -30,6 +30,14 @@ export async function seedCheckoutTemplates() {
         }
     }
 
+    // Backfill: mark all known built-in templates (already-seeded deployments
+    // won't have isBuiltIn set otherwise, which would let admins delete them).
+    const builtInKeys = Object.keys(CHECKOUT_TEMPLATES);
+    await CheckoutTemplate.updateMany(
+        { key: { $in: builtInKeys }, isBuiltIn: { $ne: true } },
+        { $set: { isBuiltIn: true } }
+    );
+
     const count = await CheckoutTemplate.countDocuments();
     if (count > 0) return;
 
@@ -40,6 +48,8 @@ export async function seedCheckoutTemplates() {
                 $setOnInsert: {
                     key: t.key,
                     label: t.label,
+                    enabled: true,
+                    isBuiltIn: true,
                     fields: t.fields.map((f) => ({
                         fieldKey: f.fieldKey,
                         fieldName: f.fieldName,

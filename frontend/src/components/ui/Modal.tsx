@@ -16,7 +16,7 @@ export default function Modal({ open, onClose, children }: Props) {
                 <>
                     {/* Backdrop */}
                     <motion.div
-                        className="fixed inset-0 bg-black/40 z-40"
+                        className="fixed inset-0 bg-black/40 z-[60]"
                         onClick={onClose}
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
@@ -25,7 +25,7 @@ export default function Modal({ open, onClose, children }: Props) {
 
                     {/* Modal Box */}
                     <motion.div
-                        className="fixed top-1/2 left-1/2 w-[400px] -translate-x-1/2 -translate-y-1/2 bg-white rounded-xl shadow-lg p-6 z-50"
+                        className="fixed top-1/2 left-1/2 w-[400px] -translate-x-1/2 -translate-y-1/2 bg-white rounded-xl shadow-lg p-6 z-[70]"
                         initial={{ scale: 0.9, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
                         exit={{ scale: 0.9, opacity: 0 }}

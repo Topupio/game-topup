@@ -4,7 +4,7 @@ import slugify from "slugify";
 import { uploadBufferToCloudinary } from "../utils/uploadToCloudinary.js";
 import { deleteImageFromCloudinary } from "../utils/deleteFromCloudinary.js";
 import { logAdminActivity } from "../utils/adminLogger.js";
-import { CHECKOUT_TEMPLATE_KEYS, slugToCategory } from "../constants/checkoutTemplates.js";
+import { slugToCategory } from "../constants/checkoutTemplates.js";
 import CheckoutTemplate from "../models/checkoutTemplate.model.js";
 
 const GLOBAL_REGION_PRICING = {
@@ -321,9 +321,9 @@ const createGame = asyncHandler(async (req, res) => {
     const regions = ["global"];
     const faqs = parseJsonField(req.body.faqs) || [];
 
-    // Validate checkout template at game level
+    // Validate checkout template at game level (DB-driven: built-in or custom)
     const checkoutTemplate = rawCheckoutTemplate || "";
-    if (checkoutTemplate && !["", ...CHECKOUT_TEMPLATE_KEYS].includes(checkoutTemplate)) {
+    if (checkoutTemplate && !(await CheckoutTemplate.exists({ key: checkoutTemplate }))) {
         return res.status(400).json({ success: false, message: `Invalid checkoutTemplate '${checkoutTemplate}'` });
     }
 
@@ -479,9 +479,9 @@ const updateGame = asyncHandler(async (req, res) => {
     const checkoutTemplateOptions = parseJsonField(req.body.checkoutTemplateOptions);
     const faqs = parseJsonField(req.body.faqs);
 
-    // Validate checkout template at game level
+    // Validate checkout template at game level (DB-driven: built-in or custom)
     const checkoutTemplate = rawCheckoutTemplate || "";
-    if (checkoutTemplate && !["", ...CHECKOUT_TEMPLATE_KEYS].includes(checkoutTemplate)) {
+    if (checkoutTemplate && !(await CheckoutTemplate.exists({ key: checkoutTemplate }))) {
         return res.status(400).json({ success: false, message: `Invalid checkoutTemplate '${checkoutTemplate}'` });
     }
 

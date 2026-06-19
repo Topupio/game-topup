@@ -1,11 +1,12 @@
 "use client";
 
 import { CheckoutTemplateDoc } from "@/lib/types/game";
-import { TbPencil } from "react-icons/tb";
+import { TbPencil, TbTrash } from "react-icons/tb";
 
 interface Props {
     template: CheckoutTemplateDoc;
     onEdit?: () => void;
+    onDelete?: () => void;
 }
 
 const TYPE_COLORS: Record<string, string> = {
@@ -17,15 +18,25 @@ const TYPE_COLORS: Record<string, string> = {
     tel: "bg-teal-50 text-teal-600",
 };
 
-export default function TemplateCard({ template, onEdit }: Props) {
+export default function TemplateCard({ template, onEdit, onDelete }: Props) {
     const enabledCount = template.fields.filter((f) => f.enabled).length;
+    const disabled = template.enabled === false;
 
     return (
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5 flex flex-col">
+        <div
+            className={`bg-white rounded-xl border shadow-sm p-5 flex flex-col ${
+                disabled ? "border-orange-200 bg-orange-50/40" : "border-gray-200"
+            }`}
+        >
             {/* Header */}
             <div className="flex items-start justify-between gap-2 mb-1">
-                <h3 className="text-base font-semibold text-gray-900">
+                <h3 className="text-base font-semibold text-gray-900 flex items-center gap-2">
                     {template.label}
+                    {disabled && (
+                        <span className="text-[10px] font-medium text-orange-500 bg-orange-100 px-1.5 py-0.5 rounded">
+                            Disabled
+                        </span>
+                    )}
                 </h3>
                 <span className="text-[11px] font-mono bg-gray-100 text-gray-500 px-2 py-0.5 rounded shrink-0">
                     {template.key}
@@ -77,7 +88,15 @@ export default function TemplateCard({ template, onEdit }: Props) {
             </div>
 
             {/* Footer */}
-            <div className="border-t border-gray-100 pt-3 mt-3 flex justify-end">
+            <div className="border-t border-gray-100 pt-3 mt-3 flex justify-end gap-1">
+                {!template.isBuiltIn && (
+                    <button
+                        onClick={() => onDelete?.()}
+                        className="flex items-center gap-1.5 text-sm text-red-500 hover:text-red-600 hover:bg-red-50 px-3 py-1.5 rounded-lg transition"
+                    >
+                        <TbTrash size={15} /> Delete
+                    </button>
+                )}
                 <button
                     onClick={() => onEdit?.()}
                     className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 px-3 py-1.5 rounded-lg transition"
