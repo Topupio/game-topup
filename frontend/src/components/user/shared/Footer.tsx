@@ -71,7 +71,7 @@ const Footer = () => {
                             <div className="flex flex-wrap gap-2">
                                 <PaymentBadge label="VISA" />
                                 <PaymentBadge label="MASTERCARD" />
-                                <PaymentBadge label="PAYPAL" />
+                                {/* <PaymentBadge label="PAYPAL" /> PayPal disabled (account suspended) */}
                                 <PaymentBadge label="CRYPTO" />
                             </div>
                         </div>

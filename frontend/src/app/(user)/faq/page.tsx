@@ -87,7 +87,7 @@ const faqData: { id: string; label: string; icon: React.ReactNode; items: FaqIte
         items: [
             {
                 question: "What payment methods are supported?",
-                answer: "We support UPI, bank transfers, PayPal, and cryptocurrency. Available methods may vary by product and country.",
+                answer: "We support UPI, bank transfers, and cryptocurrency. Available methods may vary by product and country.",
             },
             {
                 question: "Are there any extra fees?",

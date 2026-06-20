@@ -106,6 +106,7 @@ export default function CheckoutCard({
                     </span>
                 </div>
 
+                {/* PayPal disabled (account suspended)
                 {paypalBreakdown.isEligible && (
                     <>
                         <div className="border-t border-border my-3" />
@@ -123,6 +124,7 @@ export default function CheckoutCard({
                         </div>
                     </>
                 )}
+                */}
 
                 <button
                     onClick={onProceed}

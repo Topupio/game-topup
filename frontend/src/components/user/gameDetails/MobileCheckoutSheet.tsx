@@ -285,6 +285,7 @@ export default function MobileCheckoutSheet({
                             <span>Total</span>
                             <span>{formatPrice(totalAmount, currency)}</span>
                         </div>
+                        {/* PayPal disabled (account suspended)
                         {paypalBreakdown.isEligible && (
                             <>
                                 <div className="border-t border-border pt-2 flex justify-between text-xs text-muted-foreground">
@@ -301,6 +302,7 @@ export default function MobileCheckoutSheet({
                                 </div>
                             </>
                         )}
+                        */}
                     </div>
                 </div>
 
