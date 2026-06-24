@@ -34,6 +34,7 @@ export const verifyPlayer = asyncHandler(async (req, res) => {
             verified: src.verified ?? Boolean(src.username ?? src.player?.username),
             unsupported: src.unsupported ?? false,
         },
+        _debug: result, // TEMP: PUBG shape — remove after
     });
 });
 
