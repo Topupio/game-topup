@@ -22,6 +22,7 @@ export const verifyPlayer = asyncHandler(async (req, res) => {
     res.status(200).json({
         success: true,
         data: result.data,
+        _debug: result, // TEMP: full raw upstream response — remove after debugging
     });
 });
 
