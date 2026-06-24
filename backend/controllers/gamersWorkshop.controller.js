@@ -19,10 +19,21 @@ export const verifyPlayer = asyncHandler(async (req, res) => {
 
     const result = await gwService.verifyPlayer(uid.trim(), zoneId, server, game);
 
+    // Upstream returns fields at top level (ML: username/region/...), but some
+    // endpoints/unsupported games nest under `data`. Normalize both shapes.
+    const src = result.data && typeof result.data === "object" ? result.data : result;
+
     res.status(200).json({
         success: true,
-        data: result.data,
-        _debug: result, // TEMP: full raw upstream response — remove after debugging
+        data: {
+            username: src.username ?? src.player?.username ?? null,
+            region: src.region ?? src.regionDetails?.displayName ?? null,
+            regionCode: src.regionCode ?? src.regionDetails?.code ?? null,
+            uid: src.user_id ?? src.uid ?? uid.trim(),
+            zoneId: src.zone_id ?? src.zoneId ?? zoneId ?? null,
+            verified: src.verified ?? Boolean(src.username ?? src.player?.username),
+            unsupported: src.unsupported ?? false,
+        },
     });
 });
 
