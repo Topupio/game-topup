@@ -152,17 +152,21 @@ export default function GameDetailsPage({
         setUserDetails((prev) => ({ ...prev, [key]: value }));
         setErrors((prev) => ({ ...prev, [key]: "" }));
 
-        // Trigger player verification for uid_topup when UID changes
-        if (key === "player_uid" && templateKey === "uid_topup") {
-            const zoneId = userDetails["zone_server"] || undefined;
-            playerVerification.triggerVerify(value, zoneId, undefined, selectedVariant?.apiGameName);
-        }
+        // Game-type identifier for verification routing; falls back to the first
+        // variant so desktop verification works before a package is selected.
+        const verifyGameName = selectedVariant?.apiGameName ?? gameDetails.variants?.[0]?.apiGameName;
 
-        // Re-trigger verification when zone changes
-        if (key === "zone_server" && templateKey === "uid_topup") {
-            const uid = userDetails["player_uid"] || "";
-            if (uid.trim().length >= 5) {
-                playerVerification.triggerVerify(uid, value, undefined, selectedVariant?.apiGameName);
+        // Games that have a zone field (e.g. Mobile Legends) need BOTH uid and
+        // zone before verification can succeed. Only fire once both are present
+        // so we don't waste a billed API call on an incomplete request.
+        const requiresZone = checkoutFields.some((f) => f.fieldKey === "zone_server");
+
+        if (templateKey === "uid_topup" && (key === "player_uid" || key === "zone_server")) {
+            const uid = (key === "player_uid" ? value : userDetails["player_uid"] || "").trim();
+            const zoneId = (key === "zone_server" ? value : userDetails["zone_server"] || "").trim();
+
+            if (uid.length >= 5 && (!requiresZone || zoneId.length > 0)) {
+                playerVerification.triggerVerify(uid, zoneId || undefined, undefined, verifyGameName);
             }
         }
     };
