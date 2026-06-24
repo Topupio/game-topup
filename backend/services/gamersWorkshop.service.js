@@ -67,9 +67,12 @@ async function apiRequest(method, path, body = null) {
  */
 export async function verifyPlayer(uid, zoneId, server, game) {
     const gameLower = (game || "").toLowerCase();
+    // Normalized form (letters only) to tolerate naming variants like
+    // "mobile-legends", "mobile legends", "mobilelegend", "mlbb".
+    const gameNorm = gameLower.replace(/[^a-z]/g, "");
 
     // Mobile Legends uses a different endpoint
-    if (gameLower.includes("mobile-legends") || gameLower === "ml") {
+    if (gameNorm.includes("mobilelegend") || gameNorm === "mlbb" || gameNorm === "ml") {
         return checkMlRegion(uid, zoneId);
     }
 
