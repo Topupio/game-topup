@@ -58,7 +58,15 @@ export const gamesApiClient = {
 
     async verifyPlayer(uid: string, zoneId?: string, server?: string, game?: string): Promise<{
         success: boolean;
-        data: { uid: string; playerName: string; verified: boolean; unsupported?: boolean };
+        data: {
+            uid: string;
+            username: string | null;
+            region: string | null;
+            regionCode: string | null;
+            zoneId: string | null;
+            verified: boolean;
+            unsupported?: boolean;
+        };
     }> {
         const { data } = await clientApi.post(endpoints.games.verifyPlayer, {
             uid,

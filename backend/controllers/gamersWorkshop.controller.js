@@ -26,15 +26,14 @@ export const verifyPlayer = asyncHandler(async (req, res) => {
     res.status(200).json({
         success: true,
         data: {
-            username: src.username ?? src.player?.username ?? null,
+            username: src.username ?? src.playerName ?? src.player?.username ?? null,
             region: src.region ?? src.regionDetails?.displayName ?? null,
             regionCode: src.regionCode ?? src.regionDetails?.code ?? null,
             uid: src.user_id ?? src.uid ?? uid.trim(),
             zoneId: src.zone_id ?? src.zoneId ?? zoneId ?? null,
-            verified: src.verified ?? Boolean(src.username ?? src.player?.username),
+            verified: src.verified ?? Boolean(src.username ?? src.playerName ?? src.player?.username),
             unsupported: src.unsupported ?? false,
         },
-        _debug: result, // TEMP: PUBG shape — remove after
     });
 });
 

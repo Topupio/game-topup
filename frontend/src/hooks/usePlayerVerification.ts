@@ -59,7 +59,7 @@ export function usePlayerVerification() {
                 }
                 if (result.success && result.data?.verified) {
                     setState({
-                        verifiedName: result.data.playerName,
+                        verifiedName: result.data.username,
                         isVerifying: false,
                         verificationError: null,
                     });
