@@ -37,10 +37,14 @@ export async function generateMetadata({
   const label = titleCaseCategory(category);
   const page = Number(query.page) || 1;
 
+  // Block the AI & Subscriptions category from search indexing
+  const noindex = routeSlug === "ai-subscriptions";
+
   return {
     title: label,
     description: `Browse Topupio's ${label} catalog with fast delivery and secure checkout.`,
     ...getCanonicalMetadata(getCategoryPageHref(category, page)),
+    ...(noindex ? { robots: { index: false, follow: false } } : {}),
   };
 }
 

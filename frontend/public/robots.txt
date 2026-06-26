@@ -1,0 +1,51 @@
+# robots.txt for topupio.com
+# Allows verified AI search crawlers while blocking admin, API, auth,
+# and tracking/duplicate URLs. Edge-level blocking (Cloudflare) is handled
+# separately in the Cloudflare dashboard, not here.
+
+# ---- Verified AI search crawlers: explicitly allowed ----
+User-agent: GPTBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+# ---- Everyone else (search engines, default) ----
+User-agent: *
+Allow: /
+
+# Block the AI & Subscriptions category from all crawling
+Disallow: /ai-subscriptions
+
+# Block private / non-content areas for all crawlers
+Disallow: /admin
+Disallow: /api
+Disallow: /login
+Disallow: /signup
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /resend-verification
+Disallow: /verify-email
+Disallow: /check-email
+Disallow: /account
+Disallow: /orders
+
+# Block tracking / duplicate query-string URLs
+Disallow: /*?*utm_
+Disallow: /*?*ref=
+Disallow: /*?*fbclid=
+Disallow: /*?*gclid=
+
+# AI reference document
+# See /llms.txt for the canonical brand & catalog reference
+
+Sitemap: https://topupio.com/sitemap.xml

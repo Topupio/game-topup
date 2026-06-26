@@ -20,6 +20,11 @@ export async function generateMetadata({
 }: CategoryGamePageProps): Promise<Metadata> {
     const { category, slug } = await params;
 
+    // Block AI & Subscriptions product pages from search indexing
+    const noindex = category === "ai-subscriptions"
+        ? { robots: { index: false, follow: false } }
+        : {};
+
     try {
         const gameDetailResponse = (await gamesApiServer.get(
             slug
@@ -27,9 +32,9 @@ export async function generateMetadata({
         const gameDetails = gameDetailResponse.data;
         const correctUrl = getGameUrl(gameDetails);
 
-        return getGameMetadata(gameDetails, correctUrl);
+        return { ...getGameMetadata(gameDetails, correctUrl), ...noindex };
     } catch {
-        return getCanonicalMetadata(`/${category}/${slug}`);
+        return { ...getCanonicalMetadata(`/${category}/${slug}`), ...noindex };
     }
 }
 
