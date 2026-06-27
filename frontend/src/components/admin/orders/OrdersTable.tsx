@@ -130,12 +130,20 @@ export default function OrdersTable({ items, activeQueue, onQueueChange }: Props
         {
             id: "product",
             header: "Product",
-            cell: (row) => (
-                <div>
-                    <div className="text-gray-900">{row.productSnapshot.name}</div>
-                    <div className="text-gray-500 text-xs">{row.game?.name || "Deleted Game"}</div>
-                </div>
-            ),
+            cell: (row) => {
+                const qty = row.quantity ?? row.productSnapshot.qty;
+                return (
+                    <div>
+                        <div className="text-gray-900">{row.productSnapshot.name}</div>
+                        {qty && qty > 1 && (
+                            <span className="inline-block bg-gray-100 text-gray-700 px-2 py-0.5 rounded text-xs font-medium mt-0.5">
+                                Qty: {qty}
+                            </span>
+                        )}
+                        <div className="text-gray-500 text-xs">{row.game?.name || "Deleted Game"}</div>
+                    </div>
+                );
+            },
         },
         {
             id: "amount",

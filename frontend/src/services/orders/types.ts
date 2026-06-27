@@ -63,6 +63,7 @@ export interface Order {
 
     product: string;
     amount: number;
+    quantity?: number;
     currency?: string;
 
     paymentStatus: PaymentStatus;
@@ -116,6 +117,7 @@ export interface Order {
         price: number;
         discountedPrice?: number;
         deliveryTime: string;
+        qty?: number;
     };
 
     tracking: {

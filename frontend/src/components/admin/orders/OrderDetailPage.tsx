@@ -265,17 +265,23 @@ export default function OrderDetailPage({ initialOrder }: Props) {
                                 <p className="text-gray-950 font-extrabold text-xl leading-tight mt-1">{order.game?.name || "N/A"}</p>
                                 <p className="text-gray-700 text-sm font-semibold mt-1">{order.productSnapshot.name}</p>
                             </div>
-                            <div className="flex justify-between items-center bg-gray-50 p-3 rounded-xl border border-gray-100">
-                                <div>
-                                    <p className="text-gray-500 text-[10px] uppercase font-bold tracking-wider">Order Amount</p>
-                                    <p className="text-blue-600 font-bold text-lg">{orderAmount}</p>
-                                    {hasDifferentUpiAmount && (
-                                        <p className="text-gray-500 text-xs">UPI payable: {upiAmount}</p>
-                                    )}
+                            <div className="bg-gray-50 p-4 rounded-xl border border-gray-100 space-y-3">
+                                <div className="flex items-start justify-between gap-3">
+                                    <div className="min-w-0">
+                                        <p className="text-gray-500 text-[10px] uppercase font-bold tracking-wider">Order Amount</p>
+                                        <p className="text-blue-600 font-bold text-lg leading-tight mt-0.5">{orderAmount}</p>
+                                        {hasDifferentUpiAmount && (
+                                            <p className="text-gray-500 text-xs mt-0.5">UPI payable: {upiAmount}</p>
+                                        )}
+                                    </div>
+                                    <div className="shrink-0 flex flex-col items-center rounded-lg border border-blue-100 bg-blue-50 px-3 py-1.5 text-center">
+                                        <span className="text-blue-600 text-[10px] uppercase font-bold tracking-wider">Qty</span>
+                                        <span className="text-blue-700 font-extrabold text-lg leading-none mt-0.5">{order.quantity ?? order.productSnapshot.qty ?? 1}</span>
+                                    </div>
                                 </div>
-                                <div className="text-right">
+                                <div className="flex items-center justify-between gap-3 border-t border-gray-200/70 pt-2.5">
                                     <p className="text-gray-500 text-[10px] uppercase font-bold tracking-wider">Method</p>
-                                    <p className="text-gray-900 font-medium text-xs">{order.paymentMethod?.toUpperCase()}</p>
+                                    <p className="text-gray-900 font-semibold text-xs">{order.paymentMethod?.toUpperCase()}</p>
                                 </div>
                             </div>
                         </div>
