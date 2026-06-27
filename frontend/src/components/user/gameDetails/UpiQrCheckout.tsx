@@ -12,6 +12,7 @@ import {
     RiLoader4Line,
     RiQrCodeLine,
     RiShieldCheckLine,
+    RiDownload2Line,
     RiSmartphoneLine,
 } from "react-icons/ri";
 import { IoWarningOutline } from "react-icons/io5";
@@ -109,6 +110,24 @@ export default function UpiQrCheckout({ orderId, onUtrSubmitted }: Props) {
             toast.success(`${label} copied`);
         } catch {
             toast.error(`Failed to copy ${label.toLowerCase()}`);
+        }
+    };
+
+    const handleDownloadQr = () => {
+        if (!qrCodeDataUrl) {
+            toast.error("QR code not ready yet");
+            return;
+        }
+        try {
+            const link = document.createElement("a");
+            link.href = qrCodeDataUrl;
+            link.download = `UPI_QR_${orderId}.png`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            toast.success("QR code downloaded");
+        } catch {
+            toast.error("Failed to download QR code");
         }
     };
 
@@ -261,13 +280,14 @@ export default function UpiQrCheckout({ orderId, onUtrSubmitted }: Props) {
 
             {/* Action buttons */}
             <div className="grid grid-cols-2 gap-2">
-                <a
-                    href={paymentData.deepLink}
+                <button
+                    type="button"
+                    onClick={handleDownloadQr}
                     className="flex items-center justify-center gap-1.5 rounded-lg bg-secondary px-3 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 active:scale-[0.98]"
                 >
-                    <RiSmartphoneLine className="shrink-0" />
-                    Open UPI App
-                </a>
+                    <RiDownload2Line className="shrink-0 text-lg" />
+                    Download QR
+                </button>
                 <button
                     type="button"
                     onClick={() => handleCopy(paymentData.deepLink, "UPI payment link")}
