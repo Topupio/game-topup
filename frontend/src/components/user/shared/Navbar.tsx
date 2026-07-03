@@ -200,7 +200,7 @@ export default function Navbar() {
                 </div>
 
                 {/* CENTER: Logo */}
-                <Link href="/" className="absolute left-1/2 -translate-x-1/2">
+                <Link href="/" className="absolute left-[calc(50%-10px)] top-[calc(50%+3px)] -translate-x-1/2 -translate-y-1/2">
                     <Image src={logo} alt="Logo" className="h-28 w-auto object-contain" />
                 </Link>
 
