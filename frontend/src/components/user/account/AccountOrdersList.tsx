@@ -83,7 +83,7 @@ export default function AccountOrdersList() {
                 {loading ? (
                     <div className="space-y-4">
                         {[1, 2, 3].map((i) => (
-                            <div key={i} className="bg-white border border-gray-200 rounded-2xl p-3 sm:p-5 animate-pulse">
+                            <div key={i} className="bg-white border border-gray-200 rounded-2xl p-4 sm:p-5 animate-pulse">
                                 <div className="flex items-center gap-3 sm:gap-4">
                                     <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gray-200 rounded-xl" />
                                     <div className="flex-1 space-y-2">
@@ -123,7 +123,7 @@ export default function AccountOrdersList() {
                             <Link
                                 key={order._id}
                                 href={`/orders/${order._id}`}
-                                className="block bg-white border border-gray-200 rounded-2xl p-3 sm:p-5 hover:shadow-md hover:border-secondary/30 transition group"
+                                className="block bg-white border border-gray-200 rounded-2xl p-4 sm:p-5 hover:shadow-md hover:border-secondary/30 transition group"
                             >
                                 {/* Header: Date, Order ID, Game, Status */}
                                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-0 mb-3 sm:mb-4 text-xs text-gray-400">
@@ -167,13 +167,21 @@ export default function AccountOrdersList() {
                                         <p className="text-xs sm:text-sm text-gray-500 mt-0.5">
                                             {formatPrice(order.productSnapshot.discountedPrice ?? order.productSnapshot.price, order.currency || "USD")} x 1
                                         </p>
+                                        {order.productSnapshot.deliveryTime && (
+                                            <div className="flex sm:hidden items-center gap-1 text-[11px] text-gray-400 mt-1">
+                                                <RiTimeLine />
+                                                <span className="truncate">{order.productSnapshot.deliveryTime}</span>
+                                            </div>
+                                        )}
                                     </div>
                                     <div className="text-right shrink-0">
                                         <p className="text-base sm:text-lg font-bold text-gray-900">{formatPrice(order.amount, order.currency || "USD")}</p>
-                                        <div className="hidden sm:flex items-center gap-1 text-xs text-gray-400 mt-1">
-                                            <RiTimeLine />
-                                            <span>{order.productSnapshot.deliveryTime}</span>
-                                        </div>
+                                        {order.productSnapshot.deliveryTime && (
+                                            <div className="hidden sm:flex items-center gap-1 text-xs text-gray-400 mt-1 justify-end">
+                                                <RiTimeLine />
+                                                <span>{order.productSnapshot.deliveryTime}</span>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             </Link>
