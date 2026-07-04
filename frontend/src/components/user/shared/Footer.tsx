@@ -5,10 +5,10 @@ import Link from "next/link";
 import Image from "next/image";
 import logo from "@/assets/logo/logo-2.png";
 import {
-    RiFacebookFill,
     RiTwitterXFill,
     RiInstagramLine,
-    RiDiscordFill,
+    RiYoutubeFill,
+    RiWhatsappFill,
     RiMailLine,
     RiMapPinLine,
     RiPhoneLine
@@ -30,10 +30,10 @@ const Footer = () => {
                             Secure, instant, and trusted by thousands.
                         </p>
                         <div className="flex gap-3">
-                            <SocialIcon icon={<RiDiscordFill size={18} />} href="#" />
-                            <SocialIcon icon={<RiTwitterXFill size={18} />} href="#" />
-                            <SocialIcon icon={<RiInstagramLine size={18} />} href="#" />
-                            <SocialIcon icon={<RiFacebookFill size={18} />} href="#" />
+                            <SocialIcon icon={<RiInstagramLine size={18} />} href="https://www.instagram.com/topupio.com_/" label="Instagram" />
+                            <SocialIcon icon={<RiYoutubeFill size={18} />} href="https://youtube.com/@Topupio" label="YouTube" />
+                            <SocialIcon icon={<RiTwitterXFill size={18} />} href="https://x.com/allgamestopup" label="X" />
+                            <SocialIcon icon={<RiWhatsappFill size={18} />} href="https://wa.me/919497110191" label="WhatsApp" />
                         </div>
                     </div>
 
@@ -102,9 +102,12 @@ const FooterLink = ({ href, label }: { href: string; label: string }) => (
     </li>
 );
 
-const SocialIcon = ({ icon, href }: { icon: React.ReactNode; href: string }) => (
+const SocialIcon = ({ icon, href, label }: { icon: React.ReactNode; href: string; label: string }) => (
     <Link
         href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label={label}
         className="w-9 h-9 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-400 hover:bg-secondary hover:text-white hover:border-secondary transition-all duration-200"
     >
         {icon}
