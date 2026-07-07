@@ -30,8 +30,8 @@ const Footer = () => {
                             Secure, instant, and trusted by thousands.
                         </p>
                         <div className="flex gap-3">
-                            <SocialIcon icon={<RiInstagramLine size={18} />} href="https://www.instagram.com/topupio.com_/" label="Instagram" />
-                            <SocialIcon icon={<RiYoutubeFill size={18} />} href="https://youtube.com/@Topupio" label="YouTube" />
+                            <SocialIcon icon={<RiInstagramLine size={18} />} href="https://www.instagram.com/_topupio.com__/" label="Instagram" />
+                            <SocialIcon icon={<RiYoutubeFill size={18} />} href="https://www.youtube.com/@topupioadmin" label="YouTube" />
                             <SocialIcon icon={<RiTwitterXFill size={18} />} href="https://x.com/allgamestopup" label="X" />
                             <SocialIcon icon={<RiWhatsappFill size={18} />} href="https://wa.me/919497110191" label="WhatsApp" />
                         </div>
