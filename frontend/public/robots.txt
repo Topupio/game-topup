@@ -24,20 +24,34 @@ User-agent: *
 Allow: /
 
 # Block the AI & Subscriptions category from all crawling
-Disallow: /ai-subscriptions
+Disallow: /ai-subscriptions$
+Disallow: /ai-subscriptions/
+Disallow: /ai-subscriptions?
 
 # Block private / non-content areas for all crawlers
-Disallow: /admin
-Disallow: /api
-Disallow: /login
-Disallow: /signup
-Disallow: /forgot-password
-Disallow: /reset-password
-Disallow: /resend-verification
-Disallow: /verify-email
-Disallow: /check-email
-Disallow: /account
-Disallow: /orders
+# Rules are anchored ($ = exact URL, ? = with query string) so they
+# don't accidentally match content pages like /login-top-up/...
+Disallow: /admin$
+Disallow: /admin/
+Disallow: /api/
+Disallow: /login$
+Disallow: /login?
+Disallow: /signup$
+Disallow: /signup?
+Disallow: /forgot-password$
+Disallow: /forgot-password?
+Disallow: /reset-password$
+Disallow: /reset-password/
+Disallow: /resend-verification$
+Disallow: /resend-verification?
+Disallow: /verify-email$
+Disallow: /verify-email/
+Disallow: /check-email$
+Disallow: /check-email?
+Disallow: /account$
+Disallow: /account/
+Disallow: /orders$
+Disallow: /orders/
 
 # Block tracking / duplicate query-string URLs
 Disallow: /*?*utm_
