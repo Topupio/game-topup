@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import axios from "axios";
 import { paymentsApiClient } from "@/services/payments/paymentsApi.client";
 
 interface Props {
@@ -28,10 +29,15 @@ export default function NowPaymentsCheckout({
                 // Redirect to NOWPayments hosted checkout page
                 window.location.href = res.invoiceUrl;
             } else {
-                onError(new Error("Failed to create crypto payment invoice"));
+                onError(new Error(res.message || "Failed to create crypto payment invoice"));
             }
         } catch (err) {
-            onError(err);
+            // Surface the server's reason (e.g. AMOUNT_TOO_LOW below the crypto
+            // minimum) instead of a generic failure message.
+            const serverMessage = axios.isAxiosError(err)
+                ? (err.response?.data as { message?: string } | undefined)?.message
+                : undefined;
+            onError(serverMessage ? new Error(serverMessage) : err);
         } finally {
             setIsLoading(false);
         }

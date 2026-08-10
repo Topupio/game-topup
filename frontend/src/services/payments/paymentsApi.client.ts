@@ -39,7 +39,13 @@ export const paymentsApiClient = {
             endpoints.payments.nowpaymentsCreateInvoice,
             { orderId }
         );
-        return data as { success: boolean; invoiceUrl: string; invoiceId: string };
+        return data as {
+            success: boolean;
+            invoiceUrl: string;
+            invoiceId: string;
+            message?: string;
+            code?: string;
+        };
     },
 
     async initiateUpiPayment(orderId: string): Promise<UpiPaymentInitResponse> {

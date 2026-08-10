@@ -8,6 +8,7 @@ import * as nowpaymentsService from "../services/nowpayments.service.js";
 import { getExchangeRates, convertAmount } from "../utils/currencyConverter.js";
 import { placeExternalOrderIfEligible } from "../utils/externalOrderPlacer.js";
 import { calculatePayPalBreakdown } from "../utils/paypalFees.js";
+import { MIN_CRYPTO_AMOUNT_USD } from "../constants/payments.js";
 
 /**
  * @desc    [DEV ONLY] Simulate payment success for testing external order placement
@@ -354,11 +355,10 @@ export const createNowPaymentsInvoice = asyncHandler(async (req, res) => {
         usdAmount = convertAmount(order.amount, orderCurrency, "USD", rates);
     }
 
-    const MIN_CRYPTO_AMOUNT_USD = 5;
     if (usdAmount < MIN_CRYPTO_AMOUNT_USD) {
         return res.status(422).json({
             success: false,
-            message: `Minimum amount for crypto payment is $${MIN_CRYPTO_AMOUNT_USD} USD. Your order total is $${usdAmount.toFixed(2)}.`,
+            message: `Minimum amount for crypto payment is $${MIN_CRYPTO_AMOUNT_USD.toFixed(2)} USD. Your order total is $${usdAmount.toFixed(2)}.`,
             code: "AMOUNT_TOO_LOW",
         });
     }

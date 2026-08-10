@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import PayPalCheckout from "./PayPalCheckout";
 import NowPaymentsCheckout from "./NowPaymentsCheckout";
 import UpiQrDetailsModal from "./UpiQrDetailsModal";
+import { MIN_CRYPTO_AMOUNT_USD } from "@/lib/constants/payments";
 import {
     // FaPaypal, // PayPal payment temporarily disabled (account suspended)
     FaBitcoin,
@@ -47,7 +48,7 @@ export default function PaymentModal({
     const usdAmount = isNonUSD ? (nativeTotal / fromRate).toFixed(2) : null;
     const paypalBreakdown = getPayPalFeeBreakdown(nativeTotal, nativeCurrency, rates);
     const usdAmountNum = paypalBreakdown.subtotalUsd;
-    const isBelowCryptoMinimum = usdAmountNum < 5;
+    const isBelowCryptoMinimum = usdAmountNum < MIN_CRYPTO_AMOUNT_USD;
     const isPayPalAvailable = paypalBreakdown.isEligible;
 
     const handleClose = () => {
@@ -153,7 +154,7 @@ export default function PaymentModal({
                                     id: "crypto" as const,
                                     label: "Cryptocurrency",
                                     description: isBelowCryptoMinimum
-                                        ? "Minimum $5.00 USD required for crypto"
+                                        ? `Minimum $${MIN_CRYPTO_AMOUNT_USD.toFixed(2)} USD required for crypto`
                                         : "BTC, ETH, USDT & 100+ coins",
                                     disabled: isBelowCryptoMinimum,
                                     icon: (
