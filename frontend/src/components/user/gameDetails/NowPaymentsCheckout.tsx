@@ -32,10 +32,12 @@ export default function NowPaymentsCheckout({
                 onError(new Error(res.message || "Failed to create crypto payment invoice"));
             }
         } catch (err) {
-            // Surface the server's reason (e.g. AMOUNT_TOO_LOW below the crypto
-            // minimum) instead of a generic failure message.
+            // Non-2xx responses reject, so the server's reason lives on the error,
+            // not on `res`. Surface it (AMOUNT_TOO_LOW, expired order, already paid,
+            // gateway failure) instead of a generic message.
             const serverMessage = axios.isAxiosError(err)
-                ? (err.response?.data as { message?: string } | undefined)?.message
+                ? (err.response?.data as { message?: string; code?: string } | undefined)
+                      ?.message
                 : undefined;
             onError(serverMessage ? new Error(serverMessage) : err);
         } finally {

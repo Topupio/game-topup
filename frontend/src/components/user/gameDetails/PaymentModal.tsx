@@ -255,10 +255,12 @@ export default function PaymentModal({
                                     "Payment cancelled. You can pay later from My Orders."
                                 );
                             }}
-                            onError={() => {
+                            onError={(error) => {
                                 onClose();
                                 toast.error(
-                                    "Failed to create crypto payment. Please try again."
+                                    error instanceof Error && error.message
+                                        ? error.message
+                                        : "Failed to create crypto payment. Please try again."
                                 );
                             }}
                         />
