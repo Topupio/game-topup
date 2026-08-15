@@ -9,7 +9,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js",
-    "server": "nodemon server.js"
+    "server": "nodemon server.js",
+    "wallet:init": "node scripts/initWalletCollections.js",
+    "wallet:check": "node scripts/walletConcurrency.check.js && node scripts/walletIdempotency.check.js && node scripts/walletLedger.check.js"
   },
   "dependencies": {
     "@paypal/paypal-server-sdk": "^2.2.0",
