@@ -231,9 +231,9 @@ export default function HeroHeader({ imageUrl, title, subtitle }: HeroHeaderProp
                         </div>
                         {/* Title + category visible beside icon on mobile only */}
                         <div className="min-w-0 sm:hidden">
-                            <h1 className="text-xl font-bold text-foreground leading-tight line-clamp-2">
+                            <h2 className="text-xl font-bold text-foreground leading-tight line-clamp-2">
                                 {title}
-                            </h1>
+                            </h2>
                             {subtitle && (
                                 <p className="text-muted-foreground text-xs capitalize mt-0.5">
                                     {subtitle}
