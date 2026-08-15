@@ -55,6 +55,7 @@ export default function UserOrderDetailClient({ order: initialOrder }: Props) {
             case "completed": return "bg-success/10 text-success border-success/20";
             case "processing": return "bg-secondary/10 text-secondary border-secondary/20";
             case "expired": return "bg-gray-100 text-gray-600 border-gray-200";
+            case "refunded": return "bg-violet-100 text-violet-700 border-violet-200";
             case "cancelled":
             case "failed": return "bg-danger/10 text-danger border-danger/20";
             default: return "bg-warning/10 text-warning border-warning/20";

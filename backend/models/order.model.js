@@ -93,10 +93,17 @@ const orderSchema = new mongoose.Schema(
         },
 
         // Required fields collected from UI (like email, playerId, server)
+        //
+        // `label` is the human-readable name shown at checkout and is rewritten at
+        // runtime for some templates ("Zone ID" vs "Server"), so it cannot be relied on
+        // to identify a field later. `fieldKey` is the stable identifier from the
+        // checkout template, which "Buy again" uses to prefill a new order. It is
+        // optional because orders placed before this existed do not have it.
         userInputs: {
             type: [
                 {
                     label: { type: String, required: true, trim: true },
+                    fieldKey: { type: String, trim: true, default: null },
                     value: { type: mongoose.Schema.Types.Mixed, required: true }
                 }
             ],
@@ -104,10 +111,47 @@ const orderSchema = new mongoose.Schema(
         },
 
         // Admin workflow
+        // "refunded" is appended, never reordered — the frontend maps these by value.
+        // It marks a FULLY refunded order; partial refunds leave the status alone and
+        // are visible in the `refund` sub-document below.
         orderStatus: {
             type: String,
-            enum: ["pending", "paid", "processing", "completed", "cancelled", "failed", "expired"],
+            enum: ["pending", "paid", "processing", "completed", "cancelled", "failed", "expired", "refunded"],
             default: "pending",
+        },
+
+        /**
+         * Money returned to the customer's wallet.
+         *
+         * Refunds are additive: each one appends an entry rather than overwriting, so
+         * an order can be partially refunded more than once and the history survives.
+         * Amounts are in INR paise, matching the wallet ledger exactly — a refund
+         * credits back what was actually charged rather than a fresh conversion.
+         */
+        refund: {
+            totalRefundedPaise: { type: Number, default: 0, min: 0 },
+            isFullyRefunded: { type: Boolean, default: false },
+            entries: {
+                type: [
+                    {
+                        amountPaise: { type: Number, required: true, min: 1 },
+                        destination: { type: String, enum: ["wallet"], default: "wallet" },
+                        walletTransaction: {
+                            type: mongoose.Schema.Types.ObjectId,
+                            ref: "WalletTransaction",
+                            required: true,
+                        },
+                        reason: { type: String, required: true, trim: true, maxlength: 500 },
+                        admin: {
+                            type: mongoose.Schema.Types.ObjectId,
+                            ref: "User",
+                            required: true,
+                        },
+                        at: { type: Date, default: Date.now },
+                    },
+                ],
+                default: [],
+            },
         },
 
         adminNote: {

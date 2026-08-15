@@ -10,6 +10,7 @@ import {
     RiLoader4Line,
     RiMoneyRupeeCircleLine,
     RiQrCodeLine,
+    RiRefund2Line,
     RiTimeLine,
     RiTimerFlashLine,
 } from "react-icons/ri";
@@ -39,6 +40,7 @@ const STATUS_TABS: StatusTab[] = [
     { value: "failed", label: "Failed", icon: RiErrorWarningLine },
     { value: "cancelled", label: "Cancelled", icon: RiCloseCircleLine },
     { value: "expired", label: "Expired", icon: RiTimerFlashLine },
+    { value: "refunded", label: "Refunded", icon: RiRefund2Line },
     { value: "", label: "All", icon: RiArchiveLine },
 ];
 
@@ -50,6 +52,7 @@ export default function OrdersTable({ items, activeQueue, onQueueChange }: Props
             case "completed": return "text-green-700 bg-green-50 border-green-200";
             case "processing": return "text-blue-700 bg-blue-50 border-blue-200";
             case "expired": return "text-gray-700 bg-gray-50 border-gray-200";
+            case "refunded": return "text-violet-700 bg-violet-50 border-violet-200";
             case "cancelled":
             case "failed": return "text-red-700 bg-red-50 border-red-200";
             case "paid": return "text-emerald-700 bg-emerald-50 border-emerald-200";

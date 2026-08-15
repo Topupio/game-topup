@@ -215,8 +215,12 @@ export default function GameDetailsPage({
 
         setIsSubmitting(true);
         try {
+            // fieldKey is stored alongside the label so a later "Buy again" can match
+            // these values back to form fields. Labels are display text and get
+            // rewritten per template, so they are not reliable identifiers.
             const inputs = checkoutFields.map((field) => ({
                 label: field.fieldName,
+                fieldKey: field.fieldKey,
                 value: userDetails[field.fieldKey] || "",
             }));
 

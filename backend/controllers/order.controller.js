@@ -60,8 +60,12 @@ export const createOrder = asyncHandler(async (req, res) => {
         }
     }
 
+    // fieldKey identifies the checkout-template field this value came from. The label
+    // is display text and gets rewritten for some templates, so it cannot be used to
+    // match a stored value back to a form field when reordering.
     const sanitizedInputs = userInputs.map(input => ({
         label: input.label,
+        fieldKey: input.fieldKey ? String(input.fieldKey).trim() : null,
         value: input.value
     }));
 
@@ -580,7 +584,7 @@ export const adminGetOrders = async (req, res) => {
         const { status, queue, search } = req.query;
         const query = {};
 
-        const allowedStatuses = ["pending", "paid", "processing", "completed", "cancelled", "failed", "expired"];
+        const allowedStatuses = ["pending", "paid", "processing", "completed", "cancelled", "failed", "expired", "refunded"];
         if (queue === "upi_review") {
             query.orderStatus = "pending";
             query.paymentStatus = "pending";
@@ -647,9 +651,20 @@ export const adminUpdateOrder = async (req, res) => {
 
         const { orderStatus, paymentStatus, adminNote, completionProof, delivery } = req.body;
 
+        // "refunded" is deliberately absent from both lists. Refunds move real money and
+        // must leave a ledger row, so they go through the refund endpoint. Allowing this
+        // generic update to set the status would mark an order refunded without anything
+        // being paid back.
         const allowedOrderStatuses = ["pending", "paid", "processing", "completed", "cancelled", "failed", "expired"];
-        const allowedPaymentStatuses = ["pending", "paid", "failed", "refunded"];
+        const allowedPaymentStatuses = ["pending", "paid", "failed"];
         const allowedDeliveryKinds = ["credentials", "code"];
+
+        if (orderStatus === "refunded" || paymentStatus === "refunded") {
+            return res.status(400).json({
+                success: false,
+                message: "Refunds must be issued through the refund endpoint so the wallet ledger stays accurate",
+            });
+        }
 
         if (orderStatus && !allowedOrderStatuses.includes(orderStatus)) {
             return res.status(400).json({ success: false, message: "Invalid order status" });

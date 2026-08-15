@@ -1,5 +1,8 @@
 # CLAUDE.md
 
+## dont overenginner new features
+
+
 ## Commit Messages
 
 - Do NOT add "Co-Authored-By: Claude" or any similar Claude/AI attribution lines to commit messages.

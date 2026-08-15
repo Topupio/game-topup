@@ -1,49 +1,14 @@
-import PaymentSettings from "../models/paymentSettings.model.js";
 import Order from "../models/order.model.js";
 import { asyncHandler } from "../middlewares/asyncHandler.js";
 import { logAdminActivity } from "../utils/adminLogger.js";
 import { convertAmount, getExchangeRates } from "../utils/currencyConverter.js";
-
-const UTR_REGEX = /^\d{12}$/;
-
-const DEFAULT_PAYEE_NAME = "topupio";
-const UPI_ID_REGEX = /^[a-zA-Z0-9._-]{2,256}@[a-zA-Z]{2,64}$/;
-
-async function getOrCreatePaymentSettings() {
-    let settings = await PaymentSettings.findOne();
-
-    if (!settings) {
-        settings = await PaymentSettings.create({
-            upi: {
-                enabled: false,
-                upiId: "",
-                payeeName: DEFAULT_PAYEE_NAME,
-                instructions: "",
-            },
-        });
-    }
-
-    return settings;
-}
-
-function buildUpiDeepLink({
-    upiId,
-    payeeName,
-    amount,
-    note,
-    reference,
-}) {
-    const params = new URLSearchParams({
-        pa: upiId,
-        pn: payeeName,
-        am: amount.toFixed(2),
-        cu: "INR",
-        tn: note,
-        tr: reference,
-    });
-
-    return `upi://pay?${params.toString()}`;
-}
+import {
+    DEFAULT_PAYEE_NAME,
+    UPI_ID_REGEX,
+    UTR_REGEX,
+    buildUpiDeepLink,
+    getOrCreatePaymentSettings,
+} from "../services/upi.service.js";
 
 /**
  * @desc    Get payment settings for admin

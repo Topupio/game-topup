@@ -6,6 +6,7 @@ const STATUS_TABS = [
     { key: "completed", label: "Completed" },
     { key: "cancelled", label: "Cancelled" },
     { key: "expired", label: "Expired" },
+    { key: "refunded", label: "Refunded" },
 ];
 
 interface OrderStatusTabsProps {

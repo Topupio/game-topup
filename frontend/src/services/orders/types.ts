@@ -11,7 +11,10 @@ export type OrderStatus =
     | "completed"
     | "cancelled"
     | "failed"
-    | "expired";
+    | "expired"
+    // Set when an order is fully refunded to the customer's wallet. Partial refunds
+    // keep their original status and are recorded in the order's `refund` entries.
+    | "refunded";
 
 export type AdminOrderQueue = OrderStatus | "upi_review" | "";
 
@@ -71,10 +74,26 @@ export interface Order {
 
     userInputs: {
         label: string;
+        /** Checkout-template field id. Absent on orders placed before it was stored. */
+        fieldKey?: string | null;
         value: string | number;
     }[];
 
     orderStatus: OrderStatus;
+
+    /** Money returned to the customer's wallet. Amounts are INR paise. */
+    refund?: {
+        totalRefundedPaise: number;
+        isFullyRefunded: boolean;
+        entries: {
+            amountPaise: number;
+            destination: "wallet";
+            walletTransaction: string;
+            reason: string;
+            admin: string | UserSummary;
+            at: string;
+        }[];
+    };
 
     paymentInfo?: {
         transactionId?: string;
@@ -244,7 +263,7 @@ export interface CreateOrderPayload {
     gameId: string;
     productId: string;
     qty: number;
-    userInputs: { label: string; value: string | number }[];
+    userInputs: { label: string; fieldKey?: string | null; value: string | number }[];
 }
 
 export interface SubmitOrderReviewPayload {
