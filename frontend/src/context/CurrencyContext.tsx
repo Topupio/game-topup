@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useMemo, useState, useCallback } from "react";
 import { getCurrencySymbol } from "@/lib/constants/currencies";
+import { convertMoney, formatConverted, formatFixed } from "@/lib/utils/money";
 import { exchangeRateApiClient } from "@/services/exchangeRate/exchangeRateApi.client";
 
 type CurrencyContextType = {
@@ -106,24 +107,20 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
     }, []);
 
     const convertPrice = useCallback(
-        (amount: number, fromCurrency: string): number => {
-            if (fromCurrency === currency) return amount;
-            const fromRate = rates[fromCurrency] || 1;
-            const toRate = rates[currency] || 1;
-            const converted = (amount / fromRate) * toRate;
-            return Math.round(converted * 100) / 100;
-        },
+        (amount: number, fromCurrency: string): number =>
+            convertMoney(amount, fromCurrency, currency, rates),
         [currency, rates]
     );
 
     const symbol = getCurrencySymbol(currency);
 
+    // Delegates to the shared formatter so storefront and admin render money
+    // identically. Signature is unchanged, so existing call sites keep working and
+    // gain thousands separators and per-currency decimals for free.
     const formatPrice = useCallback(
-        (amount: number, fromCurrency: string): string => {
-            const converted = convertPrice(amount, fromCurrency);
-            return `${getCurrencySymbol(currency)}${converted.toFixed(2)}`;
-        },
-        [convertPrice, currency]
+        (amount: number, fromCurrency: string): string =>
+            formatConverted(amount, fromCurrency, currency, rates),
+        [currency, rates]
     );
 
     const value = useMemo(
@@ -147,7 +144,7 @@ const currencyFallback: CurrencyContextType = {
     symbol: "$",
     setCurrency: () => {},
     convertPrice: (amount) => amount,
-    formatPrice: (amount) => `$${amount.toFixed(2)}`,
+    formatPrice: (amount, fromCurrency) => formatFixed(amount, fromCurrency),
     rates: FALLBACK_RATES,
     loading: false,
 };

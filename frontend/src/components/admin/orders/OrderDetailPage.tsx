@@ -19,7 +19,7 @@ import {
     RiFileCopyLine,
 } from "react-icons/ri";
 import AdminToolbar from "@/components/admin/shared/AdminToolbar";
-import { formatCurrencyAmount } from "@/lib/utils/formatCurrencyAmount";
+import { formatFixed } from "@/lib/utils/money";
 import RichTextEditor from "@/components/form/RichTextEditor";
 
 interface Props {
@@ -124,9 +124,9 @@ export default function OrderDetailPage({ initialOrder }: Props) {
     };
 
     const orderCurrency = order.currency || "USD";
-    const orderAmount = formatCurrencyAmount(order.amount, orderCurrency);
+    const orderAmount = formatFixed(order.amount, orderCurrency);
     const upiPayment = order.paymentInfo?.paymentGatewayResponse?.upi;
-    const upiAmount = upiPayment ? formatCurrencyAmount(upiPayment.amount, upiPayment.currency) : null;
+    const upiAmount = upiPayment ? formatFixed(upiPayment.amount, upiPayment.currency) : null;
     const hasDifferentUpiAmount = Boolean(
         upiPayment &&
         (upiPayment.currency !== orderCurrency || upiPayment.amount !== order.amount)
@@ -359,8 +359,8 @@ export default function OrderDetailPage({ initialOrder }: Props) {
                                         {[
                                             { label: "UPI ID", value: upi.upiId },
                                             { label: "Payee", value: upi.payeeName },
-                                            { label: `Amount (${upi.currency})`, value: formatCurrencyAmount(upi.amount, upi.currency) },
-                                            { label: "Original Amount", value: formatCurrencyAmount(upi.originalAmount, upi.originalCurrency) },
+                                            { label: `Amount (${upi.currency})`, value: formatFixed(upi.amount, upi.currency) },
+                                            { label: "Original Amount", value: formatFixed(upi.originalAmount, upi.originalCurrency) },
                                             { label: "Reference", value: upi.reference },
                                         ].map(({ label, value }) => (
                                             <div key={label} className="bg-gray-50 px-3 py-2.5 rounded-xl border border-gray-100 group">

@@ -16,7 +16,7 @@ import {
 import { IconType } from "react-icons";
 import { AdminOrderQueue, Order, PaymentStatus } from "@/services/orders/types";
 import DataTable, { Column } from "@/components/admin/shared/DataTable";
-import { formatCurrencyAmount } from "@/lib/utils/formatCurrencyAmount";
+import { formatFixed } from "@/lib/utils/money";
 
 interface Props {
     items: Order[];
@@ -82,12 +82,12 @@ export default function OrdersTable({ items, activeQueue, onQueueChange }: Props
         const upi = row.paymentInfo?.paymentGatewayResponse?.upi;
         const shouldShowUpiAmount = isUpiReview && upi;
         const primaryAmount = shouldShowUpiAmount
-            ? formatCurrencyAmount(upi.amount, upi.currency)
-            : formatCurrencyAmount(row.amount, orderCurrency);
+            ? formatFixed(upi.amount, upi.currency)
+            : formatFixed(row.amount, orderCurrency);
         const secondaryAmount = shouldShowUpiAmount
-            ? formatCurrencyAmount(row.amount, orderCurrency)
+            ? formatFixed(row.amount, orderCurrency)
             : upi
-                ? formatCurrencyAmount(upi.amount, upi.currency)
+                ? formatFixed(upi.amount, upi.currency)
                 : null;
         const secondaryLabel = shouldShowUpiAmount ? "Order total" : "UPI payable";
         const isDifferentAmount = Boolean(
