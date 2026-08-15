@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
 import { Geist, Geist_Mono } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
-import { CurrencyProvider } from "@/context/CurrencyContext";
+import { CurrencyProvider, CURRENCY_COOKIE } from "@/context/CurrencyContext";
 import { GoogleOAuthWrapper } from "@/providers/GoogleOAuthWrapper";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -29,11 +30,17 @@ export const metadata: Metadata = {
   description: "Secure top-ups, gift cards, and digital subscriptions with fast delivery and 24/7 support from Topupio.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Read the currency cookie on the server so the first paint already shows the
+  // right currency. Without this the provider had to guess, render INR, then swap
+  // after hydration — a visible flash of the wrong price on every page load.
+  const cookieStore = await cookies();
+  const initialCurrency = cookieStore.get(CURRENCY_COOKIE)?.value;
+
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
@@ -51,7 +58,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
       >
         <GoogleOAuthWrapper>
           <AuthProvider>
-            <CurrencyProvider>
+            <CurrencyProvider initialCurrency={initialCurrency}>
               {children}
               <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} newestOnTop={false} closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover theme="colored" />
             </CurrencyProvider>

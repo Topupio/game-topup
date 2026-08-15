@@ -26,4 +26,11 @@ export const authApi = {
   async changePassword(payload: { currentPassword: string; newPassword: string }): Promise<void> {
     await apiClient.put("/api/auth/change-password", payload);
   },
+  async updatePreferences(payload: { preferredCurrency?: string | null }): Promise<AuthUser> {
+    const { data } = await apiClient.patch<{ success: boolean; user: AuthUser }>(
+      "/api/auth/preferences",
+      payload
+    );
+    return data.user;
+  },
 };

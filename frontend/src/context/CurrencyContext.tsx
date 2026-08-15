@@ -4,6 +4,8 @@ import React, { createContext, useContext, useEffect, useMemo, useState, useCall
 import { getCurrencySymbol } from "@/lib/constants/currencies";
 import { convertMoney, formatConverted, formatFixed } from "@/lib/utils/money";
 import { exchangeRateApiClient } from "@/services/exchangeRate/exchangeRateApi.client";
+import { authApi } from "@/services/authApi";
+import { useAuth } from "@/context/AuthContext";
 
 type CurrencyContextType = {
     currency: string;
@@ -16,6 +18,22 @@ type CurrencyContextType = {
 };
 
 const CurrencyContext = createContext<CurrencyContextType | undefined>(undefined);
+
+/**
+ * Cookie holding the display currency.
+ *
+ * Deliberately readable by JavaScript: the client needs it without a round-trip, and
+ * it carries no authority. A user editing it only changes what they themselves see.
+ * Prices and wallet debits are always resolved server-side from the database — a
+ * client-supplied currency must never influence what someone is charged.
+ */
+export const CURRENCY_COOKIE = "preferredCurrency";
+
+function writeCurrencyCookie(code: string) {
+    const oneYear = 60 * 60 * 24 * 365;
+    const secure = window.location.protocol === "https:" ? "; Secure" : "";
+    document.cookie = `${CURRENCY_COOKIE}=${encodeURIComponent(code)}; path=/; max-age=${oneYear}; SameSite=Lax${secure}`;
+}
 
 const FALLBACK_RATES: Record<string, number> = {
     USD: 1,
@@ -60,24 +78,39 @@ function detectDefaultCurrency(): string {
     return "USD";
 }
 
-export function CurrencyProvider({ children }: { children: React.ReactNode }) {
-    const [currency, setCurrencyState] = useState("INR");
+export function CurrencyProvider({
+    children,
+    initialCurrency,
+}: {
+    children: React.ReactNode;
+    /** Cookie value read on the server, so the first paint is already correct. */
+    initialCurrency?: string;
+}) {
+    const { user } = useAuth();
+    const [currency, setCurrencyState] = useState(initialCurrency || "USD");
     const [rates, setRates] = useState<Record<string, number>>(FALLBACK_RATES);
     const [loading, setLoading] = useState(true);
-    const [hydrated, setHydrated] = useState(false);
 
-    // Hydrate from localStorage + geo-detect on first mount
+    // No cookie yet (first visit): guess from the timezone and remember it.
     useEffect(() => {
-        const stored = localStorage.getItem("preferredCurrency");
-        if (stored) {
-            setCurrencyState(stored);
-        } else {
-            const detected = detectDefaultCurrency();
-            setCurrencyState(detected);
-            localStorage.setItem("preferredCurrency", detected);
+        if (initialCurrency) return;
+        const detected = detectDefaultCurrency();
+        setCurrencyState(detected);
+        writeCurrencyCookie(detected);
+    }, [initialCurrency]);
+
+    // A signed-in user's saved preference wins over the cookie, so their choice
+    // follows them across devices.
+    useEffect(() => {
+        const preferred = user?.preferredCurrency;
+        if (preferred && preferred !== currency) {
+            setCurrencyState(preferred);
+            writeCurrencyCookie(preferred);
         }
-        setHydrated(true);
-    }, []);
+        // Only react to the profile value; currency is intentionally not a dep,
+        // otherwise switching currency would be immediately undone.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [user?.preferredCurrency]);
 
     // Fetch exchange rates from API
     useEffect(() => {
@@ -101,10 +134,20 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
         return () => { cancelled = true; };
     }, []);
 
-    const setCurrency = useCallback((code: string) => {
-        setCurrencyState(code);
-        localStorage.setItem("preferredCurrency", code);
-    }, []);
+    const setCurrency = useCallback(
+        (code: string) => {
+            setCurrencyState(code);
+            writeCurrencyCookie(code);
+
+            // Persist to the profile so the choice survives a new device. Fire and
+            // forget: the cookie already covers this session, so a failed save is
+            // not worth interrupting the user for.
+            if (user) {
+                authApi.updatePreferences({ preferredCurrency: code }).catch(() => { });
+            }
+        },
+        [user]
+    );
 
     const convertPrice = useCallback(
         (amount: number, fromCurrency: string): number =>
@@ -125,15 +168,15 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
 
     const value = useMemo(
         () => ({
-            currency: hydrated ? currency : "INR",
-            symbol: hydrated ? symbol : "₹",
+            currency,
+            symbol,
             setCurrency,
             convertPrice,
             formatPrice,
             rates,
             loading,
         }),
-        [currency, symbol, setCurrency, convertPrice, formatPrice, rates, loading, hydrated]
+        [currency, symbol, setCurrency, convertPrice, formatPrice, rates, loading]
     );
 
     return <CurrencyContext.Provider value={value}>{children}</CurrencyContext.Provider>;

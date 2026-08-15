@@ -11,6 +11,8 @@ export type AuthUser = {
     email: string;
     role: "user" | "admin";
     authProvider?: "local" | "google";
+    /** Saved display-currency choice. null when the user has never picked one. */
+    preferredCurrency?: string | null;
 };
 
 type AuthContextType = {
