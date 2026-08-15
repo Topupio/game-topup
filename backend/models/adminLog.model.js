@@ -26,6 +26,7 @@ const adminActivityLogSchema = new mongoose.Schema(
                 "blogs",
                 "orders",
                 "payments",
+                "wallet",
                 "settings",
                 "other",
             ],
@@ -71,6 +72,10 @@ adminActivityLogSchema.index({ action: 1, createdAt: -1 });
 adminActivityLogSchema.index({ targetId: 1 });
 
 // TTL Index: Automatically delete logs older than 30 days (30 * 24 * 60 * 60 = 2592000 seconds)
+//
+// NOTE: this collection is NOT the financial audit trail. Wallet entries logged here
+// expire with everything else. The permanent record of every balance change is the
+// append-only `wallet_transactions` ledger, which carries admin + reason and has no TTL.
 const LOG_RETENTION_DAYS = 30;
 adminActivityLogSchema.index({ createdAt: 1 }, { expireAfterSeconds: LOG_RETENTION_DAYS * 24 * 60 * 60 });
 

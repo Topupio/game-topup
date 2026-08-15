@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
+import { SUPPORTED_CURRENCY_CODES } from "../constants/currencies.js";
 
 const userSchema = new mongoose.Schema(
     {
@@ -44,6 +45,20 @@ const userSchema = new mongoose.Schema(
             enum: ["active", "blocked"],
             default: "active",
         },
+        // Display currency preference. null = never chosen, so the client falls back to
+        // its cookie and then geo detection. This is a DISPLAY preference only — it must
+        // never influence a stored price (see docs/currency-bug-fix-and-architecture.md).
+        preferredCurrency: {
+            type: String,
+            uppercase: true,
+            trim: true,
+            default: null,
+            validate: {
+                validator: (v) => v === null || SUPPORTED_CURRENCY_CODES.includes(v),
+                message: (props) => `${props.value} is not a supported currency`,
+            },
+        },
+
         // Security Tracking
         lastLoginAt: {
             type: Date,

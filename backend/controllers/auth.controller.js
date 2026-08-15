@@ -3,6 +3,7 @@ import { asyncHandler } from "../middlewares/asyncHandler.js";
 import { sendAuthPair, rotateRefreshToken, revokeRefreshToken, setAuthCookies, generateAccessToken } from "../utils/token.js";
 import { sendVerificationEmail } from "../utils/senderVerificationEmail.js";
 import { sendPasswordResetEmail } from "../utils/sendPasswordResetEmail.js";
+import { SUPPORTED_CURRENCY_CODES } from "../constants/currencies.js";
 import crypto from "crypto";
 
 export const register = asyncHandler(async (req, res) => {
@@ -200,6 +201,49 @@ export const logout = asyncHandler(async (req, res) => {
 export const me = asyncHandler(async (req, res) => {
     const user = await User.findById(req.user.id).select("-password");
     res.status(200).json({ success: true, user });
+});
+
+/**
+ * @desc    Update the signed-in user's display preferences
+ * @route   PATCH /api/auth/preferences
+ * @access  Private
+ *
+ * Display-only. preferredCurrency changes what the user SEES; it never affects a
+ * stored order price, which is always resolved server-side from regionPricing.
+ */
+export const updatePreferences = asyncHandler(async (req, res) => {
+    const { preferredCurrency } = req.body;
+    const update = {};
+
+    if (preferredCurrency !== undefined) {
+        if (preferredCurrency === null) {
+            update.preferredCurrency = null;
+        } else {
+            const code = String(preferredCurrency).toUpperCase().trim();
+            if (!SUPPORTED_CURRENCY_CODES.includes(code)) {
+                return res.status(400).json({
+                    success: false,
+                    message: `Unsupported currency: ${preferredCurrency}`,
+                });
+            }
+            update.preferredCurrency = code;
+        }
+    }
+
+    if (Object.keys(update).length === 0) {
+        return res.status(400).json({ success: false, message: "No preferences provided" });
+    }
+
+    const user = await User.findByIdAndUpdate(req.user.id, update, {
+        new: true,
+        runValidators: true,
+    }).select("-password");
+
+    if (!user) {
+        return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    res.status(200).json({ success: true, user, message: "Preferences updated" });
 });
 
 export const refreshToken = asyncHandler(async (req, res) => {

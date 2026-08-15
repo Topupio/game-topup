@@ -792,10 +792,9 @@ export const refundPayPalPayment = asyncHandler(async (req, res) => {
     });
     await order.save();
 
-    await logAdminActivity({
-        req,
+    logAdminActivity(req, {
         action: "REFUND",
-        module: "PAYMENT",
+        module: "payments",
         targetId: order._id,
         targetModel: "Order",
         description: `Refunded PayPal payment for order ${order.orderId}. Amount: ${amount || order.amount}`,

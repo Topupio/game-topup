@@ -103,8 +103,7 @@ export const updatePaymentSettings = asyncHandler(async (req, res) => {
 
     await settings.save();
 
-    await logAdminActivity({
-        req,
+    logAdminActivity(req, {
         action: "UPDATE",
         module: "payments",
         targetId: settings._id,

@@ -81,8 +81,7 @@ export const bulkUpdateRates = asyncHandler(async (req, res) => {
 
     await ExchangeRate.bulkWrite(ops);
 
-    await logAdminActivity({
-        req,
+    logAdminActivity(req, {
         action: "UPDATE",
         module: "settings",
         description: `Updated ${rates.length} exchange rate(s)`,
@@ -113,8 +112,7 @@ export const deleteRate = asyncHandler(async (req, res) => {
 
     await rate.deleteOne();
 
-    await logAdminActivity({
-        req,
+    logAdminActivity(req, {
         action: "DELETE",
         module: "settings",
         targetId: rate._id,

@@ -3,6 +3,7 @@ import connectDB from './config/connectDB.js';
 import app from './app.js';
 import { seedCheckoutTemplates } from './seeds/checkoutTemplates.seed.js';
 import { startCronJobs } from './jobs/cronScheduler.js';
+import { runStartupChecks } from './utils/startupChecks.js';
 
 dotenv.config();
 
@@ -12,6 +13,9 @@ const PORT = process.env.PORT || 3000;
 connectDB().then(() => {
     seedCheckoutTemplates().catch((err) =>
         console.error("Checkout template seed error:", err.message)
+    );
+    runStartupChecks().catch((err) =>
+        console.error("Startup checks error:", err.message)
     );
     startCronJobs();
 });

@@ -768,10 +768,9 @@ export const adminUpdateOrder = async (req, res) => {
 
         await order.save();
 
-        await logAdminActivity({
-            req,
+        logAdminActivity(req, {
             action: "UPDATE",
-            module: "ORDER",
+            module: "orders",
             targetId: order._id,
             targetModel: "Order",
             description: `Updated order ${order.orderId} status from ${oldStatus} to ${order.orderStatus}`,

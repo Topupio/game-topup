@@ -96,10 +96,9 @@ export const createTemplate = asyncHandler(async (req, res) => {
         isBuiltIn: false,
     });
 
-    await logAdminActivity({
-        req,
+    logAdminActivity(req, {
         action: "CREATE",
-        module: "checkout-templates",
+        module: "settings",
         description: `Created checkout template '${normalizedKey}'`,
     });
 
@@ -133,10 +132,9 @@ export const updateTemplate = asyncHandler(async (req, res) => {
 
     await template.save();
 
-    await logAdminActivity({
-        req,
+    logAdminActivity(req, {
         action: "UPDATE",
-        module: "checkout-templates",
+        module: "settings",
         description: `Updated checkout template '${key}'`,
     });
 
@@ -169,10 +167,9 @@ export const deleteTemplate = asyncHandler(async (req, res) => {
 
     await template.deleteOne();
 
-    await logAdminActivity({
-        req,
+    logAdminActivity(req, {
         action: "DELETE",
-        module: "checkout-templates",
+        module: "settings",
         description: `Deleted checkout template '${key}'`,
     });
 
