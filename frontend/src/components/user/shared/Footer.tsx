@@ -69,9 +69,13 @@ const Footer = () => {
                         <div className="pt-3">
                             <h4 className="text-slate-500 text-[10px] uppercase font-bold tracking-widest mb-3">Accepted Payments</h4>
                             <div className="flex flex-wrap gap-2">
+                                <PaymentBadge label="UPI" />
+                                {/* PayPal badge stays hidden while PayPal checkout is
+                                    disabled (account suspended) — advertising a method
+                                    that fails at checkout is worse than omitting it. */}
+                                {/* <PaymentBadge label="PAYPAL" /> */}
                                 <PaymentBadge label="VISA" />
                                 <PaymentBadge label="MASTERCARD" />
-                                {/* <PaymentBadge label="PAYPAL" /> PayPal disabled (account suspended) */}
                                 <PaymentBadge label="CRYPTO" />
                             </div>
                         </div>

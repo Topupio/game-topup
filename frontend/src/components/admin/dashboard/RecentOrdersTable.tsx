@@ -1,4 +1,5 @@
 import { DashboardOrder } from "@/services/dashboard/types";
+import { formatFixed } from "@/lib/utils/money";
 import Link from "next/link";
 
 export default function RecentOrdersTable({ orders }: { orders: DashboardOrder[] }) {
@@ -39,7 +40,9 @@ export default function RecentOrdersTable({ orders }: { orders: DashboardOrder[]
                                 <td className="px-2 md:px-4 py-2 md:py-4 text-gray-500">{order.user?.name ?? "Deleted User"}</td>
                                 <td className="px-2 md:px-4 py-2 md:py-4 text-gray-500">{order.game?.name ?? "Deleted Game"}</td>
                                 <td className="px-2 md:px-4 py-2 md:py-4 text-gray-500">{order.product?.name ?? "Deleted Product"}</td>
-                                <td className="px-2 md:px-4 py-2 md:py-4 font-semibold text-gray-900">$ {order.amount}</td>
+                                <td className="px-2 md:px-4 py-2 md:py-4 font-semibold text-gray-900">
+                                    {formatFixed(order.amount, order.currency)}
+                                </td>
                                 <td className="px-2 md:px-4 py-2 md:py-4">
                                     <span className={`px-1.5 md:px-2.5 py-0.5 rounded-full text-[10px] md:text-xs font-medium border ${getStatusStyles(order.orderStatus)}`}>
                                         {order.orderStatus.toUpperCase()}

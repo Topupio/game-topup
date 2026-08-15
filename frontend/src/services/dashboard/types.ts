@@ -74,6 +74,7 @@ export interface DashboardOrder {
     orderId: string;
     orderStatus: OrderStatus;
     amount: number;
+    currency?: string;
     createdAt: string;
     game: DashboardGame;
     user: DashboardUser;

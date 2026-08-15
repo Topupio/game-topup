@@ -281,7 +281,7 @@ export default function Navbar() {
                                     Log In
                                 </Link>
                                 <Link
-                                    href="/register"
+                                    href="/signup"
                                     onClick={() => setOpen(false)}
                                     className="px-4 py-2.5 rounded-lg bg-secondary text-white text-sm font-semibold text-center hover:bg-secondary/90 transition"
                                 >

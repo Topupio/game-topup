@@ -89,7 +89,7 @@ export const getDashboardData = asyncHandler(async (req, res) => {
         Order.find()
             .sort({ createdAt: -1 })
             .limit(10)
-            .select("orderId amount unitPrice quantity orderStatus paymentStatus createdAt user product game")
+            .select("orderId amount currency unitPrice quantity orderStatus paymentStatus createdAt user product game")
             .populate("user", "name email")
             .populate("product", "name")
             .populate("game", "name")

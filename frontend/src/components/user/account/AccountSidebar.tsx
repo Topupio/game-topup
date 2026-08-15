@@ -12,8 +12,6 @@ import {
     RiLockPasswordLine,
     RiQuestionLine,
     RiLogoutBoxLine,
-    RiWallet3Line,
-    RiCoinLine,
 } from "react-icons/ri";
 
 interface AccountSidebarProps {
@@ -54,24 +52,11 @@ export default function AccountSidebar({ user, onLogout }: AccountSidebarProps) 
                     </div>
                 </div>
 
-                {/* Balance & Points */}
-                <div className="flex items-center gap-4 sm:gap-6 mt-4 sm:mt-5">
-                    <div className="flex items-center gap-2">
-                        <RiWallet3Line className="text-lg text-gray-400" />
-                        <div>
-                            <p className="text-base sm:text-lg font-bold text-gray-900">$0.00</p>
-                            <p className="text-xs text-gray-400">Balance</p>
-                        </div>
-                    </div>
-                    <div className="w-px h-8 bg-gray-200" />
-                    <div className="flex items-center gap-2">
-                        <RiCoinLine className="text-lg text-yellow-500" />
-                        <div>
-                            <p className="text-base sm:text-lg font-bold text-gray-900">0</p>
-                            <p className="text-xs text-gray-400">Points</p>
-                        </div>
-                    </div>
-                </div>
+                {/*
+                    The wallet card lands here once the wallet API ships. The previous
+                    placeholder showed a hardcoded "$0.00" balance and a points counter;
+                    both were fake, and points are out of scope entirely.
+                */}
             </div>
 
             {/* Navigation - Desktop vertical list */}
