@@ -12,7 +12,9 @@ import {
     RiLockPasswordLine,
     RiQuestionLine,
     RiLogoutBoxLine,
+    RiWallet3Line,
 } from "react-icons/ri";
+import SidebarWalletCard from "@/components/user/wallet/SidebarWalletCard";
 
 interface AccountSidebarProps {
     user: AuthUser;
@@ -21,6 +23,7 @@ interface AccountSidebarProps {
 
 const navItems = [
     { label: "Order History", icon: RiShoppingBag3Line, href: "/account" },
+    { label: "Wallet", icon: RiWallet3Line, href: "/account/wallet" },
     { label: "Coupon", icon: RiCouponLine, comingSoon: true },
     { label: "Settings", icon: RiLockPasswordLine, href: "/account/settings" },
     { label: "Help Center", icon: RiQuestionLine, href: "/faq" },
@@ -52,11 +55,7 @@ export default function AccountSidebar({ user, onLogout }: AccountSidebarProps) 
                     </div>
                 </div>
 
-                {/*
-                    The wallet card lands here once the wallet API ships. The previous
-                    placeholder showed a hardcoded "$0.00" balance and a points counter;
-                    both were fake, and points are out of scope entirely.
-                */}
+                <SidebarWalletCard />
             </div>
 
             {/* Navigation - Desktop vertical list */}

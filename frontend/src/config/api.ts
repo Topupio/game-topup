@@ -66,6 +66,41 @@ export const endpoints = {
         upiInitiate: "/api/payments/upi/initiate",
         upiSubmitUtr: "/api/payments/upi/submit-utr",
         settings: "/api/payments/settings",
+        walletQuote: "/api/payments/wallet/quote",
+        walletPay: "/api/payments/wallet/pay",
+    },
+
+    wallet: {
+        me: "/api/wallet/me",
+        transactions: "/api/wallet/me/transactions",
+        topups: "/api/wallet/me/topups",
+        publicSettings: "/api/wallet/settings/public",
+        upiInitiate: "/api/wallet/topups/upi/initiate",
+        usdtInitiate: "/api/wallet/topups/usdt/initiate",
+        topupById: (id: Id) => `/api/wallet/topups/${id}`,
+        submitUtr: (id: Id) => `/api/wallet/topups/${id}/utr`,
+
+        admin: {
+            stats: "/api/wallet/admin/stats",
+            wallets: "/api/wallet/admin/wallets",
+            walletByUser: (userId: Id) => `/api/wallet/admin/wallets/${userId}`,
+            userTransactions: (userId: Id) => `/api/wallet/admin/wallets/${userId}/transactions`,
+            credit: (userId: Id) => `/api/wallet/admin/wallets/${userId}/credit`,
+            debit: (userId: Id) => `/api/wallet/admin/wallets/${userId}/debit`,
+            walletStatus: (userId: Id) => `/api/wallet/admin/wallets/${userId}/status`,
+            topups: "/api/wallet/admin/topups",
+            approveTopup: (id: Id) => `/api/wallet/admin/topups/${id}/approve`,
+            rejectTopup: (id: Id) => `/api/wallet/admin/topups/${id}/reject`,
+            transactions: "/api/wallet/admin/transactions",
+            settings: "/api/wallet/admin/settings",
+            auditLatest: "/api/wallet/admin/audit/latest",
+            auditRun: "/api/wallet/admin/audit/run",
+        },
+    },
+
+    orders_admin_refund: {
+        quote: (id: Id) => `/api/orders/admin/${id}/refund-quote`,
+        refundToWallet: (id: Id) => `/api/orders/admin/${id}/refund-to-wallet`,
     },
 
     exchangeRates: {

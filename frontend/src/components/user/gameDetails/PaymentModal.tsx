@@ -16,7 +16,11 @@ import {
 } from "react-icons/fa";
 import { SiTether } from "react-icons/si";
 import { IoQrCode } from "react-icons/io5";
+import { RiWallet3Line } from "react-icons/ri";
 import { getPayPalFeeBreakdown } from "@/lib/utils/paypalFees";
+import { formatFixed } from "@/lib/utils/money";
+import { useWallet } from "@/context/WalletContext";
+import WalletCheckout from "@/components/user/wallet/WalletCheckout";
 
 interface PendingOrder {
     _id: string;
@@ -36,7 +40,8 @@ export default function PaymentModal({
     qty,
     onClose,
 }: PaymentModalProps) {
-    const [paymentMethod, setPaymentMethod] = useState<"upi" | "paypal" | "crypto">("upi");
+    const [paymentMethod, setPaymentMethod] = useState<"upi" | "paypal" | "crypto" | "wallet">("upi");
+    const { balance: walletBalance, settings: walletSettings } = useWallet();
     const [isUpiDetailsOpen, setIsUpiDetailsOpen] = useState(false);
     const { currency: displayCurrency, formatPrice, rates } = useCurrency();
     const { push } = useRouter();
@@ -150,6 +155,16 @@ export default function PaymentModal({
                                 //     disabled: !isPayPalAvailable,
                                 //     icon: <FaPaypal className="text-2xl shrink-0" style={{ color: "#0070BA" }} />,
                                 // },
+                                ...(walletSettings?.enabled && walletSettings?.walletPaymentEnabled
+                                    ? [{
+                                        id: "wallet" as const,
+                                        label: "Wallet Balance",
+                                        description: walletBalance
+                                            ? `${formatFixed(walletBalance.balancePaise / 100, "INR")} available`
+                                            : "Pay instantly from your balance",
+                                        icon: <RiWallet3Line className="text-2xl shrink-0 text-secondary" />,
+                                    }]
+                                    : []),
                                 {
                                     id: "crypto" as const,
                                     label: "Cryptocurrency",
@@ -204,7 +219,13 @@ export default function PaymentModal({
                         </div>
                     </fieldset>
 
-                    {paymentMethod === "upi" ? (
+                    {paymentMethod === "wallet" ? (
+                        <WalletCheckout
+                            orderId={pendingOrder._id}
+                            onSuccess={() => push(`/orders/${pendingOrder._id}`)}
+                        />
+                    ) :
+                    paymentMethod === "upi" ? (
                         <div className="space-y-3">
                             <p className="text-xs text-muted-foreground text-center">
                                 Proceed to open a dedicated UPI payment window with QR and payment details.
