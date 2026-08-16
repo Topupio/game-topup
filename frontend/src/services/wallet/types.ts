@@ -57,6 +57,8 @@ export interface WalletTopup {
     method: TopupMethod;
     amountPaise: number;
     status: TopupStatus;
+    /** Payment provider's own id, e.g. a NOWPayments payment id. */
+    providerRef?: string | null;
     originalCurrency?: string;
     originalAmount?: number;
     upi?: {

@@ -8,7 +8,7 @@ import {
     FaImage,
     FaNewspaper,
 } from "react-icons/fa";
-import { MdPayment, MdHistory, MdRateReview } from "react-icons/md";
+import { MdPayment, MdHistory, MdRateReview, MdAccountBalanceWallet } from "react-icons/md";
 import { TbMailSearch, TbTemplate } from "react-icons/tb";
 
 export type NavOption = {
@@ -86,6 +86,11 @@ export const adminNavOptions = [
         label: "Payments",
         to: "/admin/payments",
         icon: MdPayment,
+    },
+    {
+        label: "Wallet",
+        to: "/admin/wallet",
+        icon: MdAccountBalanceWallet,
     },
     {
         label: "Activity Logs",
