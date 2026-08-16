@@ -113,7 +113,92 @@ export function verifyWebhookSignature(rawBody, signatureHeader) {
     hmac.update(JSON.stringify(sorted));
     const computedSignature = hmac.digest("hex");
 
-    return computedSignature === signatureHeader;
+    // Compare in constant time. A plain === returns as soon as two bytes differ, and
+    // the timing difference leaks how much of a guessed signature was correct.
+    const computed = Buffer.from(computedSignature, "hex");
+    const provided = Buffer.from(String(signatureHeader), "hex");
+
+    if (computed.length !== provided.length) return false;
+
+    return crypto.timingSafeEqual(computed, provided);
+}
+
+/**
+ * Create an invoice for a wallet top-up.
+ *
+ * Separate from createInvoice because the callback has to reach the wallet webhook,
+ * and the customer should land back on their wallet rather than an order page.
+ *
+ * @param {number} amountUsd - price in USD; NOWPayments works out the crypto amount
+ * @param {string} topupRef - our reference, echoed back on the IPN as order_id
+ */
+export async function createTopupInvoice(amountUsd, topupRef, description) {
+    const { apiKey, apiUrl, frontendUrl, backendUrl } = getConfig();
+
+    const response = await fetch(`${apiUrl}/v1/invoice`, {
+        method: "POST",
+        headers: {
+            "x-api-key": apiKey,
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            price_amount: parseFloat(amountUsd.toFixed(2)),
+            price_currency: "usd",
+            order_id: topupRef,
+            order_description: description,
+            ipn_callback_url: `${backendUrl}/api/payments/nowpayments/wallet-webhook`,
+            success_url: `${frontendUrl}/account/wallet?topup=pending`,
+            cancel_url: `${frontendUrl}/account/wallet?topup=cancelled`,
+        }),
+    });
+
+    if (!response.ok) {
+        const errorBody = await response.text();
+        console.error("NOWPayments top-up invoice failed:", response.status, errorBody);
+        throw new Error(`NOWPayments API error: ${response.status}`);
+    }
+
+    const result = await response.json();
+
+    return { invoiceId: result.id, invoiceUrl: result.invoice_url };
+}
+
+/**
+ * Map a NOWPayments status for WALLET top-ups.
+ *
+ * Deliberately separate from mapPaymentStatus, which the order flow depends on.
+ *
+ * The work order asked for crediting on "confirmed", but that status means the
+ * blockchain has settled while NOWPayments has not yet paid out to the merchant —
+ * crediting there means fronting money that a conversion or compliance hold could
+ * still take away. "finished" is the settled state, usually seconds later, and is
+ * what the order flow already treats as paid. Using one definition of "paid" across
+ * both keeps reconciliation honest.
+ *
+ * @returns {"pending"|"credit"|"failed"|"partial"|"refunded"}
+ */
+export function mapTopupStatus(npStatus) {
+    switch (npStatus) {
+        case "waiting":
+        case "confirming":
+        case "confirmed":
+        case "sending":
+            return "pending";
+        case "finished":
+            return "credit";
+        case "partially_paid":
+            // Real money arrived, just less than asked for. Must not be ignored:
+            // leaving it pending forever means the customer's crypto vanishes.
+            return "partial";
+        case "failed":
+        case "expired":
+            return "failed";
+        case "refunded":
+            return "refunded";
+        default:
+            console.warn(`Unknown NOWPayments status: ${npStatus}`);
+            return "pending";
+    }
 }
 
 /**

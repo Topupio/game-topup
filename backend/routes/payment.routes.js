@@ -20,6 +20,7 @@ import {
     quoteWalletPayment,
     payWithWallet,
 } from "../controllers/walletPayment.controller.js";
+import { handleWalletWebhook } from "../controllers/walletCrypto.controller.js";
 import { sensitiveLimiter } from "../middlewares/rateLimit.middleware.js";
 
 const router = express.Router();
@@ -34,6 +35,7 @@ router.post("/paypal/webhook", handlePayPalWebhook);
 // NOWPayments (Crypto) routes
 router.post("/nowpayments/create-invoice", protect, createNowPaymentsInvoice);
 router.post("/nowpayments/webhook", handleNowPaymentsWebhook);
+router.post("/nowpayments/wallet-webhook", handleWalletWebhook);
 router.post("/upi/initiate", protect, initiateUpiPayment);
 router.post("/upi/submit-utr", protect, submitUtrNumber);
 

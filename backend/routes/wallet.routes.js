@@ -16,6 +16,7 @@ import {
     approveTopup,
     rejectTopup,
 } from "../controllers/walletTopup.controller.js";
+import { initiateCryptoTopup } from "../controllers/walletCrypto.controller.js";
 import {
     listWallets,
     getUserWallet,
@@ -42,6 +43,7 @@ router.get("/me/transactions", protect, getMyTransactions);
 router.get("/me/topups", protect, getMyTopups);
 
 router.post("/topups/upi/initiate", sensitiveLimiter, protect, initiateUpiTopup);
+router.post("/topups/usdt/initiate", sensitiveLimiter, protect, initiateCryptoTopup);
 router.post("/topups/:id/utr", sensitiveLimiter, protect, submitTopupUtr);
 router.get("/topups/:id", protect, getTopup);
 
