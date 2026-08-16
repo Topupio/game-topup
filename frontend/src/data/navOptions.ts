@@ -53,6 +53,11 @@ export const adminNavOptions = [
         icon: TbMailSearch,
     },
     {
+        label: "Wallet",
+        to: "/admin/wallet",
+        icon: MdAccountBalanceWallet,
+    },
+    {
         label: "Users",
         to: "/admin/users",
         icon: FaUsers,
@@ -86,11 +91,6 @@ export const adminNavOptions = [
         label: "Payments",
         to: "/admin/payments",
         icon: MdPayment,
-    },
-    {
-        label: "Wallet",
-        to: "/admin/wallet",
-        icon: MdAccountBalanceWallet,
     },
     {
         label: "Activity Logs",
