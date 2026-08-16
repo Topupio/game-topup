@@ -16,6 +16,11 @@ import {
     submitUtrNumber,
     updatePaymentSettings,
 } from "../controllers/paymentSettings.controller.js";
+import {
+    quoteWalletPayment,
+    payWithWallet,
+} from "../controllers/walletPayment.controller.js";
+import { sensitiveLimiter } from "../middlewares/rateLimit.middleware.js";
 
 const router = express.Router();
 
@@ -31,6 +36,11 @@ router.post("/nowpayments/create-invoice", protect, createNowPaymentsInvoice);
 router.post("/nowpayments/webhook", handleNowPaymentsWebhook);
 router.post("/upi/initiate", protect, initiateUpiPayment);
 router.post("/upi/submit-utr", protect, submitUtrNumber);
+
+// Wallet. The quote returns the exact amount the server will debit, so checkout can
+// confirm against it rather than a figure converted on the client.
+router.get("/wallet/quote", protect, quoteWalletPayment);
+router.post("/wallet/pay", sensitiveLimiter, protect, payWithWallet);
 
 // Admin routes
 router.post("/paypal/refund", protect, authorize("admin"), refundPayPalPayment);

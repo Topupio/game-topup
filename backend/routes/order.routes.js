@@ -15,6 +15,11 @@ import {
     adminGetOrders,
     adminUpdateOrder
 } from "../controllers/order.controller.js";
+import {
+    refundOrderToWallet,
+    getRefundQuote,
+} from "../controllers/walletRefund.controller.js";
+import { sensitiveLimiter } from "../middlewares/rateLimit.middleware.js";
 
 const router = express.Router();
 
@@ -31,6 +36,8 @@ router.patch("/:id/admin-message/read", protect, markAdminMessageRead);
 
 // Admin routes
 router.get("/admin/all", protect, authorize("admin"), adminGetOrders);
+router.get("/admin/:id/refund-quote", protect, authorize("admin"), getRefundQuote);
+router.post("/admin/:id/refund-to-wallet", sensitiveLimiter, protect, authorize("admin"), refundOrderToWallet);
 router.patch("/admin/:id", protect, authorize("admin"), adminUpdateOrder);
 
 router.get("/:id", protect, getOrderDetails);

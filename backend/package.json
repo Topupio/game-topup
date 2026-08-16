@@ -11,7 +11,7 @@
     "start": "node server.js",
     "server": "nodemon server.js",
     "wallet:init": "node scripts/initWalletCollections.js",
-    "wallet:check": "node scripts/walletConcurrency.check.js && node scripts/walletIdempotency.check.js && node scripts/walletLedger.check.js && node scripts/walletTopupFlow.check.js"
+    "wallet:check": "node scripts/walletConcurrency.check.js && node scripts/walletIdempotency.check.js && node scripts/walletLedger.check.js && node scripts/walletTopupFlow.check.js && node scripts/walletRefund.check.js"
   },
   "dependencies": {
     "@paypal/paypal-server-sdk": "^2.2.0",
