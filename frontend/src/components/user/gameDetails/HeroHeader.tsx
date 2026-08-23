@@ -245,9 +245,10 @@ export default function HeroHeader({ imageUrl, title, subtitle }: HeroHeaderProp
                     {/* Game Info */}
                     <div className="min-w-0 space-y-2">
                         {/* Title — hidden on mobile (shown beside icon above) */}
-                        <h1 className="hidden sm:block text-2xl font-bold text-foreground truncate">
+                        {/* h2, not h1: the page's single h1 comes from the rich description */}
+                        <h2 className="hidden sm:block text-2xl font-bold text-foreground truncate">
                             {title}
-                        </h1>
+                        </h2>
 
                         {/* Trust Badges */}
                         <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
