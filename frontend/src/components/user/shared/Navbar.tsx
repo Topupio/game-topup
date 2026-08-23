@@ -52,8 +52,12 @@ export default function Navbar() {
         userId: string;
         messages: AdminOrderMessage[];
     }>({ userId: "", messages: [] });
-    const { user } = useAuth();
+    const { user, loading: authLoading } = useAuth();
     const adminMessages = adminMessageState.userId === user?.id ? adminMessageState.messages : [];
+    // The server always renders with user === null, so branching on `user` before the
+    // profile fetch settles produces a hydration mismatch. `authLoading` is true on the
+    // server and on the first client render, so both agree until we know who's signed in.
+    const showAuthedUi = !authLoading && Boolean(user);
 
     useEffect(() => {
         const handleScroll = () => setScrolled(window.scrollY > 10);
@@ -155,7 +159,7 @@ export default function Navbar() {
                 <div className="flex items-center gap-3">
                     <SearchBoxDesktop />
                     <LangCurrencySelector />
-                    {user && (
+                    {showAuthedUi && (
                         <AdminMessageBell
                             messages={adminMessages}
                             onNotificationClick={handleAdminMessageClick}
@@ -163,7 +167,9 @@ export default function Navbar() {
                         />
                     )}
 
-                    {user ? (
+                    {authLoading ? (
+                        <div className="h-[38px] w-[110px] rounded-lg bg-slate-800/60 animate-pulse" />
+                    ) : user ? (
                         <Link
                             href="/account"
                             className="flex items-center gap-2 px-4 py-2 rounded-lg bg-secondary text-white text-sm font-medium hover:bg-secondary/90 transition shadow-sm"
@@ -206,7 +212,7 @@ export default function Navbar() {
 
                 {/* RIGHT: Language & Account */}
                 <div className="flex items-center gap-2 text-white">
-                    {user && (
+                    {showAuthedUi && (
                         <AdminMessageBell
                             messages={adminMessages}
                             onNotificationClick={handleAdminMessageClick}
@@ -217,7 +223,7 @@ export default function Navbar() {
                     <LangCurrencySelector hideLabelOnMobile />
 
                     <Link
-                        href={user ? "/account" : "/login"}
+                        href={showAuthedUi ? "/account" : "/login"}
                         className="p-1.5 rounded-lg hover:bg-slate-800 transition"
                     >
                         <RiUserLine size={22} />
