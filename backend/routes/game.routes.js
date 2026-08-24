@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getGames, getHomePageGames, getDistinctCategories, getGamesByPaymentCategory, getPopularGames, getGameDetails, createGame, updateGame, deleteGame } from "../controllers/game.controller.js";
+import { getGames, getHomePageGames, getDistinctCategories, getGamesByPaymentCategory, getPopularGames, getGameDetails, createGame, updateGame, deleteGame, bulkUpdateGameStatus } from "../controllers/game.controller.js";
 import { verifyPlayer } from "../controllers/gamersWorkshop.controller.js";
 import { protect } from "../middlewares/auth.middleware.js";
 import { authorize } from "../middlewares/role.middleware.js";
@@ -20,6 +20,7 @@ router.post("/verify-player", verifyPlayer);
 router.get('/:slug' , getGameDetails)
 
 // Admin only: create, update, delete
+router.patch("/bulk-status", protect, authorize("admin"), bulkUpdateGameStatus);
 router.post("/", protect, authorize("admin"), upload.any(), createGame);
 router.put("/:slug", protect, authorize("admin"), upload.any(), updateGame);
 router.delete("/:id", protect, authorize("admin"), deleteGame);

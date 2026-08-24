@@ -120,11 +120,25 @@ function validateAndPrepareVariants(variants) {
     return { data: variants };
 }
 
+/**
+ * Parse a comma-separated checkoutTemplate query/body value into safe keys.
+ * Template keys are DB-backed (admins can add custom ones), so instead of
+ * whitelisting the built-in list we validate the key shape — enough to keep
+ * arbitrary values out of the Mongo query while still matching custom templates.
+ */
+function parseTemplateKeys(value) {
+    return String(value || "")
+        .split(",")
+        .map((t) => t.trim().toLowerCase())
+        .filter((t) => /^[a-z0-9_-]+$/.test(t));
+}
+
 const getGames = asyncHandler(async (req, res) => {
     const {
         search = "",
         status,
         category,
+        checkoutTemplate,
         page,
         limit = 12,
         sort = "createdAt",
@@ -159,6 +173,13 @@ const getGames = asyncHandler(async (req, res) => {
                 { paymentCategory: { $in: categories } },
             ]
         });
+    }
+
+    if (checkoutTemplate) {
+        const templates = parseTemplateKeys(checkoutTemplate);
+        if (templates.length > 0) {
+            conditions.push({ checkoutTemplate: { $in: templates } });
+        }
     }
 
     if (conditions.length > 0) {
@@ -650,6 +671,50 @@ const deleteGame = asyncHandler(async (req, res) => {
     });
 });
 
+/**
+ * Bulk-set status for every game on the given checkout template(s).
+ *
+ * Intentionally narrow: `checkoutTemplate` is REQUIRED so an empty filter can
+ * never fall through to "update every game", and `status` is the only writable
+ * field. The filter is rebuilt server-side — the client never sends a raw query.
+ */
+const bulkUpdateGameStatus = asyncHandler(async (req, res) => {
+    const { status, checkoutTemplate } = req.body;
+
+    if (!["active", "inactive"].includes(status)) {
+        return res.status(400).json({
+            success: false,
+            message: "status must be 'active' or 'inactive'",
+        });
+    }
+
+    const templates = parseTemplateKeys(checkoutTemplate);
+
+    if (templates.length === 0) {
+        return res.status(400).json({
+            success: false,
+            message: "checkoutTemplate is required",
+        });
+    }
+
+    const filter = { checkoutTemplate: { $in: templates } };
+    const result = await Game.updateMany(filter, { $set: { status } });
+
+    logAdminActivity(req, {
+        action: "UPDATE",
+        module: "games",
+        targetModel: "Game",
+        changes: { status, checkoutTemplate: templates },
+        description: `Bulk set status=${status} on ${result.modifiedCount} game(s) for template(s): ${templates.join(", ")}`,
+    });
+
+    return res.status(200).json({
+        success: true,
+        matched: result.matchedCount,
+        modified: result.modifiedCount,
+    });
+});
+
 export {
     getGames,
     getHomePageGames,
@@ -660,4 +725,5 @@ export {
     createGame,
     updateGame,
     deleteGame,
+    bulkUpdateGameStatus,
 };

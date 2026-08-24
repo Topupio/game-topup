@@ -51,6 +51,14 @@ export const gamesApiClient = {
         return data;
     },
 
+    async bulkStatus(payload: {
+        status: "active" | "inactive";
+        checkoutTemplate: string;
+    }): Promise<{ success: boolean; matched: number; modified: number }> {
+        const { data } = await clientApi.patch(endpoints.games.bulkStatus, payload);
+        return data;
+    },
+
     async remove(id: string): Promise<{ success: boolean }> {
         const { data } = await clientApi.delete(endpoints.games.byId(id));
         return data;
