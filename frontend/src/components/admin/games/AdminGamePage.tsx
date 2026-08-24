@@ -67,6 +67,8 @@ const AdminGamePage = ({ initialData }: { initialData: GamesListResponse }) => {
                 page: p,
                 limit: l,
                 search: s,
+                // Admin lists disabled games too; the storefront default excludes them.
+                includeInactive: true,
                 ...(t ? { checkoutTemplate: expandTemplate(t) } : {})
             });
             setItems(res.data);

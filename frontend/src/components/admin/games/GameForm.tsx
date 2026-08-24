@@ -99,7 +99,9 @@ export default function GameForm({ gameId }: Props) {
 
         (async () => {
             try {
-                const response = await gamesApiClient.get(gameId as string);
+                const response = await gamesApiClient.get(gameId as string, {
+                    includeInactive: true,
+                });
                 updateForm((prev) => ({
                     ...prev,
                     ...response.data,

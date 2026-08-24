@@ -10,6 +10,8 @@ export const gamesApiServer = {
         limit?: number;
         category?: string;
         status?: "active" | "inactive";
+        /** Admin-only: include disabled games, which the storefront excludes by default. */
+        includeInactive?: boolean;
         sort?: string;
         order?: "asc" | "desc";
         search?: string;

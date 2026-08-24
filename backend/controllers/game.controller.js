@@ -139,6 +139,7 @@ const getGames = asyncHandler(async (req, res) => {
         status,
         category,
         checkoutTemplate,
+        includeInactive,
         page,
         limit = 12,
         sort = "createdAt",
@@ -161,8 +162,11 @@ const getGames = asyncHandler(async (req, res) => {
         });
     }
 
+    // Storefront gets active games only. Admin opts out with includeInactive=true.
     if (status && ["active", "inactive"].includes(status)) {
-        query.status = status;
+        query.status = status;                      // explicit filter wins (admin UI)
+    } else if (String(includeInactive) !== "true") {
+        query.status = "active";                    // public default
     }
 
     if (category) {
@@ -210,10 +214,16 @@ const getGames = asyncHandler(async (req, res) => {
 
 const getHomePageGames = asyncHandler(async (req, res) => {
     const result = await Game.aggregate([
+        // Must precede $setWindowFields: the rank/top-6 cut below is otherwise
+        // status-blind and an inactive game can occupy a slot.
+        { $match: { status: "active" } },
         {
             $setWindowFields: {
                 partitionBy: "$category",
-                sortBy: { status: 1, createdAt: -1 },
+                // Single-key sortBy is required: $rank rejects a multi-key
+                // expression. The former `status: 1` key is redundant now that
+                // the $match above admits only active games.
+                sortBy: { createdAt: -1 },
                 output: {
                     rank: { $rank: {} }
                 }
@@ -244,7 +254,7 @@ const getHomePageGames = asyncHandler(async (req, res) => {
 });
 
 const getDistinctCategories = asyncHandler(async (req, res) => {
-    const categories = await Game.distinct("category");
+    const categories = await Game.distinct("category", { status: "active" });
 
     return res.status(200).json({
         success: true,
@@ -254,7 +264,7 @@ const getDistinctCategories = asyncHandler(async (req, res) => {
 
 const getGamesByPaymentCategory = asyncHandler(async (req, res) => {
     const result = await Game.aggregate([
-        { $match: { paymentCategory: { $ne: "" } } },
+        { $match: { paymentCategory: { $ne: "" }, status: "active" } },
         {
             $setWindowFields: {
                 partitionBy: "$paymentCategory",
@@ -290,7 +300,7 @@ const getGamesByPaymentCategory = asyncHandler(async (req, res) => {
 });
 
 const getPopularGames = asyncHandler(async (req, res) => {
-    const games = await Game.find({ isPopular: true })
+    const games = await Game.find({ isPopular: true, status: "active" })
         .sort({ status: 1, createdAt: -1 })
         .limit(20);
 
@@ -306,6 +316,16 @@ const getGameDetails = asyncHandler(async (req, res) => {
     const game = await Game.findOne({ slug });
 
     if (!game) {
+        return res.status(404).json({
+            success: false,
+            message: "Game not found",
+        });
+    }
+
+    // Disabled games are delisted from the storefront entirely — a direct hit
+    // 404s rather than rendering a sold-out page. Admin opts out to keep
+    // editing them.
+    if (game.status !== "active" && String(req.query.includeInactive) !== "true") {
         return res.status(404).json({
             success: false,
             message: "Game not found",

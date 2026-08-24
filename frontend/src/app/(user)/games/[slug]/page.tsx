@@ -2,7 +2,7 @@ import { gamesApiServer } from "@/services/games/gamesApi.server";
 import GameDetailsPage from "@/components/user/gameDetails/GameDetailsPage";
 
 import { GameDetailResponse } from "@/lib/types/game";
-import { permanentRedirect } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { getGameUrl } from "@/lib/utils/getGameUrl";
 import type { Metadata } from "next";
 import { getCanonicalMetadata } from "@/lib/seo/canonical";
@@ -40,9 +40,19 @@ export default async function GameSlugRedirect({
 }: GameSlugPageProps) {
     const { slug } = await params;
 
-    const gameDetailResponse = (await gamesApiServer.get(
-        slug
-    )) as unknown as GameDetailResponse;
+    // The backend 404s disabled games, so a delisted slug must render the
+    // not-found page rather than throwing a 500.
+    let gameDetailResponse: GameDetailResponse;
+    try {
+        gameDetailResponse = (await gamesApiServer.get(
+            slug
+        )) as unknown as GameDetailResponse;
+    } catch (error: unknown) {
+        if (error instanceof Error && error.message.includes("404")) {
+            notFound();
+        }
+        throw error;
+    }
     const gameDetails = gameDetailResponse.data;
     const checkoutTemplates = gameDetailResponse.checkoutTemplates || {};
 
