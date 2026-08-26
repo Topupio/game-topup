@@ -1,5 +1,5 @@
 export const PAYPAL_MIN_ORDER_USD = 5;
-export const PAYPAL_PROCESSING_RATE = 0.09;
+export const PAYPAL_PROCESSING_RATE = 0.10;
 
 export function roundCurrency(amount) {
     return Math.round((amount + Number.EPSILON) * 100) / 100;

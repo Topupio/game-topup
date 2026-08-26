@@ -10,7 +10,7 @@ import NowPaymentsCheckout from "./NowPaymentsCheckout";
 import UpiQrDetailsModal from "./UpiQrDetailsModal";
 import { MIN_CRYPTO_AMOUNT_USD } from "@/lib/constants/payments";
 import {
-    // FaPaypal, // PayPal payment temporarily disabled (account suspended)
+    FaPaypal,
     FaBitcoin,
     FaEthereum,
 } from "react-icons/fa";
@@ -108,7 +108,7 @@ export default function PaymentModal({
                                 <div className="border-t border-border my-2" />
                                 <div className="flex justify-between">
                                     <span className="text-muted-foreground">
-                                        Processing &amp; handling (9%)
+                                        Processing &amp; handling (10%)
                                     </span>
                                     <span className="text-foreground font-semibold">
                                         ${paypalBreakdown.processingFeeUsd.toFixed(2)}
@@ -145,16 +145,15 @@ export default function PaymentModal({
                                     description: "Scan & pay with any UPI app",
                                     icon: <IoQrCode className="text-2xl shrink-0" style={{ color: "#4CAF50" }} />,
                                 },
-                                // PayPal payment temporarily disabled (account suspended) — hidden from UI
-                                // {
-                                //     id: "paypal" as const,
-                                //     label: "PayPal",
-                                //     description: isPayPalAvailable
-                                //         ? "Includes 9% processing & handling"
-                                //         : "Order must be over $5.00 USD",
-                                //     disabled: !isPayPalAvailable,
-                                //     icon: <FaPaypal className="text-2xl shrink-0" style={{ color: "#0070BA" }} />,
-                                // },
+                                {
+                                    id: "paypal" as const,
+                                    label: "PayPal",
+                                    description: isPayPalAvailable
+                                        ? "Includes 10% processing & handling"
+                                        : "Order must be over $5.00 USD",
+                                    disabled: !isPayPalAvailable,
+                                    icon: <FaPaypal className="text-2xl shrink-0" style={{ color: "#0070BA" }} />,
+                                },
                                 ...(walletSettings?.enabled && walletSettings?.walletPaymentEnabled
                                     ? [{
                                         id: "wallet" as const,

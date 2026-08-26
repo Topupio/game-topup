@@ -4,7 +4,7 @@ export interface CountryCallingCode {
   label: string;
 }
 
-export const DEFAULT_COUNTRY_CODE = "+63";
+export const DEFAULT_COUNTRY_CODE = "+91";
 
 export const COUNTRY_CODES: CountryCallingCode[] = [
   { code: "+63", flag: "🇵🇭", label: "PH" },

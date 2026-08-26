@@ -106,12 +106,11 @@ export default function CheckoutCard({
                     </span>
                 </div>
 
-                {/* PayPal disabled (account suspended)
                 {paypalBreakdown.isEligible && (
                     <>
                         <div className="border-t border-border my-3" />
                         <div className="flex justify-between text-muted-foreground">
-                            <span>PayPal processing &amp; handling (9%)</span>
+                            <span>PayPal processing &amp; handling (10%)</span>
                             <span>
                                 {formatPrice(paypalBreakdown.processingFee, currency)}
                             </span>
@@ -124,7 +123,6 @@ export default function CheckoutCard({
                         </div>
                     </>
                 )}
-                */}
 
                 <button
                     onClick={onProceed}

@@ -35,7 +35,7 @@ export default function UserDetailsForm({
     return (
         <div className="bg-card border border-border rounded-2xl p-6 shadow-sm">
             <h3 className="text-lg font-bold text-secondary mb-4">
-                {templateKey === "ai_subscriptions" ? "Customer Details" : "Enter Player Details"}
+                {/* {templateKey === "ai_subscriptions" ? "Customer Details" : "Enter Player Details"} */}
             </h3>
 
             <div className="grid grid-cols-1 gap-5">

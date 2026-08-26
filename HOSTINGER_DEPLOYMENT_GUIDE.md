@@ -133,7 +133,13 @@ CLOUDINARY_API_KEY=your_api_key
 CLOUDINARY_API_SECRET=your_api_secret
 RESEND_API_KEY=your_resend_key
 ALLOWED_ORIGINS=https://topupio.com
+PAYPAL_CLIENT_ID=your_paypal_client_id
+PAYPAL_CLIENT_SECRET=your_paypal_client_secret
+PAYPAL_MODE=live
+PAYPAL_WEBHOOK_ID=your_paypal_webhook_id
 ```
+
+In PayPal Developer Dashboard, register webhook URL `https://topupio.com/api/payments/paypal/webhook` and copy its Webhook ID into `PAYPAL_WEBHOOK_ID` above.
 
 Start with PM2:
 
@@ -157,6 +163,7 @@ nano .env.local
 ```env
 NEXT_PUBLIC_API_BASE=https://topupio.com
 ALLOWED_HOSTS=topupio.com,www.topupio.com
+NEXT_PUBLIC_PAYPAL_CLIENT_ID=your_paypal_client_id
 ```
 
 Build and start:
