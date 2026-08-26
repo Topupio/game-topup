@@ -126,6 +126,7 @@ const AdminGamePage = ({ initialData }: { initialData: GamesListResponse }) => {
                     it._id === item._id ? { ...it, status: newStatus } : it
                 )
             );
+            
             toast.success(`Game status updated to ${newStatus}`);
         } catch (error) {
             toast.error("Failed to update status");
