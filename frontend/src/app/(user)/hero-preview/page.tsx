@@ -32,6 +32,7 @@ const CASES: { state: OrderState; amount: string; order: any }[] = [
 
 export default function Page() {
     return (
+        
         <div className="mx-auto max-w-lg space-y-4 p-3">
             {CASES.map((c) => (
                 <div key={c.state}>
