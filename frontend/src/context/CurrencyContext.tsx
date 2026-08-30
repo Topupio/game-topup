@@ -43,40 +43,7 @@ const FALLBACK_RATES: Record<string, number> = {
     IDR: 15500,
 };
 
-function detectDefaultCurrency(): string {
-    try {
-        const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-        if (tz.includes("Kolkata") || tz.includes("Calcutta")) return "INR";
-        if (tz.includes("Manila")) return "PHP";
-        if (
-            tz.startsWith("America/") &&
-            ["Sao_Paulo", "Fortaleza", "Recife", "Bahia"].some((c) => tz.includes(c))
-        )
-            return "BRL";
-        if (tz.includes("Jakarta") || tz.includes("Makassar") || tz.includes("Jayapura"))
-            return "IDR";
-        if (tz.includes("Dhaka")) return "BDT";
-        if (tz.includes("Dubai") || tz.includes("Riyadh") || tz.includes("Qatar")) return "AED";
-        if (
-            [
-                "Moscow",
-                "Vladivostok",
-                "Yekaterinburg",
-                "Novosibirsk",
-                "Kaliningrad",
-                "Kamchatka",
-                "Krasnoyarsk",
-                "Omsk",
-                "Volgograd",
-                "Samara"
-            ].some((c) => tz.includes(c))
-        )
-            return "RUB";
-    } catch {
-        // ignore
-    }
-    return "USD";
-}
+const DEFAULT_CURRENCY = "INR";
 
 export function CurrencyProvider({
     children,
@@ -87,16 +54,15 @@ export function CurrencyProvider({
     initialCurrency?: string;
 }) {
     const { user } = useAuth();
-    const [currency, setCurrencyState] = useState(initialCurrency || "USD");
+    const [currency, setCurrencyState] = useState(initialCurrency || DEFAULT_CURRENCY);
     const [rates, setRates] = useState<Record<string, number>>(FALLBACK_RATES);
     const [loading, setLoading] = useState(true);
 
-    // No cookie yet (first visit): guess from the timezone and remember it.
+    // No cookie yet (first visit): use the default and remember it.
     useEffect(() => {
         if (initialCurrency) return;
-        const detected = detectDefaultCurrency();
-        setCurrencyState(detected);
-        writeCurrencyCookie(detected);
+        setCurrencyState(DEFAULT_CURRENCY);
+        writeCurrencyCookie(DEFAULT_CURRENCY);
     }, [initialCurrency]);
 
     // A signed-in user's saved preference wins over the cookie, so their choice
@@ -183,8 +149,8 @@ export function CurrencyProvider({
 }
 
 const currencyFallback: CurrencyContextType = {
-    currency: "USD",
-    symbol: "$",
+    currency: DEFAULT_CURRENCY,
+    symbol: getCurrencySymbol(DEFAULT_CURRENCY),
     setCurrency: () => {},
     convertPrice: (amount) => amount,
     formatPrice: (amount, fromCurrency) => formatFixed(amount, fromCurrency),
