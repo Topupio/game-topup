@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 export default function WalletPage() {
     return (
-        <AccountShell>
+        <AccountShell title="Wallet">
             <WalletPageClient />
         </AccountShell>
     );

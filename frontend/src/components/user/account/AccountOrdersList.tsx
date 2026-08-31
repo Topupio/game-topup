@@ -74,13 +74,14 @@ export default function AccountOrdersList() {
 
     return (
         <div>
-            <div className="mb-4">
+            {/* On mobile the page header already names this screen. */}
+            <div className="hidden lg:block mb-4">
                 <h2 className="text-lg font-bold text-gray-900">Order History</h2>
                 <p className="text-sm text-gray-500 mt-1">Track the status of your placed orders and view their details.</p>
             </div>
             <OrderStatusTabs activeTab={activeStatus} onTabChange={handleTabChange} />
 
-            <div className="mt-6">
+            <div className="mt-4 lg:mt-6">
                 {loading ? (
                     <div className="space-y-4">
                         {[1, 2, 3].map((i) => (

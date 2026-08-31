@@ -2,19 +2,20 @@
 "use client";
 
 import { AuthUser } from "@/context/AuthContext";
-import { toast } from "react-toastify";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
     RiUserLine,
     RiShoppingBag3Line,
-    RiCouponLine,
     RiLockPasswordLine,
     RiQuestionLine,
     RiLogoutBoxLine,
     RiWallet3Line,
+    RiWhatsappFill,
+    RiArrowRightSLine,
 } from "react-icons/ri";
 import SidebarWalletCard from "@/components/user/wallet/SidebarWalletCard";
+import { SUPPORT_WHATSAPP } from "@/lib/constants/support";
 
 interface AccountSidebarProps {
     user: AuthUser;
@@ -22,22 +23,18 @@ interface AccountSidebarProps {
 }
 
 const navItems = [
-    { label: "Order History", icon: RiShoppingBag3Line, href: "/account" },
+    { label: "Order History", icon: RiShoppingBag3Line, href: "/account/orders" },
     { label: "Wallet", icon: RiWallet3Line, href: "/account/wallet" },
-    { label: "Coupon", icon: RiCouponLine, comingSoon: true },
     { label: "Settings", icon: RiLockPasswordLine, href: "/account/settings" },
     { label: "Help Center", icon: RiQuestionLine, href: "/faq" },
 ];
 
 export default function AccountSidebar({ user, onLogout }: AccountSidebarProps) {
     const pathname = usePathname();
-    const handleComingSoon = () => {
-        toast.info("Coming soon!");
-    };
 
-    const isActive = (href?: string) => {
-        if (!href) return false;
-        if (href === "/account") return pathname === "/account";
+    const isActive = (href: string) => {
+        // Desktop /account shows the order list inline, so it highlights Order History too.
+        if (href === "/account/orders") return pathname === "/account" || pathname.startsWith("/account/orders");
         return pathname.startsWith(href);
     };
 
@@ -63,63 +60,75 @@ export default function AccountSidebar({ user, onLogout }: AccountSidebarProps) 
                 {navItems.map((item) => {
                     const Icon = item.icon;
                     const active = isActive(item.href);
-                    const className = `w-full flex items-center gap-3 px-6 py-3 text-sm font-medium transition-colors ${
-                        active
-                            ? "text-secondary bg-secondary/5 border-l-3 border-secondary"
-                            : "text-gray-600 hover:bg-gray-50 hover:text-gray-900 border-l-3 border-transparent"
-                    }`;
-                    if (item.href) {
-                        return (
-                            <Link key={item.label} href={item.href} className={className}>
-                                <Icon className="text-lg shrink-0" />
-                                <span>{item.label}</span>
-                            </Link>
-                        );
-                    }
                     return (
-                        <button
+                        <Link
                             key={item.label}
-                            onClick={item.comingSoon ? handleComingSoon : undefined}
-                            className={className}
+                            href={item.href}
+                            className={`w-full flex items-center gap-3 px-6 py-3 text-sm font-medium transition-colors ${
+                                active
+                                    ? "text-secondary bg-secondary/5 border-l-3 border-secondary"
+                                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-900 border-l-3 border-transparent"
+                            }`}
                         >
                             <Icon className="text-lg shrink-0" />
                             <span>{item.label}</span>
-                        </button>
+                        </Link>
                     );
                 })}
             </nav>
 
-            {/* Navigation - Mobile horizontal scroll */}
-            <div className="lg:hidden overflow-x-auto hide-scrollbar py-3 px-3 sm:px-4">
-                <div className="flex gap-2">
+            {/* Navigation - Mobile vertical icon list */}
+            <nav className="lg:hidden px-3 sm:px-4 pt-3 pb-1">
+                <div className="rounded-2xl border border-gray-100 bg-gray-50/60 p-1.5">
                     {navItems.map((item) => {
                         const Icon = item.icon;
                         const active = isActive(item.href);
-                        const className = `flex items-center gap-1.5 sm:gap-2 px-4 py-2.5 min-h-10 rounded-full text-xs sm:text-sm font-medium whitespace-nowrap transition-colors ${
-                            active
-                                ? "bg-secondary text-white"
-                                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                        }`;
-                        if (item.href) {
-                            return (
-                                <Link key={item.label} href={item.href} className={className}>
-                                    <Icon className="text-base" />
-                                    <span>{item.label}</span>
-                                </Link>
-                            );
-                        }
                         return (
-                            <button
+                            <Link
                                 key={item.label}
-                                onClick={item.comingSoon ? handleComingSoon : undefined}
-                                className={className}
+                                href={item.href}
+                                className={`flex items-center gap-3 px-2.5 py-2.5 rounded-xl text-sm font-medium transition-colors ${
+                                    active
+                                        ? "bg-secondary/10 text-secondary"
+                                        : "text-gray-700 hover:bg-white"
+                                }`}
                             >
-                                <Icon className="text-base" />
-                                <span>{item.label}</span>
-                            </button>
+                                <span
+                                    className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-lg ${
+                                        active ? "bg-secondary text-white" : "bg-white text-gray-500"
+                                    }`}
+                                >
+                                    <Icon />
+                                </span>
+                                <span className="flex-1">{item.label}</span>
+                                <RiArrowRightSLine
+                                    className={`text-base shrink-0 ${active ? "text-secondary" : "text-gray-300"}`}
+                                />
+                            </Link>
                         );
                     })}
                 </div>
+            </nav>
+
+            {/* WhatsApp support banner - mobile only */}
+            <div className="lg:hidden px-3 sm:px-4 pb-3 pt-2">
+                <a
+                    href={`https://wa.me/${SUPPORT_WHATSAPP}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-3 rounded-2xl bg-gradient-to-r from-emerald-800 to-green-600 px-4 py-3 text-white transition-opacity hover:opacity-95"
+                >
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/15">
+                        <RiWhatsappFill className="text-lg" />
+                    </span>
+                    <span className="flex-1 min-w-0">
+                        <span className="block text-sm font-semibold">Need help?</span>
+                        <span className="block text-xs text-emerald-100">Chat with us on WhatsApp</span>
+                    </span>
+                    <span className="shrink-0 rounded-lg bg-white px-3 py-1.5 text-xs font-bold text-emerald-800">
+                        Chat
+                    </span>
+                </a>
             </div>
 
             {/* Logout */}

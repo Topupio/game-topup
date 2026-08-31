@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 export default function AddMoneyPage() {
     return (
-        <AccountShell>
+        <AccountShell title="Add Money" backHref="/account/wallet">
             <AddMoneyFlow />
         </AccountShell>
     );
