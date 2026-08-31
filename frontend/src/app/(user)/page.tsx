@@ -12,6 +12,7 @@ import WhyChooseUs from "@/components/user/homePage/WhyChooseUs";
 import { getOrganizationSchema } from "@/lib/seo/organization";
 import { getCanonicalMetadata } from "@/lib/seo/canonical";
 import HomeReviewPrompt from "@/components/user/reviews/HomeReviewPrompt";
+import ChannelJoinPopup from "@/components/user/homePage/ChannelJoinPopup";
 
 export const metadata: Metadata = {
     title: {
@@ -59,6 +60,7 @@ export default async function Page() {
             <div className="sm:py-20 py-16  bg-background overflow-x-hidden">
                 <div className="max-w-7xl mx-auto lg:px-0 px-3">
                     <HomeReviewPrompt />
+                    <ChannelJoinPopup />
                     <HeroCarousel banners={bannerData} />
                     <CategoryQuickNav categories={allCategoryNames} />
                     <PopularGames games={popularGames} />

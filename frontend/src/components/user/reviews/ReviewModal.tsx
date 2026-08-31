@@ -1,11 +1,12 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import Image from "next/image";
 import { toast } from "react-toastify";
 import { RiCloseLine, RiStarFill, RiStarLine } from "react-icons/ri";
 import { ordersApiClient } from "@/services/orders/ordersApi.client";
 import { Order } from "@/services/orders/types";
+import { markModalClosed, markModalOpen } from "@/lib/utils/modalPresence";
 
 const RATING_VALUES = [1, 2, 3, 4, 5];
 
@@ -48,6 +49,13 @@ export default function ReviewModal({
     const [hoverRating, setHoverRating] = useState(0);
     const [comment, setComment] = useState("");
     const [submitting, setSubmitting] = useState(false);
+
+    // Let lower-priority prompts hold back while this one is on screen.
+    useEffect(() => {
+        if (!isOpen) return;
+        markModalOpen();
+        return () => markModalClosed();
+    }, [isOpen]);
 
     if (!isOpen) return null;
 

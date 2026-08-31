@@ -188,6 +188,18 @@
     }
 }
 
+/* Light sweep across the channel-join buttons. */
+@keyframes shine {
+    0% {
+        left: -60%;
+    }
+
+    55%,
+    100% {
+        left: 130%;
+    }
+}
+
 .animate-fadeIn {
     animation: fadeIn .35s ease-out;
 }
