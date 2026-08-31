@@ -64,7 +64,7 @@ export default async function CategoryGamePage({
         permanentRedirect(correctUrl);
     }
     const relatedLinks = await getRelatedGamePageLinks(gameDetails);
-    const gameJsonLd = JSON.stringify(getGameJsonLd(gameDetails, correctUrl)).replace(
+    const gameJsonLd = JSON.stringify(await getGameJsonLd(gameDetails, correctUrl)).replace(
         /</g,
         "\\u003c"
     );

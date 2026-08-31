@@ -1,5 +1,11 @@
 import type { Game, RegionPricing, Variant } from "@/lib/types/game";
 import { getAbsoluteUrl } from "@/lib/seo/site";
+import { DEFAULT_FALLBACK_RATES } from "@/lib/constants/currencies";
+import { convertMoney } from "@/lib/utils/money";
+import { exchangeRateApiServer } from "@/services/exchangeRate/exchangeRateApi.server";
+
+/** Schema currency is fixed to INR regardless of the stored pricing currency. */
+const SCHEMA_CURRENCY = "INR";
 
 type JsonLdValue =
     | string
@@ -20,6 +26,8 @@ function toAbsoluteUrl(value?: string | null): string | undefined {
 }
 
 function getPrimaryPricing(variant: Variant, preferredRegion?: string): RegionPricing | null {
+  console.log("variant.regionPricing", variant.regionPricing);
+  
     if (preferredRegion) {
         const regionalPrice = variant.regionPricing.find(
             (pricing) => pricing.region === preferredRegion
@@ -31,7 +39,35 @@ function getPrimaryPricing(variant: Variant, preferredRegion?: string): RegionPr
     return variant.regionPricing[0] || null;
 }
 
-function getComparablePrices(game: Game, activeVariants: Variant[]) {
+/**
+ * Live admin-configured rates, matching what the storefront actually displays.
+ * Falls back to the static defaults if the exchange-rate API is unreachable.
+ */
+async function getSchemaRates(): Promise<Record<string, number>> {
+    try {
+        const res = await exchangeRateApiServer.getAll();
+        console.log("res", res);
+        
+        if (!res.success) return DEFAULT_FALLBACK_RATES;
+
+        const ratesMap: Record<string, number> = { USD: 1 };
+        for (const r of res.data) {
+            ratesMap[r.targetCurrency] = r.rate;
+        }
+                console.log("ratesMap", ratesMap);
+
+        return ratesMap;
+        
+    } catch {
+        return DEFAULT_FALLBACK_RATES;
+    }
+}
+
+function getComparablePrices(
+    game: Game,
+    activeVariants: Variant[],
+    rates: Record<string, number>
+) {
     const preferredRegion = game.regions?.[0];
     const primaryPricing = activeVariants
         .map((variant) => getPrimaryPricing(variant, preferredRegion))
@@ -49,19 +85,26 @@ function getComparablePrices(game: Game, activeVariants: Variant[]) {
 
     if (prices.length === 0) return null;
 
+    const toSchemaCurrency = (amount: number) =>
+        convertMoney(amount, primaryPricing.currency, SCHEMA_CURRENCY, rates);
+
     return {
-        currency: primaryPricing.currency,
-        lowPrice: Math.min(...prices),
-        highPrice: Math.max(...prices),
+        currency: SCHEMA_CURRENCY,
+        lowPrice: toSchemaCurrency(Math.min(...prices)),
+        highPrice: toSchemaCurrency(Math.max(...prices)),
         offerCount: prices.length,
     };
 }
 
-function buildProductSchema(game: Game, pageUrl: string): JsonLdValue {
+function buildProductSchema(
+    game: Game,
+    pageUrl: string,
+    rates: Record<string, number>
+): JsonLdValue {
     const activeVariants = (game.variants || []).filter(
         (variant) => variant.status === "active"
     );
-    const comparablePrices = getComparablePrices(game, activeVariants);
+    const comparablePrices = getComparablePrices(game, activeVariants, rates);
     const isAvailable = game.status === "active" && activeVariants.length > 0;
     const imageUrl = toAbsoluteUrl(game.imageUrl);
 
@@ -124,9 +167,10 @@ function buildFaqSchema(game: Game, pageUrl: string): JsonLdValue | null {
     };
 }
 
-export function getGameJsonLd(game: Game, pathname: string): JsonLdValue {
+export async function getGameJsonLd(game: Game, pathname: string): Promise<JsonLdValue> {
     const pageUrl = getAbsoluteUrl(pathname);
-    const graph = [buildProductSchema(game, pageUrl)];
+    const rates = await getSchemaRates();
+    const graph = [buildProductSchema(game, pageUrl, rates)];
     const faqSchema = buildFaqSchema(game, pageUrl);
 
     if (faqSchema) {

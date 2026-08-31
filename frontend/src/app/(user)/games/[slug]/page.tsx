@@ -63,7 +63,7 @@ export default async function GameSlugRedirect({
         permanentRedirect(targetUrl);
     }
     const relatedLinks = await getRelatedGamePageLinks(gameDetails);
-    const gameJsonLd = JSON.stringify(getGameJsonLd(gameDetails, targetUrl)).replace(
+    const gameJsonLd = JSON.stringify(await getGameJsonLd(gameDetails, targetUrl)).replace(
         /</g,
         "\\u003c"
     );

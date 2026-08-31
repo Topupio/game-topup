@@ -33,3 +33,15 @@ const CURRENCY_DECIMALS_MAP: Record<string, number> = Object.fromEntries(
 
 export const getCurrencyDecimals = (code: string): number =>
     CURRENCY_DECIMALS_MAP[String(code).toUpperCase()] ?? 2;
+
+/**
+ * Rates used when live exchange rates are unavailable (or, for JSON-LD, when
+ * there is no per-request rate fetch at all). Mirrors backend/constants/currencies.js.
+ */
+export const DEFAULT_FALLBACK_RATES: Record<string, number> = {
+    USD: 1,
+    INR: 96,
+    PHP: 56,
+    BRL: 5,
+    IDR: 15500,
+};

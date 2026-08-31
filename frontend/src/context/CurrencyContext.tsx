@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useMemo, useState, useCallback } from "react";
-import { getCurrencySymbol } from "@/lib/constants/currencies";
+import { getCurrencySymbol, DEFAULT_FALLBACK_RATES } from "@/lib/constants/currencies";
 import { convertMoney, formatConverted, formatFixed } from "@/lib/utils/money";
 import { exchangeRateApiClient } from "@/services/exchangeRate/exchangeRateApi.client";
 import { authApi } from "@/services/authApi";
@@ -35,13 +35,7 @@ function writeCurrencyCookie(code: string) {
     document.cookie = `${CURRENCY_COOKIE}=${encodeURIComponent(code)}; path=/; max-age=${oneYear}; SameSite=Lax${secure}`;
 }
 
-const FALLBACK_RATES: Record<string, number> = {
-    USD: 1,
-    INR: 96,
-    PHP: 56,
-    BRL: 5,
-    IDR: 15500,
-};
+const FALLBACK_RATES = DEFAULT_FALLBACK_RATES;
 
 const DEFAULT_CURRENCY = "INR";
 
