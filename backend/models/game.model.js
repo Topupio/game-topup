@@ -221,6 +221,13 @@ const gameSchema = new mongoose.Schema(
             default: false,
         },
 
+        // Curates the home page category rows: flagged games lead their row,
+        // remaining slots backfill with the newest unflagged games.
+        showOnHomepage: {
+            type: Boolean,
+            default: false,
+        },
+
         status: {
             type: String,
             enum: ["active", "inactive"],

@@ -70,6 +70,7 @@ export default function GameForm({ gameId }: Props) {
             imageUrl: null,
             status: "active",
             isPopular: false,
+            showOnHomepage: false,
             regions: ["global"],
             checkoutTemplate: "",
             checkoutTemplateOptions: {},
@@ -182,6 +183,7 @@ export default function GameForm({ gameId }: Props) {
                 richDescription: formData.richDescription,
                 status: formData.status,
                 isPopular: formData.isPopular,
+                showOnHomepage: formData.showOnHomepage,
                 regions: ["global"],
                 checkoutTemplate: formData.checkoutTemplate,
                 checkoutTemplateOptions: formData.checkoutTemplateOptions,
@@ -299,15 +301,56 @@ export default function GameForm({ gameId }: Props) {
                             </div>
                         </div>
 
-                        <label className="flex items-center gap-1.5 cursor-pointer">
-                            <input
-                                type="checkbox"
-                                checked={form.isPopular}
-                                onChange={(e) => updateForm({ isPopular: e.target.checked })}
-                                className="rounded text-amber-500 focus:ring-amber-200"
-                            />
-                            <span className="text-xs text-gray-500">Mark as popular</span>
-                        </label>
+                        <div>
+                            <span className="text-sm font-medium text-gray-700 block mb-2">
+                                Homepage Placement
+                            </span>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <label
+                                    className={`flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-colors
+                                        ${form.isPopular
+                                            ? "border-amber-300 bg-amber-50/70"
+                                            : "border-gray-200 bg-gray-50/50 hover:border-gray-300"}`}
+                                >
+                                    <input
+                                        type="checkbox"
+                                        checked={form.isPopular}
+                                        onChange={(e) => updateForm({ isPopular: e.target.checked })}
+                                        className="mt-0.5 w-4 h-4 shrink-0 rounded text-amber-500 focus:ring-amber-200"
+                                    />
+                                    <span className="flex flex-col gap-0.5">
+                                        <span className="text-sm font-medium text-gray-700">
+                                            Mark as popular
+                                        </span>
+                                        <span className="text-xs text-gray-500">
+                                            Adds this game to the separate “Popular Digital Services” row.
+                                        </span>
+                                    </span>
+                                </label>
+
+                                <label
+                                    className={`flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-colors
+                                        ${form.showOnHomepage
+                                            ? "border-amber-300 bg-amber-50/70"
+                                            : "border-gray-200 bg-gray-50/50 hover:border-gray-300"}`}
+                                >
+                                    <input
+                                        type="checkbox"
+                                        checked={form.showOnHomepage}
+                                        onChange={(e) => updateForm({ showOnHomepage: e.target.checked })}
+                                        className="mt-0.5 w-4 h-4 shrink-0 rounded text-amber-500 focus:ring-amber-200"
+                                    />
+                                    <span className="flex flex-col gap-0.5">
+                                        <span className="text-sm font-medium text-gray-700">
+                                            Show in home page
+                                        </span>
+                                        <span className="text-xs text-gray-500">
+                                            Shows this game first in its category row on the home page.
+                                        </span>
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
 
                     </div>
                 </div>

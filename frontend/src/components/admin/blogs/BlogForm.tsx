@@ -58,6 +58,7 @@ const normalizeRelatedGame = (game: RelatedBlogGame): Game => ({
     variants: [],
     status: "active",
     isPopular: false,
+    showOnHomepage: false,
 });
 
 export default function BlogForm({ blogId }: Props) {

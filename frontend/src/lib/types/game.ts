@@ -58,6 +58,7 @@ export type Game = {
     faqs?: FaqItem[];
     status: "active" | "inactive";
     isPopular: boolean;
+    showOnHomepage: boolean;
     metaTitle?: string;
     metaDescription?: string;
 };

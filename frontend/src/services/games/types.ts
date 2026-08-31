@@ -10,6 +10,7 @@ export type GamePayload = {
     richDescription?: string;
     status: "active" | "inactive";
     isPopular?: boolean;
+    showOnHomepage?: boolean;
     regions: string[];
     checkoutTemplate?: string;
     checkoutTemplateOptions?: Record<string, any>;

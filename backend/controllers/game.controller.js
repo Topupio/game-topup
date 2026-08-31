@@ -262,20 +262,46 @@ const getDistinctCategories = asyncHandler(async (req, res) => {
     });
 });
 
+// Larger than any realistic epoch-ms value, so a pinned game always outranks an
+// unpinned one regardless of creation date.
+const HOMEPAGE_PIN_OFFSET = 100000000000000;
+
 const getGamesByPaymentCategory = asyncHandler(async (req, res) => {
     const result = await Game.aggregate([
         { $match: { paymentCategory: { $ne: "" }, status: "active" } },
         {
-            $setWindowFields: {
-                partitionBy: "$paymentCategory",
-                sortBy: { createdAt: -1 },
-                output: {
-                    rank: { $rank: {} }
+            // showOnHomepage is a RANKING input, never a filter. Adding it to a
+            // $match would blank every category row, since all existing data
+            // predates the field. Aggregations also read raw BSON, so the
+            // schema's `default: false` does not apply here -- coerce missing
+            // to false explicitly.
+            //
+            // Both $rank and $documentNumber require a sortBy with exactly one
+            // element, so "flagged first, then newest" is folded into a single
+            // composite key: flagged games get an offset larger than any epoch
+            // millisecond value, and createdAt orders games within each group.
+            $addFields: {
+                homepageRank: {
+                    $add: [
+                        { $cond: [{ $ifNull: ["$showOnHomepage", false] }, HOMEPAGE_PIN_OFFSET, 0] },
+                        { $toLong: { $ifNull: ["$createdAt", new Date(0)] } }
+                    ]
                 }
             }
         },
-        { $match: { rank: { $lte: 6 } } },
-        { $sort: { paymentCategory: 1, status: 1, createdAt: -1 } },
+        {
+            $setWindowFields: {
+                partitionBy: "$paymentCategory",
+                sortBy: { homepageRank: -1 },
+                output: {
+                    // $documentNumber, not $rank: it assigns unique slots 1..N,
+                    // so tied values cannot under-fill the row.
+                    position: { $documentNumber: {} }
+                }
+            }
+        },
+        { $match: { position: { $lte: 6 } } },
+        { $sort: { paymentCategory: 1, homepageRank: -1 } },
         {
             $group: {
                 _id: "$paymentCategory",
@@ -354,7 +380,7 @@ const getGameDetails = asyncHandler(async (req, res) => {
 // @route   POST /api/games
 // @access  Admin
 const createGame = asyncHandler(async (req, res) => {
-    const { name, slug: customSlug, description, richDescription, status, metaTitle, metaDescription, topupType, paymentCategory, isPopular, checkoutTemplate: rawCheckoutTemplate } = req.body;
+    const { name, slug: customSlug, description, richDescription, status, metaTitle, metaDescription, topupType, paymentCategory, isPopular, showOnHomepage, checkoutTemplate: rawCheckoutTemplate } = req.body;
     const checkoutTemplateOptions = parseJsonField(req.body.checkoutTemplateOptions) || {};
 
     // 1. Parse JSON fields from form-data
@@ -476,6 +502,7 @@ const createGame = asyncHandler(async (req, res) => {
             faqs,
             status: status === "inactive" ? "inactive" : "active",
             isPopular: isPopular === "true" || isPopular === true,
+            showOnHomepage: showOnHomepage === "true" || showOnHomepage === true,
             metaTitle: metaTitle || "",
             metaDescription: metaDescription || "",
         });
@@ -502,7 +529,7 @@ const createGame = asyncHandler(async (req, res) => {
 });
 
 const updateGame = asyncHandler(async (req, res) => {
-    const { name, description, richDescription, status, metaTitle, metaDescription, topupType, paymentCategory, isPopular, checkoutTemplate: rawCheckoutTemplate, slug: customSlug } = req.body;
+    const { name, description, richDescription, status, metaTitle, metaDescription, topupType, paymentCategory, isPopular, showOnHomepage, checkoutTemplate: rawCheckoutTemplate, slug: customSlug } = req.body;
     const category = req.body.category?.trim().toLowerCase();
 
     // 1. Fetch existing game
@@ -619,6 +646,9 @@ const updateGame = asyncHandler(async (req, res) => {
     game.richDescription = richDescription ?? game.richDescription;
     game.status = status ?? game.status;
     game.isPopular = isPopular !== undefined ? (isPopular === "true" || isPopular === true) : game.isPopular;
+    // `!== undefined` guard preserves the flag on partial updates; a truthiness
+    // check would treat the multipart string "false" as true.
+    game.showOnHomepage = showOnHomepage !== undefined ? (showOnHomepage === "true" || showOnHomepage === true) : game.showOnHomepage;
     game.metaTitle = metaTitle ?? game.metaTitle;
     game.metaDescription = metaDescription ?? game.metaDescription;
     game.imageUrl = updatedImageUrl;
