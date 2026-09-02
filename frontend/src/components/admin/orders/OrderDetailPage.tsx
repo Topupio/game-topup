@@ -19,12 +19,29 @@ import {
     RiFileCopyLine,
 } from "react-icons/ri";
 import AdminToolbar from "@/components/admin/shared/AdminToolbar";
+import StatusSelect from "@/components/admin/shared/StatusSelect";
 import { formatFixed } from "@/lib/utils/money";
 import RichTextEditor from "@/components/form/RichTextEditor";
 
 interface Props {
     initialOrder: Order;
 }
+
+const ORDER_STATUS_OPTIONS: { label: string; value: Order["orderStatus"] }[] = [
+    { label: "Pending", value: "pending" },
+    { label: "Paid", value: "paid" },
+    { label: "Processing", value: "processing" },
+    { label: "Completed", value: "completed" },
+    { label: "Cancelled", value: "cancelled" },
+    { label: "Failed", value: "failed" },
+];
+
+const PAYMENT_STATUS_OPTIONS: { label: string; value: Order["paymentStatus"] }[] = [
+    { label: "Pending", value: "pending" },
+    { label: "Paid", value: "paid" },
+    { label: "Failed", value: "failed" },
+    { label: "Refunded", value: "refunded" },
+];
 
 function getErrorMessage(error: unknown) {
     if (
@@ -173,36 +190,24 @@ export default function OrderDetailPage({ initialOrder }: Props) {
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-1 xl:content-start">
                     <div>
                         <label htmlFor="orderStatus" className="text-gray-500 text-[10px] uppercase font-bold tracking-wider block mb-2 px-1">Order Status</label>
-                        <select
+                        <StatusSelect
                             id="orderStatus"
-                            className="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 text-gray-900 font-medium focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition"
+                            options={ORDER_STATUS_OPTIONS}
                             value={status}
                             disabled={updating}
-                            onChange={(e) => setStatus(e.target.value as Order["orderStatus"])}
-                        >
-                            <option value="pending">Pending</option>
-                            <option value="paid">Paid</option>
-                            <option value="processing">Processing</option>
-                            <option value="completed">Completed</option>
-                            <option value="cancelled">Cancelled</option>
-                            <option value="failed">Failed</option>
-                        </select>
+                            onChange={setStatus}
+                        />
                     </div>
 
                     <div>
                         <label htmlFor="paymentStatus" className="text-gray-500 text-[10px] uppercase font-bold tracking-wider block mb-2 px-1">Payment Status</label>
-                        <select
+                        <StatusSelect
                             id="paymentStatus"
-                            className="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 text-gray-900 font-medium focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition"
+                            options={PAYMENT_STATUS_OPTIONS}
                             value={paymentStatus}
                             disabled={updating}
-                            onChange={(e) => setPaymentStatus(e.target.value as Order["paymentStatus"])}
-                        >
-                            <option value="pending">Pending</option>
-                            <option value="paid">Paid</option>
-                            <option value="failed">Failed</option>
-                            <option value="refunded">Refunded</option>
-                        </select>
+                            onChange={setPaymentStatus}
+                        />
                     </div>
                 </div>
 
