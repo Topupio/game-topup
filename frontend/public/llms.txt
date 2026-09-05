@@ -163,7 +163,6 @@ Customers receive order confirmation via email and dashboard. WhatsApp updates a
 - Login Top-Up: https://topupio.com/login-top-up
 - Live Apps: https://topupio.com/live-apps-top-up
 - Gift Cards: https://topupio.com/gift-cards
-- AI Subscriptions: https://topupio.com/ai-subscriptions
 - Blog: https://topupio.com/blogs
 - FAQ: https://topupio.com/faq
 - Contact: https://topupio.com/contact

@@ -6,18 +6,33 @@
 # ---- Verified AI search crawlers: explicitly allowed ----
 User-agent: GPTBot
 Allow: /
+Disallow: /ai-subscriptions$
+Disallow: /ai-subscriptions/
+Disallow: /ai-subscriptions?
 
 User-agent: PerplexityBot
 Allow: /
+Disallow: /ai-subscriptions$
+Disallow: /ai-subscriptions/
+Disallow: /ai-subscriptions?
 
 User-agent: Google-Extended
 Allow: /
+Disallow: /ai-subscriptions$
+Disallow: /ai-subscriptions/
+Disallow: /ai-subscriptions?
 
 User-agent: ClaudeBot
 Allow: /
+Disallow: /ai-subscriptions$
+Disallow: /ai-subscriptions/
+Disallow: /ai-subscriptions?
 
 User-agent: Applebot-Extended
 Allow: /
+Disallow: /ai-subscriptions$
+Disallow: /ai-subscriptions/
+Disallow: /ai-subscriptions?
 
 # ---- Everyone else (search engines, default) ----
 User-agent: *

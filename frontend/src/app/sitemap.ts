@@ -3,9 +3,23 @@ import { endpoints, getApiBase } from "@/config/api";
 import { getAbsoluteUrl } from "@/lib/seo/site";
 import { getGameUrl } from "@/lib/utils/getGameUrl";
 import { CATEGORY_PAGE_SLUG_MAP } from "@/lib/utils/categoryPageUrl";
+import { categoryToSlug } from "@/lib/constants/checkoutTemplates";
 
 const SITEMAP_REVALIDATE_SECONDS = 60 * 60;
 const PAGINATION_LIMIT = 200;
+
+// Categories intentionally kept out of the sitemap (still reachable on the site).
+const EXCLUDED_CATEGORY_SLUGS = new Set(["ai-subscriptions"]);
+const EXCLUDED_CATEGORY_NAMES = new Set(["ai & subscriptions"]);
+
+function isExcludedCategory(category?: string): boolean {
+  if (!category) return false;
+  const normalized = category.trim().toLowerCase();
+  return (
+    EXCLUDED_CATEGORY_NAMES.has(normalized) ||
+    EXCLUDED_CATEGORY_SLUGS.has(categoryToSlug(normalized))
+  );
+}
 
 type PaginatedResponse<T> = {
   data: T[];
@@ -87,7 +101,9 @@ function buildSitemapEntry(
 }
 
 function buildCategoryEntries(): MetadataRoute.Sitemap {
-  return Object.keys(CATEGORY_PAGE_SLUG_MAP).map((categorySlug) => ({
+  return Object.keys(CATEGORY_PAGE_SLUG_MAP)
+    .filter((categorySlug) => !EXCLUDED_CATEGORY_SLUGS.has(categorySlug))
+    .map((categorySlug) => ({
       url: getAbsoluteUrl(`/${categorySlug}`),
       changeFrequency: "weekly",
       priority: 0.7,
@@ -98,13 +114,15 @@ async function getGameEntries(): Promise<MetadataRoute.Sitemap> {
   try {
     const games = await fetchAllSeoItems<SitemapGame>(endpoints.games.root);
 
-    return games.map((game) =>
-      buildSitemapEntry(getGameUrl(game), {
-        changeFrequency: "weekly",
-        priority: 0.8,
-        images: game.imageUrl ? [game.imageUrl] : undefined,
-      })
-    );
+    return games
+      .filter((game) => !isExcludedCategory(game.paymentCategory))
+      .map((game) =>
+        buildSitemapEntry(getGameUrl(game), {
+          changeFrequency: "weekly",
+          priority: 0.8,
+          images: game.imageUrl ? [game.imageUrl] : undefined,
+        })
+      );
   } catch (error) {
     console.error("Failed to build game sitemap entries", error);
     return [];
