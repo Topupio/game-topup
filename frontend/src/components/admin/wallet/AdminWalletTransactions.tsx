@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import { TbX } from "react-icons/tb";
 import { toast } from "react-toastify";
 import DataTable, { type Column } from "@/components/admin/shared/DataTable";
 import Pagination from "@/components/admin/shared/Pagination";
@@ -39,8 +41,14 @@ const TYPE_LABELS: Record<string, string> = {
 };
 
 export default function AdminWalletTransactions() {
+    const searchParams = useSearchParams();
+
     const [rows, setRows] = useState<AdminTransaction[]>([]);
     const [loading, setLoading] = useState(true);
+
+    // Set when arriving from the Wallets tab's "Ledger" link. Kept in state rather than
+    // read straight from the URL so the chip below can clear it without a navigation.
+    const [userId, setUserId] = useState<string | null>(searchParams.get("userId"));
 
     const [type, setType] = useState("");
     const [adminOnly, setAdminOnly] = useState("");
@@ -61,6 +69,7 @@ export default function AdminWalletTransactions() {
                         page,
                         limit,
                         type: type || undefined,
+                        userId: userId || undefined,
                         adminOnly: adminOnly || undefined,
                         from: from || undefined,
                         to: to || undefined,
@@ -79,7 +88,7 @@ export default function AdminWalletTransactions() {
                 if (!signal?.aborted) setLoading(false);
             }
         },
-        [page, limit, type, adminOnly, from, to]
+        [page, limit, type, userId, adminOnly, from, to]
     );
 
     useEffect(() => {
@@ -168,8 +177,32 @@ export default function AdminWalletTransactions() {
         },
     ];
 
+    // The name only appears once rows load; until then the chip still has to explain
+    // why the ledger is short, so it falls back to a generic label.
+    const focusedUser = rows.find((row) => row.user?._id === userId)?.user ?? null;
+
     return (
         <div>
+            {userId && (
+                <div className="mb-4 flex flex-wrap items-center gap-2">
+                    <span className="text-sm text-gray-600">Showing:</span>
+                    <span className="inline-flex items-center gap-2 rounded-full border border-secondary/30 bg-secondary/5 px-3 py-1 text-sm font-medium text-secondary">
+                        {focusedUser?.name || "One customer"}
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setUserId(null);
+                                setPage(1);
+                            }}
+                            aria-label="Show all customers"
+                            className="text-secondary/70 hover:text-secondary"
+                        >
+                            <TbX size={14} />
+                        </button>
+                    </span>
+                </div>
+            )}
+
             <div className="mb-4 flex flex-wrap items-end gap-3">
                 <FilterDropdown
                     label="Type"

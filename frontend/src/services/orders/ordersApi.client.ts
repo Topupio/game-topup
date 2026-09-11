@@ -13,6 +13,9 @@ import {
     AdminOrderMessagesResponse,
     MarkAdminMessageReadResponse,
     ClearAdminMessagesResponse,
+    RefundQuoteResponse,
+    RefundToWalletPayload,
+    RefundToWalletResponse,
 } from "./types";
 
 
@@ -80,6 +83,16 @@ export const ordersApiClient = {
 
     async adminUpdateOrder(id: string, updateData: AdminOrderUpdatePayload): Promise<OrderResponse> {
         const { data } = await clientApi.patch(endpoints.orders.adminUpdate(id), updateData);
+        return data;
+    },
+
+    async adminGetRefundQuote(id: string, signal?: AbortSignal): Promise<RefundQuoteResponse> {
+        const { data } = await clientApi.get(endpoints.orders_admin_refund.quote(id), { signal });
+        return data;
+    },
+
+    async adminRefundToWallet(id: string, payload: RefundToWalletPayload): Promise<RefundToWalletResponse> {
+        const { data } = await clientApi.post(endpoints.orders_admin_refund.refundToWallet(id), payload);
         return data;
     },
 };

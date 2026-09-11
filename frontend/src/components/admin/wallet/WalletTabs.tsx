@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 
 const TABS = [
     { label: "Top-Up Queue", href: "/admin/wallet" },
+    { label: "Wallets", href: "/admin/wallet/wallets" },
     { label: "All Transactions", href: "/admin/wallet/transactions" },
     { label: "Settings", href: "/admin/wallet/settings" },
 ];

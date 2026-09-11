@@ -105,7 +105,7 @@ export const walletAdminApiClient = {
     },
 
     async listWallets(
-        params: { page?: number; limit?: number; search?: string } = {},
+        params: { page?: number; limit?: number; search?: string; minBalancePaise?: number } = {},
         signal?: AbortSignal
     ) {
         const { data } = await clientApi.get<Ok<{ wallets: AdminWalletRow[]; pagination: Pagination }>>(

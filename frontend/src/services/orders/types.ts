@@ -237,6 +237,42 @@ export interface ClearAdminMessagesResponse {
     message?: string;
 }
 
+/**
+ * What can still be refunded on an order.
+ *
+ * A non-refundable order still answers with a 200 and a `message` explaining why, so
+ * `refundable: false` is an expected state to render rather than an error to catch.
+ * `convertedAtTodaysRate` marks a figure derived from today's exchange rate because no
+ * historical one was recorded — it is not an exact reversal of what was charged.
+ */
+export interface RefundQuote {
+    refundable: boolean;
+    message?: string;
+    originalPaise?: number;
+    alreadyRefundedPaise?: number;
+    remainingPaise?: number;
+    convertedAtTodaysRate?: boolean;
+    paymentMethod?: string;
+    reasons?: string[];
+}
+
+export interface RefundQuoteResponse {
+    success: boolean;
+    data: RefundQuote;
+    message?: string;
+}
+
+export interface RefundToWalletResponse {
+    success: boolean;
+    data: {
+        order: Order;
+        balancePaise: number;
+        transactionId: string;
+        convertedAtTodaysRate: boolean;
+    };
+    message?: string;
+}
+
 // ===== Request & Query Types =====
 
 export interface OrderParams extends Record<string, unknown> {
@@ -256,6 +292,12 @@ export type AdminOrderUpdatePayload = Partial<{
     completionProof: string;
     delivery: Delivery | null;
 }>;
+
+/** Omit `amountPaise` to refund whatever is left, which is the common case. */
+export interface RefundToWalletPayload {
+    reason: string;
+    amountPaise?: number;
+}
 
 // ===== Create Order Payload =====
 

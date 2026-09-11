@@ -17,10 +17,12 @@ import {
     RiTimeLine,
     RiQrCodeLine,
     RiFileCopyLine,
+    RiRefund2Line,
 } from "react-icons/ri";
 import AdminToolbar from "@/components/admin/shared/AdminToolbar";
 import StatusSelect from "@/components/admin/shared/StatusSelect";
-import { formatFixed } from "@/lib/utils/money";
+import RefundToWalletModal from "@/components/admin/orders/RefundToWalletModal";
+import { formatFixed, formatPaiseAsInr } from "@/lib/utils/money";
 import RichTextEditor from "@/components/form/RichTextEditor";
 
 interface Props {
@@ -36,11 +38,12 @@ const ORDER_STATUS_OPTIONS: { label: string; value: Order["orderStatus"] }[] = [
     { label: "Failed", value: "failed" },
 ];
 
+// "Refunded" is deliberately absent from both lists: the backend rejects it on a plain
+// update and it is set only by actually refunding, via the refund button below.
 const PAYMENT_STATUS_OPTIONS: { label: string; value: Order["paymentStatus"] }[] = [
     { label: "Pending", value: "pending" },
     { label: "Paid", value: "paid" },
     { label: "Failed", value: "failed" },
-    { label: "Refunded", value: "refunded" },
 ];
 
 function getErrorMessage(error: unknown) {
@@ -73,6 +76,7 @@ function normalizeRichTextNote(html: string): string {
 export default function OrderDetailPage({ initialOrder }: Props) {
     const [order, setOrder] = useState<Order>(initialOrder);
     const [updating, setUpdating] = useState(false);
+    const [refundOpen, setRefundOpen] = useState(false);
 
     // Form states
     const [status, setStatus] = useState(order.orderStatus);
@@ -95,6 +99,24 @@ export default function OrderDetailPage({ initialOrder }: Props) {
         : hasChanges
           ? "Save changes"
           : "No changes";
+
+    // The refund option appears as soon as the admin picks a status that implies the
+    // order is not being fulfilled — before saving, since refunding sets the status to
+    // "refunded" itself and saving "cancelled" first would just be overwritten.
+    const canRefund =
+        order.paymentStatus === "paid" &&
+        (status === "cancelled" || status === "failed") &&
+        !order.refund?.isFullyRefunded;
+
+    const refundEntries = order.refund?.entries ?? [];
+
+    const handleRefunded = (refundedOrder: Order) => {
+        setOrder(refundedOrder);
+        setStatus(refundedOrder.orderStatus);
+        setPaymentStatus(refundedOrder.paymentStatus);
+        setAdminNote(refundedOrder.adminNote || "");
+        setDelivery(refundedOrder.delivery?.kind ? refundedOrder.delivery : null);
+    };
 
     const resetFormToSavedOrder = () => {
         setStatus(order.orderStatus);
@@ -170,6 +192,16 @@ export default function OrderDetailPage({ initialOrder }: Props) {
                             <RiCloseLine /> Discard changes
                         </button>
                     )}
+                    {canRefund && (
+                        <button
+                            type="button"
+                            onClick={() => setRefundOpen(true)}
+                            disabled={updating}
+                            className="px-4 py-3 border border-amber-300 bg-amber-50 text-amber-800 hover:bg-amber-100 rounded-xl text-xs font-bold transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1"
+                        >
+                            <RiRefund2Line /> Refund to wallet
+                        </button>
+                    )}
                     <button
                         type="button"
                         onClick={handleUpdate}
@@ -236,6 +268,37 @@ export default function OrderDetailPage({ initialOrder }: Props) {
                 </div>
             </div>
         </section>
+    );
+
+    const refundHistoryPanel = refundEntries.length > 0 && (
+        <div className="bg-white border border-gray-200 p-6 rounded-2xl">
+            <h2 className="text-gray-900 font-bold flex items-center gap-2 mb-4">
+                <RiRefund2Line className="text-amber-600" />
+                Refunds to Wallet
+            </h2>
+
+            <div className="space-y-3">
+                {refundEntries.map((entry, index) => (
+                    <div key={index} className="bg-gray-50 p-4 rounded-xl border border-gray-100">
+                        <div className="flex items-start justify-between gap-3">
+                            <p className="text-gray-900 font-bold">{formatPaiseAsInr(entry.amountPaise)}</p>
+                            <p className="text-gray-400 text-[10px]" suppressHydrationWarning>
+                                {new Date(entry.at).toLocaleString()}
+                            </p>
+                        </div>
+                        <p className="text-gray-600 text-sm mt-1">{entry.reason}</p>
+                        <p className="text-gray-400 text-[10px] uppercase font-bold tracking-wider mt-1">
+                            By {typeof entry.admin === "object" ? entry.admin.name : "Admin"}
+                        </p>
+                    </div>
+                ))}
+            </div>
+
+            <p className="text-gray-500 text-xs mt-3">
+                Total refunded: {formatPaiseAsInr(order.refund?.totalRefundedPaise || 0)}
+                {order.refund?.isFullyRefunded && " — fully refunded"}
+            </p>
+        </div>
     );
 
     return (
@@ -312,6 +375,8 @@ export default function OrderDetailPage({ initialOrder }: Props) {
                 </div>
 
                 {updateOrderPanel}
+
+                {refundHistoryPanel}
 
                 {/* UPI Payment Info — only for UPI orders */}
                 {order.paymentMethod === "upi" && (() => {
@@ -441,6 +506,13 @@ export default function OrderDetailPage({ initialOrder }: Props) {
                         </div>
                     </div>
             </div>
+
+            <RefundToWalletModal
+                order={order}
+                open={refundOpen}
+                onClose={() => setRefundOpen(false)}
+                onRefunded={handleRefunded}
+            />
         </div>
     );
 }
