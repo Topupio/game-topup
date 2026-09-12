@@ -1,6 +1,5 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { toast } from "react-toastify";
 
 interface UseAdminFormOptions<T> {
     onSuccess?: (data?: any) => void;
@@ -17,6 +16,27 @@ export function useAdminForm<T extends Record<string, any>>(
     const [form, setForm] = useState<T>(initialState);
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState<Partial<Record<keyof T, string>>>({});
+
+    /*
+     * "Dirty" tracking, so a Save button can stay disabled until something
+     * actually changes.
+     *
+     * `baseline` is a snapshot of the form as it was last known to match what's
+     * saved on the server: the initial state for a create form, and whatever the
+     * API returned for an edit form (the page calls resetBaseline after loading).
+     * `isDirty` is then just "does the form differ from that snapshot".
+     *
+     * Comparing by value rather than tracking a was-touched flag means editing a
+     * field and then undoing the edit correctly returns to a clean state.
+     */
+    const [baseline, setBaseline] = useState<string>(() => JSON.stringify(initialState));
+
+    /** Marks the current form values as the new "unchanged" state. */
+    const resetBaseline = useCallback((snapshot: T) => {
+        setBaseline(JSON.stringify(snapshot));
+    }, []);
+
+    const isDirty = useMemo(() => JSON.stringify(form) !== baseline, [form, baseline]);
 
     const updateForm = useCallback((updates: Partial<T> | ((prev: T) => T)) => {
         setForm((prev) =>
@@ -76,5 +96,7 @@ export function useAdminForm<T extends Record<string, any>>(
         clearError,
         clearErrors,
         handleSubmit,
+        isDirty,
+        resetBaseline,
     };
 }

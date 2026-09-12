@@ -374,14 +374,34 @@ frontend/src/
     WalletCheckout.tsx                         Pay-with-wallet widget, embedded in checkout
     TransactionList.tsx, WalletAmount.tsx      Ledger row rendering, paise formatting
   components/admin/wallet/
-    WalletTabs.tsx                             Queue / Transactions / Settings tab nav
+    WalletTabs.tsx                             Queue / Wallets / Transactions / Settings tab nav
     AdminTopupQueue.tsx, TopupDecisionModal.tsx Review queue, approve/reject with note
+    AdminWalletsList.tsx                       Per-customer balances, ranked by balance
     AdminWalletTransactions.tsx                Global ledger, filterable
     AdminWalletSettings.tsx                    Limits, kill switches, audit trigger
     WalletStatsBar.tsx                         Liability/wallet-count/pending stat tiles
+  components/admin/orders/
+    RefundToWalletModal.tsx                    Refund a paid order to wallet credit
   app/(user)/account/wallet/{page,add}/page.tsx
-  app/admin/wallet/{page,transactions,settings}/page.tsx
+  app/admin/wallet/{page,wallets,transactions,settings}/page.tsx
 ```
+
+**Admin Wallets tab** (`/admin/wallet/wallets`) answers "who holds our store
+credit" — the per-customer breakdown of the liability total that `WalletStatsBar`
+shows in aggregate. Two constraints worth knowing before changing it:
+
+- `listWallets` sorts by `balancePaise` descending **server-side with no sort
+  parameter**. The UI therefore has no sortable column headers — a `#` rank column
+  and a "ranked by balance, highest first" line state the ordering instead of
+  faking a control that cannot work.
+- The endpoint caps `limit` at 50 while the shared `Pagination` component offers
+  100, so `onLimitChange` clamps to 50. Without the clamp, picking 100 silently
+  returns 50 rows and the page count is wrong.
+
+Rows link to `/admin/wallet/transactions?userId=<id>`; `AdminWalletTransactions`
+reads that param and renders a dismissible chip naming the customer, so an admin
+arriving there knows why the ledger is short. `useSearchParams` puts that page
+behind a `Suspense` boundary in its `page.tsx`.
 
 **`WalletContext`** wraps the app and centralizes `getBalance()` +
 `getSettings()` so any component can read wallet state via `useWallet()` without
@@ -423,3 +443,9 @@ separate frontend notion of a transaction type or status.
 - **Crypto webhook always returns 200** — intentional (stops retry storms), but
   means a bug here fails silently from NOWPayments' point of view; watch
   `[WALLET-IPN-FAIL]` logs.
+- **Freezing a wallet blocks credits, not just debits** — the `status: "active"`
+  filter in `applyTransaction` is deliberately on the single path every balance
+  change takes, so a frozen wallet also rejects refunds, top-up approvals and
+  manual credits with a 423. Usually what you want; occasionally surprising when
+  an account is frozen during a dispute that then resolves in a refund. Unfreeze
+  first, refund, re-freeze if still needed.

@@ -2,35 +2,100 @@
 
 import { useState } from "react";
 import { Variant } from "@/lib/types/game";
-import { TbTrash, TbChevronDown, TbChevronUp } from "react-icons/tb";
+import { TbTrash, TbChevronDown, TbChevronUp, TbGripVertical } from "react-icons/tb";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import Input from "@/components/form/Input";
 import StatusToggle from "@/components/form/StatusToggle";
 import ImageUploader from "@/components/form/ImageUploader";
 import RegionPricingTable from "./RegionPricingTable";
 interface Props {
+    /** Unique ID this card is registered under for drag and drop. */
+    id: string;
     variant: Variant;
     index: number;
+    /** True while ANY variant in the list is being dragged. See `bodyHidden` below. */
+    forceCollapsed?: boolean;
     checkoutTemplate: string;
     onChange: (updated: Variant) => void;
     onDelete: () => void;
     onImageChange: (file: File | null, preview: string | null) => void;
 }
 
-export default function VariantCard({ variant, index, checkoutTemplate, onChange, onDelete, onImageChange }: Props) {
+export default function VariantCard({ id, variant, index, checkoutTemplate, forceCollapsed, onChange, onDelete, onImageChange }: Props) {
     const [collapsed, setCollapsed] = useState(false);
+
+    /*
+     * useSortable registers this card with the DndContext in VariantManager and
+     * hands back everything needed to make it draggable:
+     *
+     *   setNodeRef          - ref for the element that moves (the whole card)
+     *   transform/transition - the position dnd-kit wants the card to sit at right
+     *                          now, applied via inline style
+     *   setActivatorNodeRef  - ref for the element that STARTS a drag (the grip)
+     *   attributes/listeners - accessibility props + mouse/touch/keyboard handlers;
+     *                          these go on the grip, not the card, so that clicking
+     *                          the header still toggles the accordion
+     *   isDragging           - true while this specific card is in mid-drag
+     */
+    const {
+        attributes,
+        listeners,
+        setNodeRef,
+        setActivatorNodeRef,
+        transform,
+        transition,
+        isDragging,
+    } = useSortable({ id });
 
     const update = (partial: Partial<Variant>) => {
         onChange({ ...variant, ...partial });
     };
 
+    /*
+     * The body is hidden either because the admin collapsed this card, or because
+     * a drag is in progress (every card collapses during a drag so the list stays
+     * short). Note that `collapsed` is deliberately NOT modified during a drag —
+     * that way each card springs back to whatever the admin had open once the
+     * drag finishes, with no extra state to save and restore.
+     */
+    const bodyHidden = collapsed || forceCollapsed;
+
     return (
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+        <div
+            // Makes the whole card the thing that slides around during a drag.
+            ref={setNodeRef}
+            style={{ transform: CSS.Transform.toString(transform), transition }}
+            className={`bg-white rounded-xl border shadow-sm overflow-hidden ${
+                isDragging ? "border-blue-300 opacity-40" : "border-gray-200"
+            }`}
+        >
             {/* Header — always visible */}
             <div
                 className="flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-gray-50 transition bg-gray-50/50"
                 onClick={() => setCollapsed(!collapsed)}
             >
                 <div className="flex items-center gap-2 min-w-0">
+                    {/*
+                      * The grip is the ONLY thing that starts a drag: the drag
+                      * listeners live here rather than on the header, so clicking
+                      * the header still expands/collapses the card. stopPropagation
+                      * keeps a click on the grip from reaching the header's toggle.
+                      */}
+                    <button
+                        type="button"
+                        ref={setActivatorNodeRef}
+                        {...attributes}
+                        {...listeners}
+                        onClick={(e) => e.stopPropagation()}
+                        aria-label={`Reorder variant ${variant.name || index + 1}`}
+                        title="Drag to reorder"
+                        // touch-none stops mobile browsers treating a drag on the
+                        // grip as a page scroll.
+                        className="p-0.5 -ml-1 text-gray-300 hover:text-gray-500 rounded cursor-grab active:cursor-grabbing touch-none shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-300"
+                    >
+                        <TbGripVertical size={16} />
+                    </button>
                     <span className="text-[11px] font-semibold text-white bg-gray-400 w-5 h-5 rounded flex items-center justify-center shrink-0">
                         {index + 1}
                     </span>
@@ -69,12 +134,12 @@ export default function VariantCard({ variant, index, checkoutTemplate, onChange
                     >
                         <TbTrash size={15} />
                     </button>
-                    {collapsed ? <TbChevronDown size={16} className="text-gray-400" /> : <TbChevronUp size={16} className="text-gray-400" />}
+                    {bodyHidden ? <TbChevronDown size={16} className="text-gray-400" /> : <TbChevronUp size={16} className="text-gray-400" />}
                 </div>
             </div>
 
-            {/* Body — collapsible */}
-            {!collapsed && (
+            {/* Body — collapsible; also force-collapsed while dragging */}
+            {!bodyHidden && (
                 <div className="border-t border-gray-100">
                     {/* ── Section: Basic Info ── */}
                     <div className="p-4 flex gap-4">

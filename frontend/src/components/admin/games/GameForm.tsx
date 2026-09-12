@@ -57,6 +57,8 @@ export default function GameForm({ gameId }: Props) {
         updateError,
         clearError,
         handleSubmit,
+        isDirty,
+        resetBaseline,
     } = useAdminForm<FormState>(
         {
             _id: "",
@@ -94,6 +96,51 @@ export default function GameForm({ gameId }: Props) {
 
     const [variantImages, setVariantImages] = useState<Record<number, File>>({});
 
+    /*
+     * Picked-but-not-uploaded images live outside the form object, and File
+     * objects don't survive the JSON comparison the hook uses (they stringify to
+     * {}). So track them separately and OR them into the dirty check, otherwise
+     * an admin who only swapped an image would find Save greyed out.
+     */
+    const hasPendingImages = Object.keys(variantImages).length > 0 || form.imageFile !== null;
+    const hasUnsavedChanges = isDirty || hasPendingImages;
+
+    /*
+     * Images the admin has picked but not saved yet live in `variantImages`,
+     * keyed by the variant's position in the array — the upload is sent as
+     * `variantImage_<index>` and the backend attaches it to `variants[index]`.
+     *
+     * That means dragging a variant to a new position would leave its pending
+     * image behind on whatever variant now sits at the old index. So when the
+     * variants array is reordered, we perform the same move on the image keys.
+     *
+     * Done by laying the images out as a plain array (one slot per variant,
+     * `undefined` where there's no pending image), moving one slot the same way
+     * the variant moved, then turning it back into an index-keyed object.
+     */
+    const handleVariantsReorder = (from: number, to: number) => {
+        setVariantImages((previousImages) => {
+            const slotCount = form.variants.length;
+
+            // 1. Object -> array, so index 2 of the array is the image for variant 2.
+            const slots: (File | undefined)[] = Array.from(
+                { length: slotCount },
+                (_, index) => previousImages[index]
+            );
+
+            // 2. Pull the dragged variant's slot out and re-insert it at its new position.
+            const [movedSlot] = slots.splice(from, 1);
+            slots.splice(to, 0, movedSlot);
+
+            // 3. Array -> object, skipping the slots that have no pending image.
+            const nextImages: Record<number, File> = {};
+            slots.forEach((file, index) => {
+                if (file) nextImages[index] = file;
+            });
+            return nextImages;
+        });
+    };
+
     // Load game data when editing
     useEffect(() => {
         if (!isEdit) return;
@@ -103,20 +150,26 @@ export default function GameForm({ gameId }: Props) {
                 const response = await gamesApiClient.get(gameId as string, {
                     includeInactive: true,
                 });
-                updateForm((prev) => ({
-                    ...prev,
-                    ...response.data,
-                    regions: ["global"],
-                    variants: (response.data.variants || []).map(normalizeVariantPricing),
-                    faqs: response.data.faqs || [],
-                    imageFile: null,
-                }));
+                updateForm((prev) => {
+                    const loaded = {
+                        ...prev,
+                        ...response.data,
+                        regions: ["global"],
+                        variants: (response.data.variants || []).map(normalizeVariantPricing),
+                        faqs: response.data.faqs || [],
+                        imageFile: null,
+                    };
+                    // Everything just fetched matches the server, so this is the
+                    // state we compare against to decide if there are edits.
+                    resetBaseline(loaded);
+                    return loaded;
+                });
             } catch (error) {
                 console.error("Failed to load game", error);
                 toast.error("Failed to load game data");
             }
         })();
-    }, [isEdit, gameId, updateForm]);
+    }, [isEdit, gameId, updateForm, resetBaseline]);
 
     const validate = (): boolean => {
         let isValid = true;
@@ -207,6 +260,7 @@ export default function GameForm({ gameId }: Props) {
         <FormWrapper
             title={isEdit ? "Update Game" : "Create New Game"}
             isEdit={isEdit}
+            isDirty={hasUnsavedChanges}
             loading={loading}
             onSubmit={onSubmit}
             submitLabel={isEdit ? "Update Game" : "Create Game"}
@@ -397,6 +451,7 @@ export default function GameForm({ gameId }: Props) {
                             return next;
                         });
                     }}
+                    onVariantsReorder={handleVariantsReorder}
                 />
             </FormSection>
 

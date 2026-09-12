@@ -12,6 +12,11 @@ interface FormWrapperProps {
     onSubmit: (e: React.FormEvent) => void;
     submitLabel?: string;
     onCancel?: () => void;
+    /**
+     * Whether there are unsaved changes. When false the submit button is
+     * disabled. Defaults to true so forms that don't track this still work.
+     */
+    isDirty?: boolean;
     children: ReactNode;
 }
 
@@ -22,6 +27,7 @@ export default function FormWrapper({
     onSubmit,
     submitLabel,
     onCancel,
+    isDirty = true,
     children,
 }: FormWrapperProps) {
     const router = useRouter();
@@ -53,8 +59,13 @@ export default function FormWrapper({
             {/* Content */}
             {children}
 
-            {/* Footer Actions */}
-            <div className="flex justify-end gap-3 pt-6 border-t border-gray-200">
+            {/*
+              * Footer Actions — pinned to the bottom of the viewport so Save stays
+              * reachable on long forms without scrolling to the end.
+              * The negative margins cancel the form's own p-6 padding so the bar
+              * spans the full width of the card.
+              */}
+            <div className="sticky bottom-0 z-20 -mx-6 -mb-6 flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-white/95 backdrop-blur-sm rounded-b-xl">
                 <button
                     type="button"
                     onClick={handleCancel}
@@ -64,6 +75,8 @@ export default function FormWrapper({
                 </button>
                 <SubmitButton
                     isLoading={loading}
+                    disabled={!isDirty}
+                    title={isDirty ? undefined : "No changes to save"}
                     label={submitLabel || (isEdit ? "Update" : "Create")}
                     fullWidth={false}
                     className="px-6 py-2.5"
