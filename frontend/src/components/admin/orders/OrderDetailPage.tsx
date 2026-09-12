@@ -76,6 +76,8 @@ function normalizeRichTextNote(html: string): string {
 export default function OrderDetailPage({ initialOrder }: Props) {
     const [order, setOrder] = useState<Order>(initialOrder);
     const [updating, setUpdating] = useState(false);
+    const [statusUpdating, setStatusUpdating] = useState(false);
+    const [paymentStatusUpdating, setPaymentStatusUpdating] = useState(false);
     const [refundOpen, setRefundOpen] = useState(false);
 
     // Form states
@@ -89,23 +91,18 @@ export default function OrderDetailPage({ initialOrder }: Props) {
     const currentAdminNote = normalizeRichTextNote(adminNote);
     const deliveryChanged =
         JSON.stringify(delivery) !== JSON.stringify(savedDelivery);
-    const hasChanges =
-        status !== order.orderStatus ||
-        paymentStatus !== order.paymentStatus ||
-        currentAdminNote !== savedAdminNote ||
-        deliveryChanged;
+    const hasChanges = currentAdminNote !== savedAdminNote || deliveryChanged;
     const saveButtonLabel = updating
         ? "Saving..."
         : hasChanges
           ? "Save changes"
           : "No changes";
 
-    // The refund option appears as soon as the admin picks a status that implies the
-    // order is not being fulfilled — before saving, since refunding sets the status to
-    // "refunded" itself and saving "cancelled" first would just be overwritten.
+    // Status and payment status save optimistically on change (see handleStatusChange /
+    // handlePaymentStatusChange), so canRefund can read them straight off the saved order.
     const canRefund =
         order.paymentStatus === "paid" &&
-        (status === "cancelled" || status === "failed") &&
+        (order.orderStatus === "cancelled" || order.orderStatus === "failed") &&
         !order.refund?.isFullyRefunded;
 
     const refundEntries = order.refund?.entries ?? [];
@@ -119,10 +116,50 @@ export default function OrderDetailPage({ initialOrder }: Props) {
     };
 
     const resetFormToSavedOrder = () => {
-        setStatus(order.orderStatus);
-        setPaymentStatus(order.paymentStatus);
         setAdminNote(order.adminNote || "");
         setDelivery(savedDelivery);
+    };
+
+    const handleStatusChange = async (nextStatus: Order["orderStatus"]) => {
+        const previousStatus = status;
+        setStatus(nextStatus);
+        setStatusUpdating(true);
+        try {
+            const res = await ordersApiClient.adminUpdateOrder(order._id, {
+                orderStatus: nextStatus,
+            });
+            if (res.success) {
+                setOrder(res.data);
+                setStatus(res.data.orderStatus);
+                toast.success("Order status updated");
+            }
+        } catch (error: unknown) {
+            setStatus(previousStatus);
+            toast.error(getErrorMessage(error));
+        } finally {
+            setStatusUpdating(false);
+        }
+    };
+
+    const handlePaymentStatusChange = async (nextPaymentStatus: Order["paymentStatus"]) => {
+        const previousPaymentStatus = paymentStatus;
+        setPaymentStatus(nextPaymentStatus);
+        setPaymentStatusUpdating(true);
+        try {
+            const res = await ordersApiClient.adminUpdateOrder(order._id, {
+                paymentStatus: nextPaymentStatus,
+            });
+            if (res.success) {
+                setOrder(res.data);
+                setPaymentStatus(res.data.paymentStatus);
+                toast.success("Payment status updated");
+            }
+        } catch (error: unknown) {
+            setPaymentStatus(previousPaymentStatus);
+            toast.error(getErrorMessage(error));
+        } finally {
+            setPaymentStatusUpdating(false);
+        }
     };
 
     const handleUpdate = async () => {
@@ -131,15 +168,11 @@ export default function OrderDetailPage({ initialOrder }: Props) {
         setUpdating(true);
         try {
             const res = await ordersApiClient.adminUpdateOrder(order._id, {
-                orderStatus: status,
-                paymentStatus,
                 adminNote: currentAdminNote,
                 ...(deliveryChanged ? { delivery } : {}),
             });
             if (res.success) {
                 setOrder(res.data);
-                setStatus(res.data.orderStatus);
-                setPaymentStatus(res.data.paymentStatus);
                 setAdminNote(res.data.adminNote || "");
                 setDelivery(res.data.delivery?.kind ? res.data.delivery : null);
                 toast.success("Order updated successfully");
@@ -192,16 +225,15 @@ export default function OrderDetailPage({ initialOrder }: Props) {
                             <RiCloseLine /> Discard changes
                         </button>
                     )}
-                    {canRefund && (
-                        <button
-                            type="button"
-                            onClick={() => setRefundOpen(true)}
-                            disabled={updating}
-                            className="px-4 py-3 border border-amber-300 bg-amber-50 text-amber-800 hover:bg-amber-100 rounded-xl text-xs font-bold transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1"
-                        >
-                            <RiRefund2Line /> Refund to wallet
-                        </button>
-                    )}
+                    <button
+                        type="button"
+                        onClick={() => setRefundOpen(true)}
+                        disabled={!canRefund || updating || statusUpdating || paymentStatusUpdating}
+                        title={canRefund ? undefined : "Order must be paid and cancelled/failed, and not already fully refunded"}
+                        className="px-4 py-3 border border-amber-300 bg-amber-50 text-amber-800 hover:bg-amber-100 rounded-xl text-xs font-bold transition disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:border-gray-200 disabled:text-gray-400 disabled:hover:bg-gray-50 flex items-center justify-center gap-1"
+                    >
+                        <RiRefund2Line /> Refund to wallet
+                    </button>
                     <button
                         type="button"
                         onClick={handleUpdate}
@@ -226,8 +258,8 @@ export default function OrderDetailPage({ initialOrder }: Props) {
                             id="orderStatus"
                             options={ORDER_STATUS_OPTIONS}
                             value={status}
-                            disabled={updating}
-                            onChange={setStatus}
+                            disabled={statusUpdating}
+                            onChange={handleStatusChange}
                         />
                     </div>
 
@@ -237,8 +269,8 @@ export default function OrderDetailPage({ initialOrder }: Props) {
                             id="paymentStatus"
                             options={PAYMENT_STATUS_OPTIONS}
                             value={paymentStatus}
-                            disabled={updating}
-                            onChange={setPaymentStatus}
+                            disabled={paymentStatusUpdating}
+                            onChange={handlePaymentStatusChange}
                         />
                     </div>
                 </div>

@@ -11,6 +11,7 @@ import {
     walletAdminApiClient,
     type AdminWalletRow,
 } from "@/services/wallet/walletAdminApi.client";
+import WalletAdjustModal from "@/components/admin/wallet/WalletAdjustModal";
 import { useDebounce } from "use-debounce";
 
 // Maps to the `minBalancePaise` query param. "Has balance" is 1 paise, which is the
@@ -56,6 +57,8 @@ export default function AdminWalletsList() {
     const [search, setSearch] = useState("");
     const [debouncedSearch] = useDebounce(search, 400);
     const [minBalancePaise, setMinBalancePaise] = useState<number | undefined>(undefined);
+
+    const [adjusting, setAdjusting] = useState<AdminWalletRow | null>(null);
 
     const [page, setPage] = useState(1);
     const [limit, setLimit] = useState(20);
@@ -217,17 +220,27 @@ export default function AdminWalletsList() {
             cellAlign: "right",
             cell: (row) =>
                 row.user ? (
-                    <Link
-                        href={`/admin/wallet/transactions?userId=${row.user._id}`}
-                        aria-label={`View wallet ledger for ${row.user.name}`}
-                        className="whitespace-nowrap text-xs font-medium text-secondary hover:underline"
-                    >
-                        Ledger →
-                    </Link>
+                    <div className="flex items-center justify-end gap-3">
+                        <button
+                            type="button"
+                            onClick={() => setAdjusting(row)}
+                            aria-label={`Adjust wallet balance for ${row.user.name}`}
+                            className="whitespace-nowrap text-xs font-medium text-gray-600 hover:text-gray-900 hover:underline"
+                        >
+                            Adjust
+                        </button>
+                        <Link
+                            href={`/admin/wallet/transactions?userId=${row.user._id}`}
+                            aria-label={`View wallet ledger for ${row.user.name}`}
+                            className="whitespace-nowrap text-xs font-medium text-secondary hover:underline"
+                        >
+                            Ledger →
+                        </Link>
+                    </div>
                 ) : (
                     <span
                         className="cursor-not-allowed whitespace-nowrap text-xs text-gray-300"
-                        title="No user record to open a ledger for"
+                        title="No user record to adjust or open a ledger for"
                     >
                         Ledger →
                     </span>
@@ -370,6 +383,18 @@ export default function AdminWalletsList() {
                     </>
                 )}
             </div>
+
+            {adjusting?.user && (
+                <WalletAdjustModal
+                    open
+                    onClose={() => setAdjusting(null)}
+                    userId={adjusting.user._id}
+                    userName={adjusting.user.name}
+                    balancePaise={adjusting.balancePaise}
+                    walletStatus={adjusting.status}
+                    onAdjusted={() => fetchData()}
+                />
+            )}
         </div>
     );
 }

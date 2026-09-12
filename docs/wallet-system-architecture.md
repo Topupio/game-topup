@@ -254,6 +254,19 @@ Mongoose pre-validate hook on `WalletTransaction` — belt and suspenders, since
 ledger row is the only lasting record once the 30-day admin activity log expires).
 Credits are still checked against `maxBalancePaise`.
 
+Reached from `WalletAdjustModal`, opened from either admin surface (see
+[Frontend](#frontend)). The modal is UI over the endpoints and holds no rules of
+its own: it caps a debit at the current balance and blocks submission without a
+reason, but both limits exist server-side regardless. A debit larger than the
+balance is refused by the `balancePaise: { $gte: amountPaise }` clause inside
+`applyTransaction`'s conditional update, which returns `INSUFFICIENT_FUNDS` (422).
+
+There is deliberately **no clamp-to-zero behaviour**. Debiting "whatever is left"
+when the requested amount exceeds the balance would write a ledger row whose
+amount differs from the one the admin asked for, and would need a second balance
+path to implement — both of which this system is built to prevent. An
+over-balance debit fails and the admin decides what to do.
+
 ### Freeze / unfreeze
 
 `PATCH /api/wallet/admin/wallets/:userId/status` sets `Wallet.status`. A frozen
@@ -379,6 +392,7 @@ frontend/src/
     AdminWalletsList.tsx                       Per-customer balances, ranked by balance
     AdminWalletTransactions.tsx                Global ledger, filterable
     AdminWalletSettings.tsx                    Limits, kill switches, audit trigger
+    WalletAdjustModal.tsx                      Manual credit/debit with a mandatory reason
     WalletStatsBar.tsx                         Liability/wallet-count/pending stat tiles
   components/admin/orders/
     RefundToWalletModal.tsx                    Refund a paid order to wallet credit
@@ -403,6 +417,36 @@ reads that param and renders a dismissible chip naming the customer, so an admin
 arriving there knows why the ledger is short. `useSearchParams` puts that page
 behind a `Suspense` boundary in its `page.tsx`.
 
+**`WalletAdjustModal`** is the only UI for manual credit/debit, and is opened from
+both admin surfaces — a per-row *Adjust* action in `AdminWalletsList`, and an
+*Adjust balance* button in `AdminWalletTransactions`' customer chip row (shown
+only when the ledger is filtered to one customer). It defaults to debit, since
+correcting a credit made in error is the case it was built for.
+
+The two callers differ in where the balance comes from, and that drives the
+`balancePaise: number | null` prop:
+
+- `AdminWalletsList` already holds `balancePaise` and `status` on every row, so it
+  passes them straight in and the dialog opens populated.
+- `AdminWalletTransactions` filters by user but never loads a wallet — the
+  customer's name there is derived from whichever ledger rows happen to be
+  loaded. It therefore calls `getUserWallet(userId)` when the dialog opens and
+  passes `null` until that resolves, which the modal renders as a loading state.
+  `getUserWallet` goes through `getOrCreateWallet`, so a wallet object always
+  comes back even for a customer who has never held credit.
+
+The amount is entered in rupees (what an admin reads off a receipt) and converted
+with `Math.round(Number(input) * 100)` — the endpoints take whole paise and reject
+anything else. A frozen wallet shows a notice and disables submission, matching
+the 423 that `applyTransaction` would return anyway. Server error codes are
+surfaced by name rather than as a generic failure: `INSUFFICIENT_FUNDS`,
+`WALLET_FROZEN`, `MAX_BALANCE_EXCEEDED`.
+
+Both endpoints return the new `balancePaise`, but each caller refetches its list
+rather than patching state from it — the ledger needs the new row regardless, and
+on the wallets list the balance cell should come from the same query as the rest
+of the table.
+
 **`WalletContext`** wraps the app and centralizes `getBalance()` +
 `getSettings()` so any component can read wallet state via `useWallet()` without
 its own fetch — `WalletPageClient`, `SidebarWalletCard`, and `AddMoneyFlow` all
@@ -419,12 +463,14 @@ payment options at order checkout — it fetches the exact debit quote
 (`quotePayment`) and never computes the charge amount client-side, only submits
 `orderId` to `payWithWallet`.
 
-**Admin flow**: `WalletTabs` gates three admin pages — the top-up review queue
+**Admin flow**: `WalletTabs` gates four admin pages — the top-up review queue
 (`AdminTopupQueue` + `TopupDecisionModal` for approve/reject with a note), the
-global ledger (`AdminWalletTransactions`, filterable by user/type/date), and
-settings (`AdminWalletSettings`, also where `getLatestAudit`/audit trigger
-lives). `WalletStatsBar` surfaces `getStats()` (total liability, wallet count,
-pending top-ups, top-ups today) at the top of the admin section.
+per-customer balances (`AdminWalletsList`), the global ledger
+(`AdminWalletTransactions`, filterable by user/type/date), and settings
+(`AdminWalletSettings`, also where `getLatestAudit`/audit trigger lives).
+`WalletAdjustModal` hangs off the middle two. `WalletStatsBar` surfaces
+`getStats()` (total liability, wallet count, pending top-ups, top-ups today) at
+the top of the admin section.
 
 All frontend types (`WalletTransactionType`, `TopupStatus`, `TopupMethod`, the
 response shapes) mirror the backend models/enums directly — there is no
@@ -434,6 +480,11 @@ separate frontend notion of a transaction type or status.
 
 - **No withdrawal path** — by design; `maxBalancePaise` exists specifically
   because credit can't be cashed back out.
+- **Manual debit has no approval step** — a single admin can take credit off a
+  customer with nothing but a typed reason, and the customer is not notified. The
+  ledger row makes it attributable after the fact, not preventable. If manual
+  debits ever become routine rather than corrective, a second-approver step is
+  the obvious next control.
 - **`WalletTransaction` append-only enforcement is at the ODM layer only** — a
   direct driver or `mongosh` connection can still bypass the pre-hooks. Real
   protection would be a DB user without update/delete grants on that collection.

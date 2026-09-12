@@ -12,7 +12,9 @@ import { formatFixed } from "@/lib/utils/money";
 import {
     walletAdminApiClient,
     type AdminTransaction,
+    type AdminWalletRow,
 } from "@/services/wallet/walletAdminApi.client";
+import WalletAdjustModal from "@/components/admin/wallet/WalletAdjustModal";
 
 const TYPE_OPTIONS = [
     { label: "All types", value: "" },
@@ -59,6 +61,15 @@ export default function AdminWalletTransactions() {
     const [limit, setLimit] = useState(20);
     const [totalPages, setTotalPages] = useState(1);
     const [totalItems, setTotalItems] = useState(0);
+
+    // This page filters by user but never loads their wallet, so the balance the adjust
+    // dialog needs is fetched only once it is opened.
+    const [adjustOpen, setAdjustOpen] = useState(false);
+    const [adjustWallet, setAdjustWallet] = useState<{
+        name: string;
+        balancePaise: number;
+        status: AdminWalletRow["status"];
+    } | null>(null);
 
     const fetchData = useCallback(
         async (signal?: AbortSignal) => {
@@ -181,6 +192,26 @@ export default function AdminWalletTransactions() {
     // why the ledger is short, so it falls back to a generic label.
     const focusedUser = rows.find((row) => row.user?._id === userId)?.user ?? null;
 
+    const openAdjust = async () => {
+        if (!userId) return;
+
+        setAdjustWallet(null);
+        setAdjustOpen(true);
+        try {
+            const res = await walletAdminApiClient.getUserWallet(userId);
+            if (res.success) {
+                setAdjustWallet({
+                    name: res.data.user?.name || focusedUser?.name || "This customer",
+                    balancePaise: res.data.wallet.balancePaise,
+                    status: res.data.wallet.status,
+                });
+            }
+        } catch {
+            toast.error("Could not load this wallet");
+            setAdjustOpen(false);
+        }
+    };
+
     return (
         <div>
             {userId && (
@@ -200,6 +231,14 @@ export default function AdminWalletTransactions() {
                             <TbX size={14} />
                         </button>
                     </span>
+
+                    <button
+                        type="button"
+                        onClick={openAdjust}
+                        className="rounded-lg border border-gray-300 px-3 py-1 text-sm font-medium text-gray-700 transition-colors hover:border-gray-400 hover:bg-gray-50"
+                    >
+                        Adjust balance
+                    </button>
                 </div>
             )}
 
@@ -283,6 +322,21 @@ export default function AdminWalletTransactions() {
                         }}
                     />
                 </div>
+            )}
+
+            {adjustOpen && userId && (
+                <WalletAdjustModal
+                    open
+                    onClose={() => setAdjustOpen(false)}
+                    userId={userId}
+                    userName={adjustWallet?.name ?? focusedUser?.name ?? "This customer"}
+                    balancePaise={adjustWallet?.balancePaise ?? null}
+                    walletStatus={adjustWallet?.status}
+                    onAdjusted={() => {
+                        setPage(1);
+                        fetchData();
+                    }}
+                />
             )}
         </div>
     );
