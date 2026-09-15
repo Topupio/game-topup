@@ -153,7 +153,12 @@ export const refundOrderToWallet = asyncHandler(async (req, res) => {
             },
         });
 
-        const updatedOrder = await Order.findById(order._id).lean();
+        // Populated like the detail endpoint: the admin UI swaps its order state for
+        // this one and needs game.checkoutTemplate to keep rendering the delivery editor.
+        const updatedOrder = await Order.findById(order._id)
+            .populate("game", "name imageUrl checkoutTemplate category")
+            .populate("user", "name email")
+            .lean();
 
         return res.status(200).json({
             success: true,

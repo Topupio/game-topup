@@ -783,6 +783,14 @@ export const adminUpdateOrder = async (req, res) => {
 
         await order.save();
 
+        // Populate the same fields as the detail endpoint. The admin UI replaces its
+        // order state with this response, and it reads game.checkoutTemplate to decide
+        // whether to show the delivery editor.
+        await order.populate([
+            { path: "game", select: "name imageUrl checkoutTemplate category" },
+            { path: "user", select: "name email" },
+        ]);
+
         logAdminActivity(req, {
             action: "UPDATE",
             module: "orders",
