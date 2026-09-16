@@ -237,7 +237,19 @@
 }
 
 .rich-description h3 {
-    @apply text-sm sm:text-lg font-semibold text-foreground mt-4 mb-2;
+  @apply text-sm sm:text-lg font-semibold text-foreground mt-4 mb-2;
+}
+
+.rich-description h4 {
+  @apply text-sm sm:text-base font-semibold text-foreground mt-4 mb-2;
+}
+
+.rich-description h5 {
+  @apply text-sm sm:text-base font-medium text-foreground mt-3 mb-2;
+}
+
+.rich-description h6 {
+  @apply text-xs sm:text-sm font-semibold uppercase tracking-wide text-foreground mt-3 mb-2;
 }
 
 .rich-description p {

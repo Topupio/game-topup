@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef, useCallback, useState } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
+import { DOMParser as ProseMirrorDOMParser } from "@tiptap/pm/model";
 import StarterKit from "@tiptap/starter-kit";
 import Underline from "@tiptap/extension-underline";
 import Link from "@tiptap/extension-link";
@@ -43,6 +44,133 @@ import {
     FaColumns,
     FaChevronDown,
 } from "react-icons/fa";
+
+const escapeHtml = (value: string) =>
+    value
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+
+const parseInlineMarkdown = (value: string) => {
+    const codeSpans: string[] = [];
+    let html = escapeHtml(value).replace(/`([^`\n]+)`/g, (_, code: string) => {
+        const token = `\u0000CODE${codeSpans.length}\u0000`;
+        codeSpans.push(`<code>${code}</code>`);
+        return token;
+    });
+
+    html = html
+        .replace(/\*\*([^*\n]+)\*\*/g, "<strong>$1</strong>")
+        .replace(/__([^_\n]+)__/g, "<strong>$1</strong>")
+        .replace(/~~([^~\n]+)~~/g, "<s>$1</s>")
+        .replace(/(^|[\s(])\*([^*\n]+)\*(?=$|[\s).,!?:;])/g, "$1<em>$2</em>")
+        .replace(/(^|[\s(])_([^_\n]+)_(?=$|[\s).,!?:;])/g, "$1<em>$2</em>")
+        .replace(
+            /\[([^\]]+)\]\(((?:https?:\/\/|\/)[^)\s]+)\)/g,
+            '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>',
+        );
+
+    return html.replace(/\u0000CODE(\d+)\u0000/g, (_, index: string) => codeSpans[Number(index)]);
+};
+
+const looksLikeMarkdown = (value: string) =>
+    /(^|\n)\s{0,3}(#{1,6}\s+|[-*+]\s+|\d+[.)]\s+|>\s+|```)|\*\*[^*\n]+\*\*|__[^_\n]+__|~~[^~\n]+~~|\[[^\]]+\]\((?:https?:\/\/|\/)/m.test(
+        value,
+    );
+
+const markdownToHtml = (markdown: string) => {
+    const lines = markdown.replace(/\r\n?/g, "\n").split("\n");
+    const html: string[] = [];
+    let paragraph: string[] = [];
+    let listTag: "ul" | "ol" | null = null;
+    let listItems: string[] = [];
+
+    const flushParagraph = () => {
+        if (!paragraph.length) return;
+        html.push(`<p>${parseInlineMarkdown(paragraph.join(" "))}</p>`);
+        paragraph = [];
+    };
+
+    const flushList = () => {
+        if (!listTag || !listItems.length) return;
+        html.push(`<${listTag}>${listItems.map((item) => `<li>${item}</li>`).join("")}</${listTag}>`);
+        listTag = null;
+        listItems = [];
+    };
+
+    for (let index = 0; index < lines.length; index += 1) {
+        const line = lines[index];
+        const trimmed = line.trim();
+
+        if (/^\s*```/.test(line)) {
+            flushParagraph();
+            flushList();
+            const codeLines: string[] = [];
+            index += 1;
+            while (index < lines.length && !/^\s*```/.test(lines[index])) {
+                codeLines.push(lines[index]);
+                index += 1;
+            }
+            html.push(`<pre><code>${escapeHtml(codeLines.join("\n"))}</code></pre>`);
+            continue;
+        }
+
+        if (!trimmed) {
+            flushParagraph();
+            flushList();
+            continue;
+        }
+
+        const heading = line.match(/^\s{0,3}(#{1,6})\s+(.+?)\s*#*\s*$/);
+        if (heading) {
+            flushParagraph();
+            flushList();
+            const level = heading[1].length;
+            html.push(`<h${level}>${parseInlineMarkdown(heading[2])}</h${level}>`);
+            continue;
+        }
+
+        if (/^\s{0,3}((\*\s*){3,}|(-\s*){3,}|(_\s*){3,})$/.test(line)) {
+            flushParagraph();
+            flushList();
+            html.push("<hr>");
+            continue;
+        }
+
+        const unorderedItem = line.match(/^\s{0,3}[-*+]\s+(.+)$/);
+        const orderedItem = line.match(/^\s{0,3}\d+[.)]\s+(.+)$/);
+        if (unorderedItem || orderedItem) {
+            flushParagraph();
+            const nextTag: "ul" | "ol" = unorderedItem ? "ul" : "ol";
+            if (listTag && listTag !== nextTag) flushList();
+            listTag = nextTag;
+            listItems.push(parseInlineMarkdown((unorderedItem || orderedItem)![1]));
+            continue;
+        }
+
+        if (/^\s{0,3}>\s?/.test(line)) {
+            flushParagraph();
+            flushList();
+            const quoteLines: string[] = [];
+            while (index < lines.length && /^\s{0,3}>\s?/.test(lines[index])) {
+                quoteLines.push(lines[index].replace(/^\s{0,3}>\s?/, ""));
+                index += 1;
+            }
+            index -= 1;
+            html.push(`<blockquote><p>${parseInlineMarkdown(quoteLines.join(" "))}</p></blockquote>`);
+            continue;
+        }
+
+        flushList();
+        paragraph.push(trimmed);
+    }
+
+    flushParagraph();
+    flushList();
+    return html.join("");
+};
 
 interface RichTextEditorProps {
     value: string;
@@ -92,6 +220,18 @@ export default function RichTextEditor({
             TableCell,
             Placeholder.configure({ placeholder }),
         ],
+        editorProps: {
+            handlePaste: (view, event) => {
+                const plainText = event.clipboardData?.getData("text/plain") || "";
+                if (!plainText || !looksLikeMarkdown(plainText)) return false;
+
+                const container = document.createElement("div");
+                container.innerHTML = markdownToHtml(plainText);
+                const slice = ProseMirrorDOMParser.fromSchema(view.state.schema).parseSlice(container);
+                view.dispatch(view.state.tr.replaceSelection(slice).scrollIntoView());
+                return true;
+            },
+        },
         content: value || "",
         editable: !disabled,
         immediatelyRender: false,
@@ -589,7 +729,25 @@ export default function RichTextEditor({
                     text-decoration: underline;
                 }
                 .rich-text-editor-content .tiptap p {
-                    margin: 0.25rem 0;
+                    margin: 0.75rem 0;
+                    line-height: 1.7;
+                }
+                .rich-text-editor-content .tiptap h4 {
+                    font-size: 1.05rem;
+                    font-weight: 600;
+                    margin: 0.75rem 0 0.35rem;
+                }
+                .rich-text-editor-content .tiptap h5 {
+                    font-size: 1rem;
+                    font-weight: 600;
+                    margin: 0.65rem 0 0.3rem;
+                }
+                .rich-text-editor-content .tiptap h6 {
+                    font-size: 0.9rem;
+                    font-weight: 600;
+                    letter-spacing: 0.025em;
+                    margin: 0.6rem 0 0.25rem;
+                    text-transform: uppercase;
                 }
                 /* Table styles */
                 .rich-text-editor-content .tiptap table {

@@ -32,7 +32,7 @@ const Footer = () => {
                         <div className="flex gap-3">
                             <SocialIcon icon={<RiInstagramLine size={18} />} href="https://www.instagram.com/_topupio.com__/" label="Instagram" />
                             <SocialIcon icon={<RiYoutubeFill size={18} />} href="https://www.youtube.com/@topupioadmin" label="YouTube" />
-                            <SocialIcon icon={<RiTwitterXFill size={18} />} href="https://x.com/allgamestopup" label="X" />
+                            <SocialIcon icon={<RiTwitterXFill size={18} />} href="https://x.com/topupio_com" label="X" />
                             <SocialIcon icon={<RiWhatsappFill size={18} />} href="https://wa.me/919497110191" label="WhatsApp" />
                         </div>
                     </div>
@@ -65,22 +65,56 @@ const Footer = () => {
                             <ContactItem icon={<RiMapPinLine />} text="Kerala, India" />
                         </div>
 
-                        {/* Payment Methods */}
-                        <div className="pt-3">
-                            <h4 className="text-slate-500 text-[10px] uppercase font-bold tracking-widest mb-3">Accepted Payments</h4>
-                            <div className="flex flex-wrap gap-2">
-                                <PaymentBadge label="UPI" />
-                                {/* PayPal badge stays hidden while PayPal checkout is
-                                    disabled (account suspended) — advertising a method
-                                    that fails at checkout is worse than omitting it. */}
-                                {/* <PaymentBadge label="PAYPAL" /> */}
-                                <PaymentBadge label="VISA" />
-                                <PaymentBadge label="MASTERCARD" />
-                                <PaymentBadge label="CRYPTO" />
-                            </div>
-                        </div>
                     </div>
                 </div>
+
+                {/* Trust and Payment Badge */}
+                <section
+                    className="mt-12 rounded-2xl border border-slate-700 bg-slate-800/60 px-4 py-4 shadow-sm sm:px-5 sm:py-5 lg:flex lg:items-center lg:justify-between lg:gap-8"
+                    role="group"
+                    aria-label="Verified business and accepted payments"
+                >
+                    <div className="flex min-w-0 items-center gap-3">
+                        <span
+                            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-400/10 text-emerald-400 ring-1 ring-inset ring-emerald-400/20"
+                            aria-hidden="true"
+                        >
+                            <svg
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                className="h-5 w-5"
+                            >
+                                <path d="M12 2 4 5v6c0 5 3.4 8.7 8 10 4.6-1.3 8-5 8-10V5l-8-3Z" />
+                                <path d="m9 12 2 2 4-4" />
+                            </svg>
+                        </span>
+                        <div className="min-w-0">
+                            <p className="text-sm font-semibold leading-5 text-white">
+                                Verified &amp; Secure Supplier
+                            </p>
+                            <p className="mt-0.5 text-xs leading-5 text-slate-400">
+                                MSME registered
+                                <span className="mx-1.5 text-slate-600" aria-hidden="true">•</span>
+                                <strong className="font-semibold text-slate-200">
+                                    UDYAM-KL-04-0081978
+                                </strong>
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-slate-700/70 pt-4 lg:mt-0 lg:justify-end lg:border-l lg:border-t-0 lg:py-1 lg:pl-8">
+                        <span className="mr-1 w-full text-[11px] font-medium uppercase tracking-wider text-slate-400 sm:w-auto">
+                            Accepted payments
+                        </span>
+                        <TrustChip label="UPI" dotClassName="bg-orange-400" />
+                        <TrustChip label="PayPal" dotClassName="bg-blue-400" />
+                        <TrustChip label="USDT" dotClassName="bg-emerald-400" />
+                    </div>
+                </section>
 
                 {/* Bottom Bar */}
                 <div className="mt-16 pt-6 border-t border-slate-700/50 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-slate-400">
@@ -125,10 +159,17 @@ const ContactItem = ({ icon, text }: { icon: React.ReactNode; text: string }) =>
     </div>
 );
 
-const PaymentBadge = ({ label }: { label: string }) => (
-    <div className="px-2.5 py-1 rounded-md bg-slate-800 border border-slate-700 text-[9px] font-bold text-slate-400 hover:text-white hover:border-secondary/30 transition cursor-default">
+const TrustChip = ({
+    label,
+    dotClassName,
+}: {
+    label: string;
+    dotClassName: string;
+}) => (
+    <span className="inline-flex min-h-8 items-center gap-2 rounded-full border border-slate-600 bg-slate-900/60 px-3 py-1.5 text-xs font-semibold text-slate-200">
+        <span className={`h-2 w-2 shrink-0 rounded-full ${dotClassName}`} aria-hidden="true" />
         {label}
-    </div>
+    </span>
 );
 
 export default Footer;

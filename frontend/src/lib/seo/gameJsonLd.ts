@@ -3,6 +3,8 @@ import { getAbsoluteUrl } from "@/lib/seo/site";
 import { DEFAULT_FALLBACK_RATES } from "@/lib/constants/currencies";
 import { convertMoney } from "@/lib/utils/money";
 import { exchangeRateApiServer } from "@/services/exchangeRate/exchangeRateApi.server";
+import { reviewsApiServer } from "@/services/reviews/reviewsApi.server";
+import type { GameReviewsResponse } from "@/services/reviews/types";
 
 /** Schema currency is fixed to INR regardless of the stored pricing currency. */
 const SCHEMA_CURRENCY = "INR";
@@ -99,7 +101,8 @@ function getComparablePrices(
 function buildProductSchema(
     game: Game,
     pageUrl: string,
-    rates: Record<string, number>
+    rates: Record<string, number>,
+    reviewData?: GameReviewsResponse["data"]
 ): JsonLdValue {
     const activeVariants = (game.variants || []).filter(
         (variant) => variant.status === "active"
@@ -107,6 +110,27 @@ function buildProductSchema(
     const comparablePrices = getComparablePrices(game, activeVariants, rates);
     const isAvailable = game.status === "active" && activeVariants.length > 0;
     const imageUrl = toAbsoluteUrl(game.imageUrl);
+    const summary = reviewData?.summary;
+    const hasAggregateRating =
+        Boolean(summary) &&
+        Number.isFinite(summary?.averageRating) &&
+        Number.isFinite(summary?.totalReviews) &&
+        (summary?.averageRating ?? 0) >= 1 &&
+        (summary?.averageRating ?? 0) <= 5 &&
+        (summary?.totalReviews ?? 0) > 0;
+    const validReviews = (reviewData?.reviews ?? [])
+        .filter((review) => {
+            const authorName =
+                typeof review.user === "object" ? review.user.name?.trim() : "";
+            return (
+                Boolean(authorName) &&
+                Boolean(review.comment?.trim()) &&
+                Number.isFinite(review.rating) &&
+                review.rating >= 1 &&
+                review.rating <= 5
+            );
+        })
+        .slice(0, 5);
 
     return {
         "@type": "Product",
@@ -124,6 +148,39 @@ function buildProductSchema(
         },
         sku: game.slug,
         url: pageUrl,
+        ...(hasAggregateRating
+            ? {
+                  aggregateRating: {
+                      "@type": "AggregateRating",
+                      ratingValue: String(summary!.averageRating),
+                      reviewCount: summary!.totalReviews,
+                      bestRating: "5",
+                      worstRating: "1",
+                  },
+              }
+            : {}),
+        ...(validReviews.length > 0
+            ? {
+                  review: validReviews.map((review) => ({
+                      "@type": "Review",
+                      author: {
+                          "@type": "Person",
+                          name:
+                              typeof review.user === "object"
+                                  ? review.user.name!.trim()
+                                  : "",
+                      },
+                      reviewRating: {
+                          "@type": "Rating",
+                          ratingValue: String(review.rating),
+                          bestRating: "5",
+                          worstRating: "1",
+                      },
+                      reviewBody: review.comment.trim(),
+                      datePublished: review.createdAt.slice(0, 10),
+                  })),
+              }
+            : {}),
         offers: comparablePrices
             ? {
                   "@type": "AggregateOffer",
@@ -169,8 +226,12 @@ function buildFaqSchema(game: Game, pageUrl: string): JsonLdValue | null {
 
 export async function getGameJsonLd(game: Game, pathname: string): Promise<JsonLdValue> {
     const pageUrl = getAbsoluteUrl(pathname);
-    const rates = await getSchemaRates();
-    const graph = [buildProductSchema(game, pageUrl, rates)];
+    const [rates, reviewResponse] = await Promise.all([
+        getSchemaRates(),
+        reviewsApiServer.getGameReviews(game._id).catch(() => null),
+    ]);
+    const reviewData = reviewResponse?.success ? reviewResponse.data : undefined;
+    const graph = [buildProductSchema(game, pageUrl, rates, reviewData)];
     const faqSchema = buildFaqSchema(game, pageUrl);
 
     if (faqSchema) {
