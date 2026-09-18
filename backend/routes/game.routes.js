@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { getGames, getHomePageGames, getDistinctCategories, getGamesByPaymentCategory, getPopularGames, getGameDetails, createGame, updateGame, deleteGame, bulkUpdateGameStatus } from "../controllers/game.controller.js";
-import { verifyPlayer } from "../controllers/gamersWorkshop.controller.js";
+import { verifyPlayer, verificationHealth } from "../controllers/g2bulk.controller.js";
 import { protect } from "../middlewares/auth.middleware.js";
 import { authorize } from "../middlewares/role.middleware.js";
 import { upload } from "../middlewares/upload.middleware.js";
@@ -16,6 +16,7 @@ router.get("/popular", getPopularGames);
 
 // Player verification via external API
 router.post("/verify-player", verifyPlayer);
+router.get("/verify-player/health", protect, authorize("admin"), verificationHealth);
 
 router.get('/:slug' , getGameDetails)
 

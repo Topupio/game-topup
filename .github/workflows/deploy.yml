@@ -51,8 +51,14 @@ jobs:
 
             echo "=== Pulling latest code ==="
             cd /var/www/game-topup
+            # Refuse to erase hotfixes made on the server.
+            if ! git diff --quiet || ! git diff --cached --quiet; then
+              echo "Deployment stopped: commit or reconcile server changes first."
+              exit 1
+            fi
             git fetch origin master
-            git reset --hard origin/master
+            git merge --ff-only origin/master
+            node --test backend/tests/verification.test.mjs
 
             echo "=== Deploying Backend ==="
             cd /var/www/game-topup/backend

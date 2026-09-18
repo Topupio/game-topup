@@ -152,9 +152,8 @@ export default function GameDetailsPage({
         setUserDetails((prev) => ({ ...prev, [key]: value }));
         setErrors((prev) => ({ ...prev, [key]: "" }));
 
-        // Game-type identifier for verification routing; falls back to the first
-        // variant so desktop verification works before a package is selected.
-        const verifyGameName = selectedVariant?.apiGameName ?? gameDetails.variants?.[0]?.apiGameName;
+        // Verification uses the page identity, independently of fulfilment variants.
+        const verifyGameName = gameDetails.slug;
 
         // Games that have a zone field (e.g. Mobile Legends) need BOTH uid and
         // zone before verification can succeed. Only fire once both are present
@@ -167,6 +166,8 @@ export default function GameDetailsPage({
 
             if (uid.length >= 5 && (!requiresZone || zoneId.length > 0)) {
                 playerVerification.triggerVerify(uid, zoneId || undefined, undefined, verifyGameName);
+            } else {
+                playerVerification.reset();
             }
         }
     };

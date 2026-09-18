@@ -16,11 +16,13 @@ export function usePlayerVerification() {
         verificationError: null,
     });
     const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-    const lastUidRef = useRef<string>("");
+    const lastRequestKeyRef = useRef<string>("");
+    const requestVersionRef = useRef(0);
 
     const reset = useCallback(() => {
         setState({ verifiedName: null, isVerifying: false, verificationError: null });
-        lastUidRef.current = "";
+        lastRequestKeyRef.current = "";
+        requestVersionRef.current += 1;
         if (timerRef.current) {
             clearTimeout(timerRef.current);
             timerRef.current = null;
@@ -34,16 +36,20 @@ export function usePlayerVerification() {
         }
 
         const trimmed = uid.trim();
+        const requestKey = [game || "", trimmed, zoneId || "", server || ""].join("|").toLowerCase();
 
         // Reset if too short
         if (trimmed.length < 5) {
             setState({ verifiedName: null, isVerifying: false, verificationError: null });
-            lastUidRef.current = "";
+            lastRequestKeyRef.current = "";
+            requestVersionRef.current += 1;
             return;
         }
 
-        // Skip if same UID already verified
-        if (trimmed === lastUidRef.current) return;
+        // Skip only when this exact game/player/server combination is verified.
+        if (requestKey === lastRequestKeyRef.current) return;
+        lastRequestKeyRef.current = "";
+        const requestVersion = ++requestVersionRef.current;
 
         // Show loading immediately
         setState((prev) => ({ ...prev, isVerifying: true, verifiedName: null, verificationError: null }));
@@ -52,9 +58,11 @@ export function usePlayerVerification() {
         timerRef.current = setTimeout(async () => {
             try {
                 const result = await gamesApiClient.verifyPlayer(trimmed, zoneId, server, game);
+                if (requestVersion !== requestVersionRef.current) return;
                 if (result.success && result.data?.unsupported) {
                     // Game doesn't support verification — silently skip
                     setState({ verifiedName: null, isVerifying: false, verificationError: null });
+                    lastRequestKeyRef.current = requestKey;
                     return;
                 }
                 if (result.success && result.data?.verified) {
@@ -63,7 +71,7 @@ export function usePlayerVerification() {
                         isVerifying: false,
                         verificationError: null,
                     });
-                    lastUidRef.current = trimmed;
+                    lastRequestKeyRef.current = requestKey;
                 } else {
                     setState({
                         verifiedName: null,
@@ -72,10 +80,11 @@ export function usePlayerVerification() {
                     });
                 }
             } catch {
+                if (requestVersion !== requestVersionRef.current) return;
                 setState({
                     verifiedName: null,
                     isVerifying: false,
-                    verificationError: "Could not verify. Please check your UID.",
+                    verificationError: "Name verification is temporarily unavailable. Please try again.",
                 });
             }
         }, 800);
@@ -84,6 +93,7 @@ export function usePlayerVerification() {
     // Cleanup on unmount
     useEffect(() => {
         return () => {
+            requestVersionRef.current += 1;
             if (timerRef.current) clearTimeout(timerRef.current);
         };
     }, []);
