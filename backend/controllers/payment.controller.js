@@ -9,6 +9,7 @@ import { getExchangeRates, convertAmount } from "../utils/currencyConverter.js";
 import { placeExternalOrderIfEligible } from "../utils/externalOrderPlacer.js";
 import { calculatePayPalBreakdown } from "../utils/paypalFees.js";
 import { MIN_CRYPTO_AMOUNT_USD } from "../constants/payments.js";
+import { sendMetaPurchaseInBackground } from "../services/metaConversions.service.js";
 
 /**
  * @desc    [DEV ONLY] Simulate payment success for testing external order placement
@@ -42,6 +43,7 @@ export const mockPaymentSuccess = asyncHandler(async (req, res) => {
         message: "Payment simulated (dev mock)",
     });
     await order.save();
+    sendMetaPurchaseInBackground(order._id);
 
     // Trigger external order placement
     try {
@@ -235,6 +237,7 @@ export const capturePayPalOrder = asyncHandler(async (req, res) => {
                 message: "Payment confirmed via PayPal",
             });
             await order.save();
+            sendMetaPurchaseInBackground(order._id);
 
             // Create Payment record
             await Payment.create({
@@ -472,6 +475,7 @@ export const handleNowPaymentsWebhook = async (req, res) => {
                     message: `Crypto payment confirmed (${payCurrency?.toUpperCase() || "crypto"})`,
                 });
                 await order.save();
+                sendMetaPurchaseInBackground(order._id);
 
                 // Create Payment record if not exists
                 const existingPayment = await Payment.findOne({
@@ -630,6 +634,7 @@ export const handlePayPalWebhook = async (req, res) => {
                         message: "Payment confirmed via PayPal webhook",
                     });
                     await targetOrder.save();
+                    sendMetaPurchaseInBackground(targetOrder._id);
 
                     // Create Payment record if not exists
                     const existingPayment = await Payment.findOne({

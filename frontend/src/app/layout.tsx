@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import { Geist, Geist_Mono } from "next/font/google";
 import Script from "next/script";
+import TrafficAttribution from "@/components/analytics/TrafficAttribution";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 import { CurrencyProvider, CURRENCY_COOKIE } from "@/context/CurrencyContext";
@@ -56,6 +57,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         suppressHydrationWarning
       >
+        <TrafficAttribution />
         <GoogleOAuthWrapper>
           <AuthProvider>
             <CurrencyProvider initialCurrency={initialCurrency}>

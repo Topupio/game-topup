@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, type ReactNode } from "react";
+import { useState, useMemo, useEffect, useRef, type ReactNode } from "react";
 import {
     Game,
     Variant,
@@ -27,6 +27,12 @@ import { usePlayerVerification } from "@/hooks/usePlayerVerification";
 import { RiErrorWarningLine, RiArrowDownSLine, RiQuestionLine } from "react-icons/ri";
 import GameReviewsSection from "./GameReviewsSection";
 import RecentOrderToast from "./RecentOrderToast";
+import {
+    createMetaEventId,
+    productEventParams,
+    readMetaBrowserData,
+    trackMetaEvent,
+} from "@/lib/analytics/meta";
 
 function hasRichContent(html: string | undefined): boolean {
     if (!html) return false;
@@ -60,8 +66,17 @@ export default function GameDetailsPage({
     const router = useRouter();
     const playerVerification = usePlayerVerification();
     const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
+    const checkoutEventIdRef = useRef<string | null>(null);
 
     const templateKey = gameDetails.checkoutTemplate || "";
+
+    useEffect(() => {
+        trackMetaEvent(
+            "ViewContent",
+            productEventParams(gameDetails),
+            createMetaEventId(`view_${gameDetails.slug}`)
+        );
+    }, [gameDetails]);
 
     // Resolve checkout fields from the game's template + options
     const checkoutFields = useMemo(() => {
@@ -151,26 +166,18 @@ export default function GameDetailsPage({
     const updateUserDetails = (key: string, value: string) => {
         setUserDetails((prev) => ({ ...prev, [key]: value }));
         setErrors((prev) => ({ ...prev, [key]: "" }));
-
-        // Verification uses the page identity, independently of fulfilment variants.
-        const verifyGameName = gameDetails.slug;
-
-        // Games that have a zone field (e.g. Mobile Legends) need BOTH uid and
-        // zone before verification can succeed. Only fire once both are present
-        // so we don't waste a billed API call on an incomplete request.
-        const requiresZone = checkoutFields.some((f) => f.fieldKey === "zone_server");
-
-        if (templateKey === "uid_topup" && (key === "player_uid" || key === "zone_server")) {
-            const uid = (key === "player_uid" ? value : userDetails["player_uid"] || "").trim();
-            const zoneId = (key === "zone_server" ? value : userDetails["zone_server"] || "").trim();
-
-            if (uid.length >= 5 && (!requiresZone || zoneId.length > 0)) {
-                playerVerification.triggerVerify(uid, zoneId || undefined, undefined, verifyGameName);
-            } else {
-                playerVerification.reset();
-            }
-        }
     };
+    const lookupUid = userDetails["player_uid"] || "";
+    const lookupZone = userDetails["zone_server"] || "";
+    const requiresLookupZone = checkoutFields.some((f) => f.fieldKey === "zone_server");
+    const { triggerVerify, reset: resetVerification } = playerVerification;
+    useEffect(() => {
+        if (templateKey !== "uid_topup" || (requiresLookupZone && !lookupZone.trim())) {
+            resetVerification();
+            return;
+        }
+        triggerVerify(lookupUid, lookupZone.trim() || undefined, undefined, gameDetails.slug);
+    }, [lookupUid, lookupZone, requiresLookupZone, templateKey, gameDetails.slug, triggerVerify, resetVerification]);
 
     const validateFields = () => {
         const newErrors: Record<string, string> = {};
@@ -195,6 +202,20 @@ export default function GameDetailsPage({
     };
 
     const handleProceedToCheckout = async () => {
+        if (!selectedVariant || !selectedPricing) {
+            toast.error("Please select a package");
+            return;
+        }
+
+        if (!checkoutEventIdRef.current) {
+            checkoutEventIdRef.current = createMetaEventId("checkout");
+            trackMetaEvent(
+                "InitiateCheckout",
+                productEventParams(gameDetails, selectedVariant, selectedPricing, qty),
+                checkoutEventIdRef.current
+            );
+        }
+
         if (!user) {
             toast.error("Please login to place an order");
             const redirectPath = `${window.location.pathname}${window.location.search}`;
@@ -206,11 +227,6 @@ export default function GameDetailsPage({
 
         if (!validateFields()) {
             toast.error("Please fill all required fields correctly");
-            return;
-        }
-
-        if (!selectedVariant || !selectedPricing) {
-            toast.error("Please select a package");
             return;
         }
 
@@ -230,6 +246,7 @@ export default function GameDetailsPage({
                 productId: selectedVariant._id || "",
                 qty,
                 userInputs: inputs,
+                metaTracking: readMetaBrowserData(),
             });
 
             if (res.success) {
@@ -301,6 +318,13 @@ export default function GameDetailsPage({
                                 onSelect={(v) => {
                                     setSelectedVariant(v);
                                     setQty(1);
+                                    checkoutEventIdRef.current = null;
+                                    const pricing = v.regionPricing[0] || null;
+                                    trackMetaEvent(
+                                        "AddToCart",
+                                        productEventParams(gameDetails, v, pricing, 1),
+                                        createMetaEventId("add_to_cart")
+                                    );
                                 }}
                                 gameImageUrl={gameDetails.imageUrl}
                                 disabled={isGameUnavailable}
@@ -443,7 +467,17 @@ export default function GameDetailsPage({
                         variant={selectedVariant}
                         pricing={selectedPricing}
                         qty={qty}
-                        onOpenSheet={() => setIsSheetOpen(true)}
+                        onOpenSheet={() => {
+                            if (!checkoutEventIdRef.current) {
+                                checkoutEventIdRef.current = createMetaEventId("checkout");
+                                trackMetaEvent(
+                                    "InitiateCheckout",
+                                    productEventParams(gameDetails, selectedVariant, selectedPricing, qty),
+                                    checkoutEventIdRef.current
+                                );
+                            }
+                            setIsSheetOpen(true);
+                        }}
                     />
                     <MobileCheckoutSheet
                         isOpen={isSheetOpen}

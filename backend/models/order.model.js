@@ -82,6 +82,19 @@ const orderSchema = new mongoose.Schema(
             },
         },
 
+        metaTracking: {
+            fbp: { type: String, trim: true },
+            fbc: { type: String, trim: true },
+            eventSourceUrl: { type: String, trim: true },
+            clientIp: { type: String, trim: true },
+            userAgent: { type: String, trim: true },
+            capiEventId: { type: String, trim: true },
+            capiSendingAt: Date,
+            capiSentAt: Date,
+            capiAttempts: { type: Number, default: 0 },
+            capiLastError: { type: String, trim: true },
+        },
+
         // External fulfillment tracking (e.g., Gamers Workshop API)
         externalOrder: {
             provider: { type: String },

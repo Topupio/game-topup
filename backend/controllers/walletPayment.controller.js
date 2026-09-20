@@ -6,6 +6,7 @@ import { applyTransaction, getOrCreateWallet, WalletError } from "../services/wa
 import { getOrderDebitPaise } from "../services/walletPricing.service.js";
 import { placeExternalOrderIfEligible } from "../utils/externalOrderPlacer.js";
 import { formatPaise } from "../utils/money.js";
+import { sendMetaPurchaseInBackground } from "../services/metaConversions.service.js";
 
 /** Load an order the caller is allowed to act on. Returns null when not found. */
 async function findOwnedOrder(req, orderId) {
@@ -166,6 +167,7 @@ export const payWithWallet = asyncHandler(async (req, res) => {
     // given, and the stale copy from before the transaction would overwrite the fields
     // that were just written.
     const paidOrder = await Order.findById(order._id);
+    sendMetaPurchaseInBackground(paidOrder._id);
     try {
         await placeExternalOrderIfEligible(paidOrder);
     } catch (err) {

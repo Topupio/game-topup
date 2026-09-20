@@ -59,6 +59,7 @@ jobs:
             git fetch origin master
             git merge --ff-only origin/master
             node --test backend/tests/verification.test.mjs
+            node --test frontend/tests/restored-integrations.test.mjs
 
             echo "=== Deploying Backend ==="
             cd /var/www/game-topup/backend

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Order } from "@/services/orders/types";
+import { usePurchaseAnalytics } from "@/lib/analytics/purchase";
 import Link from "next/link";
 import Image from "next/image";
 import { toast } from "react-toastify";
@@ -43,6 +44,7 @@ const cardEntry = {
  * generic order page below.
  */
 export default function UserOrderDetailClient({ order }: Props) {
+    usePurchaseAnalytics(order);
     if (isTopupOrder(order)) {
         return <TopupOrderDetail order={order} />;
     }

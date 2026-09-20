@@ -5,6 +5,7 @@ import GameReview from "../models/gameReview.model.js";
 import { asyncHandler } from "../middlewares/asyncHandler.js";
 import mongoose from "mongoose";
 import { logAdminActivity } from "../utils/adminLogger.js";
+import { sendMetaPurchaseInBackground } from "../services/metaConversions.service.js";
 
 function buildAdminMessageNotification(order) {
     const noteUpdatedAt = order.adminNoteUpdatedAt || order.updatedAt;
@@ -35,7 +36,7 @@ export const createOrder = asyncHandler(async (req, res) => {
         return res.status(401).json({ success: false, message: "Unauthorized" });
     }
 
-    const { gameId, productId, qty, userInputs } = req.body;
+    const { gameId, productId, qty, userInputs, metaTracking = {} } = req.body;
 
     // Basic validations
     if (!gameId || !productId || !qty || !Array.isArray(userInputs)) {
@@ -142,6 +143,13 @@ export const createOrder = asyncHandler(async (req, res) => {
                 paymentMethod: "paypal",
                 userInputs: sanitizedInputs,
                 productSnapshot,
+                metaTracking: {
+                    fbp: String(metaTracking.fbp || "").slice(0, 255),
+                    fbc: String(metaTracking.fbc || "").slice(0, 255),
+                    eventSourceUrl: String(metaTracking.eventSourceUrl || "").slice(0, 2048),
+                    clientIp: String(req.ip || "").slice(0, 100),
+                    userAgent: String(req.get("user-agent") || "").slice(0, 1000),
+                },
                 tracking: [{
                     status: "pending",
                     message: "Order placed successfully. Awaiting payment/verification."
@@ -782,6 +790,10 @@ export const adminUpdateOrder = async (req, res) => {
         }
 
         await order.save();
+
+        if (paymentStatus === "paid" && order.paymentStatus === "paid") {
+            sendMetaPurchaseInBackground(order._id);
+        }
 
         // Populate the same fields as the detail endpoint. The admin UI replaces its
         // order state with this response, and it reads game.checkoutTemplate to decide

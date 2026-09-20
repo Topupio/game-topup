@@ -306,6 +306,11 @@ export interface CreateOrderPayload {
     productId: string;
     qty: number;
     userInputs: { label: string; fieldKey?: string | null; value: string | number }[];
+    metaTracking?: {
+        fbp?: string;
+        fbc?: string;
+        eventSourceUrl?: string;
+    };
 }
 
 export interface SubmitOrderReviewPayload {
