@@ -70,8 +70,26 @@ jobs:
             npm install
             npm run build
 
+            echo "=== Verifying production build dependencies ==="
+            BROKEN_LINK="$(find .next/node_modules -xtype l -print -quit 2>/dev/null || true)"
+            if [ -n "$BROKEN_LINK" ]; then
+              echo "Deployment stopped: broken Next.js dependency link: $BROKEN_LINK"
+              exit 1
+            fi
+
             echo "=== Restarting apps ==="
             pm2 restart backend
             pm2 restart frontend
+
+            echo "=== Verifying live pages ==="
+            curl --fail --silent --show-error --retry 5 --retry-delay 2 \
+              https://topupio.com/ >/dev/null
+            curl --fail --silent --show-error --retry 5 --retry-delay 2 \
+              https://topupio.com/uid-instant-top-up/mlbb-diamond-recharge-india >/dev/null
+            curl --fail --silent --show-error --retry 5 --retry-delay 2 \
+              --user-agent "Googlebot/2.1 (+http://www.google.com/bot.html)" \
+              https://topupio.com/uid-instant-top-up/mlbb-diamond-recharge-india >/dev/null
+
+            pm2 save
 
             echo "=== Deploy complete! ==="

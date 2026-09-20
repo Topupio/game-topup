@@ -30,3 +30,10 @@ test("Meta browser and server purchase tracking remain wired", () => {
     }
     assert.match(order, /usePurchaseAnalytics\(order\)/);
 });
+
+test("deployment rejects broken Next.js links and checks a live product page", () => {
+    const deploy = read("../.github/workflows/deploy.yml");
+    assert.match(deploy, /find \.next\/node_modules -xtype l/);
+    assert.match(deploy, /uid-instant-top-up\/mlbb-diamond-recharge-india/);
+    assert.match(deploy, /Googlebot\/2\.1/);
+});
