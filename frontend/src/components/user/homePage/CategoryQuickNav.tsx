@@ -300,9 +300,9 @@ export default function CategoryQuickNav({ categories }: CategoryQuickNavProps) 
                     <h2 className="text-lg sm:text-2xl font-bold text-gray-900 tracking-tight">
                         Browse Categories
                     </h2>
-                    <p className="text-gray-500 text-xs sm:text-sm font-normal">
-                        Quick access to all categories
-                    </p>
+                    <h1 className="text-gray-500 text-xs sm:text-sm font-normal">
+                        Buy Game Top-Ups, Gift Cards &amp; Digital Subscriptions
+                    </h1>
                 </div>
             </div>
 

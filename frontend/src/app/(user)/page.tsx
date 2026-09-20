@@ -61,9 +61,6 @@ export default async function Page() {
                 <div className="max-w-7xl mx-auto lg:px-0 px-3">
                     <HomeReviewPrompt />
                     <ChannelJoinPopup />
-                    <h1 className="mb-5 text-center text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
-                        Buy Game Top-Ups, Gift Cards &amp; Digital Subscriptions
-                    </h1>
                     <HeroCarousel banners={bannerData} />
                     <CategoryQuickNav categories={allCategoryNames} />
                     <PopularGames games={popularGames} />
