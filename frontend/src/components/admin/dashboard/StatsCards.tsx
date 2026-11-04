@@ -1,17 +1,20 @@
-import { DashboardStats } from "@/services/dashboard/types";
+import { DashboardResponse } from "@/services/dashboard/types";
 import { formatFixed } from "@/lib/utils/money";
 import { RiStackLine, RiTimeLine, RiLoader4Line, RiCheckboxCircleLine, RiMoneyDollarCircleLine, RiCalendarCheckLine, RiGroupLine, RiUserForbidLine } from "react-icons/ri";
 
-export default function StatsCards({ data }: { data: DashboardStats }) {
+const LAST_30 = "vs previous 30 days";
+
+export default function StatsCards({ data }: { data: DashboardResponse }) {
+    const t = data.trends;
     const stats = [
-        { label: "Total Orders", value: data.orders.total, change: "+12.5%", trend: "up", icon: RiStackLine, color: "text-blue-500", bg: "bg-blue-500/10" },
-        { label: "Pending Orders", value: data.orders.pending, change: "+5.2%", trend: "up", icon: RiTimeLine, color: "text-amber-500", bg: "bg-amber-500/10" },
-        { label: "Processing", value: data.orders.processing, change: "-2.1%", trend: "down", icon: RiLoader4Line, color: "text-indigo-500", bg: "bg-indigo-500/10" },
-        { label: "Completed", value: data.orders.completed, change: "+18.2%", trend: "up", icon: RiCheckboxCircleLine, color: "text-green-500", bg: "bg-green-500/10" },
-        { label: "Total Revenue", value: formatFixed(data.revenue.total, "USD"), change: "+8.4%", trend: "up", icon: RiMoneyDollarCircleLine, color: "text-emerald-600", bg: "bg-emerald-500/10" },
-        { label: "Today's Revenue", value: formatFixed(data.revenue.today, "USD"), change: "+22.5%", trend: "up", icon: RiCalendarCheckLine, color: "text-cyan-500", bg: "bg-cyan-500/10" },
-        { label: "Total Users", value: data.users.total, change: "+120", trend: "up", icon: RiGroupLine, color: "text-violet-500", bg: "bg-violet-500/10" },
-        { label: "Blocked Users", value: data.users.blocked, change: "+2", trend: "down", icon: RiUserForbidLine, color: "text-red-500", bg: "bg-red-500/10" },
+        { label: "Total Orders", value: data.orders.total, change: t?.orders, period: LAST_30, icon: RiStackLine, color: "text-blue-500", bg: "bg-blue-500/10" },
+        { label: "Pending Orders", value: data.orders.pending, icon: RiTimeLine, color: "text-amber-500", bg: "bg-amber-500/10" },
+        { label: "Processing", value: data.orders.processing, icon: RiLoader4Line, color: "text-indigo-500", bg: "bg-indigo-500/10" },
+        { label: "Completed", value: data.orders.completed, icon: RiCheckboxCircleLine, color: "text-green-500", bg: "bg-green-500/10" },
+        { label: "Total Revenue", value: formatFixed(data.revenue.total, "USD"), change: t?.revenue, period: LAST_30, icon: RiMoneyDollarCircleLine, color: "text-emerald-600", bg: "bg-emerald-500/10" },
+        { label: "Today's Revenue", value: formatFixed(data.revenue.today, "USD"), change: t?.todayRevenue, period: "vs yesterday", icon: RiCalendarCheckLine, color: "text-cyan-500", bg: "bg-cyan-500/10" },
+        { label: "Total Users", value: data.users.total, change: t?.users, period: LAST_30, icon: RiGroupLine, color: "text-violet-500", bg: "bg-violet-500/10" },
+        { label: "Blocked Users", value: data.users.blocked, icon: RiUserForbidLine, color: "text-red-500", bg: "bg-red-500/10" },
     ];
 
     return (
@@ -27,12 +30,14 @@ export default function StatsCards({ data }: { data: DashboardStats }) {
                             <stat.icon className="w-4 h-4 md:w-6 md:h-6" />
                         </div>
                     </div>
-                    <div className="mt-2 md:mt-4 flex items-center text-[10px] md:text-xs">
-                        <span className={stat.trend === "up" ? "text-green-600 font-medium" : "text-red-600 font-medium"}>
-                            {stat.change}
-                        </span>
-                        <span className="text-gray-400 ml-2">from last month</span>
-                    </div>
+                    {stat.change != null && (
+                        <div className="mt-2 md:mt-4 flex items-center text-[10px] md:text-xs">
+                            <span className={stat.change >= 0 ? "text-green-600 font-medium" : "text-red-600 font-medium"}>
+                                {stat.change >= 0 ? "+" : ""}{stat.change}%
+                            </span>
+                            <span className="text-gray-400 ml-2">{stat.period}</span>
+                        </div>
+                    )}
                 </div>
             ))}
         </div>

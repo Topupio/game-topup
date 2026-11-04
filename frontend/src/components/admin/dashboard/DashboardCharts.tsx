@@ -2,35 +2,32 @@
 
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 
-const ordersData = [
-    { name: 'Mon', orders: 45 },
-    { name: 'Tue', orders: 52 },
-    { name: 'Wed', orders: 38 },
-    { name: 'Thu', orders: 65 },
-    { name: 'Fri', orders: 48 },
-    { name: 'Sat', orders: 72 },
-    { name: 'Sun', orders: 55 },
-];
+import { DashboardCharts as DashboardChartsData } from "@/services/dashboard/types";
 
-const revenueData = [
-    { name: 'Mon', revenue: 4500 },
-    { name: 'Tue', revenue: 5200 },
-    { name: 'Wed', revenue: 3800 },
-    { name: 'Thu', revenue: 6500 },
-    { name: 'Fri', revenue: 4800 },
-    { name: 'Sat', revenue: 7200 },
-    { name: 'Sun', revenue: 5500 },
-];
+const STATUS_COLORS: Record<string, string> = {
+    pending: '#f59e0b',
+    paid: '#0ea5e9',
+    processing: '#6366f1',
+    completed: '#22c55e',
+    failed: '#ef4444',
+    cancelled: '#94a3b8',
+    expired: '#a1a1aa',
+    refunded: '#ec4899',
+};
 
-const statusData = [
-    { name: 'Pending', value: 45, color: '#f59e0b' },
-    { name: 'Processing', value: 28, color: '#6366f1' },
-    { name: 'Completed', value: 1156, color: '#22c55e' },
-    { name: 'Failed', value: 12, color: '#ef4444' },
-    { name: 'Cancelled', value: 8, color: '#94a3b8' },
-];
+const METHOD_COLORS = ['#6366f1', '#22c55e', '#f59e0b', '#0ea5e9', '#ec4899', '#14b8a6', '#94a3b8'];
 
-export default function DashboardCharts() {
+const EmptyState = () => (
+    <div className="h-full flex items-center justify-center text-gray-400 border-2 border-dashed border-gray-100 rounded-lg bg-gray-50/50">
+        <p>No data yet</p>
+    </div>
+);
+
+export default function DashboardCharts({ charts }: { charts?: DashboardChartsData }) {
+    const daily = charts?.daily ?? [];
+    const statusData = charts?.orderStatus ?? [];
+    const methodData = charts?.paymentMethods ?? [];
+
     return (
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-3 md:gap-6">
 
@@ -39,7 +36,7 @@ export default function DashboardCharts() {
                 <h3 className="text-base md:text-lg font-semibold text-gray-800 mb-3 md:mb-6">Orders Trend</h3>
                 <div className="h-[200px] md:h-[300px] w-full">
                     <ResponsiveContainer width="100%" height="100%">
-                        <AreaChart data={ordersData}>
+                        <AreaChart data={daily}>
                             <defs>
                                 <linearGradient id="colorOrders" x1="0" y1="0" x2="0" y2="1">
                                     <stop offset="5%" stopColor="#818cf8" stopOpacity={0.3} />
@@ -61,7 +58,7 @@ export default function DashboardCharts() {
                 <h3 className="text-base md:text-lg font-semibold text-gray-800 mb-3 md:mb-6">Revenue Trend</h3>
                 <div className="h-[200px] md:h-[300px] w-full">
                     <ResponsiveContainer width="100%" height="100%">
-                        <AreaChart data={revenueData}>
+                        <AreaChart data={daily}>
                             <defs>
                                 <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
                                     <stop offset="5%" stopColor="#34d399" stopOpacity={0.3} />
@@ -82,6 +79,7 @@ export default function DashboardCharts() {
             <div className="bg-white border text-card-foreground shadow-sm rounded-xl p-3 md:p-6">
                 <h3 className="text-base md:text-lg font-semibold text-gray-800 mb-3 md:mb-6">Order Status Distribution</h3>
                 <div className="h-[200px] md:h-[300px] w-full flex justify-center items-center">
+                    {statusData.length === 0 ? <EmptyState /> : (
                     <ResponsiveContainer width="100%" height="100%">
                         <PieChart>
                             <Pie
@@ -92,21 +90,40 @@ export default function DashboardCharts() {
                                 dataKey="value"
                             >
                                 {statusData.map((entry, index) => (
-                                    <Cell key={`cell-${index}`} fill={entry.color} />
+                                    <Cell key={`cell-${index}`} fill={STATUS_COLORS[entry.name] ?? '#94a3b8'} />
                                 ))}
                             </Pie>
                             <Tooltip />
                             <Legend verticalAlign="bottom" height={36} iconType="circle" />
                         </PieChart>
                     </ResponsiveContainer>
+                    )}
                 </div>
             </div>
 
-            {/* Payment Status Breakdown - For Later or Empty for now */}
+            {/* Payment Method Split (paid orders) */}
             <div className="bg-white border text-card-foreground shadow-sm rounded-xl p-3 md:p-6">
                 <h3 className="text-base md:text-lg font-semibold text-gray-800 mb-3 md:mb-6">Payment Method Split</h3>
-                <div className="h-[200px] md:h-[300px] flex items-center justify-center text-gray-400 border-2 border-dashed border-gray-100 rounded-lg bg-gray-50/50">
-                    <p>Insufficient Data</p>
+                <div className="h-[200px] md:h-[300px] w-full flex justify-center items-center">
+                    {methodData.length === 0 ? <EmptyState /> : (
+                    <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                            <Pie
+                                data={methodData}
+                                innerRadius={80}
+                                outerRadius={110}
+                                paddingAngle={5}
+                                dataKey="value"
+                            >
+                                {methodData.map((entry, index) => (
+                                    <Cell key={`method-${index}`} fill={METHOD_COLORS[index % METHOD_COLORS.length]} />
+                                ))}
+                            </Pie>
+                            <Tooltip />
+                            <Legend verticalAlign="bottom" height={36} iconType="circle" />
+                        </PieChart>
+                    </ResponsiveContainer>
+                    )}
                 </div>
             </div>
 

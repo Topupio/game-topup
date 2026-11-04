@@ -23,7 +23,7 @@ export default async function AdminDashboardPage() {
             <StatsCards data={data} />
 
             {/* 2. Live Business Charts */}
-            <DashboardCharts />
+            <DashboardCharts charts={data?.charts} />
 
             {/* 3. System Health Snapshot */}
             <SystemHealthPanel health={data?.systemHealth} />
@@ -45,7 +45,7 @@ export default async function AdminDashboardPage() {
             {/* 5. Bottom Grid */}
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
                 <AdminActivityFeed activities={data?.recentActivity} />
-                <SmartInsights />
+                <SmartInsights insights={data?.insights} />
             </div>
 
             {/* 6. Quick Actions (Floating) */}

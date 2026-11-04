@@ -119,6 +119,37 @@ export interface DashboardSystemHealth {
     emailService: string;
 }
 
+export interface DashboardDailyPoint {
+    name: string;
+    orders: number;
+    revenue: number;
+}
+
+// type alias (not interface) so recharts accepts it as chart data
+export type DashboardNameValue = {
+    name: string;
+    value: number;
+};
+
+export interface DashboardCharts {
+    daily: DashboardDailyPoint[];
+    orderStatus: DashboardNameValue[];
+    paymentMethods: DashboardNameValue[];
+}
+
+/** % change vs previous period; null when nothing to compare against */
+export interface DashboardTrends {
+    orders: number | null;
+    users: number | null;
+    revenue: number | null;
+    todayRevenue: number | null;
+}
+
+export interface DashboardInsight {
+    type: "warning" | "top" | "up" | "down";
+    message: string;
+}
+
 // ===== Main Response Type =====
 
 export interface DashboardResponse {
@@ -130,4 +161,8 @@ export interface DashboardResponse {
 
     recentOrders: DashboardOrder[];
     recentActivity: DashboardActivity[];
+
+    charts: DashboardCharts;
+    trends: DashboardTrends;
+    insights: DashboardInsight[];
 }
