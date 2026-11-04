@@ -1,3 +1,4 @@
+import { startGwFulfillment } from "./services/gwUltimate.service.js";
 import dotenv from 'dotenv';
 import connectDB from './config/connectDB.js';
 import app from './app.js';
@@ -18,6 +19,7 @@ connectDB().then(() => {
         console.error("Startup checks error:", err.message)
     );
     startCronJobs();
+  startGwFulfillment();
 });
 
 app.listen(PORT, () => {

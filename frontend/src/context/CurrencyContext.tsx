@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import React, { createContext, useContext, useEffect, useMemo, useState, useCallback } from "react";
 import { getCurrencySymbol, DEFAULT_FALLBACK_RATES } from "@/lib/constants/currencies";
 import { convertMoney, formatConverted, formatFixed } from "@/lib/utils/money";
@@ -27,7 +28,8 @@ const CurrencyContext = createContext<CurrencyContextType | undefined>(undefined
  * Prices and wallet debits are always resolved server-side from the database — a
  * client-supplied currency must never influence what someone is charged.
  */
-export const CURRENCY_COOKIE = "preferredCurrency";
+import { CURRENCY_COOKIE, DEFAULT_CURRENCY } from "@/lib/currency/displayCurrency";
+export { CURRENCY_COOKIE } from "@/lib/currency/displayCurrency";
 
 function writeCurrencyCookie(code: string) {
     const oneYear = 60 * 60 * 24 * 365;
@@ -37,7 +39,7 @@ function writeCurrencyCookie(code: string) {
 
 const FALLBACK_RATES = DEFAULT_FALLBACK_RATES;
 
-const DEFAULT_CURRENCY = "INR";
+
 
 export function CurrencyProvider({
     children,
@@ -48,15 +50,14 @@ export function CurrencyProvider({
     initialCurrency?: string;
 }) {
     const { user } = useAuth();
+  const router = useRouter();
     const [currency, setCurrencyState] = useState(initialCurrency || DEFAULT_CURRENCY);
     const [rates, setRates] = useState<Record<string, number>>(FALLBACK_RATES);
     const [loading, setLoading] = useState(true);
 
-    // No cookie yet (first visit): use the default and remember it.
+    // Automatic defaults follow the request; only manual choices are saved.
     useEffect(() => {
-        if (initialCurrency) return;
-        setCurrencyState(DEFAULT_CURRENCY);
-        writeCurrencyCookie(DEFAULT_CURRENCY);
+            setCurrencyState(initialCurrency || DEFAULT_CURRENCY);
     }, [initialCurrency]);
 
     // A signed-in user's saved preference wins over the cookie, so their choice
@@ -98,6 +99,7 @@ export function CurrencyProvider({
         (code: string) => {
             setCurrencyState(code);
             writeCurrencyCookie(code);
+        router.refresh();
 
             // Persist to the profile so the choice survives a new device. Fire and
             // forget: the cookie already covers this session, so a failed save is
@@ -106,7 +108,7 @@ export function CurrencyProvider({
                 authApi.updatePreferences({ preferredCurrency: code }).catch(() => { });
             }
         },
-        [user]
+        [user, router]
     );
 
     const convertPrice = useCallback(

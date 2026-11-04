@@ -6,7 +6,7 @@ export const SUPPORT_WHATSAPP_DISPLAY = "+91 94971 10191";
 
 /** Community links customers can join for deals and drops. */
 export const WHATSAPP_CHANNEL_URL = "https://chat.whatsapp.com/DyCMwqukV0SLSytqBVIpIc";
-export const TELEGRAM_CHANNEL_URL = "https://t.me/RealTopupio_bot";
+export const TELEGRAM_CHANNEL_URL = "https://t.me/topupiogame";
 
 /** wa.me link, optionally with a prefilled message. */
 export function whatsappLink(message?: string) {

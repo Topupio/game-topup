@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
-import { cookies } from "next/headers";
+import { getDisplayCurrency } from "@/lib/currency/server";
 import { Geist, Geist_Mono } from "next/font/google";
 import Script from "next/script";
 import TrafficAttribution from "@/components/analytics/TrafficAttribution";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
-import { CurrencyProvider, CURRENCY_COOKIE } from "@/context/CurrencyContext";
+import { CurrencyProvider } from "@/context/CurrencyContext";
 import { GoogleOAuthWrapper } from "@/providers/GoogleOAuthWrapper";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -36,11 +36,8 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // Read the currency cookie on the server so the first paint already shows the
-  // right currency. Without this the provider had to guess, render INR, then swap
-  // after hydration — a visible flash of the wrong price on every page load.
-  const cookieStore = await cookies();
-  const initialCurrency = cookieStore.get(CURRENCY_COOKIE)?.value;
+  // Resolve country and saved choice once for the initial server render.
+  const initialCurrency = await getDisplayCurrency();
 
   return (
     <html lang="en" suppressHydrationWarning>

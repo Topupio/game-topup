@@ -75,6 +75,8 @@ export const sendAuthPair = async (user, statusCode, res, ip) => {
 
 // Rotate refresh token
 export const rotateRefreshToken = async (currentTokenValue, ip) => {
+    // cookie-parser turns "j:{...}" cookies into objects; only a plain string may reach the query
+    if (typeof currentTokenValue !== "string") return null;
     const existing = await RefreshToken.findOne({ token: currentTokenValue });
     if (!existing || !existing.isActive) return null;
     existing.revoked = new Date();
@@ -87,12 +89,21 @@ export const rotateRefreshToken = async (currentTokenValue, ip) => {
 
 // Revoke refresh token
 export const revokeRefreshToken = async (currentTokenValue, ip) => {
+    if (typeof currentTokenValue !== "string") return false;
     const existing = await RefreshToken.findOne({ token: currentTokenValue });
     if (!existing || !existing.isActive) return false;
     existing.revoked = new Date();
     existing.revokedByIp = ip;
     await existing.save();
     return true;
+};
+
+// Revoke every active refresh token of a user (password change/reset)
+export const revokeAllRefreshTokens = async (userId, ip) => {
+    await RefreshToken.updateMany(
+        { user: userId, revoked: null },
+        { revoked: new Date(), revokedByIp: ip }
+    );
 };
 
 // Parse expiry time

@@ -46,7 +46,7 @@ export const handleWebhook = async (req, res) => {
     try {
         const { orderId, status } = req.body;
 
-        if (!orderId || !status) {
+        if (typeof orderId !== "string" || typeof status !== "string" || !orderId || !status) {
             return res.status(200).json({ received: true, message: "Missing orderId or status" });
         }
 

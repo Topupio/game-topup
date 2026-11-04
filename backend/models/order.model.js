@@ -95,7 +95,10 @@ const orderSchema = new mongoose.Schema(
             capiLastError: { type: String, trim: true },
         },
 
-        // External fulfillment tracking (e.g., Gamers Workshop API)
+        // Durable GW Ultimate job, never returned by ordinary customer queries.
+    gwFulfillment: { type: mongoose.Schema.Types.Mixed, default: undefined, select: false },
+
+    // External fulfillment tracking (e.g., Gamers Workshop API)
         externalOrder: {
             provider: { type: String },
             externalOrderId: { type: String },
@@ -234,4 +237,8 @@ orderSchema.index({ paymentStatus: 1 });
 orderSchema.index({ "externalOrder.externalOrderId": 1 });
 orderSchema.index({ orderId: 1 });
 
+orderSchema.index({ "gwFulfillment.state": 1, "gwFulfillment.nextAttemptAt": 1 }, {
+  name: "gw_ultimate_queue", partialFilterExpression: { "gwFulfillment.state": { $exists: true } }
+});
+orderSchema.set("toJSON", { transform(_doc, ret) { delete ret.gwFulfillment; return ret; } });
 export default mongoose.model("Order", orderSchema);

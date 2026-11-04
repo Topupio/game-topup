@@ -6,8 +6,7 @@ import { exchangeRateApiServer } from "@/services/exchangeRate/exchangeRateApi.s
 import { reviewsApiServer } from "@/services/reviews/reviewsApi.server";
 import type { GameReviewsResponse } from "@/services/reviews/types";
 
-/** Schema currency is fixed to INR regardless of the stored pricing currency. */
-const SCHEMA_CURRENCY = "INR";
+import { getDisplayCurrency } from "@/lib/currency/server";
 
 type JsonLdValue =
     | string
@@ -68,7 +67,8 @@ async function getSchemaRates(): Promise<Record<string, number>> {
 function getComparablePrices(
     game: Game,
     activeVariants: Variant[],
-    rates: Record<string, number>
+    rates: Record<string, number>,
+  displayCurrency: string,
 ) {
     const preferredRegion = game.regions?.[0];
     const primaryPricing = activeVariants
@@ -88,10 +88,10 @@ function getComparablePrices(
     if (prices.length === 0) return null;
 
     const toSchemaCurrency = (amount: number) =>
-        convertMoney(amount, primaryPricing.currency, SCHEMA_CURRENCY, rates);
+        convertMoney(amount, primaryPricing.currency, displayCurrency, rates);
 
     return {
-        currency: SCHEMA_CURRENCY,
+        currency: displayCurrency,
         lowPrice: toSchemaCurrency(Math.min(...prices)),
         highPrice: toSchemaCurrency(Math.max(...prices)),
         offerCount: prices.length,
@@ -102,12 +102,13 @@ function buildProductSchema(
     game: Game,
     pageUrl: string,
     rates: Record<string, number>,
-    reviewData?: GameReviewsResponse["data"]
+    reviewData: GameReviewsResponse["data"] | undefined,
+  displayCurrency: string
 ): JsonLdValue {
     const activeVariants = (game.variants || []).filter(
         (variant) => variant.status === "active"
     );
-    const comparablePrices = getComparablePrices(game, activeVariants, rates);
+    const comparablePrices = getComparablePrices(game, activeVariants, rates, displayCurrency);
     const isAvailable = game.status === "active" && activeVariants.length > 0;
     const imageUrl = toAbsoluteUrl(game.imageUrl);
     const summary = reviewData?.summary;
@@ -226,12 +227,13 @@ function buildFaqSchema(game: Game, pageUrl: string): JsonLdValue | null {
 
 export async function getGameJsonLd(game: Game, pathname: string): Promise<JsonLdValue> {
     const pageUrl = getAbsoluteUrl(pathname);
-    const [rates, reviewResponse] = await Promise.all([
+    const [rates, reviewResponse, displayCurrency] = await Promise.all([
         getSchemaRates(),
         reviewsApiServer.getGameReviews(game._id).catch(() => null),
+    getDisplayCurrency(),
     ]);
     const reviewData = reviewResponse?.success ? reviewResponse.data : undefined;
-    const graph = [buildProductSchema(game, pageUrl, rates, reviewData)];
+    const graph = [buildProductSchema(game, pageUrl, rates, reviewData, displayCurrency)];
     const faqSchema = buildFaqSchema(game, pageUrl);
 
     if (faqSchema) {

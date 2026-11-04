@@ -329,3 +329,23 @@
 .rich-description table th p {
     @apply !mb-0;
 }
+
+/* Storefront theme: isolated from administration screens. */
+.topupio-store { background:var(--color-background);color:var(--color-foreground); }
+.topupio-store[data-theme="dark"] {color-scheme:dark;--color-background:#0b1120;--color-foreground:#e7edf7;--color-card:#141e30;--color-card-foreground:#edf2fa;--color-muted:#1b2840;--color-muted-foreground:#a6b5cc;--color-border:#2c3b55;--color-input:#1b2840;--color-secondary-foreground:#a5b4fc;--shadow-soft:0 4px 18px rgb(0 0 0 / .22);}
+.theme-toggle {display:inline-flex;align-items:center;flex-shrink:0;gap:2px;padding:3px;border:1px solid #64748b;border-radius:999px;background:#1e293b;}
+.theme-toggle button {display:grid;place-items:center;width:28px;height:28px;border-radius:50%;color:#aab8ce;cursor:pointer;}
+.theme-toggle button[aria-pressed="true"] {background:#eef2ff;color:#4338ca;box-shadow:0 1px 4px #0003;}
+.theme-toggle button:first-child[aria-pressed="true"] {color:#a16207;}
+.theme-toggle button:focus-visible {outline:2px solid #a5b4fc;outline-offset:3px;}
+.topupio-store[data-theme="dark"] :is(.bg-white,.bg-gray-50,.bg-slate-50) {background-color:#141e30;}
+.topupio-store[data-theme="dark"] :is(.bg-gray-100,.bg-slate-100,.bg-gray-200,.bg-slate-200) {background-color:#1b2840;}
+.topupio-store[data-theme="dark"] :is(.text-gray-900,.text-gray-800,.text-slate-900,.text-slate-800,.text-black) {color:#edf2fa;}
+.topupio-store[data-theme="dark"] :is(.text-gray-700,.text-gray-600,.text-gray-500,.text-slate-700,.text-slate-600,.text-slate-500) {color:#aebcd1;}
+.topupio-store[data-theme="dark"] :is(.border-gray-200,.border-gray-300,.border-slate-200,.border-slate-300) {border-color:#2c3b55;}
+.topupio-store[data-theme="dark"] :is(input,textarea,select) {background-color:#172238;color:#edf2fa;border-color:#34445f;}
+.topupio-store[data-theme="dark"] :is(input,textarea)::placeholder {color:#94a3b8;}
+.topupio-store[data-theme="dark"] .prose {color:#c7d3e5;--tw-prose-headings:#edf2fa;--tw-prose-body:#c7d3e5;--tw-prose-bold:#edf2fa;--tw-prose-links:#a5b4fc;--tw-prose-borders:#34445f;}
+.topupio-store[data-theme="dark"] :is(th,td) {border-color:#34445f;}
+@media (max-width:400px){.theme-toggle button{width:24px;height:26px}.theme-toggle{padding:2px;gap:0}}
+/* Keep theme control within the mobile navigation budget. */@media (max-width:767px){.theme-toggle{padding:2px;gap:0;flex:0 0 30px;width:30px;height:30px}.theme-toggle button{width:24px;height:24px}.theme-toggle button[aria-pressed="true"]{display:none}}

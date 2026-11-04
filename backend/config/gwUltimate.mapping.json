@@ -1,0 +1,12 @@
+{
+  "6a805f2fc511294462f5dd19": { "pid": "GWM5", "name": "5 Diamonds", "slug": "mobilelegend" },
+  "6a805f2fc511294462f5dd1a": { "pid": "GWM11", "name": "11 Diamonds", "slug": "mobilelegend" },
+  "6a80bb59c511294462f6ab5f": { "manual": true, "name": "10 Diamonds", "reason": "No exact API pack; skipped as requested" },
+  "6a80bb59c511294462f6ab60": { "pid": "GWBGO100", "name": "100 Diamonds", "slug": "livetopbigo" },
+  "6a80bb59c511294462f6ab61": { "manual": true, "name": "160 Diamonds", "reason": "No exact API pack; skipped as requested" },
+  "6a80bb59c511294462f6ab62": { "pid": "GWBGO300", "name": "300 Diamonds", "slug": "livetopbigo" },
+  "6a80bb59c511294462f6ab63": { "manual": true, "name": "400 Diamonds", "reason": "No exact API pack; skipped as requested" },
+  "6a80bb59c511294462f6ab64": { "pid": "GWBGO1000", "name": "1000 Diamonds", "slug": "livetopbigo" },
+  "6a80bc3bc511294462f6afee": { "pid": "GWBGO2000", "name": "2000 Diamonds", "slug": "livetopbigo" },
+  "6a80bc3bc511294462f6afef": { "pid": "GWBGO5000", "name": "5000 Diamonds", "slug": "livetopbigo" }
+}

@@ -1,3 +1,4 @@
+import { prepareGwApproval } from "../services/gwUltimate.service.js";
 import Order from "../models/order.model.js";
 import Product from "../models/product.model.js";
 import Game from "../models/game.model.js";
@@ -690,12 +691,13 @@ export const adminUpdateOrder = async (req, res) => {
             return res.status(400).json({ success: false, message: "Invalid delivery kind" });
         }
 
-        const order = await Order.findById(req.params.id);
+        const order = await Order.findById(req.params.id).select("+gwFulfillment");
         if (!order) {
             return res.status(404).json({ success: false, message: "Order not found" });
         }
 
         const oldStatus = order.orderStatus;
+    const oldPaymentStatus = order.paymentStatus;
         let isModified = false;
 
         if (orderStatus && orderStatus !== order.orderStatus) {
@@ -782,10 +784,17 @@ export const adminUpdateOrder = async (req, res) => {
             return res.status(400).json({ success: false, message: "No changes detected" });
         }
 
-        if (orderStatus && orderStatus !== oldStatus) {
+        let gwQueued;
+    try {
+      gwQueued = prepareGwApproval(order, { orderStatus: oldStatus, paymentStatus: oldPaymentStatus });
+    } catch (error) {
+      return res.status(400).json({ success: false, message: error.message });
+    }
+
+    if (!gwQueued && order.orderStatus !== oldStatus) {
             order.tracking.push({
-                status: orderStatus,
-                message: `Order status updated to ${orderStatus}`
+                status: order.orderStatus,
+                message: `Order status updated to ${order.orderStatus}`
             });
         }
 
@@ -815,7 +824,10 @@ export const adminUpdateOrder = async (req, res) => {
         res.status(200).json({ success: true, data: order, message: "Order updated successfully" });
 
     } catch (error) {
-        console.error("Admin Update Order Error:", error);
+        if (error.name === "VersionError" || error.name === "DocumentNotFoundError") {
+      return res.status(409).json({ success: false, message: "Order changed during this update. Refresh and try again." });
+    }
+    console.error("Admin Update Order Error:", error);
         res.status(500).json({ success: false, message: "Internal server error" });
     }
 };

@@ -36,6 +36,7 @@
     "embla-carousel-autoplay": "^9.0.0-rc01",
     "embla-carousel-react": "^9.0.0-rc01",
     "framer-motion": "^12.24.7",
+    "geoip-lite": "1.4.10",
     "isomorphic-dompurify": "^3.0.0-rc.2",
     "next": "^16.1.0-canary.19",
     "qrcode": "^1.5.4",
@@ -51,6 +52,7 @@
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/dompurify": "^3.0.5",
+    "@types/geoip-lite": "1.4.4",
     "@types/node": "^20",
     "@types/qrcode": "^1.5.5",
     "@types/react": "^19",
