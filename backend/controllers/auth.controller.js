@@ -1,6 +1,6 @@
 import User from "../models/user.model.js";
 import { asyncHandler } from "../middlewares/asyncHandler.js";
-import { sendAuthPair, rotateRefreshToken, revokeRefreshToken, setAuthCookies, generateAccessToken } from "../utils/token.js";
+import { sendAuthPair, rotateRefreshToken, revokeRefreshToken, revokeAllRefreshTokens, setAuthCookies, generateAccessToken } from "../utils/token.js";
 import { sendVerificationEmail } from "../utils/senderVerificationEmail.js";
 import { sendPasswordResetEmail } from "../utils/sendPasswordResetEmail.js";
 import { SUPPORTED_CURRENCY_CODES } from "../constants/currencies.js";
@@ -102,6 +102,11 @@ export const verifyEmail = asyncHandler(async (req, res) => {
 
 export const resendVerification = asyncHandler(async (req, res) => {
     const { email } = req.body;
+
+    if (typeof email !== "string" || !email.trim()) {
+        res.status(400);
+        throw new Error("Valid email is required");
+    }
 
     const user = await User.findOne({ email });
 
@@ -265,39 +270,53 @@ export const refreshToken = asyncHandler(async (req, res) => {
 
 export const forgotPassword = asyncHandler(async (req, res) => {
     const { email } = req.body;
-    const user = await User.findOne({ email });
 
-    if (!user) {
-        res.status(404);
-        throw new Error("User not found");
+    // Only accept a plain string so query operators like {"$gt": ""} can't pick an arbitrary user
+    if (typeof email !== "string" || !email.trim()) {
+        res.status(400);
+        throw new Error("Valid email is required");
     }
 
-    // Get reset token
-    const resetToken = user.getResetPasswordToken();
+    // Same response whether or not the account exists, so this endpoint can't be used to find accounts
+    const genericResponse = {
+        success: true,
+        message: "If an account exists for this email, a password reset link has been sent.",
+    };
 
+    const user = await User.findOne({ email: email.trim().toLowerCase() });
+    if (!user) {
+        return res.status(200).json(genericResponse);
+    }
+
+    // Cooldown: skip if a reset link was issued in the last 2 minutes (token lives 15 minutes)
+    const RESET_TTL = 15 * 60 * 1000;
+    const COOLDOWN = 2 * 60 * 1000;
+    if (user.resetPasswordExpires && user.resetPasswordExpires.getTime() - RESET_TTL > Date.now() - COOLDOWN) {
+        return res.status(200).json(genericResponse);
+    }
+
+    const resetToken = user.getResetPasswordToken();
     await user.save({ validateBeforeSave: false });
 
     try {
         await sendPasswordResetEmail(user.email, resetToken);
-
-        res.status(200).json({
-            success: true,
-            message: "Email sent",
-        });
     } catch (error) {
-        user.resetPasswordToken = undefined;
-        user.resetPasswordExpires = undefined;
-
-        await user.save({ validateBeforeSave: false });
-
-        res.status(500);
-        throw new Error("Email could not be sent");
+        console.error("Password reset email failed:", error.message);
+        // Keep the token (and so the cooldown) in place: clearing it would let a failing
+        // address be retried without limit
     }
+
+    res.status(200).json(genericResponse);
 });
 
 export const resetPassword = asyncHandler(async (req, res) => {
     const { token } = req.params;
     const { password } = req.body;
+
+    if (typeof password !== "string" || password.length < 6) {
+        res.status(400);
+        throw new Error("Password must be at least 6 characters");
+    }
 
     const resetPasswordToken = crypto
         .createHash("sha256")
@@ -320,6 +339,9 @@ export const resetPassword = asyncHandler(async (req, res) => {
     user.resetPasswordExpires = undefined;
 
     await user.save();
+
+    // Log out every existing session: whoever had them no longer knows the password
+    await revokeAllRefreshTokens(user._id, req.ip);
 
     res.status(200).json({
         success: true,
@@ -356,10 +378,9 @@ export const changePassword = asyncHandler(async (req, res) => {
     user.password = newPassword;
     await user.save();
 
-    res.status(200).json({
-        success: true,
-        message: "Password changed successfully",
-    });
+    // Log out every other session, then give this one a fresh login
+    await revokeAllRefreshTokens(user._id, req.ip);
+    return sendAuthPair(user, 200, res, req.ip);
 });
 
 export const googleLogin = asyncHandler(async (req, res) => {

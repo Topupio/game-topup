@@ -20,6 +20,7 @@ connectDB().then(() => {
     startCronJobs();
 });
 
-app.listen(PORT, () => {
+// Bind to localhost only: production traffic must come through nginx, never straight to this port
+app.listen(PORT, process.env.HOST || '127.0.0.1', () => {
     console.log(`Server is listening on port http://localhost:${PORT}`);
 });
