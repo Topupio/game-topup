@@ -1,5 +1,6 @@
 import PaymentSettingsManager from "@/components/admin/payments/PaymentSettingsManager";
 import ExchangeRateManager from "@/components/admin/settings/ExchangeRateManager";
+import ChangePasswordForm from "@/components/user/account/ChangePasswordForm";
 
 export const metadata = {
     title: "Settings | Admin Dashboard",
@@ -11,6 +12,7 @@ export default function SettingsPage() {
             <h1 className="text-2xl font-bold text-white">Settings</h1>
             <ExchangeRateManager />
             <PaymentSettingsManager />
+            <ChangePasswordForm />
         </div>
     );
 }
